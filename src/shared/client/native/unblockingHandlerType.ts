@@ -1,0 +1,3 @@
+export const enum UNBLOCKING_HANDLER_TYPE {
+  RECIPE_CREATE = "RECIPE_CREATE",
+}

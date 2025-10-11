@@ -1,0 +1,271 @@
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { IoChevronForwardOutline } from "react-icons/io5";
+import {
+  CategoryChip,
+  ChipType,
+} from "@/src/entities/category/ui/categoryChip";
+import {
+  UserRecipeCardEmpty,
+  UserRecipeCardSkeleton,
+} from "@/src/entities/user_recipe/ui/userRecipeCard";
+import {
+  useFetchCategories,
+  Category,
+} from "@/src/entities/category/model/useCategory";
+import { useState, useEffect } from "react";
+import { motion } from "motion/react";
+import {
+  ALL_RECIPES,
+  UserRecipe,
+  useFetchUserRecipes,
+} from "@/src/entities/user_recipe/model/useUserRecipe";
+import Link from "next/link";
+import { Loader2Icon } from "lucide-react";
+import { UserRecipeCardReady } from "@/src/entities/user_recipe/ui/userRecipeCard";
+
+export const MyRecipesReady = () => {
+  const { data: categories, isLoading: isCategoriesLoading } =
+    useFetchCategories();
+  const [selectedCategoryId, setSelectedCategoryId] = useState<
+    string | typeof ALL_RECIPES
+  >(ALL_RECIPES);
+  const {
+    recipes: userRecipes,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useFetchUserRecipes(selectedCategoryId);
+
+  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
+
+  const userRecipesSectionProps = ((): UserRecipesSectionChildProps => {
+    if (userRecipes.length === 0) {
+      return { type: UserRecipesSectionType.EMPTY };
+    }
+    return { type: UserRecipesSectionType.READY, userRecipes: userRecipes };
+  })();
+  return (
+    <MyRecipesTemplate
+      title={<MyRecipeTitleReady />}
+      categoryList={
+        <CategoryListFilter
+          categories={categories}
+          selectedCategoryId={selectedCategoryId}
+          totalElementCount={totalElements}
+          setSelectedCategoryId={setSelectedCategoryId}
+        />
+      }
+      userRecipesSection={<UserRecipesSection userRecipes={userRecipes} />}
+    />
+  );
+};
+
+export const MyRecipesSkeleton = () => {
+  return (
+    <MyRecipesTemplate
+      title={<MyRecipeTitleSkeleton />}
+      categoryList={<CategoryListSkeleton />}
+      userRecipesSection={<UserRecipesSectionSkeleton />}
+    />
+  );
+};
+
+const MyRecipesTemplate = ({
+  title,
+  categoryList,
+  userRecipesSection,
+}: {
+  title: React.ReactNode;
+  categoryList: React.ReactNode;
+  userRecipesSection: React.ReactNode;
+}) => {
+  return (
+    <div className="pt-8">
+      {title}
+      <div className="h-2" />
+      <ScrollArea className="whitespace-nowrap w-[100vw]">
+        <div className="flex flex-row gap-2 pl-4 min-w-[100.5vw]">
+          {categoryList}
+        </div>
+        <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
+      </ScrollArea>
+      <div className="h-3" />
+      <ScrollArea className="whitespace-nowrap w-[100vw]">
+        <div className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
+          {userRecipesSection}
+        </div>
+        <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
+      </ScrollArea>
+    </div>
+  );
+};
+
+const MyRecipeTitleSkeleton = () => {
+  return (
+    <>
+      <div className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold">
+        나의 레시피
+        <Loader2Icon className="animate-spin" />
+      </div>
+      <div className="h-2" />
+    </>
+  );
+};
+
+const MyRecipeTitleReady = () => {
+  return (
+    <Link href="/user/recipes" className="w-full h-full">
+      <motion.div
+        className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold"
+        whileTap={{ opacity: 0.2 }}
+        transition={{ duration: 0.2 }}
+      >
+        나의 레시피
+        <IoChevronForwardOutline className="size-6" />
+      </motion.div>
+    </Link>
+  );
+};
+
+const CategoryListSkeleton = () => {
+  return (
+      <CategoryChip fontSize="text-sm" props={{ type: ChipType.SKELETON }} />
+  );
+};
+
+const CategoryListFilter = ({
+  categories,
+  selectedCategoryId,
+  totalElementCount,
+  setSelectedCategoryId,
+}: {
+  categories: Category[];
+  selectedCategoryId: string | typeof ALL_RECIPES;
+  totalElementCount: number;
+  setSelectedCategoryId: (categoryId: string | typeof ALL_RECIPES) => void;
+}) => {
+  return (
+    <>
+      <CategoryChip
+        key={ALL_RECIPES}
+        props={{
+          type: ChipType.FILTER,
+          name: "전체",
+          accessary: totalElementCount ?? 0,
+          onClick: () => {
+            setSelectedCategoryId?.(ALL_RECIPES);
+          },
+          isSelected: selectedCategoryId === ALL_RECIPES,
+        }}
+      />
+      {categories?.map((category) => (
+        <CategoryChip
+          key={category.id}
+          props={{
+            type: ChipType.FILTER,
+            name: category.name,
+            accessary: category.count,
+            onClick: () => {
+              setSelectedCategoryId?.(category.id);
+            },
+            isSelected: selectedCategoryId === category.id,
+          }}
+        />
+      ))}
+    </>
+  );
+};
+
+const CategoryList = ({
+  status,
+  categories,
+  selectedCategoryId,
+  totalElementCount,
+  setSelectedCategoryId,
+}: {
+  status: ChipType;
+  categories?: Category[] | undefined;
+  selectedCategoryId?: string | typeof ALL_RECIPES;
+  totalElementCount?: number;
+  setSelectedCategoryId?: (categoryId: string | typeof ALL_RECIPES) => void;
+}) => {
+  switch (status) {
+    case ChipType.SKELETON || !categories:
+      return (
+        <div className="flex flex-row gap-2 pl-4 min-w-[100.5vw]">
+          <CategoryChip
+            fontSize="text-sm"
+            props={{ type: ChipType.SKELETON }}
+          />
+        </div>
+      );
+    case ChipType.FILTER:
+      return (
+        <>
+          <CategoryChip
+            key={ALL_RECIPES}
+            props={{
+              type: ChipType.FILTER,
+              name: "전체",
+              accessary: totalElementCount ?? 0,
+              onClick: () => {
+                setSelectedCategoryId?.(ALL_RECIPES);
+              },
+              isSelected: selectedCategoryId === ALL_RECIPES,
+            }}
+          />
+          {categories?.map((category) => (
+            <CategoryChip
+              key={category.id}
+              props={{
+                type: ChipType.FILTER,
+                name: category.name,
+                accessary: category.count,
+                onClick: () => {
+                  setSelectedCategoryId?.(category.id);
+                },
+                isSelected: selectedCategoryId === category.id,
+              }}
+            />
+          ))}
+        </>
+      );
+  }
+};
+
+const enum UserRecipesSectionType {
+  SKELETON = "SKELETON",
+  EMPTY = "EMPTY",
+  READY = "READY",
+}
+
+type UserRecipesSectionChildProps =
+  | {
+      type: UserRecipesSectionType.SKELETON;
+    }
+  | {
+      type: UserRecipesSectionType.EMPTY;
+    }
+  | {
+      type: UserRecipesSectionType.READY;
+      userRecipes: UserRecipe[];
+    };
+
+const UserRecipesSection = ({ userRecipes }: { userRecipes: UserRecipe[] }) => {
+  return userRecipes.map((recipe) => (
+    <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
+  ));
+};
+
+const UserRecipesSectionSkeleton = () => {
+  return (
+    <>
+      {Array.from({ length: 3 }, (_, index) => (
+        <UserRecipeCardSkeleton key={index} />
+      ))}
+    </>
+  );
+};
+
+const UserRecipesSectionEmpty = () => {
+  return <UserRecipeCardEmpty />;
+};

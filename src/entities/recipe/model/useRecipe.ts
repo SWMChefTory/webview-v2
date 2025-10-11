@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import {
   fetchRecipe,
   VideoInfoResponse,
@@ -92,7 +92,7 @@ class RecipeStep {
   }
 }
 
-class RecipeTag {
+export class RecipeTag {
   name!: string;
 
   private constructor(data: unknown) {
@@ -143,7 +143,7 @@ class ViewStatus {
   }
 }
 
-class RecipeDetailMeta {
+export class RecipeDetailMeta {
   id!: string;
   description!: string;
   servings!: number;
@@ -202,7 +202,7 @@ class Recipe {
 }
 
 export const useFetchRecipe = (id: string) => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useSuspenseQuery({
     queryKey: ["recipe", id],
     queryFn: () => fetchRecipe(id),
     select: (res)=>{
@@ -211,88 +211,3 @@ export const useFetchRecipe = (id: string) => {
   });
   return { data, isLoading, error };
 };
-
-
-import { useMutation } from "@tanstack/react-query";
-import { createRecipe } from "../api/api";
-import { useCallback } from "react";
-
-const isValidYouTubeUrl = (url: string): boolean => {
-  const youtubePatterns = [
-    /^https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+/,
-    /^https?:\/\/youtu\.be\/[\w-]+/,
-    /^https?:\/\/(m\.)?youtube\.com\/watch\?v=[\w-]+/,
-    /^https?:\/\/youtube\.com\/watch\?v=[\w-]+/,
-    /^https?:\/\/(www\.)?youtube\.com\/shorts\/[\w-]+/,
-    /^https?:\/\/(m\.)?youtube\.com\/shorts\/[\w-]+/,
-  ];
-
-  return youtubePatterns.some((pattern) => pattern.test(url.trim()));
-};
-
-const extractYouTubeVideoId = (url: string): string | null => {
-  const patterns = [
-    /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
-    /youtube\.com\/shorts\/([^"&?\/\s]{11})/,
-  ];
-
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) {
-      return match[1];
-    }
-  }
-
-  return null;
-};
-
-const validateUrl = (url: string) => {
-  const trimmedUrl = url.trim();
-
-  if (!trimmedUrl) {
-    return new Error("영상 링크를 입력해주세요");
-  }
-
-  if (!isValidYouTubeUrl(trimmedUrl)) {
-    return new Error("올바른 유튜브 링크를 입력해주세요");
-  }
-};
-
-const convertToStandardYouTubeUrl = (url: string): string => {
-  const trimmedUrl = url.trim();
-  const videoId = extractYouTubeVideoId(trimmedUrl);
-
-  if (!videoId) {
-    return url;
-  }
-  return `https://www.youtube.com/watch?v=${videoId}`;
-};
-
-export function useCreateRecipe() {
-  const {
-    mutate: createMutation,
-    data,
-    isPending: isLoading,
-    error,
-  } = useMutation({
-    mutationFn: (youtubeUrl: string) => createRecipe(youtubeUrl),
-    throwOnError: false,
-  });
-
-  const create =  useCallback(
-    (youtubeUrl: string) => {
-      validateUrl(youtubeUrl);
-      const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
-      createMutation(standardUrl);
-    },
-    [createMutation]
-  );
-
-  return {
-    recipeId: data ?? null,
-    isLoading,
-    error,
-    create,
-    validateUrl,
-  };
-}

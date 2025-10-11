@@ -71,8 +71,8 @@ function ChipSkeleton({
   className?: string;
 }) {
   return (
-    <Skeleton className={`rounded-full px-[16] py-[8] ${className}`}>
-      <TextSkeleton fontSize={fontSize} />
+    <Skeleton className={`rounded-full w-32 px-[16] py-[8] ${className}`}>
+      <TextSkeleton fontSize={fontSize}  />
     </Skeleton>
   );
 }

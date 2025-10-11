@@ -3,9 +3,13 @@ import { useRouter } from "next/router";
 
 import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { CategoryListSection } from "@/src/pages/user-recipe/ui/categoryListSection";
-import { RecipeListSection } from "@/src/pages/user-recipe/ui/recipeCardListSection";
+import {
+  RecipeListSectionReady,
+  RecipeListSectionSkeleton,
+} from "@/src/pages/user-recipe/ui/recipeCardListSection";
 import { useState } from "react";
 import PageMovementTemplate from "@/src/shared/ui/page-movement/pageMovement";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 export function UserRecipe() {
   const router = useRouter();
@@ -34,7 +38,9 @@ export function UserRecipe() {
           selectedCategoryId={selectedCategoryId}
           setSelectedCategoryId={setSelectedCategoryId}
         />
-        <RecipeListSection selectedCategoryId={selectedCategoryId} />
+        <SSRSuspense fallback={<RecipeListSectionSkeleton />}>
+          <RecipeListSectionReady selectedCategoryId={selectedCategoryId} />
+        </SSRSuspense>
       </div>
     </PageMovementTemplate>
   );

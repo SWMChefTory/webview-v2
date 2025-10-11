@@ -7,12 +7,12 @@ import {
 import {
   UserRecipeCardEmpty,
   UserRecipeCardSkeleton,
-} from "@/src/entities/user_recipe/ui/userRecipeCard";
+} from "@/src/pages/home/ui/userRecipeCard";
 import {
   useFetchCategories,
   Category,
 } from "@/src/entities/category/model/useCategory";
-import { useState, useEffect } from "react";
+import { useState} from "react";
 import { motion } from "motion/react";
 import {
   ALL_RECIPES,
@@ -21,7 +21,7 @@ import {
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import Link from "next/link";
 import { Loader2Icon } from "lucide-react";
-import { UserRecipeCardReady } from "@/src/entities/user_recipe/ui/userRecipeCard";
+import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
 
 export const MyRecipesReady = () => {
   const { data: categories, isLoading: isCategoriesLoading } =
@@ -175,62 +175,6 @@ const CategoryListFilter = ({
   );
 };
 
-const CategoryList = ({
-  status,
-  categories,
-  selectedCategoryId,
-  totalElementCount,
-  setSelectedCategoryId,
-}: {
-  status: ChipType;
-  categories?: Category[] | undefined;
-  selectedCategoryId?: string | typeof ALL_RECIPES;
-  totalElementCount?: number;
-  setSelectedCategoryId?: (categoryId: string | typeof ALL_RECIPES) => void;
-}) => {
-  switch (status) {
-    case ChipType.SKELETON || !categories:
-      return (
-        <div className="flex flex-row gap-2 pl-4 min-w-[100.5vw]">
-          <CategoryChip
-            fontSize="text-sm"
-            props={{ type: ChipType.SKELETON }}
-          />
-        </div>
-      );
-    case ChipType.FILTER:
-      return (
-        <>
-          <CategoryChip
-            key={ALL_RECIPES}
-            props={{
-              type: ChipType.FILTER,
-              name: "전체",
-              accessary: totalElementCount ?? 0,
-              onClick: () => {
-                setSelectedCategoryId?.(ALL_RECIPES);
-              },
-              isSelected: selectedCategoryId === ALL_RECIPES,
-            }}
-          />
-          {categories?.map((category) => (
-            <CategoryChip
-              key={category.id}
-              props={{
-                type: ChipType.FILTER,
-                name: category.name,
-                accessary: category.count,
-                onClick: () => {
-                  setSelectedCategoryId?.(category.id);
-                },
-                isSelected: selectedCategoryId === category.id,
-              }}
-            />
-          ))}
-        </>
-      );
-  }
-};
 
 const enum UserRecipesSectionType {
   SKELETON = "SKELETON",
@@ -266,6 +210,3 @@ const UserRecipesSectionSkeleton = () => {
   );
 };
 
-const UserRecipesSectionEmpty = () => {
-  return <UserRecipeCardEmpty />;
-};

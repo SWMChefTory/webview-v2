@@ -5,10 +5,11 @@ import {
   VideoInfoResponse,
   CategoryInfoResponse,
   fetchRecipeProgress,
-  RecipeCreateStatusResponse,
+} from "@/src/entities/user_recipe/api/api";
+import {
   RecipeStatus,
   RecipeProgressDetail,
-} from "../api/api";
+} from "@/src/entities/user_recipe/type/type";
 import {
   useSuspenseInfiniteQuery,
   // useInfiniteQuery,
@@ -17,7 +18,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import {useIsMounted} from "usehooks-ts";
+import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/api/api";
 
 class VideoInfo {
   id!: string;
@@ -121,7 +122,7 @@ export function useFetchUserRecipes(categoryId: string | typeof ALL_RECIPES): {
     error,
   } = useSuspenseInfiniteQuery({
     queryKey: [QUERY_KEY, categoryId || QUERY_KEY_UNCATEGORIZED],
-    queryFn: ({ pageParam = 0 }) =>  {
+    queryFn: ({ pageParam = 0 }) => {
       if (categoryId !== ALL_RECIPES) {
         return fetchCategorizedRecipesSummary({
           categoryId,
@@ -134,7 +135,7 @@ export function useFetchUserRecipes(categoryId: string | typeof ALL_RECIPES): {
       return lastPage.hasNext ? lastPage.currentPage + 1 : undefined;
     },
     select: (data) => {
-      if(!data){
+      if (!data) {
         throw new Error("Data is not valid");
       }
       return {
@@ -182,7 +183,7 @@ export function useFetchUserRecipes(categoryId: string | typeof ALL_RECIPES): {
 
 import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "../api/api";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 const isValidYouTubeUrl = (url: string): boolean => {
   const youtubePatterns = [
@@ -252,7 +253,7 @@ export function useCreateRecipe() {
     },
   });
 
-  const create =  useCallback(
+  const create = useCallback(
     (youtubeUrl: string) => {
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
@@ -272,12 +273,83 @@ export function useCreateRecipe() {
 
 export const QUERY_KEY_RECIPE_PROGRESS = "recipeProgress";
 
+class RecipeProgressStatus {
+  recipeStatus!: RecipeStatus;
+  recipeProgressDetails!: RecipeProgressDetail[];
+
+  private constructor(data: unknown) {
+    Object.assign(this, data);
+    Object.freeze(this);
+  }
+
+  public static create(data: RecipeCreateStatusResponse) {
+    return new RecipeProgressStatus({
+      recipeStatus: data.recipeStatus,
+      recipeProgressDetails: data.recipeProgressStatuses.map(
+        (status) => status.progressDetail
+      ),
+    });
+  }
+}
 
 export const useFetchRecipeProgress = (recipeId: string) => {
-  const { data } = useSuspenseQuery({
+  const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
-    staleTime: 5*60*1000
+    staleTime: 5 * 60 * 1000,
+    select: (data) => RecipeProgressStatus.create(data),
   });
-  return data;
-};  
+
+  useEffect(() => {
+    const interval = (() => {
+      if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
+        return setInterval(() => {
+          refetch();
+        }, 1000);
+      }
+    })();
+    if (progress.recipeStatus !== RecipeStatus.IN_PROGRESS) {
+      clearInterval(interval);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [progress.recipeStatus, refetch]);
+
+  return { progress };
+};
+
+export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
+  const {
+    data: progress,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
+    queryFn: () => fetchRecipeProgress(recipeId),
+    staleTime: 5 * 60 * 1000,
+    select: (data) => RecipeProgressStatus.create(data),
+  });
+
+  useEffect(() => {
+    if (!progress) {
+      return;
+    }
+    const interval = (() => {
+      if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
+        return setInterval(() => {
+          refetch();
+        }, 1000);
+      }
+    })();
+    if (progress.recipeStatus !== RecipeStatus.IN_PROGRESS) {
+      clearInterval(interval);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [progress?.recipeStatus, refetch]);
+
+  return { progress, isLoading, isError };
+};

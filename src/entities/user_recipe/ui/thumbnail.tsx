@@ -6,7 +6,7 @@ const ThumbnailBlocking = () => {
   return (
     <ThumbnailTemplate>
       <div className="flex items-center justify-center w-full h-full bg-gray-500 opacity-50">
-        <Loader2 className="size-[32]" />
+        <Loader2 className="size-[32] animate-spin text-stone-700" />
       </div>
     </ThumbnailTemplate>
   );

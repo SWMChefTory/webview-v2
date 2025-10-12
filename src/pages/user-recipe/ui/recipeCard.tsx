@@ -4,13 +4,15 @@ import { RecipeDetailMeta } from "@/src/entities/recipe/model/useRecipe";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { IconType } from "react-icons";
-import { Skeleton } from "@/components/ui/skeleton";
 import { RecipeTag } from "@/src/entities/recipe/model/useRecipe";
 import {
   ThumbnailSkeleton,
   ThumbnailReady,
 } from "@/src/entities/user_recipe/ui/thumbnail";
-import { UserRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import {
+  useFetchRecipeProgressNotSuspense,
+  UserRecipe,
+} from "@/src/entities/user_recipe/model/useUserRecipe";
 import { TitleReady, TitleSkeleton } from "@/src/entities/user_recipe/ui/title";
 import {
   CategoryChip,
@@ -21,9 +23,56 @@ import {
   ElapsedViewTimeReady,
   ElapsedViewTimeSkeleton,
 } from "@/src/entities/user_recipe/ui/detail";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
+import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
+
 const NO_CATEGORY_NAME = "카테고리 추가";
 
 const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
+  const { progress, isLoading } = useFetchRecipeProgressNotSuspense(
+    userRecipe.recipeId
+  );
+  return (
+    <div className="relative w-full px-[10] flex flex-row items-center justify-center z-10">
+      {progress && (
+        progress.recipeStatus === RecipeStatus.IN_PROGRESS && (
+          <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
+            <ProgressDetailsCheckList
+              recipeProgressDetails={progress?.recipeProgressDetails ?? []}
+            />
+          </div>
+        )
+      )}
+      <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} />
+      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+        <TitleReady title={userRecipe.title} />
+        <CategoryChip
+          props={{
+            type: ChipType.EDITION,
+            name: userRecipe.categoryInfo?.name ?? NO_CATEGORY_NAME,
+            accessary: IoMdAdd,
+            onClick: () => {},
+          }}
+        />
+        {isLoading || progress?.recipeStatus === RecipeStatus.IN_PROGRESS ? (
+          <DetailSectionSkeleton />
+        ) : (
+          <SSRSuspense fallback={<DetailSectionSkeleton />}>
+            <DetailSectionReady recipeId={userRecipe.recipeId} />
+          </SSRSuspense>
+        )}
+        <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
+      </div>
+    </div>
+  );
+};
+
+const RecipeDetailsCardDetailsSkeleton = ({
+  userRecipe,
+}: {
+  userRecipe: UserRecipe;
+}) => {
   return (
     <div className="w-full px-[10] flex flex-row items-center">
       <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} />
@@ -37,7 +86,7 @@ const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
             onClick: () => {},
           }}
         />
-        <DetailSectionReady recipeId={userRecipe.recipeId} />
+        <DetailSectionSkeleton />
         <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
       </div>
     </div>
@@ -53,6 +102,37 @@ const RecipeDetailsCardSkeleton = () => {
         <CategoryChip props={{ type: ChipType.SKELETON }} />
         <DetailSectionSkeleton />
         <ElapsedViewTimeSkeleton />
+      </div>
+    </div>
+  );
+};
+
+const RecipeDetailsCardProgressReady = ({
+  userRecipe,
+}: {
+  userRecipe: UserRecipe;
+}) => {
+  //   const { progress } = useFetchRecipeProgress(userRecipe.recipeId);
+  return (
+    <div className="w-full px-[10] flex flex-row items-center">
+      {/* <SSRSuspense fallback={<RecipeProgressSkeleton />}>
+        <RecipeProgressReady userRecipe={userRecipe} />
+      </SSRSuspense> */}
+      <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} />
+      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+        <TitleReady title={userRecipe.title} />
+        <CategoryChip
+          props={{
+            type: ChipType.EDITION,
+            name: userRecipe.categoryInfo?.name ?? NO_CATEGORY_NAME,
+            accessary: IoMdAdd,
+            onClick: () => {},
+          }}
+        />
+        <SSRSuspense fallback={<DetailSectionSkeleton />}>
+          <DetailSectionReady recipeId={userRecipe.recipeId} />
+        </SSRSuspense>
+        <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
       </div>
     </div>
   );
@@ -200,7 +280,11 @@ const RecipeProperty = ({ props }: { props: RecipePropertyProps }) => {
   const content = (() => {
     switch (props.type) {
       case RecipePropertyType.SKELETON:
-        return <div className="w-20"><TextSkeleton fontSize="text-sm" /></div>;
+        return (
+          <div className="w-20">
+            <TextSkeleton fontSize="text-sm" />
+          </div>
+        );
       case RecipePropertyType.READY:
         const Icon = props.Icon;
         return (

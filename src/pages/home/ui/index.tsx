@@ -12,7 +12,6 @@ import { RecipeCreationInfoSchema } from "./entity/recipeCreationInfo";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner"
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-
 import  {MyRecipesReady, MyRecipesSkeleton} from "@/src/pages/home/ui/myRecipe";
 
 function HomePage() {
@@ -62,7 +61,6 @@ function HomePage() {
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
-      <VerticallyLongRecipes />
       <HorizontallyLongRecipes />
       <FloatingButton />  
     </div>

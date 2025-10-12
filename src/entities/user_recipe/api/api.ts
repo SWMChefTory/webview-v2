@@ -1,5 +1,6 @@
 import client from "@/src/shared/client/main/client";
 import { z } from "zod";
+import { RecipeStatus, RecipeProgressDetail, RecipeProgressStep } from "@/src/entities/user_recipe/type/type";
 
 const VideoInfoSchema = z.object({
   thumbnailUrl: z.string(),
@@ -109,26 +110,15 @@ export async function createRecipe(videoUrl: string): Promise<string> {
   return response.data;
 }
 
-export enum RecipeStatus {
-  IN_PROGRESS = "IN_PROGRESS",
-  SUCCESS = "SUCCESS",
-  FAILED = "FAILED",
-}
 
-export enum RecipeProgressDetail {
-  READY = "READY",
-  CAPTION = "CAPTION",
-  INGREDIENT = "INGREDIENT",
-  TAG = "TAG",
-  DETAIL_META = "DETAIL_META",
-  BRIEFING = "BRIEFING",
-  STEP = "STEP",
-  FINISHED = "FINISHED",
-}
+
 
 const RecipeProgressDetailSchema = z.object({
   recipeStatus: z.enum(RecipeStatus),
-  recipeProgressDetails: z.array(z.enum(RecipeProgressDetail)).optional(),
+  recipeProgressStatuses: z.array(z.object({
+    progressStep: z.enum(RecipeProgressStep),
+    progressDetail: z.enum(RecipeProgressDetail),
+  }))
 });
 
 export type RecipeCreateStatusResponse = z.infer<typeof RecipeProgressDetailSchema>;
@@ -139,5 +129,6 @@ export async function fetchRecipeProgress(
   const response = await client.get<RecipeCreateStatusResponse>(
     `/recipes/progress/${recipeId}`
   );
+  console.log("[FETCH RECIPE PROGRESS] : ", JSON.stringify(response.data));
   return RecipeProgressDetailSchema.parse(response.data);
 }

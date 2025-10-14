@@ -56,8 +56,6 @@ const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
     userRecipe.recipeId
   );
 
-  console.log("!!!",JSON.stringify(progress));
-
   if (
     progress.recipeStatus === RecipeStatus.SUCCESS ||
     progress.recipeStatus === RecipeStatus.FAILED

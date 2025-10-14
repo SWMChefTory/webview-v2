@@ -5,6 +5,7 @@ import {
   RecipeDetailsCardSkeleton,
 } from "./recipeCard";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
@@ -39,5 +40,29 @@ export const RecipeListSectionSkeleton = () => {
         ))}
       </div>
     </div>
+  );
+};
+
+
+
+const CategorySelectCombobox = ({ selectedCategoryId }: { selectedCategoryId: string }) => {
+  const { data: categories } = useFetchCategories();
+  return (
+    <DialogPrimitive.Root open={true}>
+        <DialogPrimitive.Portal>
+            <DialogPrimitive.Overlay className="fixed inset-0 bg-gray-900/5 z-20" />
+            <DialogPrimitive.Content className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30">
+                <div className="flex flex-col gap-2">
+                    {categories?.map((category) => (
+                        <div key={category.id} className="flex flex-row gap-2">
+                            {/* <CategoryChip
+                                props={{ type: ChipType.EDITION, name: category.name,  onClick: () => {} }}
+                            /> */}
+                        </div>
+                    ))}
+                </div>
+            </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 };

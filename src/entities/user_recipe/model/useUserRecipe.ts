@@ -42,7 +42,7 @@ class VideoInfo {
   }
 }
 
-class CategoryInfo {
+export class CategoryInfo {
   id!: string;
   name!: string;
 
@@ -244,6 +244,36 @@ const convertToStandardYouTubeUrl = (url: string): string => {
   }
   return `https://www.youtube.com/watch?v=${videoId}`;
 };
+
+
+export function useUpdateCategoryOfRecipe(){
+  const queryClient = useQueryClient();
+  const {
+    mutate,
+    isPending: isLoading,
+    error,
+  } = useMutation({
+    mutationFn: async ({ recipeId, targetCategoryId }: { recipeId: string, targetCategoryId: string }) => {
+      return updateCategory({ recipeId, targetCategoryId });
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_UNCATEGORIZED],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [CATEGORY_QUERY_KEY],
+      });
+    },
+  });
+  return {
+    updateCategory: mutate,
+    isLoading,
+    error,
+  };
+}
 
 export function useCreateRecipe() {
   const queryClient = useQueryClient();

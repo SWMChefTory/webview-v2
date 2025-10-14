@@ -2,17 +2,22 @@ import { HorizontallyLongRecipes } from "@/src/pages/home/ui/horizontalyLongReci
 import { VerticallyLongRecipes } from "@/src/pages/home/ui/vericallyLongRecipes";
 import Header, { HeaderSpacing, ProfileButton } from "@/src/shared/ui/header";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { FloatingButton } from "@/src/pages/home/ui/floatingButton";
-import dynamic from "next/dynamic";
+import {
+  FloatingButton,
+  FloatingButtonSkeleton,
+} from "@/src/pages/home/ui/floatingButton";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useEffect } from "react";
 import { onUnblockingRequest } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { RecipeCreationInfoSchema } from "./entity/recipeCreationInfo";
+import { RecipeCreationInfoSchema } from "../entities/creating_info/recipeCreationInfo";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner"
+import { Toaster } from "@/components/ui/sonner";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import  {MyRecipesReady, MyRecipesSkeleton} from "@/src/pages/home/ui/myRecipe";
+import {
+  MyRecipesReady,
+  MyRecipesSkeleton,
+} from "@/src/pages/home/ui/myRecipe";
 
 function HomePage() {
   const { create, error, recipeId } = useCreateRecipe();
@@ -21,7 +26,10 @@ function HomePage() {
       UNBLOCKING_HANDLER_TYPE.RECIPE_CREATE,
       (type, payload) => {
         const recipeCreationInfo = RecipeCreationInfoSchema.parse(payload);
-        create(recipeCreationInfo.videoUrl);
+        create({
+          youtubeUrl: recipeCreationInfo.videoUrl,
+          targetCategoryId: recipeCreationInfo.categoryId || null,
+        });
       }
     );
     return () => {
@@ -62,12 +70,12 @@ function HomePage() {
         <MyRecipesReady />
       </SSRSuspense>
       <HorizontallyLongRecipes />
-      <FloatingButton />  
+      <SSRSuspense fallback={<FloatingButtonSkeleton />}>
+        <FloatingButton />
+      </SSRSuspense>
     </div>
   );
 }
-
-
 
 const Logo = () => {
   const { scrollY } = useScroll();

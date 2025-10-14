@@ -12,7 +12,7 @@ import {
   useFetchCategories,
   Category,
 } from "@/src/entities/category/model/useCategory";
-import { useState} from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import {
   ALL_RECIPES,
@@ -20,12 +20,10 @@ import {
   useFetchUserRecipes,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import Link from "next/link";
-import { Loader2Icon } from "lucide-react";
 import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
 
 export const MyRecipesReady = () => {
-  const { data: categories, isLoading: isCategoriesLoading } =
-    useFetchCategories();
+  const { data: categories } = useFetchCategories();
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | typeof ALL_RECIPES
   >(ALL_RECIPES);
@@ -33,16 +31,18 @@ export const MyRecipesReady = () => {
     recipes: userRecipes,
     isFetchingNextPage,
     hasNextPage,
-  } = useFetchUserRecipes(selectedCategoryId);
+  } = useFetchUserRecipes({
+    categoryId: selectedCategoryId,
+    categoryName: categories?.find(
+      (category) => category.id === selectedCategoryId
+    )?.name,
+  });
 
-  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
+  const { totalElements } = useFetchUserRecipes({
+    categoryId: ALL_RECIPES,
+    categoryName: "",
+  });
 
-  const userRecipesSectionProps = ((): UserRecipesSectionChildProps => {
-    if (userRecipes.length === 0) {
-      return { type: UserRecipesSectionType.EMPTY };
-    }
-    return { type: UserRecipesSectionType.READY, userRecipes: userRecipes };
-  })();
   return (
     <MyRecipesTemplate
       title={<MyRecipeTitleReady />}
@@ -102,9 +102,9 @@ const MyRecipesTemplate = ({
 const MyRecipeTitleSkeleton = () => {
   return (
     <>
-      <div className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold">
+      <div className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500">
         나의 레시피
-        <Loader2Icon className="animate-spin" />
+        <IoChevronForwardOutline className="size-6" color="gray" />
       </div>
       <div className="h-2" />
     </>
@@ -120,7 +120,7 @@ const MyRecipeTitleReady = () => {
         transition={{ duration: 0.2 }}
       >
         나의 레시피
-        <IoChevronForwardOutline className="size-6" />
+        <IoChevronForwardOutline className="size-6" color="black" />
       </motion.div>
     </Link>
   );
@@ -128,7 +128,7 @@ const MyRecipeTitleReady = () => {
 
 const CategoryListSkeleton = () => {
   return (
-      <CategoryChip fontSize="text-sm" props={{ type: ChipType.SKELETON }} />
+    <CategoryChip fontSize="text-sm" props={{ type: ChipType.SKELETON }} />
   );
 };
 
@@ -175,26 +175,10 @@ const CategoryListFilter = ({
   );
 };
 
-
-const enum UserRecipesSectionType {
-  SKELETON = "SKELETON",
-  EMPTY = "EMPTY",
-  READY = "READY",
-}
-
-type UserRecipesSectionChildProps =
-  | {
-      type: UserRecipesSectionType.SKELETON;
-    }
-  | {
-      type: UserRecipesSectionType.EMPTY;
-    }
-  | {
-      type: UserRecipesSectionType.READY;
-      userRecipes: UserRecipe[];
-    };
-
 const UserRecipesSection = ({ userRecipes }: { userRecipes: UserRecipe[] }) => {
+  if (userRecipes.length === 0) {
+    return <UserRecipeCardEmpty />;
+  }
   return userRecipes.map((recipe) => (
     <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
   ));
@@ -209,4 +193,3 @@ const UserRecipesSectionSkeleton = () => {
     </>
   );
 };
-

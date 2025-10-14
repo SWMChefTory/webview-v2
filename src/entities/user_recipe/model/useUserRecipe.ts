@@ -5,6 +5,7 @@ import {
   VideoInfoResponse,
   CategoryInfoResponse,
   fetchRecipeProgress,
+  updateCategory,
 } from "@/src/entities/user_recipe/api/api";
 import {
   RecipeStatus,
@@ -19,6 +20,11 @@ import {
 } from "@tanstack/react-query";
 
 import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/api/api";
+
+import { useMutation } from "@tanstack/react-query";
+import { createRecipe } from "@/src/entities/user_recipe/api/api";
+import {  useEffect } from "react";
+import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
 class VideoInfo {
   id!: string;
@@ -101,7 +107,13 @@ export const QUERY_KEY_UNCATEGORIZED = "uncategorizedRecipes";
 
 export const ALL_RECIPES = "allRecipes";
 
-export function useFetchUserRecipes(categoryId: string | typeof ALL_RECIPES): {
+export function useFetchUserRecipes({
+  categoryId,
+  categoryName,
+}: {
+  categoryId: string | typeof ALL_RECIPES;
+  categoryName?: string;
+}): {
   recipes: UserRecipe[];
   totalElements: number;
   refetchAll: () => void;
@@ -126,6 +138,7 @@ export function useFetchUserRecipes(categoryId: string | typeof ALL_RECIPES): {
       if (categoryId !== ALL_RECIPES) {
         return fetchCategorizedRecipesSummary({
           categoryId,
+          categoryName: categoryName || "",
           page: pageParam,
         });
       }
@@ -181,10 +194,6 @@ export function useFetchUserRecipes(categoryId: string | typeof ALL_RECIPES): {
   };
 }
 
-import { useMutation } from "@tanstack/react-query";
-import { createRecipe } from "../api/api";
-import { useCallback, useEffect } from "react";
-
 const isValidYouTubeUrl = (url: string): boolean => {
   const youtubePatterns = [
     /^https?:\/\/(www\.)?youtube\.com\/watch\?v=[\w-]+/,
@@ -239,34 +248,47 @@ const convertToStandardYouTubeUrl = (url: string): string => {
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
   const {
-    mutate: createMutation,
+    mutate,
     data,
     isPending: isLoading,
     error,
   } = useMutation({
-    mutationFn: (youtubeUrl: string) => createRecipe(youtubeUrl),
+    mutationFn: async ({
+      youtubeUrl,
+      targetCategoryId = null,
+    }: {
+      youtubeUrl: string;
+      targetCategoryId?: string | null;
+    }) => {
+      validateUrl(youtubeUrl);
+      const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
+      const recipeId = await createRecipe(standardUrl);
+      if (targetCategoryId) {
+        await updateCategory({ recipeId, targetCategoryId });
+      }
+      return recipeId;
+    },
     throwOnError: false,
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEY_UNCATEGORIZED],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [CATEGORY_QUERY_KEY],
+      });
+    },
+    onError: (error) => {
+      console.log("[ERROR] !!: ", JSON.stringify(error));
     },
   });
-
-  const create = useCallback(
-    (youtubeUrl: string) => {
-      validateUrl(youtubeUrl);
-      const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
-      createMutation(standardUrl);
-    },
-    [createMutation]
-  );
-
   return {
     recipeId: data ?? null,
     isLoading,
     error,
-    create,
+    create: mutate,
     validateUrl,
   };
 }

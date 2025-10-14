@@ -1,8 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
-import { fetchCategories, CategoryResponse, deleteCategory as deleteCategoryApi } from "../api/api";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
+import {
+  fetchCategories,
+  CategoryResponse,
+  deleteCategory as deleteCategoryApi,
+  createCategory as createCategoryApi,
+} from "../api/api";
 import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { QUERY_KEY, QUERY_KEY_UNCATEGORIZED } from "@/src/entities/user_recipe/model/useUserRecipe";
+import {
+  QUERY_KEY as USER_RECIPE_QUERY_KEY,
+} from "@/src/entities/user_recipe/model/useUserRecipe";
 
 export class Category {
   id!: string;
@@ -31,10 +41,10 @@ export class Category {
   }
 }
 
-const CATEGORY_QUERY_KEY = "categories";
+export const CATEGORY_QUERY_KEY = "categories";
 
 export const useFetchCategories = () => {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useSuspenseQuery({
     queryKey: [CATEGORY_QUERY_KEY],
     queryFn: fetchCategories,
     select: (res) => {
@@ -50,17 +60,36 @@ export const useFetchCategories = () => {
 export function useDeleteCategory() {
   const queryClient = useQueryClient();
 
-  const { mutateAsync: deleteCategory, isPending , error} = useMutation({
+  const {
+    mutateAsync: deleteCategory,
+    isPending,
+    error,
+  } = useMutation({
     mutationFn: (categoryId: string) => {
       return deleteCategoryApi(categoryId);
     },
-    
     onSuccess: (_, categoryId) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY, categoryId] });
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEY_UNCATEGORIZED] });
+      queryClient.invalidateQueries({ queryKey: [USER_RECIPE_QUERY_KEY] });
       queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEY] });
     },
   });
 
   return { deleteCategory, isPending, error };
+}
+
+export function useCreateCategory() {
+  const queryClient = useQueryClient();
+  const {
+    mutateAsync: createCategory,
+    isPending,
+    error,
+  } = useMutation({
+    mutationFn: (categoryName: string) => {
+      return createCategoryApi(categoryName);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [CATEGORY_QUERY_KEY] });
+    },
+  });
+  return { createCategory, isPending, error };
 }

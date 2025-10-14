@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CiCirclePlus } from "react-icons/ci";
 import { CiCircleMinus } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
@@ -23,16 +23,38 @@ import {
   ALL_RECIPES,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+//   AlertDialogOverlay,
+// } from "@/components/ui/alert-dialog";
+
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import {
+  MODE,
+  onUnblockingRequest,
+  request,
+} from "@/src/shared/client/native/client";
+import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
+import { useCreateCategory } from "@/src/entities/category/model/useCategory";
+import { Button } from "@/components/ui/button";
 
 export enum CategoryMode {
   SELECT,
@@ -47,136 +69,104 @@ export const CategoryListSection = ({
   selectedCategoryId: string | typeof ALL_RECIPES;
   setSelectedCategoryId: (categoryId: string | typeof ALL_RECIPES) => void;
 }) => {
-  const [categoryMode, setCategoryMode] = useState(CategoryMode.SELECT);
+  const { createCategory } = useCreateCategory();
+  useEffect(() => {
+    const cleanup = onUnblockingRequest(
+      UNBLOCKING_HANDLER_TYPE.CATEGORY_CREATE,
+      (type, payload) => {
+        createCategory(payload.categoryName);
+      }
+    );
+    return () => {
+      cleanup();
+    };
+  }, []);
+
+  // const [categoryMode, setCategoryMode] = useState(CategoryMode.SELECT);
 
   return (
     <div className="px-6 pt-2 flex flex-col flex-none items-center w-full ">
       <div className="flex flex-row items-center justify-start w-full gap-1">
         <p className="text-xl font-semibold text-white">
-          {(() => {
-            if (categoryMode === CategoryMode.MINUS) {
-              return "제거할 카테고리를 선택해주세요";
-            }
-            return "카테고리를 선택해주세요";
-          })()}
+          카테고리를 선택해주세요
         </p>
-        <div className="flex flex-row items-center gap-1">
-          {CategoryMode.SELECT === categoryMode ||
-          CategoryMode.PLUS === categoryMode ? (
-            <>
-              <CategoryActionButton
-                Icon={CiCirclePlus}
-                onClick={() => setCategoryMode(CategoryMode.PLUS)}
-              />
-              <CategoryActionButton
-                Icon={CiCircleMinus}
-                onClick={() => setCategoryMode(CategoryMode.MINUS)}
-              />
-            </>
-          ) : (
-            <CategoryDeleteCancelButton
-              onClick={() => setCategoryMode(CategoryMode.SELECT)}
-            />
-          )}
-        </div>
       </div>
 
       <div className="flex-none h-[24px] bg-transparent" />
 
       <div className=" w-[100vw] overflow-x-auto">
-        <CategoryList
-          type={(() => {
-            if (categoryMode === CategoryMode.MINUS) {
-              return ChipType.EDITION;
-            }
-            return ChipType.FILTER;
-          })()}
-          selectedCategoryId={selectedCategoryId}
-          setSelectedCategoryId={setSelectedCategoryId}
-        />
+        <SSRSuspense fallback={<CategoryListSkeleton />}>
+          <CategoryListReady
+            selectedCategoryId={selectedCategoryId}
+            setSelectedCategoryId={setSelectedCategoryId}
+          />
+        </SSRSuspense>
         <div className="h-[24px] bg-transparent" />
       </div>
     </div>
   );
 };
 
-const CategoryList = ({
-  type,
+const CategoryListReady = ({
+  // type,
   selectedCategoryId,
   setSelectedCategoryId,
 }: {
-  type: ChipType;
+  // type: ChipType.FILTER | ChipType.EDITION;
   selectedCategoryId?: string | typeof ALL_RECIPES;
   setSelectedCategoryId?: (categoryId: string | typeof ALL_RECIPES) => void;
 }) => {
-  const { data: categories, isLoading, error } = useFetchCategories();
-  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
+  const { data: categories } = useFetchCategories();
+  const { totalElements } = useFetchUserRecipes({
+    categoryId: ALL_RECIPES,
+    categoryName: categories?.find((category) => category.id === ALL_RECIPES)
+      ?.name,
+  });
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null
   );
 
-  const allRecipeCategory = Category.createAllRecipeCategory({
-    count: totalElements || 0,
-  });
-
-  if (isLoading) {
-    return (
-      <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[20]">
-        로딩중..
-      </div>
-    );
-  }
-
-  type ChipDesc =
-    | { kind: "FILTER"; key: React.Key; props: FilterChipProps }
-    | { kind: "EDITION"; key: React.Key; props: EditableChipProps }
-    | { kind: "SKELETON"; key: React.Key; props: SkeletonType };
-
-  const createChipDescs = ({
-    type,
-    categories,
-  }: {
-    type: ChipType;
-    categories: Category[];
-  }): ChipDesc[] => {
-    switch (type) {
-      case ChipType.FILTER:
-        return [ allRecipeCategory,...categories].map((c) => ({
-          kind: "FILTER",
-          key: c.id, 
-          props: {
-            type: ChipType.FILTER,
-            accessary: c.count,
-            name: c.name,
-            onClick: () => setSelectedCategoryId?.(c.id),
-            isSelected: selectedCategoryId === c.id,
-          },
-        }));
-      case ChipType.EDITION:
-        return categories.map((c) => ({
-          kind: "EDITION",
-          key: c.id,
-          props: {
-            type: ChipType.EDITION,
-            name: c.name,
-            accessary: IoMdRemove,
-            onClick: () => setCategoryToDelete(c),
-          },
-        }));
-      default:
-        return Array.from({ length: 3 }, (_, i) => ({
-          kind: "SKELETON",
-          key: `skeleton-${i}`, 
-          props: { type: ChipType.SKELETON },
-        }));
-    }
-  };
-
   return (
     <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[20]">
-      {createChipDescs({ type: isLoading ? ChipType.SKELETON : type, categories: categories || [] }).map((props) => (
-        <CategoryChip props={props.props} isDarkMode={true} key={props.key} />
+      <CategoryChip
+        props={{
+          type: ChipType.FILTER,
+          name: "전체",
+          accessary: totalElements,
+          onClick: () => setSelectedCategoryId?.(ALL_RECIPES),
+          isSelected: selectedCategoryId === ALL_RECIPES,
+        }}
+        isDarkMode={true}
+        key={ALL_RECIPES}
+      />
+      {categories.map((category) => (
+        <CategoryChip
+          props={{
+            type: ChipType.FILTER,
+            name: category.name,
+            accessary: category.count,
+            onClick: () => setSelectedCategoryId?.(category.id),
+            onClickLong: () => {
+              setCategoryToDelete(category);
+            },
+            isSelected: selectedCategoryId === category.id,
+          }}
+          key={category.id}
+          isDarkMode={true}
+        />
       ))}
+      <CategoryChip
+        props={{
+          type: ChipType.EDITION,
+          name: "추가",
+          accessary: IoMdAdd,
+          onClick: () => {
+            request(MODE.UNBLOCKING, "CATEGORY_CREATION_INPUT");
+          },
+        }}
+        isDarkMode={true}
+        key={ALL_RECIPES}
+      />
       {categoryToDelete && (
         <CategoryDeleteAlert
           category={categoryToDelete}
@@ -187,22 +177,15 @@ const CategoryList = ({
   );
 };
 
-function CategoryActionButton({
-  Icon,
-  onClick,
-}: {
-  Icon: IconType;
-  onClick: () => void;
-}) {
+const CategoryListSkeleton = () => {
   return (
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9, opacity: 0.8 }}
-    >
-      <Icon size={24} className="text-white" onClick={onClick} />
-    </motion.div>
+    <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[20]">
+      {Array.from({ length: 3 }, (_, i) => (
+        <CategoryChip props={{ type: ChipType.SKELETON }} key={i} />
+      ))}
+    </div>
   );
-}
+};
 
 function CategoryDeleteAlert({
   category,
@@ -228,44 +211,49 @@ function CategoryDeleteAlert({
     );
   }
   return (
-    <AlertDialog open={true}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>
-            {category.name}을 정말 삭제하시겠어요?
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            이 카테고리에 속하는 레시피는 사라지지 않아요.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="flex flex-row justify-center gap-2">
-          <AlertDialogCancel className="flex-1 flex" onClick={handleCancel}>
-            취소
-          </AlertDialogCancel>
-          <AlertDialogAction
-            className="flex-1 flex"
-            onClick={handleDelete}
-            disabled={isPending}
-          >
-            삭제
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-function CategoryDeleteCancelButton({ onClick }: { onClick: () => void }) {
-  return (
-    <motion.div
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9, opacity: 0.8 }}
-      onClick={onClick}
-      className="p-[4]"
-    >
-      <p className="border border-gray-400 rounded-full text-xs text-gray-200 p-[2]">
-        취소
-      </p>
-    </motion.div>
+    <Dialog open={true}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay
+          className="fixed inset-0 bg-black/50 z-20"
+          onPointerDown={handleCancel}
+        />
+        <DialogPrimitive.Content
+          className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30"
+          onPointerDownOutside={handleCancel}
+        >
+          <DialogHeader>
+            <DialogTitle>정말 삭제하시겠어요?</DialogTitle>
+            <DialogDescription>
+              <div className="text-orange-500">
+                {category.name} 카테고리에 속한 레시피가 {category.count}개
+                있어요.
+              </div>
+              <div>카테고리를 삭제하면 레시피가 사라지진 않아요.</div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-4" />
+          <DialogFooter className="flex flex-row justify-center gap-2">
+            <DialogClose className="flex-1 flex" onClick={handleCancel}>
+              <Button
+                type="button"
+                variant="secondary"
+                className="flex flex-1 bg-black text-white"
+              >
+                취소
+              </Button>
+            </DialogClose>
+            <DialogClose className="flex-1 flex" onClick={handleDelete}>
+              <Button
+                type="button"
+                variant="outline"
+                className="flex flex-1 text-black"
+              >
+                확인
+              </Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </Dialog>
   );
 }

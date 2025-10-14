@@ -61,6 +61,8 @@ const pending = new Map<
 export type UnblockingHandler = (type: UNBLOCKING_HANDLER_TYPE, payload: any) => void;
 const unblockingHandlers = new Map<UNBLOCKING_HANDLER_TYPE, UnblockingHandler>();
 
+
+//payLoad는 이미 객체화 되어있음.
 export const onUnblockingRequest = (type: UNBLOCKING_HANDLER_TYPE, handler: UnblockingHandler) => {
   if (unblockingHandlers.has(type)) {
     console.warn(`핸들러가 이미 등록되어 있어 덮어씁니다: ${type}`);

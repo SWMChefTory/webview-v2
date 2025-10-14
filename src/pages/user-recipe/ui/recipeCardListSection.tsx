@@ -1,15 +1,23 @@
-import {
-  ALL_RECIPES,
-} from "@/src/entities/user_recipe/model/useUserRecipe";
+import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useFetchUserRecipes } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { RecipeDetailsCardReady, RecipeDetailsCardSkeleton } from "./recipeCard";
+import {
+  RecipeDetailsCardReady,
+  RecipeDetailsCardSkeleton,
+} from "./recipeCard";
+import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
 }: {
   selectedCategoryId: string | typeof ALL_RECIPES;
 }) => {
-  const { recipes } = useFetchUserRecipes(selectedCategoryId);
+  const { data: categories } = useFetchCategories();
+  const { recipes } = useFetchUserRecipes({
+    categoryId: selectedCategoryId,
+    categoryName: categories?.find(
+      (category) => category.id === selectedCategoryId
+    )?.name,
+  });
 
   return (
     <div className="flex-1 flex flex-col w-full rounded-t-[20] bg-white border-t border-t-stone-600 overflow-y-scroll">

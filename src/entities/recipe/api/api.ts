@@ -76,18 +76,3 @@ export const fetchRecipe = async (id: string): Promise<RecipeResponse> => {
   return RecipeSchema.parse(data);
 };
 
-
-
-export async function createRecipe(
-  videoUrl: string,
-): Promise<string> {
-  const createRequest = {
-    video_url: videoUrl,
-  };
-  const response = await client.post<string>(
-    `/recipes`,
-    createRequest,
-  );
-  console.log("[CREATE RECIPE] : ", JSON.stringify(response.data));
-  return response.data;
-}

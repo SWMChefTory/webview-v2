@@ -1,6 +1,10 @@
 import client from "@/src/shared/client/main/client";
 import { z } from "zod";
-import { RecipeStatus, RecipeProgressDetail, RecipeProgressStep } from "@/src/entities/user_recipe/type/type";
+import {
+  RecipeStatus,
+  RecipeProgressDetail,
+  RecipeProgressStep,
+} from "@/src/entities/user_recipe/type/type";
 
 const VideoInfoSchema = z.object({
   thumbnailUrl: z.string(),
@@ -35,28 +39,30 @@ export type UserRecipeResponse = z.infer<typeof UserRecipeSchema>;
 export type VideoInfoResponse = z.infer<typeof VideoInfoSchema>;
 export type CategoryInfoResponse = z.infer<typeof CategoryInfoSchema>;
 
-export async function fetchCategorizedRecipesSummary(params: {
+export async function fetchCategorizedRecipesSummary({
+  categoryId,
+  categoryName: category,
+  page,
+}: {
   categoryId: string;
+  categoryName: string;
   page: number;
 }): Promise<PaginatedRecipes> {
-  const { categoryId, page } = params;
-
-  console.log(
-    "[FETCH CATEGORIZED RECIPES SUMMARY] : 다시실행 ",
-    JSON.stringify(params)
-  );
 
   const response = await client.get(
     `/recipes/categorized/${categoryId}?page=${page}`
   );
 
   const data = response.data;
+
   return PaginatedSchema.parse({
     currentPage: data.currentPage,
     hasNext: data.hasNext,
     totalElements: data.totalElements,
     totalPages: data.totalPages,
-    data: data.categorizedRecipes.map((recipe: any) => transformRecipe(recipe)),
+    data: data.categorizedRecipes.map((recipe: any) =>
+      transformRecipe({ ...recipe, category })
+    ),
   });
 }
 
@@ -101,27 +107,33 @@ const transformRecipe = (recipe: any) => {
   };
 };
 
+const CreateRecipeResponseSchema = z.object({
+  recipeId: z.string(),
+});
+export type CreateRecipeResponse = z.infer<typeof CreateRecipeResponseSchema>;
+
 export async function createRecipe(videoUrl: string): Promise<string> {
   const createRequest = {
     video_url: videoUrl,
   };
-  const response = await client.post<string>(`/recipes`, createRequest);
+  const response = await client.post(`/recipes`, createRequest);
   console.log("[CREATE RECIPE] : ", JSON.stringify(response.data));
-  return response.data;
+  return CreateRecipeResponseSchema.parse(response.data).recipeId;
 }
-
-
-
 
 const RecipeProgressDetailSchema = z.object({
   recipeStatus: z.enum(RecipeStatus),
-  recipeProgressStatuses: z.array(z.object({
-    progressStep: z.enum(RecipeProgressStep),
-    progressDetail: z.enum(RecipeProgressDetail),
-  }))
+  recipeProgressStatuses: z.array(
+    z.object({
+      progressStep: z.enum(RecipeProgressStep),
+      progressDetail: z.enum(RecipeProgressDetail),
+    })
+  ),
 });
 
-export type RecipeCreateStatusResponse = z.infer<typeof RecipeProgressDetailSchema>;
+export type RecipeCreateStatusResponse = z.infer<
+  typeof RecipeProgressDetailSchema
+>;
 
 export async function fetchRecipeProgress(
   recipeId: string
@@ -131,4 +143,17 @@ export async function fetchRecipeProgress(
   );
   console.log("[FETCH RECIPE PROGRESS] : ", JSON.stringify(response.data));
   return RecipeProgressDetailSchema.parse(response.data);
+}
+
+export async function updateCategory({
+  recipeId,
+  targetCategoryId,
+}: {
+  recipeId: string;
+  targetCategoryId: string;
+}): Promise<void> {
+  const request = {
+    category_id: targetCategoryId,
+  };
+  return await client.put(`/recipes/${recipeId}/categories`, request);
 }

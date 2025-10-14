@@ -26,8 +26,13 @@ import {
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
+import { CgArrowsExchangeV } from "react-icons/cg";
+import { useFetchCategories } from "@/src/entities/category/model/useCategory";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { DialogOverlay } from "@/components/ui/dialog";
 
-const NO_CATEGORY_NAME = "카테고리 추가";
+
+const NO_CATEGORY_NAME = "카테고리 선택";
 
 const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
   const { progress, isLoading } = useFetchRecipeProgressNotSuspense(
@@ -51,7 +56,7 @@ const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
           props={{
             type: ChipType.EDITION,
             name: userRecipe.categoryInfo?.name ?? NO_CATEGORY_NAME,
-            accessary: IoMdAdd,
+            accessary: userRecipe.categoryInfo?CgArrowsExchangeV:IoMdAdd,
             onClick: () => {},
           }}
         />
@@ -64,34 +69,33 @@ const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
         )}
         <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
       </div>
+      {/* <CategorySelectCombobox userRecipe={userRecipe} /> */}
     </div>
   );
 };
 
-const RecipeDetailsCardDetailsSkeleton = ({
-  userRecipe,
-}: {
-  userRecipe: UserRecipe;
-}) => {
+const CategorySelectCombobox = ({ userRecipe }: { userRecipe: UserRecipe }) => {
+  const { data: categories } = useFetchCategories();
   return (
-    <div className="w-full px-[10] flex flex-row items-center">
-      <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
-        <TitleReady title={userRecipe.title} />
-        <CategoryChip
-          props={{
-            type: ChipType.EDITION,
-            name: userRecipe.categoryInfo?.name ?? NO_CATEGORY_NAME,
-            accessary: IoMdAdd,
-            onClick: () => {},
-          }}
-        />
-        <DetailSectionSkeleton />
-        <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
-      </div>
-    </div>
+    <DialogPrimitive.Root open={true}>
+        <DialogPrimitive.Portal>
+            <DialogPrimitive.Overlay className="fixed inset-0 bg-gray-900/5 z-20" />
+            <DialogPrimitive.Content className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30">
+                <div className="flex flex-col gap-2">
+                    {categories?.map((category) => (
+                        <div key={category.id} className="flex flex-row gap-2">
+                            <CategoryChip
+                                props={{ type: ChipType.EDITION, name: category.name,  onClick: () => {} }}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 };
+
 
 const RecipeDetailsCardSkeleton = () => {
   return (
@@ -102,37 +106,6 @@ const RecipeDetailsCardSkeleton = () => {
         <CategoryChip props={{ type: ChipType.SKELETON }} />
         <DetailSectionSkeleton />
         <ElapsedViewTimeSkeleton />
-      </div>
-    </div>
-  );
-};
-
-const RecipeDetailsCardProgressReady = ({
-  userRecipe,
-}: {
-  userRecipe: UserRecipe;
-}) => {
-  //   const { progress } = useFetchRecipeProgress(userRecipe.recipeId);
-  return (
-    <div className="w-full px-[10] flex flex-row items-center">
-      {/* <SSRSuspense fallback={<RecipeProgressSkeleton />}>
-        <RecipeProgressReady userRecipe={userRecipe} />
-      </SSRSuspense> */}
-      <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
-        <TitleReady title={userRecipe.title} />
-        <CategoryChip
-          props={{
-            type: ChipType.EDITION,
-            name: userRecipe.categoryInfo?.name ?? NO_CATEGORY_NAME,
-            accessary: IoMdAdd,
-            onClick: () => {},
-          }}
-        />
-        <SSRSuspense fallback={<DetailSectionSkeleton />}>
-          <DetailSectionReady recipeId={userRecipe.recipeId} />
-        </SSRSuspense>
-        <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
       </div>
     </div>
   );
@@ -218,9 +191,10 @@ const Tag = ({ tagProps }: { tagProps: TagProps }) => {
         );
     }
   })();
+
   return (
     <div className="flex flex-none flex-row items-center">
-      <p className="text-gray-500 text-sm whitespace-nowrap"> {content}</p>
+      {content}
     </div>
   );
 };

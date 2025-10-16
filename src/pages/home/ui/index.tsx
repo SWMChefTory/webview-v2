@@ -18,9 +18,11 @@ import {
   MyRecipesReady,
   MyRecipesSkeleton,
 } from "@/src/pages/home/ui/myRecipe";
+import { useRouter } from "next/router";
 
 function HomePage() {
   const { create, error, recipeId } = useCreateRecipe();
+  const router = useRouter();
   useEffect(() => {
     const cleanup = onUnblockingRequest(
       UNBLOCKING_HANDLER_TYPE.RECIPE_CREATE,
@@ -62,7 +64,7 @@ function HomePage() {
           leftContent={<Logo />}
           rightContent={
             <div className="flex flex-row">
-              <ProfileButton onClick={() => {}} />
+              <ProfileButton onClick={() => {router.push("/user/settings");}} />
             </div>
           }
         />

@@ -7,6 +7,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 
 export function HorizontallyLongRecipes() {
   return (
@@ -51,10 +52,13 @@ function RecipeCardSectionReady() {
 }
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
+  const { create } = useCreateRecipe();
   return (
     <div className="flex flex-col">
       <div className="flex flex-col w-[320px]">
-        <div className="h-[180] overflow-hidden rounded-md">
+        <div className="h-[180] overflow-hidden rounded-md" onClick={()=>{
+          create({ youtubeUrl: recipe.videoUrl });
+        }}>
           <img
             src={recipe.videoThumbnailUrl}
             className="block w-full h-full object-cover "
@@ -63,7 +67,7 @@ export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
         <div className="text-lg font-semibold w-full overflow-hidden line-clamp-1">
           {recipe.recipeTitle}
         </div>
-        <div className="text-sm text-gray-700"> 조회수 : {recipe.count}회 </div>
+        <div className="text-sm text-gray-700"> 조회수  {recipe.count}회 </div>
       </div>
     </div>
   );

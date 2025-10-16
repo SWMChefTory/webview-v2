@@ -33,6 +33,7 @@ export class Category {
   }
 
   static createAllRecipeCategory({ count }: { count: number }) {
+    console.log("createAllRecipeCategory", count);
     return new Category({
       id: ALL_RECIPES,
       name: "전체",

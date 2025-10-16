@@ -11,6 +11,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <HydrationBoundary state={pageProps.dehydratedState}>
         <Component {...pageProps} />
+        <div className="pb-safe"></div>
       </HydrationBoundary>
     </QueryClientProvider>
   );

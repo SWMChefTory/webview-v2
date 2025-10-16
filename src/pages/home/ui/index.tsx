@@ -26,7 +26,10 @@ function HomePage() {
       UNBLOCKING_HANDLER_TYPE.RECIPE_CREATE,
       (type, payload) => {
         const recipeCreationInfo = RecipeCreationInfoSchema.parse(payload);
-        console.log("[RECIPE CREATION INFO] : ", JSON.stringify(recipeCreationInfo, null, 2));
+        console.log(
+          "[RECIPE CREATION INFO] : ",
+          JSON.stringify(recipeCreationInfo, null, 2)
+        );
         create({
           youtubeUrl: recipeCreationInfo.videoUrl,
           targetCategoryId: recipeCreationInfo.categoryId || null,
@@ -54,7 +57,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen w-screen w-full">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-white ">
         <Header
           leftContent={<Logo />}
           rightContent={
@@ -64,17 +67,17 @@ function HomePage() {
           }
         />
       </div>
-      <HeaderSpacing />
-      <Toaster />
-      <div className="h-8" />
-      <SSRSuspense fallback={<MyRecipesSkeleton />}>
-        <MyRecipesReady />
-      </SSRSuspense>
-      <HorizontallyLongRecipes />
-      <SSRSuspense fallback={<FloatingButtonSkeleton />}>
-        <FloatingButton />
-      </SSRSuspense>
-    </div>
+        <HeaderSpacing />
+        <Toaster />
+        <div className="h-8" />
+        <SSRSuspense fallback={<MyRecipesSkeleton />}>
+          <MyRecipesReady />
+        </SSRSuspense>
+        <HorizontallyLongRecipes />
+        <SSRSuspense fallback={<FloatingButtonSkeleton />}>
+          <FloatingButton />
+        </SSRSuspense>
+      </div>
   );
 }
 
@@ -86,7 +89,6 @@ const Logo = () => {
   return (
     <div className="pl-2">
       <div className="h-[44] w-[10]" />
-
       <motion.img
         src="/logo.png"
         alt="logo"

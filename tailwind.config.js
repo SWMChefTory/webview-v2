@@ -1,5 +1,6 @@
 module.exports = {
-    // ...
-    plugins: [require('@tailwindcss/line-clamp')],
-  }
-  
+  theme: {},
+  plugins: [
+    require("@tailwindcss/line-clamp"),require("tailwindcss-safe-area"),
+  ],
+};

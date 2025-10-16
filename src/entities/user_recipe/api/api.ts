@@ -54,7 +54,6 @@ export async function fetchCategorizedRecipesSummary({
   );
 
   const data = response.data;
-
   return PaginatedSchema.parse({
     currentPage: data.currentPage,
     hasNext: data.hasNext,
@@ -70,12 +69,11 @@ export async function fetchUnCategorizedRecipesSummary(params: {
   page: number;
 }): Promise<PaginatedRecipes> {
   const { page } = params;
-  console.log(
-    "[FETCH CATEGORIZED RECIPES SUMMARY] : 다시실행 ",
-    JSON.stringify(params)
-  );
   const response = await client.get(`/recipes/uncategorized?page=${page}`);
   const data = response.data;
+  console.log("[FETCH UNCATEGORIZED RECIPES SUMMARY] totalElements : ", JSON.stringify(data.totalElements));
+  console.log("[FETCH UNCATEGORIZED RECIPES SUMMARY] pages : ", JSON.stringify(data.totalPages));
+  console.log("[FETCH UNCATEGORIZED RECIPES SUMMARY] hasNext : ", JSON.stringify(data.hasNext));
   return PaginatedSchema.parse({
     currentPage: data.currentPage,
     hasNext: data.hasNext,

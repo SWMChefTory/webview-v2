@@ -12,28 +12,33 @@ const Header = ({
   rightContent?: React.ReactNode;
 }) => {
   return (
-    <header className="sticky bg-black top-0 left-0 z-1 flex items-center py-2 px-2 h-[44] bg-transparent">
-      {leftContent && (
-        <div className="absolute pl-2 h-full top-0 left-0">
-          {leftContent}
-        </div>
-      )}
-      {centerContent && (
-        <div className="flex items-center">
-          <HeaderCenterItem>{centerContent}</HeaderCenterItem>
-        </div>
-      )}
-      {rightContent && (
-        <div className="absolute pr-2 h-full top-0 right-0 flex items-center">
-          {rightContent}
-        </div>
-      )}
-    </header>
+    <>
+      <div className="pt-safe"></div>
+      <header className="sticky bg-black top-0 left-0 z-1 flex items-center py-2 px-2 h-[44] bg-transparent">
+        {leftContent && (
+          <div className="absolute pl-2 h-full top-0 left-0">{leftContent}</div>
+        )}
+        {centerContent && (
+          <div className="flex items-center">
+            <HeaderCenterItem>{centerContent}</HeaderCenterItem>
+          </div>
+        )}
+        {rightContent && (
+          <div className="absolute pr-2 h-full top-0 right-0 flex items-center">
+            {rightContent}
+          </div>
+        )}
+      </header>
+    </>
   );
 };
 
 export const HeaderSpacing = () => {
-  return <div className="flex flex-col h-[44px] bg-transparent" />;
+  return (
+    <div className={`pt-safe`}>
+      <div className="flex flex-col h-[44px] bg-transparent" />
+    </div>
+  );
 };
 
 const HeaderCenterItem = ({ children }: { children: React.ReactNode }) => {
@@ -78,7 +83,13 @@ const Title = ({ string }: { string: string }) => {
   );
 };
 
-const BackButton = ({ onClick, color }: { onClick: () => void, color?: string }) => {
+const BackButton = ({
+  onClick,
+  color,
+}: {
+  onClick: () => void;
+  color?: string;
+}) => {
   return (
     <IconButtonTemplate
       icon={<IoMdArrowBack className={`!w-6 !h-6 ${color}`} />}

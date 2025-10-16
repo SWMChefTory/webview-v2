@@ -117,11 +117,9 @@ const CategoryListReady = ({
   setSelectedCategoryId?: (categoryId: string | typeof ALL_RECIPES) => void;
 }) => {
   const { data: categories } = useFetchCategories();
-  const { totalElements } = useFetchUserRecipes({
-    categoryId: ALL_RECIPES,
-    categoryName: categories?.find((category) => category.id === ALL_RECIPES)
-      ?.name,
-  });
+  const { totalElements } = useFetchUserRecipes(
+    categories?.find((category) => category.id === ALL_RECIPES) || ALL_RECIPES
+  );
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null
   );

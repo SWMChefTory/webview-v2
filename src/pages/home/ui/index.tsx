@@ -26,6 +26,7 @@ function HomePage() {
       UNBLOCKING_HANDLER_TYPE.RECIPE_CREATE,
       (type, payload) => {
         const recipeCreationInfo = RecipeCreationInfoSchema.parse(payload);
+        console.log("[RECIPE CREATION INFO] : ", JSON.stringify(recipeCreationInfo, null, 2));
         create({
           youtubeUrl: recipeCreationInfo.videoUrl,
           targetCategoryId: recipeCreationInfo.categoryId || null,

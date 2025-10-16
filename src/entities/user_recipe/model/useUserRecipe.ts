@@ -23,8 +23,8 @@ import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/api/api";
 
 import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "@/src/entities/user_recipe/api/api";
-import {  useEffect } from "react";
-import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
+import { useEffect } from "react";
+import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
 class VideoInfo {
   id!: string;
@@ -107,13 +107,7 @@ export const QUERY_KEY_UNCATEGORIZED = "uncategorizedRecipes";
 
 export const ALL_RECIPES = "allRecipes";
 
-export function useFetchUserRecipes({
-  categoryId,
-  categoryName,
-}: {
-  categoryId: string | typeof ALL_RECIPES;
-  categoryName?: string;
-}): {
+export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
   recipes: UserRecipe[];
   totalElements: number;
   refetchAll: () => void;
@@ -124,7 +118,6 @@ export function useFetchUserRecipes({
   error: Error | null;
 } {
   const queryClient = useQueryClient();
-
   const {
     data: { recipes, totalElements } = { recipes: [], totalElements: 0 },
     fetchNextPage,
@@ -133,16 +126,14 @@ export function useFetchUserRecipes({
     isLoading,
     error,
   } = useSuspenseInfiniteQuery({
-    queryKey: [QUERY_KEY, categoryId || QUERY_KEY_UNCATEGORIZED],
+    queryKey: [QUERY_KEY, (category as Category)?.id || QUERY_KEY_UNCATEGORIZED],
     queryFn: ({ pageParam = 0 }) => {
-      if (categoryId !== ALL_RECIPES) {
-        return fetchCategorizedRecipesSummary({
-          categoryId,
-          categoryName: categoryName || "",
-          page: pageParam,
-        });
+      switch (category) {
+        case ALL_RECIPES:
+          return fetchUnCategorizedRecipesSummary({ page: pageParam });
+        default:
+          return fetchCategorizedRecipesSummary({ categoryId: category.id, categoryName: category.name, page: pageParam });
       }
-      return fetchUnCategorizedRecipesSummary({ page: pageParam });
     },
     getNextPageParam: (lastPage) => {
       return lastPage.hasNext ? lastPage.currentPage + 1 : undefined;
@@ -172,7 +163,7 @@ export function useFetchUserRecipes({
 
   const refetchAll = () => {
     queryClient.invalidateQueries({
-      queryKey: [QUERY_KEY, categoryId || QUERY_KEY_UNCATEGORIZED],
+      queryKey: [QUERY_KEY, (category as Category)?.id || QUERY_KEY_UNCATEGORIZED],
     });
   };
 
@@ -245,15 +236,20 @@ const convertToStandardYouTubeUrl = (url: string): string => {
   return `https://www.youtube.com/watch?v=${videoId}`;
 };
 
-
-export function useUpdateCategoryOfRecipe(){
+export function useUpdateCategoryOfRecipe() {
   const queryClient = useQueryClient();
   const {
     mutate,
     isPending: isLoading,
     error,
   } = useMutation({
-    mutationFn: async ({ recipeId, targetCategoryId }: { recipeId: string, targetCategoryId: string }) => {
+    mutationFn: async ({
+      recipeId,
+      targetCategoryId,
+    }: {
+      recipeId: string;
+      targetCategoryId: string;
+    }) => {
       return updateCategory({ recipeId, targetCategoryId });
     },
     onSuccess: (data) => {

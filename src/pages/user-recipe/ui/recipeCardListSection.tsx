@@ -5,7 +5,6 @@ import {
   RecipeDetailsCardSkeleton,
 } from "./recipeCard";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
@@ -13,19 +12,28 @@ export const RecipeListSectionReady = ({
   selectedCategoryId: string | typeof ALL_RECIPES;
 }) => {
   const { data: categories } = useFetchCategories();
-  const { recipes } = useFetchUserRecipes({
-    categoryId: selectedCategoryId,
-    categoryName: categories?.find(
-      (category) => category.id === selectedCategoryId
-    )?.name,
-  });
+  const { recipes, isFetchingNextPage, fetchNextPage } = useFetchUserRecipes(
+    categories.find((category) => category.id === selectedCategoryId) ||
+      ALL_RECIPES
+  );
 
   return (
-    <div className="flex-1 flex flex-col w-full rounded-t-[20] bg-white border-t border-t-stone-600 overflow-y-scroll">
+    <div
+      onScroll={(event: any) => {
+        if (
+          event.target.scrollTop + event.target.clientHeight >=
+          event.target.scrollHeight + 10
+        ) {
+          fetchNextPage();
+        }
+      }}
+      className="flex-1 flex flex-col w-full rounded-t-[20] bg-white border-t border-t-stone-600 overflow-y-scroll"
+    >
       <div className="flex flex-col w-full bg-white pt-6 rounded-t-[20] gap-4 ">
         {recipes.map((recipe) => (
           <RecipeDetailsCardReady key={recipe.recipeId} userRecipe={recipe} />
         ))}
+        {isFetchingNextPage && <RecipeDetailsCardSkeleton />}
       </div>
     </div>
   );
@@ -40,29 +48,5 @@ export const RecipeListSectionSkeleton = () => {
         ))}
       </div>
     </div>
-  );
-};
-
-
-
-const CategorySelectCombobox = ({ selectedCategoryId }: { selectedCategoryId: string }) => {
-  const { data: categories } = useFetchCategories();
-  return (
-    <DialogPrimitive.Root open={true}>
-        <DialogPrimitive.Portal>
-            <DialogPrimitive.Overlay className="fixed inset-0 bg-gray-900/5 z-20" />
-            <DialogPrimitive.Content className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30">
-                <div className="flex flex-col gap-2">
-                    {categories?.map((category) => (
-                        <div key={category.id} className="flex flex-row gap-2">
-                            {/* <CategoryChip
-                                props={{ type: ChipType.EDITION, name: category.name,  onClick: () => {} }}
-                            /> */}
-                        </div>
-                    ))}
-                </div>
-            </DialogPrimitive.Content>
-        </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
   );
 };

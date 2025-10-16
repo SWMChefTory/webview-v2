@@ -16,7 +16,6 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import {
   ALL_RECIPES,
-  UserRecipe,
   useFetchUserRecipes,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import Link from "next/link";
@@ -24,24 +23,11 @@ import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
 
 export const MyRecipesReady = () => {
   const { data: categories } = useFetchCategories();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<
-    string | typeof ALL_RECIPES
+  const [selectedCategory, setSelectedCategory] = useState<
+    Category | typeof ALL_RECIPES
   >(ALL_RECIPES);
-  const {
-    recipes: userRecipes,
-    isFetchingNextPage,
-    hasNextPage,
-  } = useFetchUserRecipes({
-    categoryId: selectedCategoryId,
-    categoryName: categories?.find(
-      (category) => category.id === selectedCategoryId
-    )?.name,
-  });
 
-  const { totalElements } = useFetchUserRecipes({
-    categoryId: ALL_RECIPES,
-    categoryName: "",
-  });
+  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
 
   return (
     <MyRecipesTemplate
@@ -49,12 +35,14 @@ export const MyRecipesReady = () => {
       categoryList={
         <CategoryListFilter
           categories={categories}
-          selectedCategoryId={selectedCategoryId}
+          selectedCategory={selectedCategory}
           totalElementCount={totalElements}
-          setSelectedCategoryId={setSelectedCategoryId}
+          setSelectedCategory={setSelectedCategory}
         />
       }
-      userRecipesSection={<UserRecipesSection userRecipes={userRecipes} />}
+      userRecipesSection={
+        <UserRecipesSection selectedCategory={selectedCategory} />
+      }
     />
   );
 };
@@ -89,12 +77,7 @@ const MyRecipesTemplate = ({
         <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
       </ScrollArea>
       <div className="h-3" />
-      <ScrollArea className="whitespace-nowrap w-[100vw]">
-        <div className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
-          {userRecipesSection}
-        </div>
-        <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
-      </ScrollArea>
+      {userRecipesSection}
     </div>
   );
 };
@@ -134,14 +117,14 @@ const CategoryListSkeleton = () => {
 
 const CategoryListFilter = ({
   categories,
-  selectedCategoryId,
+  selectedCategory,
   totalElementCount,
-  setSelectedCategoryId,
+  setSelectedCategory,
 }: {
   categories: Category[];
-  selectedCategoryId: string | typeof ALL_RECIPES;
+  selectedCategory: Category | typeof ALL_RECIPES;
   totalElementCount: number;
-  setSelectedCategoryId: (categoryId: string | typeof ALL_RECIPES) => void;
+  setSelectedCategory: (category: Category | typeof ALL_RECIPES) => void;
 }) => {
   return (
     <>
@@ -152,9 +135,9 @@ const CategoryListFilter = ({
           name: "전체",
           accessary: totalElementCount ?? 0,
           onClick: () => {
-            setSelectedCategoryId?.(ALL_RECIPES);
+            setSelectedCategory?.(ALL_RECIPES);
           },
-          isSelected: selectedCategoryId === ALL_RECIPES,
+          isSelected: selectedCategory === ALL_RECIPES,
         }}
       />
       {categories?.map((category) => (
@@ -165,9 +148,9 @@ const CategoryListFilter = ({
             name: category.name,
             accessary: category.count,
             onClick: () => {
-              setSelectedCategoryId?.(category.id);
+              setSelectedCategory?.(category);
             },
-            isSelected: selectedCategoryId === category.id,
+            isSelected: selectedCategory === category.id,
           }}
         />
       ))}
@@ -175,21 +158,66 @@ const CategoryListFilter = ({
   );
 };
 
-const UserRecipesSection = ({ userRecipes }: { userRecipes: UserRecipe[] }) => {
+const UserRecipesSection = ({
+  selectedCategory,
+}: {
+  selectedCategory: Category | typeof ALL_RECIPES;
+}) => {
+  const {
+    recipes: userRecipes,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useFetchUserRecipes(selectedCategory);
   if (userRecipes.length === 0) {
-    return <UserRecipeCardEmpty />;
+    return (
+      <HorizontalScrollArea>
+        <UserRecipeCardEmpty />
+      </HorizontalScrollArea>
+    );
   }
-  return userRecipes.map((recipe) => (
-    <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
-  ));
+  return (
+    <HorizontalScrollArea
+      onScroll={(event: any) => {
+        if (event.target.scrollLeft + event.target.clientWidth >= event.target.scrollWidth + 10) {
+          fetchNextPage();
+        }
+      }}
+    >
+      {userRecipes.map((recipe) => (
+        <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
+      ))}
+      {isFetchingNextPage && (
+        <UserRecipeCardSkeleton />
+      )}
+    </HorizontalScrollArea>
+  );
 };
 
 const UserRecipesSectionSkeleton = () => {
   return (
-    <>
+    <HorizontalScrollArea>
       {Array.from({ length: 3 }, (_, index) => (
         <UserRecipeCardSkeleton key={index} />
       ))}
-    </>
+    </HorizontalScrollArea>
+  );
+};
+
+const HorizontalScrollArea = ({
+  children,
+  onScroll,
+}: {
+  children: React.ReactNode;
+  onScroll?: (event: any) => void;
+}) => {
+  return (
+    <div className="w-full">
+      <div
+        className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw] overflow-x-scroll scrollbar-hide"
+        onScroll={onScroll}
+      >
+        {children}
+      </div>
+    </div>
   );
 };

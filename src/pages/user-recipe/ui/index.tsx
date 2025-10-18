@@ -18,8 +18,6 @@ export function UserRecipe() {
     string | typeof ALL_RECIPES
   >(ALL_RECIPES);
 
-  console.log("selectedCategoryId", selectedCategoryId);
-
   return (
     <PageMovementTemplate>
       <div className="flex flex-col overflow-hidden bg-stone-800 h-[100vh] w-[100vw]">

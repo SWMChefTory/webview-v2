@@ -8,7 +8,6 @@ export const SSRSuspense = (props: React.ComponentProps<typeof Suspense>) => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
-  
 
   if (isMounted) {
     return <Suspense {...props} />;

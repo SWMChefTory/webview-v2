@@ -103,7 +103,7 @@ const transformRecipe = (recipe: any) => {
     recipeDetailMeta: recipe.description? {
       description: recipe.description,
       servings: recipe.servings,
-      cookingTime: recipe.cookTime,
+      cookTime: recipe.cookTime,
     } : undefined,
     tags: recipe.tags ? recipe.tags.map((tag: any) => ({
       name: tag.name,

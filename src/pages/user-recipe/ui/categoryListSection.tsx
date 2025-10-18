@@ -1,17 +1,9 @@
 import { useEffect, useState } from "react";
-import { CiCirclePlus } from "react-icons/ci";
-import { CiCircleMinus } from "react-icons/ci";
 import { IoMdAdd } from "react-icons/io";
-import { IoMdRemove } from "react-icons/io";
-import { IconType } from "react-icons/lib";
-import { motion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import {
   CategoryChip,
   ChipType,
-  EditableChipProps,
-  FilterChipProps,
-  SkeletonType,
 } from "@/src/entities/category/ui/categoryChip";
 import {
   Category,

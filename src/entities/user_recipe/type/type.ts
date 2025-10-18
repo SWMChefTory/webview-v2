@@ -15,13 +15,11 @@ export enum RecipeProgressDetail {
   FINISHED = "FINISHED",
 }
 
-
-
 export enum RecipeProgressStep {
-    READY = "READY",
-    CAPTION = "CAPTION",
-    DETAIL = "DETAIL",
-    BRIEFING = "BRIEFING",
-    STEP = "STEP",
-    FINISHED = "FINISHED",
-  }
+  READY = "READY",
+  CAPTION = "CAPTION",
+  DETAIL = "DETAIL",
+  BRIEFING = "BRIEFING",
+  STEP = "STEP",
+  FINISHED = "FINISHED",
+}

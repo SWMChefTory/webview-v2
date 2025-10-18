@@ -17,8 +17,6 @@ export const RecipeListSectionReady = ({
       ALL_RECIPES
   );
 
-  console.log("recipes!!! : ", JSON.stringify(recipes, null, 2));
-
   return (
     <div
       onScroll={(event: any) => {

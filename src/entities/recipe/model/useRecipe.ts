@@ -160,6 +160,15 @@ export class RecipeDetailMeta {
       cookTime: data.cookingTime,
     });
   }
+
+  public static createFromEmpty() {
+    return new RecipeDetailMeta({
+      id: "",
+      description: "",
+      servings: 0,
+      cookTime: 0,
+    });
+  }
 }
 
 class Recipe {

@@ -40,6 +40,9 @@ const RecipeStatusSchema = z.enum([
   RecipeStatus.IN_PROGRESS,
 ]);
 
+export type RecipeDetailMetaResponse = z.infer<typeof RecipeDetailMetaSchema>;
+export type RecipeTagResponse = z.infer<typeof RecipeTagSchema>;
+
 export {
   RecipeDetailMetaSchema,
   IngredientSchema,

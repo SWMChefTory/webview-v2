@@ -54,6 +54,7 @@ export async function fetchCategorizedRecipesSummary({
   );
 
   const data = response.data;
+  console.log("fetch categorized recipes",JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
@@ -61,7 +62,7 @@ export async function fetchCategorizedRecipesSummary({
     totalPages: data.totalPages,
     data: data.categorizedRecipes.map((recipe: any) =>
       transformRecipe({ ...recipe, category : categoryName })
-    ),
+    ).sort((a: any, b: any) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime()),
   });
 }
 
@@ -71,6 +72,8 @@ export async function fetchUnCategorizedRecipesSummary(params: {
   const { page } = params;
   const response = await client.get(`/recipes/uncategorized?page=${page}`);
   const data = response.data;
+
+  console.log("fetch uncategorized recipes",JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
@@ -103,7 +106,7 @@ const transformRecipe = (recipe: any) => {
     recipeDetailMeta: recipe.description? {
       description: recipe.description,
       servings: recipe.servings,
-      cookTime: recipe.cookTime,
+      cookingTime: recipe.cookTime,
     } : undefined,
     tags: recipe.tags ? recipe.tags.map((tag: any) => ({
       name: tag.name,

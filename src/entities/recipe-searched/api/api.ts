@@ -44,6 +44,6 @@ export const fetchRecipesSearched = async ({
     hasNext: response.data.hasNext,
     data: response.data.searchedRecipes,
   };
-  console.log("응답 데이터: ", JSON.stringify(data, null, 2));
+  console.log("search recipes: ", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedRecipeSchema, data);
 };

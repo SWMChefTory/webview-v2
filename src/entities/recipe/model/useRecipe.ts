@@ -28,7 +28,6 @@ class VideoInfo {
       id: data.videoId,
       thumbnailUrl: data.videoThumbnailUrl,
       seconds: data.videoSeconds,
-      lastPlaySeconds: data.videoSeconds,
     });
   }
 }
@@ -201,13 +200,14 @@ class Recipe {
   }
 }
 
+export const RECIPE_QUERY_KEY = "recipes";
 export const useFetchRecipe = (id: string) => {
-  const { data, isLoading, error } = useSuspenseQuery({
-    queryKey: ["recipe", id],
+  const { data } = useSuspenseQuery({
+    queryKey: [RECIPE_QUERY_KEY, id],
     queryFn: () => fetchRecipe(id),
     select: (res)=>{
         return Recipe.create(res);
     },
   });
-  return { data, isLoading, error };
+  return { data };
 };

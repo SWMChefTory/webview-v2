@@ -13,7 +13,6 @@ import {
 } from "@/src/entities/user_recipe/type/type";
 import {
   useSuspenseInfiniteQuery,
-  // useInfiniteQuery,
   useQueryClient,
   useQuery,
   useSuspenseQuery,
@@ -25,6 +24,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "@/src/entities/user_recipe/api/api";
 import { useEffect } from "react";
 import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
+import { RecipeDetailMetaResponse } from "../../recipe/api/api";
 
 class VideoInfo {
   id!: string;
@@ -40,10 +40,60 @@ class VideoInfo {
   public static create(data: VideoInfoResponse) {
     return new VideoInfo(data);
   }
+
+  public static createFromEmpty() {
+    return new VideoInfo({
+      id: "",
+      thumbnailUrl: "",
+      seconds: 0,
+      lastPlaySeconds: 0,
+    });
+  }
 }
 
 export class CategoryInfo {
   id!: string;
+  name!: string;
+
+  private constructor({ id, name }: { id: string; name: string }) {
+    this.id = id;
+    this.name = name;
+    Object.freeze(this);
+  }
+
+  public static create(data: CategoryInfoResponse) {
+    return new CategoryInfo({ id: data.categoryId, name: data.categoryName });
+  }
+}
+
+export class RecipeDetailMeta {
+  description!: string;
+  servings!: number;
+  cookTime!: number;
+
+  private constructor(data: unknown) {
+    Object.assign(this, data);
+    Object.freeze(this);
+  }
+
+  public static create(data: RecipeDetailMetaResponse) {
+    return new RecipeDetailMeta({
+      description: data.description,
+      servings: data.servings,
+      cookTime: data.cookingTime,
+    });
+  }
+
+  public static createFromEmpty() {
+    return new RecipeDetailMeta({
+      description: "",
+      servings: 0,
+      cookTime: 0,
+    });
+  }
+}
+
+export class RecipeTag {
   name!: string;
 
   private constructor(data: unknown) {
@@ -51,8 +101,10 @@ export class CategoryInfo {
     Object.freeze(this);
   }
 
-  public static create(data: CategoryInfoResponse) {
-    return new CategoryInfo(data);
+  public static create({ name }: { name: string }) {
+    return new RecipeTag({
+      name: name,
+    });
   }
 }
 
@@ -62,6 +114,8 @@ export class UserRecipe {
   videoInfo!: VideoInfo;
   categoryInfo?: CategoryInfo;
   viewedAt!: Date;
+  recipeDetailMeta?: RecipeDetailMeta;
+  tags?: RecipeTag[];
 
   private constructor(data: unknown) {
     Object.assign(this, data);
@@ -69,7 +123,22 @@ export class UserRecipe {
   }
 
   public static create(data: UserRecipeResponse) {
-    return new UserRecipe(data);
+    return new UserRecipe({
+      ...data,
+      recipeDetailMeta: data.recipeDetailMeta && {...RecipeDetailMeta.create(data.recipeDetailMeta)},
+    });
+  }
+
+  public static createFromEmpty() {
+    return new UserRecipe({
+      recipeId: "",
+      title: "",
+      videoInfo: VideoInfo.createFromEmpty(),
+      categoryInfo: undefined,
+      viewedAt: new Date(),
+      recipeDetailMeta: undefined,
+      tags: undefined,
+    });
   }
 
   public getSubTitle() {
@@ -126,13 +195,20 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
     isLoading,
     error,
   } = useSuspenseInfiniteQuery({
-    queryKey: [QUERY_KEY, (category as Category)?.id || QUERY_KEY_UNCATEGORIZED],
+    queryKey: [
+      QUERY_KEY,
+      (category as Category)?.id || QUERY_KEY_UNCATEGORIZED,
+    ],
     queryFn: ({ pageParam = 0 }) => {
       switch (category) {
         case ALL_RECIPES:
           return fetchUnCategorizedRecipesSummary({ page: pageParam });
         default:
-          return fetchCategorizedRecipesSummary({ categoryId: category.id, categoryName: category.name, page: pageParam });
+          return fetchCategorizedRecipesSummary({
+            categoryId: category.id,
+            categoryName: category.name,
+            page: pageParam,
+          });
       }
     },
     getNextPageParam: (lastPage) => {
@@ -163,7 +239,10 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
 
   const refetchAll = () => {
     queryClient.invalidateQueries({
-      queryKey: [QUERY_KEY, (category as Category)?.id || QUERY_KEY_UNCATEGORIZED],
+      queryKey: [
+        QUERY_KEY,
+        (category as Category)?.id || QUERY_KEY_UNCATEGORIZED,
+      ],
     });
   };
 

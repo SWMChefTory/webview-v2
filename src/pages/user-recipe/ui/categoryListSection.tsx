@@ -23,28 +23,15 @@ import {
   ALL_RECIPES,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 
-// import {
-//   AlertDialog,
-//   AlertDialogAction,
-//   AlertDialogCancel,
-//   AlertDialogContent,
-//   AlertDialogDescription,
-//   AlertDialogFooter,
-//   AlertDialogHeader,
-//   AlertDialogTitle,
-//   AlertDialogOverlay,
-// } from "@/components/ui/alert-dialog";
-
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogClose,
-  DialogTrigger,
 } from "@/components/ui/dialog";
+
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import {

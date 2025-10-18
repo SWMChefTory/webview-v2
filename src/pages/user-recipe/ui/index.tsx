@@ -1,4 +1,4 @@
-import Header, { BackButton, HeaderSpacing } from "@/src/shared/ui/header";
+import Header, { BackButton, } from "@/src/shared/ui/header";
 import { useRouter } from "next/router";
 
 import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
@@ -18,22 +18,21 @@ export function UserRecipe() {
     string | typeof ALL_RECIPES
   >(ALL_RECIPES);
 
+  console.log("selectedCategoryId", selectedCategoryId);
+
   return (
     <PageMovementTemplate>
       <div className="flex flex-col overflow-hidden bg-stone-800 h-[100vh] w-[100vw]">
-        <div className="fixed top-0 left-0 right-0 z-10">
-          <Header
-            leftContent={
-              <BackButton
-                onClick={() => {
-                  router.back();
-                }}
-                color="text-white"
-              />
-            }
-          />
-        </div>
-        <HeaderSpacing />
+        <Header
+          leftContent={
+            <BackButton
+              onClick={() => {
+                router.back();
+              }}
+              color="text-white"
+            />
+          }
+        />
         <CategoryListSection
           selectedCategoryId={selectedCategoryId}
           setSelectedCategoryId={setSelectedCategoryId}

@@ -1,6 +1,5 @@
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
-import { RecipeDetailMeta } from "@/src/entities/recipe/model/useRecipe";
+import { RecipeDetailMeta } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { IconType } from "react-icons";
@@ -25,13 +24,11 @@ import {
   ElapsedViewTimeReady,
   ElapsedViewTimeSkeleton,
 } from "@/src/entities/user_recipe/ui/detail";
-import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
 import { CgArrowsExchangeV } from "react-icons/cg";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 const NO_CATEGORY_NAME = "카테고리 선택";
@@ -40,8 +37,6 @@ const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
   const { progress, isLoading } = useFetchRecipeProgressNotSuspense(
     userRecipe.recipeId
   );
-  const [isCategorySelectComboboxOpen, setIsCategorySelectComboboxOpen] =
-    useState(false);
 
   return (
     <div className="relative w-full px-[10] flex flex-row items-center justify-center z-10">
@@ -62,9 +57,7 @@ const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
         {isLoading || progress?.recipeStatus === RecipeStatus.IN_PROGRESS ? (
           <DetailSectionSkeleton />
         ) : (
-          <SSRSuspense fallback={<DetailSectionSkeleton />}>
-            <DetailSectionReady recipeId={userRecipe.recipeId} />
-          </SSRSuspense>
+          <DetailSectionReady tags={userRecipe.tags || []} recipeDetailMeta={userRecipe.recipeDetailMeta || RecipeDetailMeta.createFromEmpty()} />
         )}
         <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
       </div>
@@ -99,7 +92,7 @@ const CategorySelect = ({
   selectedCategoryInfo?: CategoryInfo;
 }) => {
   const { data: categories } = useFetchCategories();
-  const { updateCategory} = useUpdateCategoryOfRecipe();
+  const { updateCategory } = useUpdateCategoryOfRecipe();
   return (
     <DialogPrimitive.Root>
       <DialogPrimitive.Trigger>
@@ -168,13 +161,12 @@ const RecipeDetailsCardSkeleton = () => {
   );
 };
 
-function DetailSectionReady({ recipeId }: { recipeId: string }) {
-  const { data: recipe } = useFetchRecipe(recipeId);
+function DetailSectionReady({ recipeDetailMeta, tags }: { recipeDetailMeta: RecipeDetailMeta, tags: RecipeTag[] }) {
   return (
     <>
       <RecipePropertiesReady
         recipeDetailMeta={
-          recipe.detailMeta ?? {
+          recipeDetailMeta ?? {
             id: "",
             description: "",
             servings: 0,
@@ -182,7 +174,7 @@ function DetailSectionReady({ recipeId }: { recipeId: string }) {
           }
         }
       />
-      <TagListReady tags={recipe.tags ?? []} />
+      <TagListReady tags={tags ?? []} />
     </>
   );
 }

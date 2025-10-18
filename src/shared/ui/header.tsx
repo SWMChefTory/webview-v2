@@ -6,30 +6,37 @@ const Header = ({
   leftContent,
   centerContent,
   rightContent,
+  color,
 }: {
   leftContent?: React.ReactNode;
   centerContent?: React.ReactNode;
   rightContent?: React.ReactNode;
+  color?: string;
 }) => {
   return (
-    <>
-      <div className="pt-safe"></div>
-      <header className="sticky bg-black top-0 left-0 z-1 flex items-center py-2 px-2 h-[44] bg-transparent">
-        {leftContent && (
-          <div className="absolute pl-2 h-full top-0 left-0">{leftContent}</div>
-        )}
-        {centerContent && (
-          <div className="flex items-center">
-            <HeaderCenterItem>{centerContent}</HeaderCenterItem>
-          </div>
-        )}
-        {rightContent && (
-          <div className="absolute pr-2 h-full top-0 right-0 flex items-center">
-            {rightContent}
-          </div>
-        )}
+    <div>
+      <header className={`fixed top-0 left-0 right-0 z-1 ${color}`}>
+        <div className="pt-safe" />
+        <div className="flex relative items-center py-2 px-2 h-[44]">
+          {leftContent && (
+            <div className="absolute flex pl-2 h-full w-full top-0 left-0 items-center">
+              {leftContent}
+            </div>
+          )}
+          {centerContent && (
+            <div className="flex items-center w-full">
+              <HeaderCenterItem>{centerContent}</HeaderCenterItem>
+            </div>
+          )}
+          {rightContent && (
+            <div className="absolute pr-2 h-full w-full top-0 right-0 flex justify-end items-center">
+              {rightContent}
+            </div>
+          )}
+        </div>
       </header>
-    </>
+      <HeaderSpacing />
+    </div>
   );
 };
 
@@ -49,10 +56,6 @@ const HeaderCenterItem = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const HeaderCornerItem = ({ children }: { children: React.ReactNode }) => {
-  return <div className="flex flex-col h-full justify-center">{children}</div>;
-};
-
 const IconButtonTemplate = ({
   icon,
   onClick,
@@ -61,7 +64,7 @@ const IconButtonTemplate = ({
   onClick: () => void;
 }) => {
   return (
-    <div className="w-full h-full flex items-center">
+    <div className=" flex items-center">
       <Button
         onClick={onClick}
         variant="ghost"

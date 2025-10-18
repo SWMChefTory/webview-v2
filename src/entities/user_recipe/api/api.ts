@@ -5,6 +5,9 @@ import {
   RecipeProgressDetail,
   RecipeProgressStep,
 } from "@/src/entities/user_recipe/type/type";
+import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
+import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
+import {RecipeDetailMetaSchema, RecipeTagSchema} from "@/src/shared/schema/recipeSchema";
 
 const VideoInfoSchema = z.object({
   thumbnailUrl: z.string(),
@@ -13,54 +16,51 @@ const VideoInfoSchema = z.object({
   lastPlaySeconds: z.number(),
 });
 
-const CategoryInfoSchema = z.object({
-  id: z.string(),
-  name: z.string(),
+const CategorySchema = z.object({
+  categoryId: z.string(),
+  categoryName: z.string(),
 });
 
 const UserRecipeSchema = z.object({
   recipeId: z.string(),
   title: z.string(),
   videoInfo: VideoInfoSchema,
-  categoryInfo: CategoryInfoSchema.optional(),
+  categoryInfo: CategorySchema.optional(),
+  recipeDetailMeta: RecipeDetailMetaSchema.optional(),
+  tags: z.array(RecipeTagSchema).optional(),
   viewedAt: z.date(),
 });
 
-const PaginatedSchema = z.object({
-  currentPage: z.number(),
-  hasNext: z.boolean(),
-  totalElements: z.number(),
-  totalPages: z.number(),
-  data: z.array(UserRecipeSchema),
-});
+const UserRecipesSchema = z.array(UserRecipeSchema);
+
+const PaginatedSchema = createPaginatedSchema(UserRecipesSchema);
 
 type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 export type UserRecipeResponse = z.infer<typeof UserRecipeSchema>;
 export type VideoInfoResponse = z.infer<typeof VideoInfoSchema>;
-export type CategoryInfoResponse = z.infer<typeof CategoryInfoSchema>;
+export type CategoryInfoResponse = z.infer<typeof CategorySchema>;
 
 export async function fetchCategorizedRecipesSummary({
   categoryId,
-  categoryName: category,
+  categoryName,
   page,
 }: {
   categoryId: string;
   categoryName: string;
   page: number;
 }): Promise<PaginatedRecipes> {
-
   const response = await client.get(
     `/recipes/categorized/${categoryId}?page=${page}`
   );
 
   const data = response.data;
-  return PaginatedSchema.parse({
+  return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
     totalElements: data.totalElements,
     totalPages: data.totalPages,
     data: data.categorizedRecipes.map((recipe: any) =>
-      transformRecipe({ ...recipe, category })
+      transformRecipe({ ...recipe, category : categoryName })
     ),
   });
 }
@@ -71,10 +71,7 @@ export async function fetchUnCategorizedRecipesSummary(params: {
   const { page } = params;
   const response = await client.get(`/recipes/uncategorized?page=${page}`);
   const data = response.data;
-  console.log("[FETCH UNCATEGORIZED RECIPES SUMMARY] totalElements : ", JSON.stringify(data.totalElements));
-  console.log("[FETCH UNCATEGORIZED RECIPES SUMMARY] pages : ", JSON.stringify(data.totalPages));
-  console.log("[FETCH UNCATEGORIZED RECIPES SUMMARY] hasNext : ", JSON.stringify(data.hasNext));
-  return PaginatedSchema.parse({
+  return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
     totalElements: data.totalElements,
@@ -96,12 +93,21 @@ const transformRecipe = (recipe: any) => {
       lastPlaySeconds: recipe.lastPlaySeconds,
     },
     categoryInfo: recipe.categoryId
-      ? {
-          id: recipe.categoryId,
-          name: recipe.category,
+      ? { 
+          categoryId: recipe.categoryId,
+          categoryName: recipe.category,
         }
       : undefined,
+
     viewedAt: new Date(recipe.viewedAt),
+    recipeDetailMeta: recipe.description? {
+      description: recipe.description,
+      servings: recipe.servings,
+      cookingTime: recipe.cookTime,
+    } : undefined,
+    tags: recipe.tags ? recipe.tags.map((tag: any) => ({
+      name: tag.name,
+    })) : undefined,
   };
 };
 
@@ -115,7 +121,6 @@ export async function createRecipe(videoUrl: string): Promise<string> {
     video_url: videoUrl,
   };
   const response = await client.post(`/recipes`, createRequest);
-  console.log("[CREATE RECIPE] : ", JSON.stringify(response.data));
   return CreateRecipeResponseSchema.parse(response.data).recipeId;
 }
 
@@ -139,8 +144,7 @@ export async function fetchRecipeProgress(
   const response = await client.get<RecipeCreateStatusResponse>(
     `/recipes/progress/${recipeId}`
   );
-  console.log("[FETCH RECIPE PROGRESS] : ", JSON.stringify(response.data));
-  return RecipeProgressDetailSchema.parse(response.data);
+  return parseWithErrLog(RecipeProgressDetailSchema, response.data);
 }
 
 export async function updateCategory({

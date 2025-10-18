@@ -1,13 +1,15 @@
 import client from "@/src/shared/client/main/client";
-import { RecipeStatus } from "../enums/recipeStatus";
 import { z } from "zod";
-
-const VideoInfoSchema = z.object({
-  videoId: z.string(),
-  videoTitle: z.string(),
-  videoThumbnailUrl: z.string(),
-  videoSeconds: z.number(),
-});
+import {
+  RecipeDetailMetaSchema,
+  IngredientSchema,
+  RecipeStepSchema,
+  RecipeTagSchema,
+  RecipeBriefingSchema,
+  RecipeStepDetailSchema,
+  RecipeStatusSchema,
+} from "@/src/shared/schema/recipeSchema";
+import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
 
 const ViewStatusSchema = z.object({
   id: z.string(),
@@ -16,42 +18,9 @@ const ViewStatusSchema = z.object({
   createdAt: z.string(),
 });
 
-const RecipeDetailMetaSchema = z.object({
-  description: z.string(),
-  servings: z.number(),
-  cookingTime: z.number(),
-});
-
-const IngredientSchema = z.object({
-  name: z.string(),
-  amount: z.number().optional(),
-  unit: z.string().optional(),
-});
-
-const RecipeStepDetailSchema = z.object({
-  text: z.string(),
-  start: z.number(),
-});
-
-const RecipeStepSchema = z.object({
-  id: z.string(),
-  stepOrder: z.number(),
-  subtitle: z.string(),
-  startTime: z.number(),
-  details: z.array(RecipeStepDetailSchema),
-});
-
-const RecipeTagSchema = z.object({
-  name: z.string(),
-});
-
-const RecipeBriefingSchema = z.object({
-  content: z.string(),
-});
-
 const RecipeSchema = z.object({
-    recipeStatus: z.enum([RecipeStatus.SUCCESS, RecipeStatus.FAILED, RecipeStatus.IN_PROGRESS]),
   videoInfo: VideoInfoSchema,
+  recipeStatus: RecipeStatusSchema,
   viewStatus: ViewStatusSchema,
   recipeDetailMeta: RecipeDetailMetaSchema.optional(),
   recipeIngredient: z.array(IngredientSchema).optional(),
@@ -73,6 +42,6 @@ export type RecipeResponse = z.infer<typeof RecipeSchema>;
 export const fetchRecipe = async (id: string): Promise<RecipeResponse> => {
   const response = await client.get(`/recipes/${id}`);
   const data = response.data;
+  console.log("data", JSON.stringify(data, null, 2));
   return RecipeSchema.parse(data);
 };
-

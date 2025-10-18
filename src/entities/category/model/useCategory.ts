@@ -5,7 +5,6 @@ import {
 } from "@tanstack/react-query";
 import {
   fetchCategories,
-  CategoryResponse,
   deleteCategory as deleteCategoryApi,
   createCategory as createCategoryApi,
 } from "../api/api";
@@ -13,6 +12,7 @@ import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
 import {
   QUERY_KEY as USER_RECIPE_QUERY_KEY,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { Category as CategoryResponse } from "@/src/shared/schema/categorySchema";
 
 export class Category {
   id!: string;
@@ -33,7 +33,6 @@ export class Category {
   }
 
   static createAllRecipeCategory({ count }: { count: number }) {
-    console.log("createAllRecipeCategory", count);
     return new Category({
       id: ALL_RECIPES,
       name: "전체",
@@ -52,7 +51,7 @@ export const useFetchCategories = () => {
       if (!res) {
         throw new Error("Response is not valid");
       }
-      return res.map(Category.create);
+      return res.categories.map(Category.create);
     },
   });
   return { data, isLoading, error };

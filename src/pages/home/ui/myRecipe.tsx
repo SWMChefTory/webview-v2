@@ -150,7 +150,7 @@ const CategoryListFilter = ({
             onClick: () => {
               setSelectedCategory?.(category);
             },
-            isSelected: selectedCategory === category.id,
+            isSelected: (selectedCategory as Category).id === category.id,
           }}
         />
       ))}

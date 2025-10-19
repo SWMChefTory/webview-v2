@@ -31,6 +31,7 @@ const ThumbnailEmpty = () => {
 };
 
 const ThumbnailReady = ({ imgUrl }: { imgUrl: string }) => {
+  console.log("imgUrl", imgUrl);
   return (
     <ThumbnailTemplate>
       <img

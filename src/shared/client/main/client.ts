@@ -17,13 +17,14 @@ const client = axios.create({
 
 client.interceptors.request.use(
   async (config) => {
-    console.log("!!!!!!!!!!!!ㄱㄱ", JSON.stringify(config.data, null, 2));
     if(typeof window === "undefined") {
       return Promise.resolve(config);
     }
     const token = getMainAccessToken();
     config.data = (()=>{
+
       if (config.data) {
+        console.log("config.data", JSON.stringify(config.data, null, 2));
         return snakecaseKeys(config.data, { deep: true });
       }
       return config.data;

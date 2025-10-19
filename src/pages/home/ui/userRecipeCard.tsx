@@ -23,7 +23,6 @@ import {ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress"
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
-import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 
 
 export const UserRecipeCardReady = ({

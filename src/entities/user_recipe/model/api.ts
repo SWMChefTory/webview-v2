@@ -7,38 +7,19 @@ import {
 } from "@/src/entities/user_recipe/type/type";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
-import {RecipeDetailMetaSchema, RecipeTagSchema} from "@/src/shared/schema/recipeSchema";
-
-const VideoInfoSchema = z.object({
-  thumbnailUrl: z.string(),
-  id: z.string(),
-  seconds: z.number(),
-  lastPlaySeconds: z.number(),
-});
-
-const CategorySchema = z.object({
-  categoryId: z.string(),
-  categoryName: z.string(),
-});
-
-const UserRecipeSchema = z.object({
-  recipeId: z.string(),
-  title: z.string(),
-  videoInfo: VideoInfoSchema,
-  categoryInfo: CategorySchema.optional(),
-  recipeDetailMeta: RecipeDetailMetaSchema.optional(),
-  tags: z.array(RecipeTagSchema).optional(),
-  viewedAt: z.date(),
-});
-
-const UserRecipesSchema = z.array(UserRecipeSchema);
+import { UserRecipesSchema,} from "./schema";
 
 const PaginatedSchema = createPaginatedSchema(UserRecipesSchema);
+export type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 
-type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
-export type UserRecipeResponse = z.infer<typeof UserRecipeSchema>;
-export type VideoInfoResponse = z.infer<typeof VideoInfoSchema>;
-export type CategoryInfoResponse = z.infer<typeof CategorySchema>;
+export async function fetchAllRecipesSummary({ page }: { page: number }) {
+  const response = await client.get(`/recipes/histories?page=${page}`);
+  const data = response.data;
+  return parseWithErrLog(PaginatedSchema, {
+    ...data,
+    data: data.recipes.map((recipe: any) => transformRecipe(recipe)),
+  });
+}
 
 export async function fetchCategorizedRecipesSummary({
   categoryId,
@@ -54,15 +35,20 @@ export async function fetchCategorizedRecipesSummary({
   );
 
   const data = response.data;
-  console.log("fetch categorized recipes",JSON.stringify(data, null, 2));
+  console.log("fetch categorized recipes", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
     totalElements: data.totalElements,
     totalPages: data.totalPages,
-    data: data.categorizedRecipes.map((recipe: any) =>
-      transformRecipe({ ...recipe, category : categoryName })
-    ).sort((a: any, b: any) => new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime()),
+    data: data.categorizedRecipes
+      .map((recipe: any) =>
+        transformRecipe({ ...recipe, category: categoryName })
+      )
+      .sort(
+        (a: any, b: any) =>
+          new Date(b.viewedAt).getTime() - new Date(a.viewedAt).getTime()
+      ),
   });
 }
 
@@ -73,7 +59,7 @@ export async function fetchUnCategorizedRecipesSummary(params: {
   const response = await client.get(`/recipes/uncategorized?page=${page}`);
   const data = response.data;
 
-  console.log("fetch uncategorized recipes",JSON.stringify(data, null, 2));
+  console.log("fetch uncategorized recipes", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
@@ -95,22 +81,19 @@ const transformRecipe = (recipe: any) => {
       seconds: recipe.videoSeconds,
       lastPlaySeconds: recipe.lastPlaySeconds,
     },
-    categoryInfo: recipe.categoryId
-      ? { 
-          categoryId: recipe.categoryId,
-          categoryName: recipe.category,
+    viewedAt: new Date(recipe.viewedAt),
+    recipeDetailMeta: recipe.description
+      ? {
+          description: recipe.description,
+          servings: recipe.servings,
+          cookingTime: recipe.cookTime,
         }
       : undefined,
-
-    viewedAt: new Date(recipe.viewedAt),
-    recipeDetailMeta: recipe.description? {
-      description: recipe.description,
-      servings: recipe.servings,
-      cookingTime: recipe.cookTime,
-    } : undefined,
-    tags: recipe.tags ? recipe.tags.map((tag: any) => ({
-      name: tag.name,
-    })) : undefined,
+    tags: recipe.tags
+      ? recipe.tags.map((tag: any) => ({
+          name: tag.name,
+        }))
+      : undefined,
   };
 };
 

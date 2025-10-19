@@ -79,7 +79,7 @@ const RecipeSearchedCardReady = ({
       </div>
       <div className="flex flex-row gap-x-2 overflow-x-scroll">
         {searchResults.tags?.map((tag) => (
-          <div className="text-sm">#{tag.name}</div>
+          <div className="text-sm whitespace-nowrap">#{tag.name}</div>
         ))}
       </div>
       <div className="text-sm line-clamp-2 min-h-[2.5rem]">

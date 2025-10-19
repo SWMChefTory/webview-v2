@@ -211,6 +211,7 @@ class Recipe {
 
 export const RECIPE_QUERY_KEY = "recipes";
 export const useFetchRecipe = (id: string) => {
+  console.log("id!!", id);
   const { data } = useSuspenseQuery({
     queryKey: [RECIPE_QUERY_KEY, id],
     queryFn: () => fetchRecipe(id),

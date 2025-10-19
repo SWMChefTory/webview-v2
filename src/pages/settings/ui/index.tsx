@@ -4,6 +4,9 @@ import { useRouter } from "next/router";
 import Chef from "@/src/pages/settings/assets/chef.png";
 import { MdEdit } from "react-icons/md";
 import { PiUserSoundThin } from "react-icons/pi";
+import { request, MODE } from "@/src/shared/client/native/client";
+
+const LOGOUT = "LOGOUT";
 
 function SettingsPage() {
   const router = useRouter();
@@ -51,11 +54,12 @@ function SettingsPage() {
               <GoChevronRight className="size-4 text-gray-500" />
             </div>
           </div>
-
         </div>
         <div className="h-[32]" />
         <div className="flex flex-row gap-6 items-center justify-center">
-          <div className="text-gray-500">로그아웃</div>
+          <div onClick={() => {
+            request(MODE.UNBLOCKING, LOGOUT);
+          }} className="text-gray-500">로그아웃</div>
           <div className="text-red-500">회원탈퇴</div>
         </div>
       </div>

@@ -9,7 +9,7 @@ import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 import { UserRecipesSchema,} from "./schema";
 
-const PaginatedSchema = createPaginatedSchema(UserRecipesSchema);
+export const PaginatedSchema = createPaginatedSchema(UserRecipesSchema);
 export type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 
 export async function fetchAllRecipesSummary({ page }: { page: number }) {
@@ -17,7 +17,7 @@ export async function fetchAllRecipesSummary({ page }: { page: number }) {
   const data = response.data;
   return parseWithErrLog(PaginatedSchema, {
     ...data,
-    data: data.recipes.map((recipe: any) => transformRecipe(recipe)),
+    data: data.recipeHistories.map((recipe: any) => transformRecipe(recipe)),
   });
 }
 
@@ -35,7 +35,6 @@ export async function fetchCategorizedRecipesSummary({
   );
 
   const data = response.data;
-  console.log("fetch categorized recipes", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,

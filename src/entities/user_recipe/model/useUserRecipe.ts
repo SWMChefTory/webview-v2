@@ -1,11 +1,9 @@
 import {
-  fetchUnCategorizedRecipesSummary,
   fetchCategorizedRecipesSummary,
-  VideoInfo,
-  UserRecipe,
+  fetchAllRecipesSummary,
   fetchRecipeProgress,
   updateCategory,
-} from "@/src/entities/user_recipe/api/api";
+} from "@/src/entities/user_recipe/model/api";
 import {
   RecipeStatus,
   RecipeProgressDetail,
@@ -17,17 +15,17 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/api/api";
+import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/model/api";
 
 import { useMutation } from "@tanstack/react-query";
-import { createRecipe } from "@/src/entities/user_recipe/api/api";
-import { useEffect } from "react";
+import { createRecipe } from "@/src/entities/user_recipe/model/api";
+import { useEffect, useRef, useState } from "react";
 import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
-import { RecipeDetailMetaResponse } from "../../recipe/api/api";
-
+import { PaginatedRecipes } from "@/src/entities/user_recipe/model/api";
+import { UserRecipe } from "@/src/entities/user_recipe/model/schema";
 
 export const QUERY_KEY = "categoryRecipes";
-export const QUERY_KEY_UNCATEGORIZED = "uncategorizedRecipes";
+export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
 
 export const ALL_RECIPES = "allRecipes";
 
@@ -50,14 +48,13 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
     isLoading,
     error,
   } = useSuspenseInfiniteQuery({
-    queryKey: [
-      QUERY_KEY,
-      (category as Category)?.id || QUERY_KEY_UNCATEGORIZED,
-    ],
+    queryKey: (()=>{return category === ALL_RECIPES
+      ? [ALL_RECIPE_QUERY_KEY]
+      : [QUERY_KEY, category?.id ?? "unknown"];})(),
     queryFn: ({ pageParam = 0 }) => {
       switch (category) {
         case ALL_RECIPES:
-          return fetchUnCategorizedRecipesSummary({ page: pageParam });
+          return fetchAllRecipesSummary({ page: pageParam });
         default:
           return fetchCategorizedRecipesSummary({
             categoryId: category.id,
@@ -66,7 +63,7 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
           });
       }
     },
-    getNextPageParam: (lastPage) => {
+    getNextPageParam: (lastPage: PaginatedRecipes) => {
       return lastPage.hasNext ? lastPage.currentPage + 1 : undefined;
     },
     select: (data) => {
@@ -74,17 +71,7 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
         throw new Error("Data is not valid");
       }
       return {
-        recipes: data.pages.flatMap((page) => {
-          return page.data.flatMap((recipe: any) =>
-            UserRecipe.create({
-              ...recipe,
-              videoInfo: VideoInfo.create(recipe.videoInfo),
-              categoryInfo: recipe.categoryInfo
-                ? CategoryInfo.create(recipe.categoryInfo)
-                : undefined,
-            })
-          );
-        }),
+        recipes: data.pages.flatMap((page) => page.data),
         totalElements: data.pages[0].totalElements,
       };
     },
@@ -96,7 +83,7 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
     queryClient.invalidateQueries({
       queryKey: [
         QUERY_KEY,
-        (category as Category)?.id || QUERY_KEY_UNCATEGORIZED,
+        (category as Category)?.id || ALL_RECIPE_QUERY_KEY,
       ],
     });
   };
@@ -191,7 +178,7 @@ export function useUpdateCategoryOfRecipe() {
         queryKey: [QUERY_KEY],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_UNCATEGORIZED],
+        queryKey: [ALL_RECIPE_QUERY_KEY],
       });
       queryClient.invalidateQueries({
         queryKey: [CATEGORY_QUERY_KEY],
@@ -234,7 +221,7 @@ export function useCreateRecipe() {
         queryKey: [QUERY_KEY],
       });
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY_UNCATEGORIZED],
+        queryKey: [ALL_RECIPE_QUERY_KEY],
       });
       queryClient.invalidateQueries({
         queryKey: [CATEGORY_QUERY_KEY],
@@ -313,6 +300,8 @@ export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
     staleTime: 5 * 60 * 1000,
     select: (data) => RecipeProgressStatus.create(data),
   });
+  const isCreatingSuccessRef = useRef(false);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!progress) {
@@ -322,10 +311,17 @@ export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
       if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
         return setInterval(() => {
           refetch();
+          isCreatingSuccessRef.current = true;
         }, 1000);
       }
     })();
-    if (progress.recipeStatus !== RecipeStatus.IN_PROGRESS) {
+    if (
+      progress.recipeStatus !== RecipeStatus.IN_PROGRESS ||
+      isCreatingSuccessRef.current
+    ) {
+      queryClient.invalidateQueries({
+        queryKey: [ALL_RECIPE_QUERY_KEY],
+      });
       clearInterval(interval);
     }
     return () => {

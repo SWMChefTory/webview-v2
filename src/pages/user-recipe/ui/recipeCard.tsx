@@ -1,5 +1,4 @@
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { RecipeDetailMeta } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { IconType } from "react-icons";
@@ -9,9 +8,7 @@ import {
   ThumbnailReady,
 } from "@/src/entities/user_recipe/ui/thumbnail";
 import {
-  CategoryInfo,
   useFetchRecipeProgressNotSuspense,
-  UserRecipe,
   useUpdateCategoryOfRecipe,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { TitleReady, TitleSkeleton } from "@/src/entities/user_recipe/ui/title";
@@ -19,27 +16,50 @@ import {
   CategoryChip,
   ChipType,
 } from "@/src/entities/category/ui/categoryChip";
-import { IoMdAdd, IoMdClose } from "react-icons/io";
 import {
   ElapsedViewTimeReady,
   ElapsedViewTimeSkeleton,
 } from "@/src/entities/user_recipe/ui/detail";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
-import { CgArrowsExchangeV } from "react-icons/cg";
-import { useFetchCategories } from "@/src/entities/category/model/useCategory";
-import * as DialogPrimitive from "@radix-ui/react-dialog";
+import {
+  getElapsedTime,
+  UserRecipe,
+} from "@/src/entities/user_recipe/model/schema";
 import { motion } from "framer-motion";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { useFetchCategories } from "@/src/entities/category/model/useCategory";
+import { IoMdClose } from "react-icons/io";
+import { useResolveLongClick } from "@/src/shared/hooks/useClick";
+import { useState } from "react";
+import { IoFolderOpenOutline } from "react-icons/io5";
 
-const NO_CATEGORY_NAME = "카테고리 선택";
-
-const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
+const RecipeDetailsCardReady = ({
+  userRecipe,
+  selectedCategoryId,
+}: {
+  userRecipe: UserRecipe;
+  selectedCategoryId: string;
+}) => {
   const { progress, isLoading } = useFetchRecipeProgressNotSuspense(
     userRecipe.recipeId
   );
-
+  const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
+  const { handleTapStart } = useResolveLongClick(
+    () => {
+      console.log("short click");
+    },
+    () => {
+      setIsCategorySelectOpen(true);
+    }
+  );
   return (
-    <div className="relative w-full px-[10] flex flex-row items-center justify-center z-10">
+    <motion.div
+      whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+      transition={{ duration: 1 }}
+      className="relative w-full px-[10] flex flex-row items-center justify-center z-10"
+      onTapStart={handleTapStart}
+    >
       {progress && progress.recipeStatus === RecipeStatus.IN_PROGRESS && (
         <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
           <ProgressDetailsCheckList
@@ -47,110 +67,38 @@ const RecipeDetailsCardReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
           />
         </div>
       )}
-      <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} />
+      <ThumbnailReady
+        imgUrl={userRecipe.videoInfo.thumbnailUrl}
+        size={{ width: 160, height: 90 }}
+      />
       <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
-        <CategorySelect
-          recipeId={userRecipe.recipeId}
-          selectedCategoryInfo={userRecipe.categoryInfo}
-        />
         {isLoading || progress?.recipeStatus === RecipeStatus.IN_PROGRESS ? (
           <DetailSectionSkeleton />
         ) : (
-          <DetailSectionReady tags={userRecipe.tags || []} recipeDetailMeta={userRecipe.recipeDetailMeta || RecipeDetailMeta.createFromEmpty()} />
+          <DetailSectionReady
+            tags={userRecipe.tags || []}
+            cookTime={userRecipe.recipeDetailMeta?.cookingTime ?? 0}
+            servings={userRecipe.recipeDetailMeta?.servings ?? 0}
+            desrciption={userRecipe.recipeDetailMeta?.description ?? ""}
+          />
         )}
-        <ElapsedViewTimeReady details={userRecipe.getSubTitle()} />
-      </div>
-    </div>
-  );
-};
-
-const CategorySelectTrigger = ({
-  recipeId,
-  categoryInfo,
-}: {
-  recipeId: string;
-  categoryInfo?: CategoryInfo;
-}) => {
-  return (
-    <CategoryChip
-      props={{
-        type: ChipType.EDITION,
-        name: categoryInfo?.name || NO_CATEGORY_NAME,
-        accessary: categoryInfo ? CgArrowsExchangeV : IoMdAdd,
-        onClick: () => {},
-      }}
-    />
-  );
-};
-
-const CategorySelect = ({
-  recipeId,
-  selectedCategoryInfo,
-}: {
-  recipeId: string;
-  selectedCategoryInfo?: CategoryInfo;
-}) => {
-  const { data: categories } = useFetchCategories();
-  const { updateCategory } = useUpdateCategoryOfRecipe();
-  return (
-    <DialogPrimitive.Root>
-      <DialogPrimitive.Trigger>
-        <CategorySelectTrigger
-          recipeId={recipeId}
-          categoryInfo={selectedCategoryInfo}
+        <ElapsedViewTimeReady details={getElapsedTime(userRecipe.viewedAt)} />
+        <CategorySelect
+          recipeId={userRecipe.recipeId}
+          isCategorySelectOpen={isCategorySelectOpen}
+          setIsCategorySelectOpen={setIsCategorySelectOpen}
+          selectedCategoryId={selectedCategoryId}
         />
-      </DialogPrimitive.Trigger>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 bg-gray-900/5 z-20" />
-        <DialogPrimitive.Content className="inline-flex w-fit flex-col gap-2 bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 pt-4 pb-8 rounded-lg z-30 max-w-[80%]">
-          <div className="flex w-full justify-end">
-            <DialogPrimitive.Close asChild>
-              <motion.div
-                className="rounded-full p-1"
-                aria-label="Close"
-                whileTap={{ scale: 0.8, backgroundColor: "#E8E8E8" }}
-              >
-                <IoMdClose />
-              </motion.div>
-            </DialogPrimitive.Close>
-          </div>
-
-          <div className="text-sm text-gray-500 px-2 pb-2">
-            카테고리를 선택해주세요
-          </div>
-          {categories?.map((category) => (
-            <>
-              <DialogPrimitive.Close asChild>
-                <motion.div
-                  key={category.id}
-                  className={`px-2 truncate rounded-md p-1 ${
-                    category.id == selectedCategoryInfo?.id && "text-gray-500"
-                  }`}
-                  onClick={async () => {
-                    updateCategory({ recipeId, targetCategoryId: category.id });
-                  }}
-                  whileTap={
-                    category.id !== selectedCategoryInfo?.id
-                      ? { scale: 0.95, backgroundColor: "#E8E8E8" }
-                      : undefined
-                  }
-                >
-                  {category.name}
-                </motion.div>
-              </DialogPrimitive.Close>
-            </>
-          ))}
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+      </div>
+    </motion.div>
   );
 };
 
 const RecipeDetailsCardSkeleton = () => {
   return (
     <div className="w-full px-[10] flex flex-row items-center">
-      <ThumbnailSkeleton />
+      <ThumbnailSkeleton size={{ width: 160, height: 90 }} />
       <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleSkeleton />
         <CategoryChip props={{ type: ChipType.SKELETON }} />
@@ -161,18 +109,23 @@ const RecipeDetailsCardSkeleton = () => {
   );
 };
 
-function DetailSectionReady({ recipeDetailMeta, tags }: { recipeDetailMeta: RecipeDetailMeta, tags: RecipeTag[] }) {
+function DetailSectionReady({
+  cookTime,
+  servings,
+  desrciption,
+  tags,
+}: {
+  cookTime: number;
+  servings: number;
+  desrciption: string;
+  tags: RecipeTag[];
+}) {
   return (
     <>
       <RecipePropertiesReady
-        recipeDetailMeta={
-          recipeDetailMeta ?? {
-            id: "",
-            description: "",
-            servings: 0,
-            cookTime: 0,
-          }
-        }
+        cookTime={cookTime}
+        servings={servings}
+        desrciption={desrciption}
       />
       <TagListReady tags={tags ?? []} />
     </>
@@ -245,9 +198,13 @@ const Tag = ({ tagProps }: { tagProps: TagProps }) => {
 };
 
 const RecipePropertiesReady = ({
-  recipeDetailMeta,
+  cookTime,
+  servings,
+  desrciption,
 }: {
-  recipeDetailMeta: RecipeDetailMeta;
+  cookTime: number;
+  servings: number;
+  desrciption: string;
 }) => {
   return (
     <div className="flex flex-row gap-3 w-full overflow-x-hidden overflow-y-auto">
@@ -255,14 +212,14 @@ const RecipePropertiesReady = ({
         props={{
           type: RecipePropertyType.READY,
           Icon: BsPeople,
-          text: `${recipeDetailMeta.servings}인분`,
+          text: `${servings}인분`,
         }}
       />
       <RecipeProperty
         props={{
           type: RecipePropertyType.READY,
           Icon: FaRegClock,
-          text: `${recipeDetailMeta.cookTime}분`,
+          text: `${cookTime}분`,
         }}
       />
     </div>
@@ -316,6 +273,80 @@ const RecipeProperty = ({ props }: { props: RecipePropertyProps }) => {
   })();
 
   return <div className="flex flex-row gap-1 items-center">{content}</div>;
+};
+
+const CategorySelect = ({
+  recipeId,
+  isCategorySelectOpen,
+  setIsCategorySelectOpen,
+  selectedCategoryId,
+}: {
+  recipeId: string;
+  isCategorySelectOpen: boolean;
+  setIsCategorySelectOpen: (isOpen: boolean) => void;
+  selectedCategoryId: string;
+}) => {
+  const { data: categories } = useFetchCategories();
+  const { updateCategory } = useUpdateCategoryOfRecipe();
+  console.log("selectedCategoryId!!", selectedCategoryId);
+  console.log("categories!", JSON.stringify(categories));
+
+  return (
+    <DialogPrimitive.Root
+      open={isCategorySelectOpen}
+      onOpenChange={setIsCategorySelectOpen}
+    >
+      <DialogPrimitive.Trigger></DialogPrimitive.Trigger>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 bg-gray-900/5 z-20" />
+        <DialogPrimitive.Content className="inline-flex w-fit flex-col gap-2 bg-white fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 pt-4 pb-8 rounded-lg z-30 min-w-[80%] max-w-[90%]">
+          <div className="flex w-full justify-end">
+            <DialogPrimitive.Close asChild>
+              <motion.div
+                className="rounded-full p-1"
+                aria-label="Close"
+                whileTap={{ scale: 0.8, backgroundColor: "#E8E8E8" }}
+              >
+                <IoMdClose />
+              </motion.div>
+            </DialogPrimitive.Close>
+          </div>
+
+          <div className="text-sm text-gray-500 px-2 pb-2">
+            카테고리를 선택해주세요
+          </div>
+          {categories?.map((category) => (
+            <>
+              <DialogPrimitive.Close asChild>
+                <motion.div
+                  key={category.id}
+                  className={`px-2 flex items-center gap-2 truncate rounded-md p-1 ${
+                    category.id !== selectedCategoryId || "text-gray-500"
+                  }`}
+                  onClick={async () => {
+                    if (category.id !== selectedCategoryId) {
+                      updateCategory({
+                        recipeId,
+                        targetCategoryId: category.id,
+                      });
+                    }
+                  }}
+                  whileTap={
+                    category.id !== selectedCategoryId
+                      ? { scale: 0.95, backgroundColor: "#E8E8E8" }
+                      : undefined
+                  }
+                >
+                  <IoFolderOpenOutline size={16} />
+                  {category.name}
+                </motion.div>
+              </DialogPrimitive.Close>
+            </>
+          ))}
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
+  );
 };
 
 export { RecipeDetailsCardReady, RecipeDetailsCardSkeleton };

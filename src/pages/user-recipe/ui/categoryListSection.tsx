@@ -61,8 +61,6 @@ export const CategoryListSection = ({
     };
   }, []);
 
-  // const [categoryMode, setCategoryMode] = useState(CategoryMode.SELECT);
-
   return (
     <div className="px-6 pt-2 flex flex-col flex-none items-center w-full ">
       <div className="flex flex-row items-center justify-start w-full gap-1">
@@ -164,6 +162,8 @@ const CategoryListSkeleton = () => {
   );
 };
 
+
+
 function CategoryDeleteAlert({
   category,
   onClose,
@@ -195,7 +195,7 @@ function CategoryDeleteAlert({
           onPointerDown={handleCancel}
         />
         <DialogPrimitive.Content
-          className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30"
+          className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30 select-none"
           onPointerDownOutside={handleCancel}
         >
           <DialogHeader>

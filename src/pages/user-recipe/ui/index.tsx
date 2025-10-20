@@ -17,10 +17,11 @@ export function UserRecipe() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | typeof ALL_RECIPES
   >(ALL_RECIPES);
+  console.log("selectedCategoryId!!!", selectedCategoryId);
 
   return (
     <PageMovementTemplate>
-      <div className="flex flex-col overflow-hidden bg-stone-800 h-[100vh] w-[100vw]">
+      <div className="flex flex-col overflow-hidden bg-stone-800 h-[100vh] w-[100vw] select-none">
         <Header
           leftContent={
             <BackButton

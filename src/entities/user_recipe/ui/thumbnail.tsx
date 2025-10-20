@@ -2,9 +2,13 @@ import { Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { IoMdAdd } from "react-icons/io";
 
-const ThumbnailBlocking = () => {
+const ThumbnailBlocking = ({
+  size,
+}: {
+  size: { width: number; height: number };
+}) => {
   return (
-    <ThumbnailTemplate>
+    <ThumbnailTemplate size={size}>
       <div className="flex items-center justify-center w-full h-full bg-gray-500 opacity-50">
         <Loader2 className="size-[32] animate-spin text-stone-700" />
       </div>
@@ -12,17 +16,25 @@ const ThumbnailBlocking = () => {
   );
 };
 
-const ThumbnailSkeleton = () => {
+const ThumbnailSkeleton = ({
+  size,
+}: {
+  size: { width: number; height: number };
+}) => {
   return (
-    <ThumbnailTemplate>
+    <ThumbnailTemplate size={size}>
       <Skeleton className="w-full h-full bg-gray-200" />
     </ThumbnailTemplate>
   );
 };
 
-const ThumbnailEmpty = () => {
+const ThumbnailEmpty = ({
+  size,
+}: {
+  size: { width: number; height: number };
+}) => {
   return (
-    <ThumbnailTemplate>
+    <ThumbnailTemplate size={size}>
       <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
         <IoMdAdd className="size-[32]" />
       </div>
@@ -30,22 +42,39 @@ const ThumbnailEmpty = () => {
   );
 };
 
-const ThumbnailReady = ({ imgUrl }: { imgUrl: string }) => {
-  console.log("imgUrl", imgUrl);
+const ThumbnailReady = ({
+  imgUrl,
+  size,
+}: {
+  imgUrl: string;
+  size: { width: number; height: number };
+}) => {
   return (
-    <ThumbnailTemplate>
+    <ThumbnailTemplate size={size}>
       <img
         src={imgUrl}
-        className="block w-full h-full object-cover object-center"
+        className={`block w-full h-full object-cover object-center`}
       />
     </ThumbnailTemplate>
   );
 };
 
-const ThumbnailTemplate = ({ children }: { children: React.ReactNode }) => {
+const ThumbnailTemplate = ({
+  children,
+  size,
+}: {
+  children: React.ReactNode;
+  size: { width: number; height: number };
+}) => {
   return (
-    <div className="w-[156] h-[156] overflow-hidden rounded-md">{children}</div>
+    <div
+      className={`overflow-hidden rounded-md`}
+      style={{ width: size.width, height: size.height }}
+    >
+      {children}
+    </div>
   );
 };
+//9:16
 
 export { ThumbnailBlocking, ThumbnailSkeleton, ThumbnailEmpty, ThumbnailReady };

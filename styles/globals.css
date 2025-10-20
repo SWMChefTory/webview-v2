@@ -45,6 +45,18 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/*오래 누르면 선택되는 것을 막는 css, 만약 선택이 필요하다면 allow-select클래스 추가*/
+@layer base {
+  html, body {
+    @apply select-none;
+  }
+
+  .allow-select {
+    @apply select-text;
+  }
+}
+
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

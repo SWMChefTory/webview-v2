@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion } from "motion/react";
 import { IconType } from "react-icons";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { useEffect, useRef, useState } from "react";
+import { useResolveLongClick } from "@/src/shared/hooks/useClick";
 
 export const CategoryChip = ({
   fontSize = "text-sm",
@@ -86,7 +86,7 @@ function ChipSkeleton({
   );
 }
 
-// cn
+
 function FilterChip({
   fontSize,
   name,
@@ -99,51 +99,7 @@ function FilterChip({
   const calFontColor = () => {
     return isDarkMode !== isSelected ? "text-white" : "text-black";
   };
-  const startPoint = useRef<{ x: number; y: number } | null>(null);
-  const timer = useRef<NodeJS.Timeout | undefined>(undefined);
-
-  const curPoint = useRef<{ x: number; y: number } | null>(null);
-  const tractPoint = useRef(({ x, y }: { x: number; y: number }) => {
-    curPoint.current = { x, y };
-  });
-
-  useEffect(() => {
-    return () => {
-      clearTimeout(timer.current);
-      window.removeEventListener("pointermove", tractPoint.current);
-    };
-  }, []);
-
-  const handleTapStart = (event: PointerEvent) => {
-    startPoint.current = { x: event.clientX, y: event.clientY };
-    
-    window.addEventListener("pointermove", tractPoint.current, { once: true });
-    timer.current = setTimeout(async () => {
-      if (startPoint.current === null) {
-        return;
-      }
-      if (
-        curPoint.current === null ||
-        Math.abs(curPoint.current.x - startPoint.current.x) < 2 &&
-        Math.abs(curPoint.current.y - startPoint.current.y) < 2
-      ) {
-        onClickLong?.();
-      }
-      window.removeEventListener("pointermove", tractPoint.current);
-      curPoint.current = null;
-      clearTimeout(timer.current);
-      timer.current = undefined;
-    }, 800);
-  };
-
-  const handleTap = () => {
-    if (!timer.current) {
-      return;
-    }
-    clearTimeout(timer.current);
-    timer.current = undefined;
-    onClick();
-  };
+  const { handleTapStart } = useResolveLongClick(onClick, onClickLong);
 
   const calBackgroundColor = () => {
     if (isSelected) {
@@ -164,7 +120,6 @@ function FilterChip({
       whileTap={isSelected ? undefined : { scale: 0.9 }}
       transition={isSelected ? undefined : { duration: 0.2 }}
       onTapStart={handleTapStart}
-      onTap={handleTap}
     >
       <p className={`${fontSize} line-clamp-1`}>{name}</p>
       <p className={`text-xs flex-shrink-0 ${calFontColor()}`}>{accessary}</p>
@@ -198,9 +153,7 @@ function EditableChip({
       whileTap={{ scale: 0.9 }}
       transition={{ duration: 0.2 }}
     >
-      <p className={`${fontSize} line-clamp-1 ${calFontColor()}`}>
-        {name}
-      </p>
+      <p className={`${fontSize} line-clamp-1 ${calFontColor()}`}>{name}</p>
       <Icon className={`size-[16] flex-shrink-0 ${calFontColor()}`} />
     </motion.div>
   );

@@ -16,6 +16,7 @@ export const RecipeListSectionReady = ({
     categories.find((category) => category.id === selectedCategoryId) ||
       ALL_RECIPES
   );
+  console.log("selectedCategoryId!!", selectedCategoryId);
 
   return (
     <div
@@ -32,7 +33,7 @@ export const RecipeListSectionReady = ({
       {recipes.length !== 0 ? (
         <div className="flex flex-col w-full pt-6 rounded-t-[20] gap-4 ">
           {recipes.map((recipe) => (
-            <RecipeDetailsCardReady key={recipe.recipeId} userRecipe={recipe} />
+            <RecipeDetailsCardReady key={recipe.recipeId} userRecipe={recipe} selectedCategoryId={selectedCategoryId} />
           ))}
         </div>
       ) : (

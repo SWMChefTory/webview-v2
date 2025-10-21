@@ -1,15 +1,15 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   fetchRecipe,
-  VideoInfoResponse,
   IngredientResponse,
+  RecipeBriefingResponse,
+  RecipeDetailMetaResponse,
+  RecipeResponse,
   RecipeStepDetailResponse,
   RecipeStepResponse,
   RecipeTagResponse,
-  RecipeBriefingResponse,
+  VideoInfoResponse,
   ViewStatusResponse,
-  RecipeDetailMetaResponse,
-  RecipeResponse,
 } from "../api/api";
 
 class VideoInfo {
@@ -17,6 +17,7 @@ class VideoInfo {
   thumbnailUrl!: string;
   seconds!: number;
   lastPlaySeconds!: number;
+  videoTitle!: string;
 
   private constructor(data: unknown) {
     Object.assign(this, data);
@@ -28,6 +29,7 @@ class VideoInfo {
       id: data.videoId,
       thumbnailUrl: data.videoThumbnailUrl,
       seconds: data.videoSeconds,
+      videoTitle: data.videoTitle,
     });
   }
 }
@@ -84,7 +86,7 @@ class RecipeStep {
     return new RecipeStep({
       id: data.id,
       stepOrder: data.stepOrder,
-      subTitle: data.subtitle,
+      subtitle: data.subtitle,
       startTime: data.startTime,
       details: data.details.map(RecipeStepDetail.create),
     });
@@ -199,11 +201,9 @@ class Recipe {
       steps: data.recipeSteps
         ? data.recipeSteps.map(RecipeStep.create)
         : undefined,
-      tags: data.recipeTags
-        ? data.recipeTags.map(RecipeTag.create)
-        : undefined,
-      briefings: data.recipeBriefing
-        ? data.recipeBriefing.map(RecipeBriefing.create)
+      tags: data.recipeTags ? data.recipeTags.map(RecipeTag.create) : undefined,
+      briefings: data.recipeBriefings
+        ? data.recipeBriefings.map(RecipeBriefing.create)
         : undefined,
     });
   }
@@ -215,8 +215,8 @@ export const useFetchRecipe = (id: string) => {
   const { data } = useSuspenseQuery({
     queryKey: [RECIPE_QUERY_KEY, id],
     queryFn: () => fetchRecipe(id),
-    select: (res)=>{
-        return Recipe.create(res);
+    select: (res) => {
+      return Recipe.create(res);
     },
   });
   return { data };

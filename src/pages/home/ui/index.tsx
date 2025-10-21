@@ -5,12 +5,6 @@ import {
   FloatingButton,
   FloatingButtonSkeleton,
 } from "@/src/pages/home/ui/floatingButton";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { useEffect } from "react";
-import { onUnblockingRequest } from "@/src/shared/client/native/client";
-import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { RecipeCreationInfoSchema } from "../entities/creating_info/recipeCreationInfo";
-import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import {
@@ -21,43 +15,12 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { PiMagnifyingGlassBold } from "react-icons/pi";
+import { IoChevronForwardOutline } from "react-icons/io5";
+import Timer from "@/src/pages/home/ui/assets/schedule.png";
+import { TimerSection } from "./TimerSection";
 
 function HomePage() {
-  const { create, error, isLoading } = useCreateRecipe();
   const router = useRouter();
-
-  useEffect(() => {
-    const cleanup = onUnblockingRequest(
-      UNBLOCKING_HANDLER_TYPE.RECIPE_CREATE,
-      (type, payload) => {
-        const recipeCreationInfo = RecipeCreationInfoSchema.parse(payload);
-        console.log(
-          "[RECIPE CREATION INFO] : ",
-          JSON.stringify(recipeCreationInfo, null, 2)
-        );
-        create({
-          youtubeUrl: recipeCreationInfo.videoUrl,
-          targetCategoryId: recipeCreationInfo.categoryId || null,
-        });
-      }
-    );
-    return () => {
-      cleanup();
-    };
-  }, []);
-
-  useEffect(() => {
-    if (error) {
-      toast.error("레시피 생성 중 오류가 발생했습니다.");
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (isLoading) {
-      console.log("레시피 생성중");
-      toast("레시피 생성 중...");
-    }
-  }, [isLoading]);
 
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden pb-safe">
@@ -74,20 +37,21 @@ function HomePage() {
         }
         color="bg-white"
       />
-
       <Toaster />
       <div className="h-[40]" />
       <div className="pt-8 px-6">
         <Link href="/search-recipe">
-          <div className="flex flex-row items-center justify-between px-4  w-full h-[36]  bg-gray-100 rounded-lg">
-            <input type="text" placeholder="검색어를 입력해주세요." />
-            <PiMagnifyingGlassBold size={16} className="text-gray-800" />
+          <div className="flex flex-row items-center justify-between px-4  w-full h-[36] text-gray-800  bg-gray-100 rounded-lg">
+            검색어를 입력해주세요.
+            <PiMagnifyingGlassBold size={16} />
           </div>
         </Link>
       </div>
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
+      <div className="h-4"></div>
+      <TimerSection />
       <HorizontallyLongRecipes />
       <SSRSuspense fallback={<FloatingButtonSkeleton />}>
         <FloatingButton />

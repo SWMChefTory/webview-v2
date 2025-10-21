@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { IoMdArrowBack, IoMdClose } from "react-icons/io";
 import { CgProfile } from "react-icons/cg";
+import { IoMdAdd } from "react-icons/io";
 
 const Header = ({
   leftContent,
@@ -64,7 +65,7 @@ const IconButtonTemplate = ({
   onClick: () => void;
 }) => {
   return (
-    <div className=" flex items-center">
+    <div className="flex items-center">
       <Button
         onClick={onClick}
         variant="ghost"
@@ -100,6 +101,14 @@ const BackButton = ({
     />
   );
 };
+const AddButton = ({ onClick }: { onClick: () => void }) => {
+  return (
+    <IconButtonTemplate
+      icon={<IoMdAdd className="!w-6 !h-6" />}
+      onClick={onClick}
+    />
+  );
+};
 
 const ProfileButton = ({ onClick }: { onClick: () => void }) => {
   return (
@@ -120,5 +129,5 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
 };
 
 export { IconButtonTemplate as HeaderIconButtonTemplate };
-export { BackButton, ProfileButton, CloseButton, Title };
+export { BackButton, ProfileButton, CloseButton, Title, AddButton };
 export default Header;

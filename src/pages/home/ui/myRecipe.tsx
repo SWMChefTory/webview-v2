@@ -20,6 +20,7 @@ import {
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import Link from "next/link";
 import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
+import RecipeBook from "@/src/pages/home/ui/assets/recipe-book.png";
 
 export const MyRecipesReady = () => {
   const { data: categories } = useFetchCategories();
@@ -85,11 +86,14 @@ const MyRecipesTemplate = ({
 const MyRecipeTitleSkeleton = () => {
   return (
     <>
-      <div className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500">
-        나의 레시피
-        <IoChevronForwardOutline className="size-6" color="gray" />
+      <div className="h-[44px] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500 gap-2">
+        <img
+          src={RecipeBook.src}
+          className="size-6"
+        />
+        <div className="pr-1"/>
+        <IoChevronForwardOutline className="size-6 text-gray-400 ml-1" />
       </div>
-      <div className="h-2" />
     </>
   );
 };
@@ -102,6 +106,11 @@ const MyRecipeTitleReady = () => {
         whileTap={{ opacity: 0.2 }}
         transition={{ duration: 0.2 }}
       >
+        <img
+          src={RecipeBook.src}
+          className="size-6"
+        />
+        <div className="pr-1"/>
         나의 레시피
         <IoChevronForwardOutline className="size-6" color="black" />
       </motion.div>
@@ -178,7 +187,10 @@ const UserRecipesSection = ({
   return (
     <HorizontalScrollArea
       onScroll={(event: any) => {
-        if (event.target.scrollLeft + event.target.clientWidth >= event.target.scrollWidth + 10) {
+        if (
+          event.target.scrollLeft + event.target.clientWidth >=
+          event.target.scrollWidth + 10
+        ) {
           fetchNextPage();
         }
       }}
@@ -186,9 +198,7 @@ const UserRecipesSection = ({
       {userRecipes.map((recipe) => (
         <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
       ))}
-      {isFetchingNextPage && (
-        <UserRecipeCardSkeleton />
-      )}
+      {isFetchingNextPage && <UserRecipeCardSkeleton />}
     </HorizontalScrollArea>
   );
 };

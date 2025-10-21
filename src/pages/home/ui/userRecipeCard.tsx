@@ -10,22 +10,22 @@ import {
 } from "@/src/entities/user_recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
-import {
-  useFetchRecipeProgress,
-} from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
 
-import { getElapsedTime, UserRecipe } from "@/src/entities/user_recipe/model/schema";
+import {
+  getElapsedTime,
+  UserRecipe,
+} from "@/src/entities/user_recipe/model/schema";
 
 import {
   ElapsedViewTimeEmpty,
   ElapsedViewTimeReady,
   ElapsedViewTimeSkeleton,
 } from "@/src/entities/user_recipe/ui/detail";
-import {ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
+import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
-
 
 
 export const UserRecipeCardReady = ({
@@ -35,13 +35,26 @@ export const UserRecipeCardReady = ({
 }) => {
   const userRouter = useRouter();
   return (
-    <div className="flex relative flex-col w-[320px]" onClick={() => {
-      userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
-    }}>
+    <div
+      className="flex relative flex-col w-[320px]"
+      onClick={() => {
+        userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+      }}
+    >
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
-      <ThumbnailReady imgUrl={userRecipe.videoInfo.thumbnailUrl} size={{ width: 320, height: 180 }} />
+      <div className="relative w-[320] h-[180]">
+        {/* <div className="absolute flex justify-center items-center top-2 right-4 rounded-full text-sm h-[24] w-[24] z-1 bg-orange-500 font-bold text-white">
+          N
+        </div> */}
+        <div className="absolute top-0 left-0">
+          <ThumbnailReady
+            imgUrl={userRecipe.videoInfo.thumbnailUrl}
+            size={{ width: 320, height: 180 }}
+          />
+        </div>
+      </div>
       <div className="w-full">
         <TitleReady title={userRecipe.title} />
         <ElapsedViewTimeReady details={getElapsedTime(userRecipe.viewedAt)} />
@@ -59,9 +72,7 @@ const RecipeProgressSkeleton = () => {
 };
 
 const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
-  const { progress } = useFetchRecipeProgress(
-    userRecipe.recipeId
-  );
+  const { progress } = useFetchRecipeProgress(userRecipe.recipeId);
 
   if (
     progress.recipeStatus === RecipeStatus.SUCCESS ||
@@ -70,14 +81,13 @@ const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
     return <></>;
   }
   return (
-    <div className="absolute inset-0 flex items-center overflow-hidden">
+    <div className="absolute inset-0 flex items-center overflow-hidden z-10">
       <ProgressDetailsCheckList
         recipeProgressDetails={progress.recipeProgressDetails}
       />
     </div>
   );
 };
-
 
 export const UserRecipeCardEmpty = () => {
   return (
@@ -93,7 +103,7 @@ export const UserRecipeCardEmpty = () => {
 
 export const UserRecipeCardSkeleton = () => {
   return (
-    <div className="w-[156]">
+    <div>
       <ThumbnailSkeleton size={{ width: 320, height: 180 }} />
       <div className="w-full">
         <TitleSkeleton />

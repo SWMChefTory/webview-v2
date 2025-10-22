@@ -15,7 +15,6 @@ export function HorizontallyLongRecipes() {
       <div className="h-12" />
       <div className="pl-4 flex items-center gap-2">
         <div className="text-2xl font-semibold">인기 레시피</div>
-        <img src={Fire.src} className="size-6" />
       </div>
       <div className="h-3" />
       <ScrollArea className="whitespace-nowrap w-[100vw]">

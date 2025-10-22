@@ -195,7 +195,7 @@ function CategoryDeleteAlert({
           onPointerDown={handleCancel}
         />
         <DialogPrimitive.Content
-          className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30 select-none"
+          className="bg-white z-index-100 fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-6 rounded-lg w-[80%] z-30"
           onPointerDownOutside={handleCancel}
         >
           <DialogHeader>

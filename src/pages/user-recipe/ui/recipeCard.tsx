@@ -288,8 +288,6 @@ const CategorySelect = ({
 }) => {
   const { data: categories } = useFetchCategories();
   const { updateCategory } = useUpdateCategoryOfRecipe();
-  console.log("selectedCategoryId!!", selectedCategoryId);
-  console.log("categories!", JSON.stringify(categories));
 
   return (
     <DialogPrimitive.Root

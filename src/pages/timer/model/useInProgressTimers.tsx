@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
+import {
+  cancelNotification,
+  scheduleNotification,
+} from "../utils/notification";
+import { startLiveActivity, pauseLiveActivity, resumeLiveActivity, endLiveActivity } from "../utils/liveActivity";
 
 export enum TimerState {
   WAITING = "WAITING",
@@ -41,12 +46,22 @@ interface TimersStoreState {
   deleteTimer: (id: string) => void;
 }
 
+export class TimerLimitExceededError extends Error {
+  constructor() {
+    super("타이머는 최대 5개 까지 실행 할 수 있습니다. ");
+    this.name = "TimerLimitExceededError";
+  }
+}
+
 const useTimersStore = create<TimersStoreState>()(
   persist(
     (set, get) => ({
       timers: new Map(),
       // 같은 id로 추가하면 기존 타이머를 덮어씌우기 때문에 굳이 delete 해줄 필요 없음.
       addActiveTimer: ({ id, timer }: { id: string; timer: Timer }) => {
+        if (!get().timers.has(id) && get().timers.size >= 5) {
+          throw new TimerLimitExceededError();
+        }
         set({ timers: new Map([...get().timers, [id, timer]]) });
       },
       deleteTimer: (id: string) => {
@@ -78,7 +93,7 @@ const useTimersStore = create<TimersStoreState>()(
       },
     }),
     {
-      name: "timer-store3",
+      name: "timer-store-4",
 
       partialize: (state) => ({
         timers: Array.from(state.timers.entries()),
@@ -86,28 +101,33 @@ const useTimersStore = create<TimersStoreState>()(
 
       onRehydrateStorage: () => (state) => {
         if (!state?.timers) return;
-      
+
         // 1) 배열 → Map으로
         const raw = new Map(state.timers as unknown as [string, any][]);
-      
+
         // 2) 각 타이머의 날짜 필드 복원
         const revived = new Map<string, Timer>();
         for (const [id, t] of raw) {
           const base = { ...t, createdAt: new Date(t.createdAt) };
           if (t.state === TimerState.ACTIVE) {
-            revived.set(id, { ...base, endAt: new Date(t.endAt) } as ActiveTimer);
+            revived.set(id, {
+              ...base,
+              endAt: new Date(t.endAt),
+            } as ActiveTimer);
           } else {
             revived.set(id, base as Timer);
           }
         }
-      
+
         state.timers = revived;
       },
-      
     }
   )
 );
 
+/**
+ * @throws TimerLimitExceededError 타이머를 5개 이상 실행 시키려 하면 발생하는 에러
+ */
 export const useTimers = () => {
   const { addActiveTimer, getTimerById, getIdOfAllTimers, deleteTimer } =
     useTimersStore();
@@ -121,10 +141,22 @@ export const useTimers = () => {
     name: string | null;
     duration: number;
   }) => {
-    console.log("handleStartTimer", recipeId, name, duration);
     const id = uuidv4();
     const timer: ActiveTimer = startTimer({ name, recipeId, duration });
     addActiveTimer({ id, timer: timer });
+    startLiveActivity({
+      timerId: id,
+      activityName: name || "셰프토리 타이머",
+      endAt: timer.endAt.getTime(),
+      recipeId: recipeId || "",
+      validTimerIds: getIdOfAllTimers(),
+    });
+    scheduleNotification({
+      timerId: id,
+      recipeId: recipeId || "",
+      recipeTitle: name || "",
+      remainingSeconds: timer.duration,
+    });
     return id;
   };
 
@@ -137,10 +169,27 @@ export const useTimers = () => {
       throw new Error("타이머를 중지시키려면 ACTIVE 상태여야 합니다.");
     }
     const pausedTimer: PausedTimer = pauseTimer(timer as ActiveTimer);
+    pauseLiveActivity({
+      timerId: id,
+      startedAt: timer.createdAt.getTime(),
+      pausedAt: Date.now(),
+      duration: timer.duration,
+      remainingTime: pausedTimer.remainingTime,
+    });
+
+    console.log("pausedTimer!!!", pausedTimer.remainingTime);
     addActiveTimer({ id, timer: pausedTimer });
+    cancelNotification({ timerId: id });
     return id;
   };
 
+
+//   type ResumeLiveActivityPayload = {
+//     timerId: string;
+//     startedAt: number | null;
+//     endAt: number;
+//     duration: number;
+// }
   const handleResumeTimer = ({ id }: { id: string }) => {
     const timer = getTimerById(id);
     if (!timer) {
@@ -151,6 +200,19 @@ export const useTimers = () => {
     }
     const resumedTimer: ActiveTimer = resumeTimer(timer as PausedTimer);
     addActiveTimer({ id, timer: resumedTimer });
+    resumeLiveActivity({
+      timerId: id,
+      startedAt: timer.createdAt.getTime(),
+      endAt: resumedTimer.endAt.getTime(),
+      duration: resumedTimer.duration,
+    });
+    scheduleNotification({
+      timerId: id,
+      recipeId: "",
+      recipeTitle: "",
+      remainingSeconds: timer.remainingTime,
+    });
+
     return id;
   };
 
@@ -164,7 +226,21 @@ export const useTimers = () => {
     }
     const finishedTimer: FinishedTimer = finishTimer(timer as ActiveTimer);
     addActiveTimer({ id, timer: finishedTimer });
+    endLiveActivity({
+      timerId: id,
+    });
+    cancelNotification({ timerId: id });
     return id;
+  };
+
+  const handleCancelTimer = ({id}: {id: string}) => {
+    const timer = getTimerById(id);
+    if (!timer) {
+      throw new Error("Timer not found");
+    }
+    deleteTimer(id);
+    cancelNotification({ timerId: id });
+    endLiveActivity({ timerId: id });
   };
 
   return {
@@ -175,6 +251,7 @@ export const useTimers = () => {
     handlePauseTimer,
     handleResumeTimer,
     handleFinishTimer,
+    handleCancelTimer,
   };
 };
 
@@ -187,6 +264,9 @@ function startTimer({
   name: string | null;
   duration: number;
 }): ActiveTimer {
+  if (duration <= 0) {
+    throw new Error("Duration must be greater than 0");
+  }
   const now = new Date();
   const endAt = new Date(now.getTime() + duration * 1000);
 
@@ -426,7 +506,7 @@ export const useTimerStore = create<TimerStoreState>()(
       },
     }),
     {
-      name: "timer-store",
+      name: "timer-store6",
 
       partialize: (state) => ({
         state: state.state,

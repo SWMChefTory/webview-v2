@@ -3,6 +3,7 @@ import { TimerState, useTimers } from "../model/useInProgressTimers";
 import { formatTimeKorean, formatTime } from "../utils/time";
 import useInterval from "../model/useInterval";
 import { useCallback, useState } from "react";
+import { IoIosClose } from "react-icons/io";
 
 function useTimerItem(timerId: string) {
   const { getTimerById, handleFinishTimer } = useTimers();
@@ -11,10 +12,10 @@ function useTimerItem(timerId: string) {
   const [remainingTime, setRemainingTime] = useState(() => {
     switch (timer.state) {
       case TimerState.ACTIVE:
-        const remaining = (timer.endAt.getTime() - new Date().getTime()) / 1000;
+        const remaining = Math.ceil((timer.endAt.getTime() - new Date().getTime()) / 1000);
         return remaining > 0 ? Math.ceil(remaining) : 0;
       case TimerState.PAUSED:
-        return timer.remainingTime;
+        return Math.ceil(timer.remainingTime);
       case TimerState.FINISHED:
         return 0;
     }
@@ -40,6 +41,16 @@ function useTimerItem(timerId: string) {
   };
 }
 
+export function EmptyTimerItem() {
+  return (
+    <TimerItemTemplate isIdle={true}>
+      <div className="flex-1 text-center text-gray-400 text-base h-[60]">
+        실행중인 타이머가 없어요
+      </div>
+    </TimerItemTemplate>
+  );
+}
+
 export function TimerItem({
   timerId,
   isShort = false,
@@ -47,9 +58,12 @@ export function TimerItem({
   timerId: string;
   isShort?: boolean;
 }) {
+  const { handleCancelTimer } = useTimers();
   const { timer, remainingTime } = useTimerItem(timerId);
   return (
-    <TimerItemTemplate isShort={isShort}>
+    <TimerItemTemplate isShort={isShort} onClose={() => {
+      handleCancelTimer({ id: timerId });
+    }}>
       <TimerItemTime duration={timer.duration} remaining={remainingTime} />
       <div className="w-8" />
       <TimerItemButton timerId={timerId} />
@@ -58,7 +72,7 @@ export function TimerItem({
 }
 
 export function IdleTimerItem({ time }: { time: number }) {
-  const { handleStartTimer } = useTimers();
+  const { handleStartTimer, handleCancelTimer } = useTimers();
   return (
     <TimerItemTemplate isIdle={true}>
       <TimerItemTime duration={time} remaining={time} />
@@ -78,19 +92,26 @@ export function IdleTimerItem({ time }: { time: number }) {
 
 function TimerItemTemplate({
   children,
+  onClose,
   isIdle = false,
   isShort = false,
 }: {
   children: React.ReactNode;
+  onClose?: () => void;
   isIdle?: boolean;
   isShort?: boolean;
 }) {
   return (
-    <div className="px-2 py-1">
+    <div
+      className={`flex flex-col border border-[2] px-3 py-2  rounded-md ${
+        isIdle ? "border-gray-300" : "border-orange-300"
+      }`}
+    >
+      {!isIdle && <IoIosClose className="text-gray-400 size-6 " onClick={onClose} />}
       <div
-        className={`flex items-center border border-[2] px-8 py-5 ${
+        className={`flex items-center ${
           isShort ? "justify-start" : "justify-between"
-        } rounded-md ${isIdle ? "border-gray-300" : "border-orange-300"}`}
+        }  px-2 pt-1 pb-2`}
       >
         {children}
       </div>
@@ -105,6 +126,7 @@ export function TimerItemTime({
   duration: number;
   remaining: number;
 }) {
+  //높이 60px
   return (
     <div className="flex flex-col">
       <span className={`text-sm`}>{formatTimeKorean(duration)}</span>
@@ -134,7 +156,7 @@ function TimerItemButton({ timerId }: { timerId: string }) {
             handlePauseTimer({ id: timerId });
           }}
         >
-            <IoPauseOutline  className="text-lg text-orange-400" />
+          <IoPauseOutline className="text-lg text-orange-400" />
         </TimerButtonTemplate>
       );
     case TimerState.PAUSED:

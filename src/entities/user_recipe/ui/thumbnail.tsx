@@ -35,8 +35,12 @@ const ThumbnailEmpty = ({
 }) => {
   return (
     <ThumbnailTemplate size={size}>
-      <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
-        <IoMdAdd className="size-[32]" />
+      <div className="w-full h-full flex items-center justify-center bg-gray-200">
+      <img
+        src="/inactive_logo.png"
+        className="h-[14%]"
+        alt="logo"
+      />
       </div>
     </ThumbnailTemplate>
   );

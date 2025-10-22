@@ -1,24 +1,34 @@
-import { TimerItem } from "@/src/pages/timer/ui/timerItem";
+import { EmptyTimerItem, TimerItem } from "@/src/pages/timer/ui/timerItem";
 import { useTimers } from "@/src/pages/timer/model/useInProgressTimers";
 import { motion } from "motion/react";
 import { IoChevronForwardOutline } from "react-icons/io5";
 import Link from "next/link";
 import Timer from "@/src/pages/home/ui/assets/schedule.png";
-import HydrationZustand from "@/src/shared/hydration_zustand/hydrationZustand";
 
 export function TimerSection() {
   const { getIdOfAllTimers } = useTimers();
   const timerIds = getIdOfAllTimers();
+  if (timerIds.length === 0) {
+    return <>
+    <TimerTitle />
+    <div className="h-3" />
+    <div className="flex flex-row pl-1 overflow-x-auto">
+      <EmptyTimerItem />
+    </div>
+    </>;
+  }
   return (
-    <HydrationZustand>
+    <>
       <TimerTitle />
       <div className="h-3" />
-      <div className="flex flex-row pl-1 overflow-x-auto">
+      <div className="overflow-x-auto">
+      <div className="flex flex-row pl-4 gap-2">
         {timerIds.map((timerId) => (
           <TimerItem key={timerId} timerId={timerId} isShort={true} />
         ))}
       </div>
-    </HydrationZustand>
+      </div>
+    </>
   );
 }
 

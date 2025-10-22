@@ -15,9 +15,9 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { PiMagnifyingGlassBold } from "react-icons/pi";
-import { IoChevronForwardOutline } from "react-icons/io5";
-import Timer from "@/src/pages/home/ui/assets/schedule.png";
 import { TimerSection } from "./TimerSection";
+
+import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 
 function HomePage() {
   const router = useRouter();
@@ -51,7 +51,9 @@ function HomePage() {
         <MyRecipesReady />
       </SSRSuspense>
       <div className="h-4"></div>
-      <TimerSection />
+      <HydrationZustand>
+        <TimerSection />
+      </HydrationZustand>
       <HorizontallyLongRecipes />
       <SSRSuspense fallback={<FloatingButtonSkeleton />}>
         <FloatingButton />

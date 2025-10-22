@@ -9,6 +9,7 @@ import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHa
 import { RecipeCreationInfoSchema } from "@/src/pages/home/entities/creating_info/recipeCreationInfo";
 import { toast, Toaster } from "sonner";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useRouter } from "next/router";
 
 export default function App(props: AppProps) {
   const [queryClient] = useState(() => new QueryClient());
@@ -23,6 +24,7 @@ export default function App(props: AppProps) {
 
 function AppInner({ Component, pageProps }: AppProps) {
   const { create, error, isLoading } = useCreateRecipe();
+  const router = useRouter();
 
   useEffect(() => {
     const cleanup = onUnblockingRequest(
@@ -37,6 +39,16 @@ function AppInner({ Component, pageProps }: AppProps) {
     );
     return cleanup;
   }, [create]);
+
+  useEffect(() => {
+    const cleanup = onUnblockingRequest(
+      UNBLOCKING_HANDLER_TYPE.ROUTE,
+      (_type, payload) => {
+        router.push(payload.route);
+      }
+    );
+    return cleanup;
+  }, []);
 
   useEffect(() => {
     if (error) toast.error("레시피 생성 중 오류가 발생했습니다.");

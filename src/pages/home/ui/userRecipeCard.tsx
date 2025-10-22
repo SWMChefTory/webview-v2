@@ -45,9 +45,6 @@ export const UserRecipeCardReady = ({
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
       <div className="relative w-[320] h-[180]">
-        {/* <div className="absolute flex justify-center items-center top-2 right-4 rounded-full text-sm h-[24] w-[24] z-1 bg-orange-500 font-bold text-white">
-          N
-        </div> */}
         <div className="absolute top-0 left-0">
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
@@ -58,6 +55,30 @@ export const UserRecipeCardReady = ({
       <div className="w-full">
         <TitleReady title={userRecipe.title} />
         <ElapsedViewTimeReady details={getElapsedTime(userRecipe.viewedAt)} />
+      </div>
+    </div>
+  );
+};
+
+export const UserRecipeCardEmpty = () => {
+  return (
+    <div className="w-[320px]">
+      <ThumbnailEmpty size={{ width: 320, height: 180 }} />
+      <div className="w-full">
+        <TitleEmpty />
+        <ElapsedViewTimeEmpty />
+      </div>
+    </div>
+  );
+};
+
+export const UserRecipeCardSkeleton = () => {
+  return (
+    <div>
+      <ThumbnailSkeleton size={{ width: 320, height: 180 }} />
+      <div className="w-full">
+        <TitleSkeleton />
+        <ElapsedViewTimeSkeleton />
       </div>
     </div>
   );
@@ -85,30 +106,6 @@ const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
       <ProgressDetailsCheckList
         recipeProgressDetails={progress.recipeProgressDetails}
       />
-    </div>
-  );
-};
-
-export const UserRecipeCardEmpty = () => {
-  return (
-    <div className="w-[156]">
-      <ThumbnailEmpty size={{ width: 320, height: 180 }} />
-      <div className="w-full">
-        <TitleEmpty />
-        <ElapsedViewTimeEmpty />
-      </div>
-    </div>
-  );
-};
-
-export const UserRecipeCardSkeleton = () => {
-  return (
-    <div>
-      <ThumbnailSkeleton size={{ width: 320, height: 180 }} />
-      <div className="w-full">
-        <TitleSkeleton />
-        <ElapsedViewTimeSkeleton />
-      </div>
     </div>
   );
 };

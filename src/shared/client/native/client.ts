@@ -132,6 +132,7 @@ export const enum MODE {
 
 // 요청 보내기 (HTTP의 fetch처럼 사용)
 // blocking 방식과 unblocking 방식 둘 다 사용할 수 있음.
+//payload는 무조건 객체로 보내야 함.
 export function request<T = any>(
   mode: MODE,
   type: string,

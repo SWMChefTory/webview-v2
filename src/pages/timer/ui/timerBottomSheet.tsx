@@ -2,9 +2,13 @@ import { AddButton } from "@/src/shared/ui/header";
 import { useRef, useState } from "react";
 import Picker from "react-mobile-picker";
 import { Drawer } from "vaul";
-import { useTimers } from "../model/useInProgressTimers";
+import {
+  TimerLimitExceededError,
+  useTimers,
+} from "../model/useInProgressTimers";
 import { useIdleTimersStore } from "../model/useIdleTimers";
 import { TimerItem, IdleTimerItem } from "./timerItem";
+import { toast, Toaster } from "sonner";
 
 export function TimerBottomSheet() {
   const [open, setOpen] = useState(false);
@@ -22,7 +26,7 @@ export function TimerBottomSheet() {
   const totalSeconds =
     pickerValue.hours * 3600 + pickerValue.minutes * 60 + pickerValue.seconds;
 
-  const isInvalid = totalSeconds === 0 || totalSeconds > 60*60*7;
+  const isInvalid = totalSeconds === 0 || totalSeconds > 60 * 60 * 7;
 
   const selections = {
     hours: Array.from({ length: 6 }, (_, i) => i),
@@ -32,11 +36,17 @@ export function TimerBottomSheet() {
 
   const handleConfirm = () => {
     if (!isInvalid) {
-      handleStartTimer({
-        recipeId: null,
-        name: null,
-        duration: totalSeconds,
-      });
+      try {
+        handleStartTimer({
+          recipeId: null,
+          name: null,
+          duration: totalSeconds,
+        });
+      } catch (error) {
+        if (error instanceof TimerLimitExceededError) {
+          toast.error(error.message);
+        }
+      }
       addIdleTimer(totalSeconds);
       setOpen(false);
     }
@@ -61,7 +71,9 @@ export function TimerBottomSheet() {
                 타이머
               </Drawer.Title>
               <button
-                className={`text-lg p-2 ${isInvalid ? "text-gray-500" : "text-orange-500"}`}
+                className={`text-lg p-2 ${
+                  isInvalid ? "text-gray-500" : "text-orange-500"
+                }`}
                 onClick={handleConfirm}
                 disabled={isInvalid}
               >
@@ -73,7 +85,7 @@ export function TimerBottomSheet() {
           <div
             ref={scrollRef}
             data-vaul-no-drag
-            className="px-6 py-4 overflow-y-auto"
+            className="px-6 py-4 overflow-y-auto "
           >
             <Picker
               value={pickerValue}
@@ -97,7 +109,7 @@ export function TimerBottomSheet() {
                 초
               </span>
             </div>
-            <div data-vaul-no-drag className="flex flex-col pt-6">
+            <div data-vaul-no-drag className="flex flex-col pt-6 gap-2">
               {getIdOfAllTimers().map((timerId) => (
                 <TimerItem key={timerId} timerId={timerId} />
               ))}

@@ -8,14 +8,11 @@ interface IdleTimersStoreState {
   getSortedIdleTimers: () => [number, number][];
 }
 
-function toMap(
-    m: unknown
-  ): Map<number, number> {
-    if (m instanceof Map) return m;
-    if (Array.isArray(m)) return new Map(m as [number, number][]);
-    return new Map();
-  }
-  
+function toMap(m: unknown): Map<number, number> {
+  if (m instanceof Map) return m;
+  if (Array.isArray(m)) return new Map(m as [number, number][]);
+  return new Map();
+}
 
 export const useIdleTimersStore = create<IdleTimersStoreState>()(
   persist(
@@ -25,6 +22,19 @@ export const useIdleTimersStore = create<IdleTimersStoreState>()(
       addIdleTimer: (duration: number) => {
         const updated = new Map(get().idleTimers);
         updated.set(duration, Date.now());
+        const oldestDuration = (() => {
+          if (updated.size <= 10) return -1;
+          let oldestTime = new Date(8640000000000000).getTime();
+          let oldestDuration = 0;
+          updated.entries().forEach(([key, value]) => {
+            if (value < oldestTime) {
+              oldestTime = value;
+              oldestDuration = key;
+            }
+          });
+          return oldestDuration;
+        })();
+        updated.delete(oldestDuration);
         set({ idleTimers: updated });
       },
 
@@ -37,16 +47,20 @@ export const useIdleTimersStore = create<IdleTimersStoreState>()(
       },
     }),
     {
-      name: "idle-timer-store1",
+      name: "idle-timer-store-5",
 
       partialize: (state) => ({
         idleTimers: Array.from(state.idleTimers.entries()),
       }),
 
       onRehydrateStorage: () => (state) => {
-        if (!state) return;
-        const raw = (state as any).idleTimers;
-        (state as any).idleTimers = toMap(raw);
+        try {
+          if (!state) return;
+          const raw = (state as any).idleTimers;
+          (state as any).idleTimers = toMap(raw);
+        } catch (error) {
+          (state as any).idleTimers = new Map();
+        }
       },
     }
   )

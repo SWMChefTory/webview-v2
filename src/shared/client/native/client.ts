@@ -58,20 +58,28 @@ const pending = new Map<
   { resolve: (v: any) => void; reject: (e: any) => void; timer: any }
 >();
 
-export type UnblockingHandler = (type: UNBLOCKING_HANDLER_TYPE, payload: any) => void;
-const unblockingHandlers = new Map<UNBLOCKING_HANDLER_TYPE, UnblockingHandler>();
-
+export type UnblockingHandler = (
+  type: UNBLOCKING_HANDLER_TYPE,
+  payload: any
+) => void;
+const unblockingHandlers = new Map<
+  UNBLOCKING_HANDLER_TYPE,
+  UnblockingHandler
+>();
 
 //payLoad는 이미 객체화 되어있음.
-export const onUnblockingRequest = (type: UNBLOCKING_HANDLER_TYPE, handler: UnblockingHandler) => {
+export const onUnblockingRequest = (
+  type: UNBLOCKING_HANDLER_TYPE,
+  handler: UnblockingHandler
+) => {
   if (unblockingHandlers.has(type)) {
     console.warn(`핸들러가 이미 등록되어 있어 덮어씁니다: ${type}`);
   }
   unblockingHandlers.set(type, handler);
-  
+
   // cleanup 함수 반환
   return () => {
-    if(unblockingHandlers.has(type)) {
+    if (unblockingHandlers.has(type)) {
       unblockingHandlers.delete(type);
     }
   };
@@ -80,15 +88,22 @@ export const onUnblockingRequest = (type: UNBLOCKING_HANDLER_TYPE, handler: Unbl
 //useEffect안에서만 써야함. CSR코드
 //request함수 사용할 때 이 코드는 몰라도 됨.
 export const communication = (event: MessageEvent) => {
-  console.log("[EVENT] : ", event.data);
   if (typeof event.data !== "string") return;
 
   const msg = JSON.parse(event.data) as
     | ResponseMsg
     | RequestMsgUnblockingFromNative;
 
+  if (
+    typeof msg === "object" &&
+    "event" in msg &&
+    (msg as any).event === "infoDelivery"
+  ) {
+    return;
+  }
+
   if (!msg.intended) {
-    console.log("[NOT INTENDED] : ", msg);
+    console.log("[NOT INTENDED] : ", JSON.stringify(msg));
     return;
   }
   if (!msg.action) {
@@ -103,11 +118,18 @@ export const communication = (event: MessageEvent) => {
 
   if (msg.action === ACTION.REQUEST) {
     console.log("[UNBLOCKING HANDLER] : ", JSON.stringify(msg));
-    if(unblockingHandlers.has(msg.type)) {
-      unblockingHandlers.get(msg.type)?.(msg.type as UNBLOCKING_HANDLER_TYPE, msg.payload);
+    if (unblockingHandlers.has(msg.type)) {
+      unblockingHandlers.get(msg.type)?.(
+        msg.type as UNBLOCKING_HANDLER_TYPE,
+        msg.payload
+      );
       return;
     }
-    throw new Error(`해당 타입에 대한 핸들러가 등록되어 있지 않습니다 : ${JSON.stringify(msg)}`);
+    throw new Error(
+      `해당 타입에 대한 핸들러가 등록되어 있지 않습니다 : ${JSON.stringify(
+        msg
+      )}`
+    );
   }
 
   if (!msg || !("id" in msg)) return;

@@ -8,6 +8,7 @@ const PopularSummaryRecipeResponseSchema = z.object({
   videoId: z.string(),
   videoUrl: z.string(),
   count: z.number(),
+  isViewd: z.boolean(),
 });
 
 const PopularSummaryRecipeApiResponseSchema = z.object({

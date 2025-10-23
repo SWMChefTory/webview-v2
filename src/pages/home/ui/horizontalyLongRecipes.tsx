@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { IoCheckmarkCircleOutline } from "react-icons/io5";
 
 export function HorizontallyLongRecipes() {
   return (
@@ -52,12 +53,23 @@ function RecipeCardSectionReady() {
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
   const { create } = useCreateRecipe();
+  console.log("recipe", recipe.isViewd);
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col w-[320px]">
-        <div className="h-[180] overflow-hidden rounded-md" onClick={()=>{
-          create({ youtubeUrl: recipe.videoUrl });
-        }}>
+      <div className="flex relative flex-col w-[320px]">
+        <div
+          className="h-[180] overflow-hidden rounded-md"
+          onClick={() => {
+            if (!recipe.isViewd) {
+              create({ youtubeUrl: recipe.videoUrl });
+            }
+          }}
+        >
+          {recipe.isViewd || (
+            <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
+              <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">이미 등록된 레시피에요</div>
+            </div>
+          )}
           <img
             src={recipe.videoThumbnailUrl}
             className="block w-full h-full object-cover "
@@ -66,7 +78,7 @@ export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
         <div className="text-lg font-semibold w-full overflow-hidden line-clamp-1">
           {recipe.recipeTitle}
         </div>
-        <div className="text-sm text-gray-700"> 조회수  {recipe.count}회 </div>
+        <div className="text-sm text-gray-700"> 조회수 {recipe.count}회 </div>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export function TimerSection() {
     return <>
     <TimerTitle />
     <div className="h-3" />
-    <div className="flex flex-row pl-1 overflow-x-auto">
+    <div className="flex flex-row pl-4 overflow-x-auto">
       <EmptyTimerItem />
     </div>
     </>;

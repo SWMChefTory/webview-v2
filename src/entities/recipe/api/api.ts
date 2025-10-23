@@ -1,15 +1,15 @@
 import client from "@/src/shared/client/main/client";
-import { z } from "zod";
 import {
-  RecipeDetailMetaSchema,
   IngredientSchema,
+  RecipeBriefingSchema,
+  RecipeDetailMetaSchema,
+  RecipeStatusSchema,
+  RecipeStepDetailSchema,
   RecipeStepSchema,
   RecipeTagSchema,
-  RecipeBriefingSchema,
-  RecipeStepDetailSchema,
-  RecipeStatusSchema,
 } from "@/src/shared/schema/recipeSchema";
 import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
+import { z } from "zod";
 
 const ViewStatusSchema = z.object({
   id: z.string(),
@@ -26,7 +26,7 @@ const RecipeSchema = z.object({
   recipeIngredient: z.array(IngredientSchema).optional(),
   recipeSteps: z.array(RecipeStepSchema).optional(),
   recipeTags: z.array(RecipeTagSchema).optional(),
-  recipeBriefing: z.array(RecipeBriefingSchema).optional(),
+  recipeBriefings: z.array(RecipeBriefingSchema).optional(),
 });
 
 export type VideoInfoResponse = z.infer<typeof VideoInfoSchema>;

@@ -4,6 +4,8 @@ import { formatTimeKorean, formatTime } from "../utils/time";
 import useInterval from "../model/useInterval";
 import { useCallback, useState } from "react";
 import { IoIosClose } from "react-icons/io";
+import Link from "next/link";
+import router from "next/router";
 
 function useTimerItem(timerId: string) {
   const { getTimerById, handleFinishTimer } = useTimers();
@@ -44,7 +46,7 @@ function useTimerItem(timerId: string) {
 export function EmptyTimerItem() {
   return (
     <TimerItemTemplate isIdle={true}>
-      <div className="flex-1 text-center text-gray-400 text-base h-[60]">
+      <div className="flex flex-1 text-center text-gray-400 text-base h-[80] items-center justify-center">
         실행중인 타이머가 없어요
       </div>
     </TimerItemTemplate>
@@ -63,7 +65,9 @@ export function TimerItem({
   return (
     <TimerItemTemplate isShort={isShort} onClose={() => {
       handleCancelTimer({ id: timerId });
-    }}>
+    }} name={timer.recipeName ?? undefined}
+    recipeId={timer.recipeId ?? undefined}
+    >
       <TimerItemTime duration={timer.duration} remaining={remainingTime} />
       <div className="w-8" />
       <TimerItemButton timerId={timerId} />
@@ -71,8 +75,9 @@ export function TimerItem({
   );
 }
 
+
 export function IdleTimerItem({ time }: { time: number }) {
-  const { handleStartTimer, handleCancelTimer } = useTimers();
+  const { handleStartTimer } = useTimers();
   return (
     <TimerItemTemplate isIdle={true}>
       <TimerItemTime duration={time} remaining={time} />
@@ -93,11 +98,15 @@ export function IdleTimerItem({ time }: { time: number }) {
 function TimerItemTemplate({
   children,
   onClose,
+  recipeId,
+  name,
   isIdle = false,
   isShort = false,
 }: {
   children: React.ReactNode;
   onClose?: () => void;
+  recipeId?: string;
+  name?: string;
   isIdle?: boolean;
   isShort?: boolean;
 }) {
@@ -105,9 +114,10 @@ function TimerItemTemplate({
     <div
       className={`flex flex-col border border-[2] px-3 py-2  rounded-md ${
         isIdle ? "border-gray-300" : "border-orange-300"
-      }`}
+      } ${isShort && "w-[224px]"}` }
     >
       {!isIdle && <IoIosClose className="text-gray-400 size-6 " onClick={onClose} />}
+      {!isIdle && <TimerName name={name} recipeId={recipeId} />}
       <div
         className={`flex items-center ${
           isShort ? "justify-start" : "justify-between"
@@ -115,6 +125,24 @@ function TimerItemTemplate({
       >
         {children}
       </div>
+    </div>
+  );
+}
+
+import { IoIosArrowForward } from "react-icons/io";
+
+
+function TimerName({name, recipeId}: {name?: string, recipeId?: string}) {
+  return (
+    <div className="flex gap-1 items-center px-2 text-sm font-semibold" onClick={()=>{
+      if (recipeId) {
+        router.push(`/recipe/${recipeId}/detail`);
+      }
+    }}>
+      <div className="truncate">
+      {name ?? "셰프토리 타이머"}
+      </div>
+      {recipeId && <IoIosArrowForward className="text-gray-400 size-4 shrink-0" />}
     </div>
   );
 }

@@ -13,7 +13,8 @@ export class PopularRecipe {
   videoId!: string;
   videoUrl!: string;
   count!: number;
-
+  isViewd!: boolean;
+  
   constructor(data: unknown) {
     Object.assign(this, data);
     Object.freeze(this);

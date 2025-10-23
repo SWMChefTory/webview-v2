@@ -8,9 +8,45 @@ import {
 } from "../model/useInProgressTimers";
 import { useIdleTimersStore } from "../model/useIdleTimers";
 import { TimerItem, IdleTimerItem } from "./timerItem";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
-export function TimerBottomSheet() {
+function TimerButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      className="flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-orange-500 p-2 shadow-[0_2px_16px_rgba(0,0,0,0.32)] transition active:scale-95"
+      onClick={onClick}
+      aria-label="타이머"
+      type="button"
+    >
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="13" r="8" stroke="#FFFFFF" strokeWidth="2" />
+        <path
+          d="M12 9v4l3 2"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 3h6"
+          stroke="#FFFFFF"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </svg>
+    </button>
+  );
+}
+
+export function TimerBottomSheet({
+  type = "plus",
+  recipeId,
+  recipeName,
+}: {
+  type?: "plus" | "button";
+  recipeId?: string;
+  recipeName?: string;
+}) {
   const [open, setOpen] = useState(false);
   const { handleStartTimer } = useTimers();
   const { addIdleTimer } = useIdleTimersStore();
@@ -38,8 +74,8 @@ export function TimerBottomSheet() {
     if (!isInvalid) {
       try {
         handleStartTimer({
-          recipeId: null,
-          name: null,
+          recipeId: recipeId ?? null,
+          name: recipeName ?? null,
           duration: totalSeconds,
         });
       } catch (error) {
@@ -55,12 +91,20 @@ export function TimerBottomSheet() {
   return (
     <Drawer.Root open={open} onOpenChange={setOpen}>
       <Drawer.Trigger asChild>
-        <AddButton onClick={() => setOpen(true)} />
+        {type === "plus" ? (
+          <AddButton onClick={() => setOpen(true)} />
+        ) : (
+          <TimerButton
+            onClick={() => {
+              setOpen(true);
+            }}
+          />
+        )}
       </Drawer.Trigger>
 
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40" />
-        <Drawer.Content className="bg-white flex flex-col rounded-t-[20px] h-[80vh] mt-24 fixed bottom-0 left-0 right-0">
+        <Drawer.Overlay className="fixed inset-0 bg-black/40 z-1000" />
+        <Drawer.Content className="bg-white flex flex-col rounded-t-[20px] z-1000 h-[80vh] mt-24 fixed bottom-0 left-0 right-0">
           <div className="p-4 bg-white rounded-t-[20px] flex-shrink-0">
             <div className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-gray-300 mb-4" />
             <div className="flex justify-between items-center">

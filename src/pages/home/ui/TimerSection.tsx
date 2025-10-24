@@ -1,5 +1,5 @@
-import { EmptyTimerItem, TimerItem } from "@/src/pages/timer/ui/timerItem";
-import { useTimers } from "@/src/pages/timer/model/useInProgressTimers";
+import { EmptyTimerItem, TimerItem } from "@/src/features/timer/ui/timerItem";
+import { useTimers } from "@/src/features/timer/model/useInProgressTimers";
 import { motion } from "motion/react";
 import { IoChevronForwardOutline } from "react-icons/io5";
 import Link from "next/link";

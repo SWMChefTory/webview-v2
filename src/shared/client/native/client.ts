@@ -68,6 +68,7 @@ const unblockingHandlers = new Map<
 >();
 
 //payLoad는 이미 객체화 되어있음.
+//이 함수를 등록해 놓으면 네이티브에서 요청을 받을 수 있음.
 export const onUnblockingRequest = (
   type: UNBLOCKING_HANDLER_TYPE,
   handler: UnblockingHandler
@@ -88,19 +89,27 @@ export const onUnblockingRequest = (
 //useEffect안에서만 써야함. CSR코드
 //request함수 사용할 때 이 코드는 몰라도 됨.
 export const communication = (event: MessageEvent) => {
-  if (typeof event.data !== "string") return;
-
+  console.log("communication!!!!!!!!!!!!!!!!", JSON.stringify(event, null, 2));
+  if (typeof event.data !== "string") {
+    return
+  };
+  console.log("event.data!!!!!!!!!!!!!!!!", JSON.stringify(event.data, null, 2));
   const msg = JSON.parse(event.data) as
     | ResponseMsg
     | RequestMsgUnblockingFromNative;
+
+  console.log("msg!!!!!!!!!!!!!!!!", JSON.stringify(msg, null, 2));
 
   if (
     typeof msg === "object" &&
     "event" in msg &&
     (msg as any).event === "infoDelivery"
   ) {
+    console.log("infoDelivery!!!!!!!!!!!!!!!!", JSON.stringify(msg, null, 2));
     return;
   }
+
+  console.log("", JSON.stringify(msg, null, 2));
 
   if (!msg.intended) {
     console.log("[NOT INTENDED] : ", JSON.stringify(msg));
@@ -159,7 +168,7 @@ export function request<T = any>(
   mode: MODE,
   type: string,
   payload?: any,
-  timeoutMs = 10_000
+  timeoutMs = 1000
 ): Promise<T> {
   if (typeof window === "undefined") {
     console.log("[NOT WINDOW] : ", mode, type, payload);
@@ -193,6 +202,7 @@ export function request<T = any>(
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => {
       pending.delete(id);
+      console.warn("Bridge request timed out", JSON.stringify(req, null, 2));
       reject(new Error("Bridge request timed out"));
     }, timeoutMs);
 

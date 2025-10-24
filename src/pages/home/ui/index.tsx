@@ -18,6 +18,7 @@ import { PiMagnifyingGlassBold } from "react-icons/pi";
 import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
+import { VerticallyLongRecipes } from "./vericallyLongRecipes";
 
 function HomePage() {
   const router = useRouter();
@@ -55,6 +56,7 @@ function HomePage() {
         <TimerSection />
       </HydrationZustand>
       <HorizontallyLongRecipes />
+      <VerticallyLongRecipes />
       <SSRSuspense fallback={<FloatingButtonSkeleton />}>
         <FloatingButton />
       </SSRSuspense>
@@ -68,7 +70,7 @@ const Logo = () => {
   const translateY = useTransform(scrollY, [0, 40], [0, -52]);
 
   return (
-    <div className="pl-2">
+    <div className="pl-2 h-[24px]">
       <HeaderSpacing />
       <motion.img
         src="/logo.png"

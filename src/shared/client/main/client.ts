@@ -3,7 +3,6 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
 
-const REFRESH_TOKEN = "REFRESH_TOKEN";
 
 declare module "axios" {
     export interface AxiosRequestConfig {

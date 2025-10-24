@@ -1,7 +1,7 @@
-import { useTimers } from "../model/useInProgressTimers";
-import { TimerBottomSheet } from "./timerBottomSheet";
-import { useIdleTimersStore } from "../model/useIdleTimers";
-import { TimerItem, IdleTimerItem } from "./timerItem";
+import { useTimers } from "../../../features/timer/model/useInProgressTimers";
+import { TimerBottomSheet } from "../../../widgets/timer/timerBottomSheet";
+import { useIdleTimersStore } from "../../../features/timer/model/useIdleTimers";
+import { TimerItem, IdleTimerItem } from "../../../features/timer/ui/timerItem";
 export { TimerBottomSheet };
 
 export default function TimerList() {

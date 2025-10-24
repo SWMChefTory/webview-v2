@@ -9,6 +9,8 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
+import { AlreadyEnrolledChip } from "./chips";
+import { VideoType } from "../entities/popular_recipe/type/videoType";
 
 export function HorizontallyLongRecipes() {
   return (
@@ -42,9 +44,12 @@ function RecipeCardSectionSkeleton() {
 
 function RecipeCardSectionReady() {
   const { data: recipes } = useFecthPopularRecipe();
+  const longRecipes = recipes.filter(
+    (recipe) => recipe.videoType === VideoType.NORMAL
+  );
   return (
     <>
-      {recipes.map((recipe) => (
+      {longRecipes.map((recipe) => (
         <RecipeCardReady recipe={recipe} key={recipe.recipeId} />
       ))}
     </>
@@ -53,23 +58,20 @@ function RecipeCardSectionReady() {
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
   const { create } = useCreateRecipe();
-  console.log("recipe", recipe.isViewd);
   return (
     <div className="flex flex-col">
       <div className="flex relative flex-col w-[320px]">
         <div
           className="h-[180] overflow-hidden rounded-md"
           onClick={() => {
-            if (!recipe.isViewd) {
+            if (!recipe.isViewed) {
               create({ youtubeUrl: recipe.videoUrl });
             }
           }}
         >
-          {recipe.isViewd || (
-            <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
-              <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">이미 등록된 레시피에요</div>
-            </div>
-          )}
+          <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
+            <AlreadyEnrolledChip isEnrolled={recipe.isViewed} />
+          </div>
           <img
             src={recipe.videoThumbnailUrl}
             className="block w-full h-full object-cover "

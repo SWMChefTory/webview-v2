@@ -1,24 +1,42 @@
+// SSRErrorBoundary.tsx
 import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 interface SSRErrorBoundaryProps {
-  fallback: React.ReactNode;
+  // fallback을 렌더 함수로 받아 resetErrorBoundary를 전달
+  fallbackRender: (args: {
+    error: unknown;
+    resetErrorBoundary: () => void;
+  }) => React.ReactNode;
+  // QueryErrorResetBoundary의 reset을 전달받아 연결
+  onReset?: () => void;
   children: React.ReactNode;
 }
 
 export const SSRErrorBoundary = ({
-  fallback,
+  fallbackRender,
+  onReset,
   children,
 }: SSRErrorBoundaryProps) => {
-  const [isMounted, setIsMounted] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  if (!isMounted) {
-    return <>{fallback}</>;
+  if (!mounted) {
+    return <></>;
   }
 
-  return <ErrorBoundary fallback={fallback}>{children}</ErrorBoundary>;
+  return (
+    <ErrorBoundary
+      onReset={onReset}
+      fallbackRender={({ error, resetErrorBoundary }) =>
+        fallbackRender({ error, resetErrorBoundary })
+      }
+      onError={(e) => {
+        console.log("[ErrorBoundary caught]", e?.name, (e as any)?.message, e);
+      }}
+    >
+      {children}
+    </ErrorBoundary>
+  );
 };

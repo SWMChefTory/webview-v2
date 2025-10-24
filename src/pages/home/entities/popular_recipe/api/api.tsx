@@ -1,5 +1,6 @@
 import client from "@/src/shared/client/main/client";
 import { z } from "zod";
+import { VideoType } from "../type/videoType";
 
 const PopularSummaryRecipeResponseSchema = z.object({
   recipeId: z.string(),
@@ -9,6 +10,7 @@ const PopularSummaryRecipeResponseSchema = z.object({
   videoUrl: z.string(),
   count: z.number(),
   isViewd: z.boolean(),
+  videoType: z.enum(VideoType),
 });
 
 const PopularSummaryRecipeApiResponseSchema = z.object({

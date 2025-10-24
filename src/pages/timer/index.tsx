@@ -1,7 +1,7 @@
 import Header, { BackButton } from "@/src/shared/ui/header";
 import TimerPageContent from "./ui";
 import { useRouter } from "next/router";
-import { TimerBottomSheet } from "./ui/timerBottomSheet";
+import { TimerBottomSheet } from "../../widgets/timer/timerBottomSheet";
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { Toaster } from "sonner";
 

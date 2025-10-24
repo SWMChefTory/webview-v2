@@ -4,6 +4,7 @@ import {
   PopularSummaryRecipe,
 } from "@/src/pages/home/entities/popular_recipe/api/api";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { VideoType } from "../type/videoType";
 
 
 export class PopularRecipe {
@@ -13,7 +14,8 @@ export class PopularRecipe {
   videoId!: string;
   videoUrl!: string;
   count!: number;
-  isViewd!: boolean;
+  isViewed!: boolean;
+  videoType!: VideoType;
   
   constructor(data: unknown) {
     Object.assign(this, data);

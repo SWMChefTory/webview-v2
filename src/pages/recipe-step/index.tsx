@@ -9,11 +9,12 @@ const RecipeStepPage = () => {
   const router = useRouter();
   return (
     <div className="w-full h-full">
-      <SSRSuspense fallback={<RecipeStepPageSkeleton />}>
-        <RecipeStepPageReady id={router.query.id as string} />
-      </SSRSuspense>
+        <SSRSuspense fallback={<RecipeStepPageSkeleton />}>
+          <RecipeStepPageReady id={router.query.id as string} />
+        </SSRSuspense>
     </div>
   );
 };
+
 
 export default RecipeStepPage;

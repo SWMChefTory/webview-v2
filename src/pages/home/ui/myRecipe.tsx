@@ -92,6 +92,7 @@ const MyRecipeTitleSkeleton = () => {
           className="size-6"
         />
         <div className="pr-1"/>
+        나의 레시피
         <IoChevronForwardOutline className="size-6 text-gray-400 ml-1" />
       </div>
     </>

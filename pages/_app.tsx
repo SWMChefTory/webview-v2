@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
 import useInit from "@/src/app/init";
-import { onUnblockingRequest } from "@/src/shared/client/native/client";
+import { MODE, onUnblockingRequest } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { RecipeCreationInfoSchema } from "@/src/pages/home/entities/creating_info/recipeCreationInfo";
 import { toast, Toaster } from "sonner";
@@ -19,6 +19,7 @@ import {
   QueryErrorResetBoundary,
   useQueryClient,
 } from "@tanstack/react-query";
+import {request} from "@/src/shared/client/native/client";
 
 
 export default function App(props: AppProps) {
@@ -46,9 +47,15 @@ export default function App(props: AppProps) {
   );
 }
 
+enum loadingRequestType {
+  LOAD_START = "LOAD_START",
+  LOAD_END = "LOAD_END",
+}
+
 function AppInner({ Component, pageProps }: AppProps) {
   const { create, error, isLoading } = useCreateRecipe();
   const router = useRouter();
+
 
   useEffect(() => {
     const cleanup = onUnblockingRequest(
@@ -69,15 +76,28 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
         // 같은 경로면 무시
-
         router.push(payload.route); // 일단 주석
       }
     );
-
     return () => {
       cleanup();
     };
   }, [router]);
+
+  function nextPaint() {
+    return new Promise<void>((resolve) =>
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => resolve())
+      )
+    );
+  }
+
+  useEffect(()=>{
+    (async () => {
+      await nextPaint();
+      request(MODE.UNBLOCKING, loadingRequestType.LOAD_END);
+    })();
+  }, []);
 
   useEffect(() => {
     if (error) toast.error("레시피 생성 중 오류가 발생했습니다.");
@@ -87,7 +107,6 @@ function AppInner({ Component, pageProps }: AppProps) {
     if (isLoading) toast("레시피 생성 중...");
   }, [isLoading]);
 
-  console.log(router.asPath);  
   return (
     <HydrationBoundary state={pageProps.dehydratedState}>
       <QueryErrorResetBoundary>

@@ -3,14 +3,15 @@ import Fire from "./assets/fire.png";
 import {
   useFecthPopularRecipe,
   PopularRecipe,
-} from "@/src/pages/home/entities/popular_recipe/model/usePopularRecipe";
+  sortByViewed,
+} from "@/src/entities/popular_recipe/model/usePopularRecipe";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import { AlreadyEnrolledChip } from "./chips";
-import { VideoType } from "../entities/popular_recipe/type/videoType";
+import { VideoType } from "../../../entities/popular_recipe/type/videoType";
+import { PopularRecipeCardWrapper } from "./popularRecipeCardDialog";
 
 export function HorizontallyLongRecipes() {
   return (
@@ -47,10 +48,11 @@ function RecipeCardSectionReady() {
   const longRecipes = recipes.filter(
     (recipe) => recipe.videoType === VideoType.NORMAL
   );
+  const sortedRecipes = sortByViewed(longRecipes);
   return (
     <>
-      {longRecipes.map((recipe) => (
-        <RecipeCardReady recipe={recipe} key={recipe.recipeId} />
+      {sortedRecipes.map((recipe) => (
+        <PopularRecipeCardWrapper recipe={recipe} key={recipe.recipeId} trigger={<RecipeCardReady recipe={recipe} />} />
       ))}
     </>
   );
@@ -77,10 +79,9 @@ export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
             className="block w-full h-full object-cover "
           />
         </div>
-        <div className="text-lg font-semibold w-full overflow-hidden line-clamp-1">
+        <div className="text-lg font-semibold w-full overflow-hidden line-clamp-2">
           {recipe.recipeTitle}
         </div>
-        <div className="text-sm text-gray-700"> 조회수 {recipe.count}회 </div>
       </div>
     </div>
   );

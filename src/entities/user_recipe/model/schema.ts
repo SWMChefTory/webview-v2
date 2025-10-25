@@ -15,6 +15,7 @@ export const UserRecipeSchema = z.object({
   recipeDetailMeta: RecipeDetailMetaSchema.optional(),
   tags: z.array(RecipeTagSchema).optional(),
   viewedAt: z.date(),
+  createdAt: z.date(),
 });
 
 export const getElapsedTime = (viewedAt: Date) => {

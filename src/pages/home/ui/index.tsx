@@ -19,9 +19,48 @@ import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { VerticallyLongRecipes } from "./vericallyLongRecipes";
+import { MODE, request } from "@/src/shared/client/native/client";
+import { useEffect } from "react";
+import React from "react";
+import { driver } from "driver.js";
+import "driver.js/dist/driver.css";
+
+const driverObj = driver({
+  showProgress: true, // Because everyone loves progress bars!
+  steps: [
+    {
+      element: "#element-of-mystery",
+      popover: {
+        title: "Abracadabra!",
+        description: "Watch as I reveal the secrets of this element.",
+      },
+    },
+    // More magical steps...
+  ],
+});
+function startTheMagicShow() {
+  driverObj.drive();
+}
+
+enum loadingRequestType {
+  LOAD_START = "LOAD_START",
+  LOAD_END = "LOAD_END",
+}
 
 function HomePage() {
   const router = useRouter();
+  function nextPaint() {
+    return new Promise<void>((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+    );
+  }
+
+  useEffect(() => {
+    (async () => {
+      await nextPaint();
+      request(MODE.UNBLOCKING, loadingRequestType.LOAD_END);
+    })();
+  }, []);
 
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden pb-safe">
@@ -48,6 +87,7 @@ function HomePage() {
           </div>
         </Link>
       </div>
+      {/* <button onClick={startTheMagicShow}>Start Magical Tour</button> */}
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
@@ -70,7 +110,7 @@ const Logo = () => {
   const translateY = useTransform(scrollY, [0, 40], [0, -52]);
 
   return (
-    <div className="pl-2 h-[24px]">
+    <div className="pl-2 ">
       <HeaderSpacing />
       <motion.img
         src="/logo.png"

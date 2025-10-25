@@ -19,10 +19,16 @@ import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/model/api
 
 import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "@/src/entities/user_recipe/model/api";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 import { PaginatedRecipes } from "@/src/entities/user_recipe/model/api";
 import { UserRecipe } from "@/src/entities/user_recipe/model/schema";
+import {
+  patchIsViewedOptimistically,
+  rollbackIsViewed,
+} from "../../popular_recipe/model/usePopularRecipe";
+
+import { useFakeRecipeInCreatingStore } from "@/src/entities/user_recipe/model/fake-recipe-creating/store/useFakeRecipeInCreatingStore";
 
 export const QUERY_KEY = "categoryRecipes";
 export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
@@ -48,9 +54,11 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
     isLoading,
     error,
   } = useSuspenseInfiniteQuery({
-    queryKey: (()=>{return category === ALL_RECIPES
-      ? [ALL_RECIPE_QUERY_KEY]
-      : [QUERY_KEY, category?.id ?? "unknown"];})(),
+    queryKey: (() => {
+      return category === ALL_RECIPES
+        ? [ALL_RECIPE_QUERY_KEY]
+        : [QUERY_KEY, category?.id ?? "unknown"];
+    })(),
     queryFn: ({ pageParam = 0 }) => {
       switch (category) {
         case ALL_RECIPES:
@@ -81,10 +89,7 @@ export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
 
   const refetchAll = () => {
     queryClient.invalidateQueries({
-      queryKey: [
-        QUERY_KEY,
-        (category as Category)?.id || ALL_RECIPE_QUERY_KEY,
-      ],
+      queryKey: [QUERY_KEY, (category as Category)?.id || ALL_RECIPE_QUERY_KEY],
     });
   };
 
@@ -194,6 +199,7 @@ export function useUpdateCategoryOfRecipe() {
 
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
+  const { handleAddFakeCreating } = useFakeRecipeInCreatingStore();
   const {
     mutate,
     data,
@@ -203,20 +209,32 @@ export function useCreateRecipe() {
     mutationFn: async ({
       youtubeUrl,
       targetCategoryId = null,
+      recipeId: existingRecipeId,
     }: {
       youtubeUrl: string;
       targetCategoryId?: string | null;
+      recipeId?: string;
     }) => {
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
       const recipeId = await createRecipe(standardUrl);
-      if (targetCategoryId) {
+      if (targetCategoryId)
         await updateCategory({ recipeId, targetCategoryId });
+      return { recipeId, standardUrl };
+    },
+    onMutate: async ({ youtubeUrl, recipeId: existingRecipeId }) => {
+      if (!existingRecipeId) {
+        return null;
       }
-      return recipeId;
+      handleAddFakeCreating(existingRecipeId);
+      return await patchIsViewedOptimistically(
+        queryClient,
+        existingRecipeId,
+        true
+      );
     },
     throwOnError: false,
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });
@@ -227,8 +245,10 @@ export function useCreateRecipe() {
         queryKey: [CATEGORY_QUERY_KEY],
       });
     },
-    onError: (error) => {
-      console.log("[ERROR] !!: ", JSON.stringify(error));
+    onError: (error, _vars, ctx) => {
+      if (ctx?.prevList) {
+        rollbackIsViewed(queryClient, { prevList: ctx.prevList });
+      }
     },
   });
   return {
@@ -261,7 +281,18 @@ class RecipeProgressStatus {
   }
 }
 
+const createInProress = (
+  realProgress: RecipeProgressStatus,
+  isInFakeProgress: boolean
+) => {
+  const isInCreating = isInFakeProgress
+    ? RecipeStatus.IN_PROGRESS
+    : realProgress.recipeStatus;
+  return isInCreating;
+};
+
 export const useFetchRecipeProgress = (recipeId: string) => {
+  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
   const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -285,7 +316,9 @@ export const useFetchRecipeProgress = (recipeId: string) => {
     };
   }, [progress.recipeStatus, refetch]);
 
-  return { progress };
+  return {
+    recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
+  };
 };
 
 export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
@@ -300,6 +333,7 @@ export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
     staleTime: 5 * 60 * 1000,
     select: (data) => RecipeProgressStatus.create(data),
   });
+  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
   const isCreatingSuccessRef = useRef(false);
   const queryClient = useQueryClient();
 
@@ -329,5 +363,11 @@ export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
     };
   }, [progress?.recipeStatus, refetch]);
 
-  return { progress, isLoading, isError };
+  return {
+    recipeStatus: progress
+      ? createInProress(progress, isInCreatingFake(recipeId))
+      : undefined,
+    isLoading,
+    isError,
+  };
 };

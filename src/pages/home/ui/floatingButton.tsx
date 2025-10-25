@@ -10,6 +10,7 @@ export const FloatingButton = () => {
   return (
     <div className="fixed z-[20] bottom-[20] right-[20] pb-safe">
       <Button
+        id="element-of-mystery"
         className="h-[60] border-none w-[60] bg-orange-500 rounded-full"
         variant="outline"
         aria-label="Submit"
@@ -29,7 +30,6 @@ export const FloatingButton = () => {
 
 export const FloatingButtonSkeleton = () => {
   return (
-    <Skeleton className="fixed z-[20] bottom-[20] right-[20] h-[60] pb-safe border-none w-[60] bg-orange-500 rounded-full">
-    </Skeleton>
+    <Skeleton className="fixed z-[20] bottom-[20] right-[20] h-[60] pb-safe border-none w-[60] bg-orange-500 rounded-full"></Skeleton>
   );
 };

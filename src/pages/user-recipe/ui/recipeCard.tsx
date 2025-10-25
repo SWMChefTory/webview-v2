@@ -8,6 +8,7 @@ import {
   ThumbnailReady,
 } from "@/src/entities/user_recipe/ui/thumbnail";
 import {
+  useFetchRecipeProgress,
   useFetchRecipeProgressNotSuspense,
   useUpdateCategoryOfRecipe,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
@@ -41,9 +42,7 @@ const RecipeDetailsCardReady = ({
   userRecipe: UserRecipe;
   selectedCategoryId: string;
 }) => {
-  const { progress, isLoading } = useFetchRecipeProgressNotSuspense(
-    userRecipe.recipeId
-  );
+  const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
   const { handleTapStart } = useResolveLongClick(
     () => {
@@ -60,11 +59,9 @@ const RecipeDetailsCardReady = ({
       className="relative w-full px-[10] flex flex-row items-center justify-center z-10"
       onTapStart={handleTapStart}
     >
-      {progress && progress.recipeStatus === RecipeStatus.IN_PROGRESS && (
+      {recipeStatus && recipeStatus === RecipeStatus.IN_PROGRESS && (
         <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
-          <ProgressDetailsCheckList
-            recipeProgressDetails={progress?.recipeProgressDetails ?? []}
-          />
+          <ProgressDetailsCheckList recipeStatus={recipeStatus} />
         </div>
       )}
       <ThumbnailReady
@@ -73,16 +70,12 @@ const RecipeDetailsCardReady = ({
       />
       <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
-        {isLoading || progress?.recipeStatus === RecipeStatus.IN_PROGRESS ? (
-          <DetailSectionSkeleton />
-        ) : (
-          <DetailSectionReady
-            tags={userRecipe.tags || []}
-            cookTime={userRecipe.recipeDetailMeta?.cookingTime ?? 0}
-            servings={userRecipe.recipeDetailMeta?.servings ?? 0}
-            desrciption={userRecipe.recipeDetailMeta?.description ?? ""}
-          />
-        )}
+        <DetailSectionReady
+          tags={userRecipe.tags || []}
+          cookTime={userRecipe.recipeDetailMeta?.cookingTime ?? 0}
+          servings={userRecipe.recipeDetailMeta?.servings ?? 0}
+          desrciption={userRecipe.recipeDetailMeta?.description ?? ""}
+        />
         <ElapsedViewTimeReady details={getElapsedTime(userRecipe.viewedAt)} />
         <CategorySelect
           recipeId={userRecipe.recipeId}

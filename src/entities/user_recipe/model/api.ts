@@ -94,6 +94,7 @@ const transformRecipe = (recipe: any) => {
           name: tag.name,
         }))
       : undefined,
+    createdAt: new Date(recipe.createdAt),
   };
 };
 
@@ -104,7 +105,7 @@ export type CreateRecipeResponse = z.infer<typeof CreateRecipeResponseSchema>;
 
 export async function createRecipe(videoUrl: string): Promise<string> {
   const createRequest = {
-    video_url: videoUrl,
+    videoUrl: videoUrl,
   };
   const response = await client.post(`/recipes`, createRequest);
   return CreateRecipeResponseSchema.parse(response.data).recipeId;

@@ -26,7 +26,7 @@ import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
-
+import { NewRecipeChip } from "./chips";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -46,6 +46,8 @@ export const UserRecipeCardReady = ({
       </SSRSuspense>
       <div className="relative w-[320] h-[180]">
         <div className="absolute top-0 left-0">
+          <div className="absolute top-[12] left-[12]">
+          </div>
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
             size={{ width: 320, height: 180 }}
@@ -93,18 +95,18 @@ const RecipeProgressSkeleton = () => {
 };
 
 const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
-  const { progress } = useFetchRecipeProgress(userRecipe.recipeId);
+  const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
 
   if (
-    progress.recipeStatus === RecipeStatus.SUCCESS ||
-    progress.recipeStatus === RecipeStatus.FAILED
+    recipeStatus === RecipeStatus.SUCCESS ||
+    recipeStatus === RecipeStatus.FAILED
   ) {
     return <></>;
   }
   return (
     <div className="absolute inset-0 flex items-center overflow-hidden z-10">
       <ProgressDetailsCheckList
-        recipeProgressDetails={progress.recipeProgressDetails}
+        recipeStatus={recipeStatus}
       />
     </div>
   );

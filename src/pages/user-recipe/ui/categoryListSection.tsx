@@ -34,6 +34,7 @@ import {
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 import { Button } from "@/components/ui/button";
+import { CategoryCreatingView } from "@/src/widgets/category-creating-view/categoryCreatingView";
 
 export enum CategoryMode {
   SELECT,
@@ -100,6 +101,7 @@ const CategoryListReady = ({
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null
   );
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[20]">
@@ -136,7 +138,7 @@ const CategoryListReady = ({
           name: "추가",
           accessary: IoMdAdd,
           onClick: () => {
-            request(MODE.UNBLOCKING, "CATEGORY_CREATION_INPUT");
+            setIsOpen(true);
           },
         }}
         isDarkMode={true}
@@ -148,9 +150,11 @@ const CategoryListReady = ({
           onClose={() => setCategoryToDelete(null)}
         />
       )}
+      <CategoryCreatingView isOpen={isOpen} setIsOpen={setIsOpen} />
     </div>
   );
 };
+
 
 const CategoryListSkeleton = () => {
   return (

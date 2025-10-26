@@ -230,10 +230,10 @@ function RouteDialog({
     <>
       <Dialog.Root open={true}>
         <Dialog.Overlay
-          className="fixed inset-0 bg-black/50"
+          className="fixed inset-0 bg-black/50 z-[99]"
           onClick={() => setDeepLinkUrl(undefined)}
         />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-white rounded-lg p-6 flex flex-col gap-2">
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-white rounded-lg p-6 flex flex-col gap-2 z-[100]">
           <Dialog.Title className="text-center">
             해당 레시피로 이동하시겠습니까?
           </Dialog.Title>

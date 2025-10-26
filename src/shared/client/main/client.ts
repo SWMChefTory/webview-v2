@@ -78,6 +78,7 @@ client.interceptors.response.use(
         .catch((error) => {
           return Promise.reject(error);
         });
+      return Promise.resolve(error);
     }
     return Promise.reject(error);
   }
@@ -86,7 +87,7 @@ client.interceptors.response.use(
 const MAIN_ACCESS_TOKEN_KEY = "MAIN_ACCESS_TOKEN";
 
 export const getMainAccessToken = () => {
-  if (typeof window === 'undefined') return ''; 
+  if (typeof window === "undefined") return "";
   return localStorage.getItem(MAIN_ACCESS_TOKEN_KEY) || "";
 };
 

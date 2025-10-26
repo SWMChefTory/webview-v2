@@ -1,65 +1,56 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
+import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 
-export function RecipeCreatingView() {
+export function CategoryCreatingView({isOpen, setIsOpen}: {isOpen: boolean, setIsOpen: (open: boolean) => void}) {
   const [hasEverTyped, setHasEverTyped] = useState(false);
-  const { create } = useCreateRecipe();
-  const {
-    isOpen,
-    videoUrl: url,
-    setIsOpen,
-    setUrl,
-    close,
-  } = useRecipeCreatingViewOpenStore();
-
-  const isValidYoutubeUrl = (url: string) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
-    return youtubeRegex.test(url);
-  };
+  const { createCategory } = useCreateCategory();
+  const [name, setName] = useState("");
 
   const isError = () => {
-    const error = hasEverTyped && url.length > 0 && !isValidYoutubeUrl(url);
-    console.log("error!!", error);
+    const error = hasEverTyped && name.trim().length <= 0;
     return error;
   };
 
-  const handleUrlChange = (url: string) => {
-    setUrl(url);
+  const handleNameChange = (value: string) => {
+    setName(value);
     setHasEverTyped(true);
   };
 
   const isSubmittable = () => {
-    return url.length > 0 && isValidYoutubeUrl(url);
+    return name.trim().length > 0;
   };
 
   const handleSubmit = () => {
     if (isSubmittable()) {
-      create({ youtubeUrl: url });
+      createCategory(name);
       setHasEverTyped(false);
-      close();
+      setIsOpen(false);
     }
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog.Root open={isOpen} onOpenChange={(open)=>{
+        setName("");
+        setHasEverTyped(false);
+        setIsOpen(open);
+    }}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
         <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg">
           <div className="p-5">
             <Dialog.Title className="text-xl font-bold">
-              레시피 만들기
+              카테고리 생성
             </Dialog.Title>
           </div>
 
           <div className="px-4 pb-5">
             <FormInput
-              value={url}
-              onChange={handleUrlChange}
+              value={name}
+              onChange={handleNameChange}
               isError={isError()}
-              errorMessage="유튜브 링크를 입력해주세요."
+              errorMessage="카테고리 이름을 입력해주세요."
             />
           </div>
 

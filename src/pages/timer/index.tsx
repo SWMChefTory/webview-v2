@@ -15,7 +15,6 @@ function TimerPage() {
             <BackButton
               onClick={() => {
                 router.back();
-                console.log("back");
               }}
             />
           </div>

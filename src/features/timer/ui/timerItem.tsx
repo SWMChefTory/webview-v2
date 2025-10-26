@@ -140,7 +140,6 @@ function TimerName({name, recipeId}: {name?: string, recipeId?: string}) {
   return (
     <div className="flex gap-1 items-center px-2 text-sm font-semibold" onClick={()=>{
       if (recipeId) {
-        console.log("recipeId", recipeId);
         router.push(`/recipe/${recipeId}/detail`);
       }
     }}>

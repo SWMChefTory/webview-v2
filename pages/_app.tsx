@@ -27,8 +27,6 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-vi
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 
-// import  Toaster  from "@/components/ui/sonner";
-
 export default function App(props: AppProps) {
   const [queryClient] = useState(
     () =>
@@ -111,7 +109,6 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.OPEN_CREATING_VIEW,
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
-        console.log(JSON.stringify(info, null, 2));
         open(info.videoUrl);
       }
     );
@@ -198,7 +195,6 @@ export function NetworkFallback({ onRetry }: { onRetry: () => void }) {
         whileTap={{ scale: 0.95 }}
         className="bg-orange-500 text-white font-semibold px-5 py-2 rounded-full shadow-md hover:bg-orange-600 transition"
         onClick={async () => {
-          console.log("다시 시도하기");
 
           // 1) 바운더리 리셋
           onRetry?.();

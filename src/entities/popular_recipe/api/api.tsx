@@ -24,6 +24,5 @@ export async function fetchPopularSummary(): Promise<PopularSummaryRecipeRespons
   const response = await client.get(
     `/recipes/recommend`
   );
-  console.log("fetchPopularSummary!", JSON.stringify(response));
   return response.data;
 }

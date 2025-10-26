@@ -11,12 +11,13 @@ import {
 import { PopularRecipe } from "@/src/entities/popular_recipe/model/usePopularRecipe";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useState } from "react";
+import { ThemeRecipe } from "../entities/theme-recipe/type";
 
 export function PopularRecipeCardWrapper({
   recipe,
   trigger,
 }: {
-  recipe: PopularRecipe;
+  recipe: PopularRecipe | ThemeRecipe;
   trigger: React.ReactNode;
 }) {
   const { create } = useCreateRecipe();

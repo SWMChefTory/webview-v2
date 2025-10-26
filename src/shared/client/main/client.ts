@@ -9,7 +9,7 @@ declare module "axios" {
   }
 }
 
-const BASE_URL = "https://dev.api.cheftories.com/api/v1";
+const BASE_URL = "https://api.cheftories.com/api/v1";
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -54,39 +54,29 @@ client.interceptors.request.use(
 
 client.interceptors.response.use(
   (response) => {
-    console.log(
-      "client interceptor response",
-      JSON.stringify(response.data, null, 2)
-    );
     response.data = camelcaseKeys(response.data, { deep: true });
     return response;
   },
-  (error) => {
-    console.log(
-      "client interceptor response error",
-      JSON.stringify(error, null, 2)
-    );
-    console.log(
-      "client interceptor response error2",
-      JSON.stringify(error.response, null, 2)
-    );
+  async (error) => {
     const originalRequest = error.config;
     if (
       isAxiosError(error) &&
       error.response?.data?.errorCode?.startsWith("AUTH") &&
       !originalRequest?.isSecondRequest
     ) {
-      console.log("client interceptor response error3");
       originalRequest.isSecondRequest = true;
       return request(MODE.BLOCKING, "REFRESH_TOKEN", null)
         .then((result) => {
           setMainAccessToken(result.token);
-          clientResolvingError(originalRequest);
+          return clientResolvingError(originalRequest);
         })
         .catch((error) => {
           return Promise.reject(error);
         });
     }
+    request(MODE.UNBLOCKING, "LOGOUT", null)
+    setMainAccessToken("");
+    alert("로그인 정보가 만료되었습니다. 다시 로그인해주세요.");
     return Promise.reject(error);
   }
 );

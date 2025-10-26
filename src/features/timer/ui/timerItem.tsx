@@ -144,7 +144,7 @@ function TimerName({name, recipeId}: {name?: string, recipeId?: string}) {
       }
     }}>
       <div className="truncate">
-      {name ?? "셰프토리 타이머"}
+      {name ?? "쉐프토리 타이머"}
       </div>
       {recipeId && <IoIosArrowForward className="text-gray-400 size-4 shrink-0" />}
     </div>

@@ -26,7 +26,6 @@ import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
-import { NewRecipeChip } from "./chips";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -34,17 +33,19 @@ export const UserRecipeCardReady = ({
   userRecipe: UserRecipe;
 }) => {
   const userRouter = useRouter();
+  const progress = useFetchRecipeProgress(userRecipe.recipeId);
   return (
     <div
       className="flex relative flex-col w-[320px]"
-      onClick={() => {
-        userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
-      }}
     >
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
-      <div className="relative w-[320] h-[180]">
+      <div className="relative w-[320] h-[180]" onClick={() => {
+        if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+          userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+        }
+      }}>
         <div className="absolute top-0 left-0">
           <div className="absolute top-[12] left-[12]">
           </div>
@@ -96,10 +97,8 @@ const RecipeProgressSkeleton = () => {
 
 const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
   const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
-
   if (
-    recipeStatus === RecipeStatus.SUCCESS ||
-    recipeStatus === RecipeStatus.FAILED
+    recipeStatus === RecipeStatus.SUCCESS
   ) {
     return <></>;
   }

@@ -42,23 +42,12 @@ function startTheMagicShow() {
   driverObj.drive();
 }
 
-enum loadingRequestType {
-  LOAD_START = "LOAD_START",
-  LOAD_END = "LOAD_END",
-}
+
 
 function HomePage() {
   const router = useRouter();
-  function nextPaint() {
-    return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-    );
-  }
   useEffect(() => {
-    (async () => {
-      await nextPaint();
-      request(MODE.UNBLOCKING, loadingRequestType.LOAD_END);
-    })();
+    startTheMagicShow();
   }, []);
 
   return (

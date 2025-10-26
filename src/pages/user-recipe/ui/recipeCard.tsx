@@ -34,6 +34,7 @@ import { IoMdClose } from "react-icons/io";
 import { useResolveLongClick } from "@/src/shared/hooks/useClick";
 import { useState } from "react";
 import { IoFolderOpenOutline } from "react-icons/io5";
+import { useRouter } from "next/router";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -44,6 +45,8 @@ const RecipeDetailsCardReady = ({
 }) => {
   const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
+  const userRouter = useRouter();
+  const progress = useFetchRecipeProgress(userRecipe.recipeId);
   const { handleTapStart } = useResolveLongClick(
     () => {
       console.log("short click");
@@ -68,7 +71,11 @@ const RecipeDetailsCardReady = ({
         imgUrl={userRecipe.videoInfo.thumbnailUrl}
         size={{ width: 160, height: 90 }}
       />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden" onClick={() => {
+        if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+          userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+        }
+      }}>
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
           tags={userRecipe.tags || []}

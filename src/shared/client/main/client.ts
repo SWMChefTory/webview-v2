@@ -70,7 +70,6 @@ client.interceptors.response.use(
       !originalRequest?.isSecondRequest
     ) {
       originalRequest.isSecondRequest = true;
-      console.log("response error!~~", JSON.stringify(error, null, 2));
       request(MODE.BLOCKING, "REFRESH_TOKEN", null)
         .then((result) => {
           setMainAccessToken(result.token);
@@ -87,6 +86,7 @@ client.interceptors.response.use(
 const MAIN_ACCESS_TOKEN_KEY = "MAIN_ACCESS_TOKEN";
 
 export const getMainAccessToken = () => {
+  if (typeof window === 'undefined') return ''; 
   return localStorage.getItem(MAIN_ACCESS_TOKEN_KEY) || "";
 };
 

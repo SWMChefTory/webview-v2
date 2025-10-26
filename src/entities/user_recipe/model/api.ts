@@ -108,6 +108,7 @@ export async function createRecipe(videoUrl: string): Promise<string> {
     videoUrl: videoUrl,
   };
   const response = await client.post(`/recipes`, createRequest);
+  console.log("create recipe response", JSON.stringify(response.data, null, 2));
   return CreateRecipeResponseSchema.parse(response.data).recipeId;
 }
 

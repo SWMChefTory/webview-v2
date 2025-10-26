@@ -1,25 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useFetchCategories } from "@/src/entities/category/model/useCategory";
-import { MODE, request } from "@/src/shared/client/native/client";
-import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { FaPlus } from "react-icons/fa6";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
 
 export const FloatingButton = () => {
-  const { data: categories } = useFetchCategories();
+  const {open} = useRecipeCreatingViewOpenStore();
   return (
-    <div className="fixed z-[20] bottom-[20] right-[20] pb-safe">
+    <div className="fixed z-[100] bottom-[20] right-[20] pb-safe">
       <Button
         id="element-of-mystery"
         className="h-[60] border-none w-[60] bg-orange-500 rounded-full"
         variant="outline"
         aria-label="Submit"
-        onClick={() => {
-          request(
-            MODE.UNBLOCKING,
-            "RECIPE_CREATION_INPUT",
-            JSON.stringify({ categories: categories })
-          );
+        onClick={()=>{
+          open("");
         }}
       >
         <FaPlus size={40} className="text-white" />
@@ -28,8 +22,10 @@ export const FloatingButton = () => {
   );
 };
 
-export const FloatingButtonSkeleton = () => {
+export function FloatingButtonSkeleton() {
   return (
-    <Skeleton className="fixed z-[20] bottom-[20] right-[20] h-[60] pb-safe border-none w-[60] bg-orange-500 rounded-full"></Skeleton>
+    <div className="fixed z-[100] bottom-[20] right-[20] pb-safe">
+      <Skeleton className="h-[60] w-[60] rounded-full" />
+    </div>
   );
-};
+}

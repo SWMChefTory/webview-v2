@@ -54,7 +54,6 @@ function HomePage() {
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     );
   }
-
   useEffect(() => {
     (async () => {
       await nextPaint();
@@ -64,6 +63,7 @@ function HomePage() {
 
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden pb-safe">
+      
       <Header
         leftContent={<Logo />}
         rightContent={

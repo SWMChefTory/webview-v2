@@ -5,9 +5,6 @@ import { getMainAccessToken } from "@/src/shared/client/main/client";
 import type { TenVADInstance } from "ten-vad-lib";
 import { VADInstance, VADModuleLoader } from "ten-vad-lib";
 
-// ONNX Runtime Web for KWS
-import * as ort from "onnxruntime-web";
-
 const BASE_API_URL = "https://dev.api.cheftories.com";
 
 const STT_URL =
@@ -58,9 +55,6 @@ interface Params {
   onVoiceEnd?: () => void;
   onIntent?: (i: any) => void; // BasicIntent 쓰면 타입 교체
   onVolume?: (vol: number) => void;
-  onKwsDetection?: (probability: number) => void;
-  onKwsActivate?: () => void;
-  onKwsDeactivate?: () => void;
 }
 
 export const useSimpleSpeech = ({
@@ -69,9 +63,6 @@ export const useSimpleSpeech = ({
   onVoiceEnd,
   onIntent,
   onVolume,
-  onKwsDetection,
-  onKwsActivate,
-  onKwsDeactivate,
 }: Params) => {
   const [error, setError] = useState<string | null>(null);
 
@@ -90,15 +81,6 @@ export const useSimpleSpeech = ({
   // TEN VAD
   const vadInstanceRef = useRef<TenVADInstance | null>(null);
 
-  // KWS (Keyword Spotting)
-  const kwsSessionRef = useRef<ort.InferenceSession | null>(null);
-  const kwsBufferRef = useRef<Float32Array>(new Float32Array(0));
-  const kwsEmaRef = useRef<number | null>(null);
-  const kwsSustainMsRef = useRef<number>(0);
-  const kwsArmedRef = useRef<boolean>(false);
-  const kwsActivatedRef = useRef<boolean>(false);
-  const kwsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
   // 상태
   const isMountedRef = useRef(true);
   const txLeftoverRef = useRef<Float32Array | null>(null);
@@ -108,7 +90,6 @@ export const useSimpleSpeech = ({
   const speechActiveRef = useRef(false);
   const lastOnRef = useRef(0);
   const lastOffRef = useRef(0);
-  const kwsInferringRef = useRef<boolean>(false);
 
   // 최신 값 refs
   const recipeIdRef = useRef(recipeId);
@@ -116,9 +97,6 @@ export const useSimpleSpeech = ({
   const onVoiceStartRef = useRef(onVoiceStart);
   const onVoiceEndRef = useRef(onVoiceEnd);
   const onVolumeRef = useRef(onVolume);
-  const onKwsDetectionRef = useRef(onKwsDetection);
-  const onKwsActivateRef = useRef(onKwsActivate);
-  const onKwsDeactivateRef = useRef(onKwsDeactivate);
 
   useEffect(() => {
     recipeIdRef.current = recipeId;
@@ -135,151 +113,6 @@ export const useSimpleSpeech = ({
   useEffect(() => {
     onVolumeRef.current = onVolume;
   }, [onVolume]);
-  useEffect(() => {
-    onKwsDetectionRef.current = onKwsDetection;
-  }, [onKwsDetection]);
-  useEffect(() => {
-    onKwsActivateRef.current = onKwsActivate;
-  }, [onKwsActivate]);
-  useEffect(() => {
-    onKwsDeactivateRef.current = onKwsDeactivate;
-  }, [onKwsDeactivate]);
-
-  // ------------------------
-  // KWS Configuration
-  // ------------------------
-  const KWS_CONFIG = {
-    TARGET_SR: 16000,
-    WINDOW_SAMPLES: 16000, // 1s
-    HOP_SAMPLES: 1600, // 100ms @16k
-    threshold: 0.5,
-    minSustainMs: 200,
-    alpha: 0.4,
-    timeoutMs: 2000, // 1초 타임아웃
-  };
-
-  // ------------------------
-  // KWS Functions
-  // ------------------------
-  const loadKwsModel = async () => {
-    try {
-      const response = await fetch("/model_singlefile.onnx");
-      const arrayBuffer = await response.arrayBuffer();
-
-      const options = {
-        executionProviders: ["webgpu", "wasm"],
-      };
-
-      const session = await ort.InferenceSession.create(arrayBuffer, options);
-      kwsSessionRef.current = session;
-    } catch (err: any) {
-      console.error("[KWS] 모델 로드 실패:", err.message);
-      setError(`KWS 모델 로드 실패: ${err.message}`);
-    }
-  };
-
-  const predictKws = async (audioChunk: Float32Array) => {
-    try {
-      // 이미 추론 중이면 건너뛰기
-      if (kwsInferringRef.current) {
-        return null;
-      }
-
-      kwsInferringRef.current = true; // 추론 시작 플래그
-
-      const session = kwsSessionRef.current;
-      if (!session) {
-        kwsInferringRef.current = false;
-        return null;
-      }
-
-      const inputTensor = new ort.Tensor("float32", audioChunk, [
-        1,
-        audioChunk.length,
-      ]);
-      const feeds = { [session.inputNames[0]]: inputTensor };
-      const results = await session.run(feeds);
-      const logits = results[session.outputNames[0]].data as Float32Array;
-
-      // 2-class softmax
-      const m = Math.max(logits[0], logits[1]);
-      const e0 = Math.exp(logits[0] - m);
-      const e1 = Math.exp(logits[1] - m);
-
-      kwsInferringRef.current = false; // 추론 완료
-      return e1 / (e0 + e1);
-    } catch (err: any) {
-      kwsInferringRef.current = false; // 오류 시에도 플래그 해제
-      console.error("[KWS] 추론 오류:", err.message);
-      return null;
-    }
-  };
-
-  const handleKwsDetection = (probToriya: number | null) => {
-    if (probToriya == null) return;
-
-    // EMA 스무딩
-    kwsEmaRef.current =
-      kwsEmaRef.current == null
-        ? probToriya
-        : KWS_CONFIG.alpha * probToriya +
-          (1 - KWS_CONFIG.alpha) * kwsEmaRef.current;
-
-    const ema = kwsEmaRef.current;
-
-    // KWS 확률 로그
-    // console.log('[KWS] prob:', probToriya.toFixed(3), 'ema:', (ema ?? 0).toFixed(3));
-
-    // 콜백으로 확률 전달
-    onKwsDetectionRef.current?.(ema);
-
-    if (ema >= KWS_CONFIG.threshold) {
-      kwsSustainMsRef.current +=
-        (KWS_CONFIG.HOP_SAMPLES / KWS_CONFIG.TARGET_SR) * 1000;
-
-      if (
-        !kwsArmedRef.current &&
-        kwsSustainMsRef.current >= KWS_CONFIG.minSustainMs
-      ) {
-        kwsArmedRef.current = true;
-        onKwsActivation();
-      }
-    } else {
-      kwsSustainMsRef.current = 0;
-      kwsArmedRef.current = false;
-    }
-  };
-
-  const onKwsActivation = () => {
-    kwsActivatedRef.current = true;
-    onKwsActivateRef.current?.();
-
-    // 1초 타임아웃 설정
-    if (kwsTimeoutRef.current) {
-      clearTimeout(kwsTimeoutRef.current);
-    }
-
-    kwsTimeoutRef.current = setTimeout(() => {
-      if (kwsActivatedRef.current && !speechActiveRef.current) {
-        deactivateKws();
-      }
-    }, KWS_CONFIG.timeoutMs);
-  };
-
-  const deactivateKws = () => {
-    kwsActivatedRef.current = false;
-    kwsArmedRef.current = false;
-    kwsEmaRef.current = null;
-    kwsSustainMsRef.current = 0;
-    kwsBufferRef.current = new Float32Array(0);
-
-    if (kwsTimeoutRef.current) {
-      clearTimeout(kwsTimeoutRef.current);
-      kwsTimeoutRef.current = null;
-    }
-
-    onKwsDeactivateRef.current?.();
-  };
 
   // ------------------------
   // WebSocket
@@ -344,9 +177,6 @@ export const useSimpleSpeech = ({
 
     const start = async () => {
       try {
-        // KWS 모델 로드
-        await loadKwsModel();
-
         const module = await VADModuleLoader.getInstance().loadModule();
 
         const hopSize = CHUNK_SIZE; // 10ms @ 16kHz
@@ -398,32 +228,7 @@ export const useSimpleSpeech = ({
               const { probability } = await inst.processFrame(i16);
 
               // VAD 확률 로그
-              // console.log('[VAD] probability:', probability.toFixed(3));
-
-              // 5) KWS 처리 (KWS가 비활성화된 상태에서만)
-              if (!kwsActivatedRef.current) {
-                // KWS 버퍼에 청크 추가
-                const mergedBuffer = new Float32Array(
-                  kwsBufferRef.current.length + chunkF32.length
-                );
-                mergedBuffer.set(kwsBufferRef.current);
-                mergedBuffer.set(chunkF32, kwsBufferRef.current.length);
-                kwsBufferRef.current = mergedBuffer;
-
-                // 1초 윈도우가 준비되면 KWS 추론 실행
-                if (kwsBufferRef.current.length >= KWS_CONFIG.WINDOW_SAMPLES) {
-                  const window = kwsBufferRef.current.slice(
-                    0,
-                    KWS_CONFIG.WINDOW_SAMPLES
-                  );
-                  kwsBufferRef.current = kwsBufferRef.current.slice(
-                    KWS_CONFIG.HOP_SAMPLES
-                  );
-
-                  const kwsProb = await predictKws(window);
-                  handleKwsDetection(kwsProb);
-                }
-              }
+              console.log("[VAD] probability:", probability.toFixed(3));
 
               // Pre-buffer 관리 (항상 최근 청크들을 보관)
               preBufferRef.current.push(chunkF32.slice()); // 복사본 저장
@@ -517,21 +322,6 @@ export const useSimpleSpeech = ({
 
                     preBufferRef.current = []; // Pre-buffer 초기화
                     onVoiceEndRef.current?.();
-
-                    // KWS 타임아웃 재설정
-                    if (kwsActivatedRef.current) {
-                      if (kwsTimeoutRef.current) {
-                        clearTimeout(kwsTimeoutRef.current);
-                      }
-                      kwsTimeoutRef.current = setTimeout(() => {
-                        if (
-                          kwsActivatedRef.current &&
-                          !speechActiveRef.current
-                        ) {
-                          deactivateKws();
-                        }
-                      }, KWS_CONFIG.timeoutMs);
-                    }
                   }
                 } else {
                   lastOffRef.current = 0;
@@ -617,15 +407,6 @@ export const useSimpleSpeech = ({
       // Pre-buffer 초기화
       preBufferRef.current = [];
       txLeftoverRef.current = null;
-
-      // KWS 정리
-      if (kwsSessionRef.current) {
-        try {
-          // ONNX 세션은 자동으로 정리됨
-          kwsSessionRef.current = null;
-        } catch {}
-      }
-      deactivateKws();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -646,8 +427,6 @@ export const useSimpleSpeech = ({
         if (audioCtxRef.current && audioCtxRef.current.state === "running") {
           audioCtxRef.current.suspend();
         }
-        // KWS 비활성화
-        deactivateKws();
       } else {
         // 포그라운드로 돌아왔을 때
         if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
@@ -664,7 +443,6 @@ export const useSimpleSpeech = ({
   return {
     error,
     isListening: speechActiveRef.current,
-    isKwsActivated: kwsActivatedRef.current,
     stop: () => {
       if (audioCtxRef.current) audioCtxRef.current.suspend();
     },

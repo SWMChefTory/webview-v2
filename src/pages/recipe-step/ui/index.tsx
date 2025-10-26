@@ -473,13 +473,32 @@ function VoiceGuide({
         </div>
 
         <div className="max-h-[calc(90vh-150px)] overflow-y-auto px-6 py-5">
-          {/* ...생략: 동일... */}
-          <div className="mt-6 rounded-xl border border-orange-100 bg-orange-50 p-4">
+          {/* Voice Commands List */}
+          <div className="mb-6 space-y-3">
+            {voiceCommands.map((command, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-3 rounded-xl bg-gray-50 p-4 transition hover:bg-gray-100"
+              >
+                <div className="text-2xl">{command.icon}</div>
+                <div className="flex-1">
+                  <div className="mb-1 font-semibold text-gray-800">
+                    {command.command}
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {command.description}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* TIP Section */}
+          <div className="rounded-xl border border-orange-100 bg-orange-50 p-4">
             <h3 className="mb-2 text-sm font-bold text-orange-700">TIP</h3>
-            <ul className="list-disc space-y-1 pl-5 text-sm text-orange-800">
+            <ul className="list-disc space-y-1 pl-5 text-sm text-orange-800 break-keep">
               <li>큰 목소리로 또박또박 말하면 인식률이 높아져요</li>
-              <li>"토리야" 대신 "소리야"라고 불러도 돼요</li>
-              <li>음성 버튼이 활성화되고 난 뒤에 명령을 말해주세요</li>
+              <li>연속으로 음성 명령을 내리면 인식하지 못할 수 있어요</li>
             </ul>
           </div>
         </div>
@@ -622,6 +641,13 @@ function RecipeStep({
       setHeaderState("sheet");
     }
   }, [isLandscape, headerState]);
+
+  // 세로모드로 변경될 때 헤더를 항상 expanded 상태로 리셋
+  useEffect(() => {
+    if (!isLandscape) {
+      setHeaderState("expanded");
+    }
+  }, [isLandscape]);
 
   function nextStateByDrag(
     curr: HeaderState,
@@ -876,42 +902,72 @@ function RecipeStep({
     [syncByTime]
   );
 
-  // 1) snapCurrentToTop를 아래처럼 교체
+  // 현재 단계를 진행바 바로 아래(상단)로 스크롤
   const snapCurrentToTop = useCallback(
     (behavior: ScrollBehavior = "smooth") => {
       const container = listRef.current;
       const row = currentRowRef.current;
       if (!container || !row) return;
 
-      // 리스트 컨테이너 내부에서 row의 실제 스크롤 위치(컨텐츠 기준 Y) 계산
-      const containerRect = container.getBoundingClientRect();
-      const rowRect = row.getBoundingClientRect();
-      const rowTopInContainer =
-        rowRect.top - containerRect.top + container.scrollTop;
-
-      // 세로모드에서는 진행바가 fixed이므로, 진행바 높이 + 여유 8px만큼 보정
-      const fixedBarOffset = !isLandscape ? (progressH ?? 36) + 8 : 0;
-
-      const targetTop = Math.max(rowTopInContainer - fixedBarOffset, 0);
-
-      // 2-프레임 래핑은 유지 (레이아웃 확정 후 스크롤)
+      // 3-프레임 래핑 (렌더 → 레이아웃 → 스크롤) - 가로/세로 동일
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          container.scrollTo({ top: targetTop, behavior });
+          requestAnimationFrame(() => {
+            // 현재 뷰포트 상의 위치 계산
+            const containerRect = container.getBoundingClientRect();
+            const rowRect = row.getBoundingClientRect();
+
+            // row가 현재 컨테이너 기준으로 얼마나 떨어져 있는지
+            const rowTopRelativeToContainer = rowRect.top - containerRect.top;
+
+            // 목표: row가 컨테이너의 paddingTop 위치에 오도록
+            const containerPaddingTop = isLandscape
+              ? (progressH ?? 36) + 4
+              : (progressH ?? 36) + 8;
+
+            // 현재 scrollTop + (현재 row 위치 - 목표 위치)
+            const targetScrollTop =
+              container.scrollTop +
+              (rowTopRelativeToContainer - containerPaddingTop);
+
+            container.scrollTo({ top: Math.max(0, targetScrollTop), behavior });
+          });
         });
       });
     },
-    [isLandscape, progressH]
+    [progressH, isLandscape]
   );
 
+  // 현재 단계가 변경될 때마다 자동으로 상단으로 스크롤
   useEffect(() => {
-    snapCurrentToTop("smooth");
-  }, [currentStep, currentDetailIndex, snapCurrentToTop]);
+    const container = listRef.current;
+    const row = currentRowRef.current;
+    if (!container || !row) return;
+
+    // 3-프레임 래핑으로 렌더링 완료 보장
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const containerRect = container.getBoundingClientRect();
+          const rowRect = row.getBoundingClientRect();
+          const rowTopRelativeToContainer = rowRect.top - containerRect.top;
+          const containerPaddingTop = isLandscape
+            ? (progressH ?? 36) + 4
+            : (progressH ?? 36) + 8;
+          const targetScrollTop =
+            container.scrollTop +
+            (rowTopRelativeToContainer - containerPaddingTop);
+          container.scrollTo({
+            top: Math.max(0, targetScrollTop),
+            behavior: "smooth",
+          });
+        });
+      });
+    });
+  }, [currentStep, currentDetailIndex, progressH, isLandscape]);
 
   useSimpleSpeech({
     recipeId: router.query.id as string,
-    onKwsActivate: () => setIsKwsActiveUI(true),
-    onKwsDeactivate: () => setIsKwsActiveUI(false),
     onIntent: (intent: any) => {
       const now = Date.now();
       const parsedIntent = parseIntent(intent?.base_intent || intent);
@@ -919,23 +975,39 @@ function RecipeStep({
       if (parsedIntent === "NEXT") {
         goToNextStep();
         lastUserSeekAtRef.current = now;
+        // 음성 명령 후 스크롤
+        setTimeout(() => {
+          snapCurrentToTop("smooth");
+        }, 50);
         return;
       }
       if (parsedIntent === "PREV") {
         goToPreviousStep();
         lastUserSeekAtRef.current = now;
+        // 음성 명령 후 스크롤
+        setTimeout(() => {
+          snapCurrentToTop("smooth");
+        }, 50);
         return;
       }
       if (parsedIntent.startsWith("TIMESTAMP")) {
         const sec = Number(parsedIntent.split(/\s+/)[1] ?? "0");
         ytRef.current?.seekTo(Math.max(0, sec), true);
         lastUserSeekAtRef.current = now;
+        // 타임스탬프 이동 후 스크롤
+        setTimeout(() => {
+          snapCurrentToTop("smooth");
+        }, 50);
         return;
       }
       if (parsedIntent.startsWith("STEP")) {
         const stepNum = Number(parsedIntent.split(/\s+/)[1] ?? "1");
         goToStep(stepNum);
         lastUserSeekAtRef.current = now;
+        // 음성 명령 후 스크롤
+        setTimeout(() => {
+          snapCurrentToTop("smooth");
+        }, 50);
         return;
       }
     },
@@ -992,8 +1064,15 @@ function RecipeStep({
               ? "opacity-85"
               : "opacity-60";
 
+          // 현재 활성화된 그룹인지 확인
+          const isActiveGroup = item.stepIndex === currentStep;
+
           const subtitleCls = isLandscape
-            ? "text-left text-sm font-bold text-neutral-400"
+            ? isActiveGroup
+              ? "text-left text-sm font-bold text-orange-500"
+              : "text-left text-sm font-bold text-neutral-400"
+            : isActiveGroup
+            ? "text-left text-base font-bold text-orange-500"
             : "text-left text-base font-bold text-neutral-400";
 
           const numberCls = isLandscape
@@ -1013,7 +1092,10 @@ function RecipeStep({
             : "text-xl leading-snug font-semibold text-white/80";
 
           return (
-            <div key={`${item.stepIndex}-${item.detailIndex}`}>
+            <div
+              key={`${item.stepIndex}-${item.detailIndex}`}
+              ref={isCurrent ? currentRowRef : undefined}
+            >
               {showSubtitle && (
                 <div className="mb-3">
                   <span className={subtitleCls}>
@@ -1023,11 +1105,16 @@ function RecipeStep({
               )}
 
               <div
-                ref={isCurrent ? currentRowRef : undefined}
                 className={`${base} ${byStatus} cursor-pointer active:scale-95`}
                 onClick={(e) => {
                   e.stopPropagation();
                   goToSpecificDetail(item.stepIndex, item.detailIndex);
+
+                  // 클릭 후 스크롤 (state 업데이트와 DOM 렌더링 후 실행)
+                  setTimeout(() => {
+                    snapCurrentToTop("smooth");
+                  }, 50);
+
                   // 가로모드에서 단계 클릭 시 헤더를 sheet로 접기
                   if (isLandscape && headerState === "expanded") {
                     setHeaderState("sheet");
@@ -1176,12 +1263,7 @@ function RecipeStep({
           {/* 좌: 영상 */}
           <div
             className={isLandscape ? "relative" : "relative z-[900] bg-black"}
-            onClick={() => {
-              // 가로모드에서 영상 영역 클릭 시 헤더를 sheet로 접기
-              if (isLandscape && headerState === "expanded") {
-                setHeaderState("sheet");
-              }
-            }}
+            onClick={handleContentClick}
           >
             <div
               className={
@@ -1196,21 +1278,35 @@ function RecipeStep({
             >
               {/* 가로모드에서만 렌더(세로는 위의 fixed 블록이 담당) */}
               {isLandscape && (
-                <YouTubePlayer
-                  youtubeEmbedId={videoId}
-                  title={`${videoTitle} - Step ${currentStep + 1}`}
-                  autoplay
-                  forceHeightPx={availVideoH}
-                  initialSeekSeconds={persistRef.current.time}
-                  resumePlaying={persistRef.current.wasPlaying}
-                  onPlayerReady={(player) => {
-                    ytRef.current = player;
-                    const d = player.getDuration?.() ?? 0;
-                    if (d > 0) setVideoDuration(d);
-                    setIsInitialized(true);
-                  }}
-                  onStateChange={handleStateChange}
-                />
+                <div className="relative">
+                  <YouTubePlayer
+                    youtubeEmbedId={videoId}
+                    title={`${videoTitle} - Step ${currentStep + 1}`}
+                    autoplay
+                    forceHeightPx={availVideoH}
+                    initialSeekSeconds={persistRef.current.time}
+                    resumePlaying={persistRef.current.wasPlaying}
+                    onPlayerReady={(player) => {
+                      ytRef.current = player;
+                      const d = player.getDuration?.() ?? 0;
+                      if (d > 0) setVideoDuration(d);
+                      setIsInitialized(true);
+                    }}
+                    onStateChange={handleStateChange}
+                  />
+                  {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 */}
+                  <div
+                    className="absolute inset-0 z-10"
+                    style={{
+                      pointerEvents:
+                        headerState === "expanded" ? "auto" : "none",
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleContentClick();
+                    }}
+                  />
+                </div>
               )}
             </div>
           </div>
@@ -1221,7 +1317,7 @@ function RecipeStep({
             className={
               isLandscape
                 ? "relative grid min-h-0 grid-rows-[auto_1fr]"
-                : "flex flex-col"
+                : "flex min-h-0 flex-1 flex-col"
             }
           >
             {/* 진행바: 가로=fixed(핸들바 바로 아래 고정), 세로=fixed */}
@@ -1270,9 +1366,9 @@ function RecipeStep({
               style={{
                 WebkitOverflowScrolling: "touch",
                 touchAction: "pan-y",
-                // 가로: 핸들바(sheetH) + 진행바 높이만큼 패딩, 세로: 진행바 높이만큼 패딩
+                // 가로: 진행바 높이 + 작은 여백, 세로: 진행바 높이 + 여백
                 paddingTop: isLandscape
-                  ? sheetH + (progressH ?? 36) + 8
+                  ? (progressH ?? 36) + 4
                   : (progressH ?? 36) + 8,
                 paddingBottom: bottomBarH + 8,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
@@ -1297,6 +1393,7 @@ function RecipeStep({
               opacity: rightColBox.width > 0 ? 1 : 0,
               pointerEvents: rightColBox.width > 0 ? "auto" : "none",
             }}
+            onClick={handleContentClick}
           >
             <div
               className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3"
@@ -1304,6 +1401,7 @@ function RecipeStep({
             >
               {/* ...버튼 동일... */}
               <TimerBottomSheet type="button" recipeId={recipeId} recipeName={recipeName} />
+
 
               <div className="flex flex-col items-center gap-1">
                 <button
@@ -1313,7 +1411,11 @@ function RecipeStep({
                       ? "bg-gradient-to-b from-orange-600 to-orange-500 ring-2 ring-orange-300 shadow-orange-300/40"
                       : "bg-gradient-to-b from-neutral-700 to-neutral-600",
                   ].join(" ")}
-                  onClick={() => setRepeatGroup((v) => !v)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRepeatGroup((v) => !v);
+                    handleContentClick();
+                  }}
                   aria-label={`그룹 반복 ${repeatGroup ? "끄기" : "켜기"}`}
                   aria-pressed={repeatGroup}
                   type="button"
@@ -1369,7 +1471,11 @@ function RecipeStep({
 
               <button
                 className="relative flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 p-2 shadow-[0_2px_16px_rgba(0,0,0,0.32)] transition active:scale-95"
-                onClick={() => setShowVoiceGuide(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowVoiceGuide(true);
+                  handleContentClick();
+                }}
                 aria-label="음성 명령 가이드"
                 type="button"
                 title="음성 명령 가이드"
@@ -1389,6 +1495,7 @@ function RecipeStep({
             ref={bottomBarRef}
             className="fixed left-0 right-0 z-[1000] flex flex-col items-center bg-black"
             style={{ bottom: 0 }}
+            onClick={handleContentClick}
           >
             <div
               className="flex w-full items-end justify-between px-5"
@@ -1398,7 +1505,6 @@ function RecipeStep({
               }}
             >
               <TimerBottomSheet type="button" recipeId={recipeId} recipeName={recipeName} />
-
               <div className="flex flex-col items-center gap-2">
                 <button
                   className={[
@@ -1407,7 +1513,11 @@ function RecipeStep({
                       ? "bg-gradient-to-b from-orange-600 to-orange-500 ring-2 ring-orange-300 shadow-orange-300/40"
                       : "bg-gradient-to-b from-neutral-700 to-neutral-600",
                   ].join(" ")}
-                  onClick={() => setRepeatGroup((v) => !v)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRepeatGroup((v) => !v);
+                    handleContentClick();
+                  }}
                   aria-label={`그룹 반복 ${repeatGroup ? "끄기" : "켜기"}`}
                   aria-pressed={repeatGroup}
                   type="button"
@@ -1462,7 +1572,10 @@ function RecipeStep({
 
               <button
                 className="relative flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-orange-500 p-2 shadow-[0_2px_16px_rgba(0,0,0,0.32)] transition active:scale-95"
-                onClick={() => setShowVoiceGuide(true)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowVoiceGuide(true);
+                }}
                 aria-label="음성 명령 가이드"
                 type="button"
               >

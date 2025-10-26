@@ -26,6 +26,9 @@ import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
+import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
+import { driverObj } from ".";
+import { useEffect } from "react";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -34,8 +37,18 @@ export const UserRecipeCardReady = ({
 }) => {
   const userRouter = useRouter();
   const progress = useFetchRecipeProgress(userRecipe.recipeId);
+
+  function isTutorialId(){
+    return userRecipe.videoInfo.id === "XPmywm8Dnx4"
+  }
+  useEffect(() => {
+    if (useIsInTutorialStore.getState().isInTutorial && isTutorialId()) {
+      useIsInTutorialStore.getState().setIsTutorialRecipeCardCreated(true);
+    }
+  }, []);
   return (
     <div
+      data-tour={isTutorialId() ? "recipe-card" : ""}
       className="flex relative flex-col w-[320px]"
     >
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
@@ -44,6 +57,10 @@ export const UserRecipeCardReady = ({
       <div className="relative w-[320] h-[180]" onClick={() => {
         if (progress.recipeStatus === RecipeStatus.SUCCESS) {
           userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+          if (useIsInTutorialStore.getState().isInTutorial && isTutorialId()) {
+            driverObj.destroy();
+            useIsInTutorialStore.getState().finishTutorial();
+          }
         }
       }}>
         <div className="absolute top-0 left-0">

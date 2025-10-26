@@ -89,27 +89,20 @@ export const onUnblockingRequest = (
 //useEffect안에서만 써야함. CSR코드
 //request함수 사용할 때 이 코드는 몰라도 됨.
 export const communication = (event: MessageEvent) => {
-  console.log("communication!!!!!!!!!!!!!!!!", JSON.stringify(event, null, 2));
   if (typeof event.data !== "string") {
-    return
-  };
-  console.log("event.data!!!!!!!!!!!!!!!!", JSON.stringify(event.data, null, 2));
+    return;
+  }
+
   const msg = JSON.parse(event.data) as
     | ResponseMsg
     | RequestMsgUnblockingFromNative;
 
-  console.log("msg!!!!!!!!!!!!!!!!", JSON.stringify(msg, null, 2));
-
-  if (
-    typeof msg === "object" &&
-    "event" in msg &&
-    (msg as any).event === "infoDelivery"
-  ) {
-    console.log("infoDelivery!!!!!!!!!!!!!!!!", JSON.stringify(msg, null, 2));
+  
+  if ((msg as any).event === "infoDelivery") {
     return;
   }
 
-  console.log("", JSON.stringify(msg, null, 2));
+  console.log("1!!!!!!!1", JSON.stringify(msg, null, 2));
 
   if (!msg.intended) {
     console.log("[NOT INTENDED] : ", JSON.stringify(msg));
@@ -145,7 +138,7 @@ export const communication = (event: MessageEvent) => {
 
   const entry = pending.get(msg.id);
   if (!entry) {
-    console.log("[NOT PENDING] : ", msg);
+    console.log("[NOT PENDING]!! : ", JSON.stringify(msg, null, 2));
     return;
   }
 

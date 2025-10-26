@@ -99,7 +99,6 @@ const useTimersStore = create<TimersStoreState>()(
     }),
     {
       name: "timer-store-4",
-
       partialize: (state) => ({
         timers: Array.from(state.timers.entries()),
       }),

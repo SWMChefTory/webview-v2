@@ -5,7 +5,6 @@ import {
 } from "@/src/entities/popular_recipe/api/api";
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { VideoType } from "../type/videoType";
-import { Recipe } from "../../recipe-searched/api/api";
 
 export class PopularRecipe {
   recipeId!: string;
@@ -64,14 +63,11 @@ export async function patchIsViewedOptimistically(
   isViewed: boolean
 ) {
   await qc.cancelQueries({ queryKey: [POPULAR_RECIPE_QUERY_KEY] });
-  console.log("!!!!!!!!!1");
   // 목록 스냅샷들 (모든 "recipes" 쿼리)
   const prev = qc.getQueryData<PopularSummaryRecipeResponse>([
     POPULAR_RECIPE_QUERY_KEY,
   ]);
 
-  console.log("!!!!!!!!!2");
-  console.log("!!!!!!!!!!!!!", JSON.stringify(prev, null, 2));
   // 목록들 전부 패치
   qc.setQueryData<PopularSummaryRecipeResponse>(
     [POPULAR_RECIPE_QUERY_KEY],
@@ -88,6 +84,6 @@ export function rollbackIsViewed(
 ) {
   qc.setQueryData<PopularSummaryRecipeResponse>(
     [POPULAR_RECIPE_QUERY_KEY],
-    ctx.prevList
+    ctx.prevList ?? { recommendRecipes: [] }
   );
 }

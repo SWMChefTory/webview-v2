@@ -19,5 +19,6 @@ export type UserResponse = z.infer<typeof userSchema>;
 
 export const fetchUser = async () => {
     const response = await client.get("/users/me");
+    console.log("response.data", response.data);
     return userSchema.parse(response.data);
 };

@@ -40,7 +40,6 @@ client.interceptors.request.use(
     config.headers.Authorization = `${token}`;
     const data = (() => {
       if (config.data) {
-        console.log("data!!!!!!!", JSON.stringify(config.data, null, 2));
         return snakecaseKeys(config.data, { deep: true });
       }
       return {};
@@ -49,28 +48,37 @@ client.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.log(
-      "client interceptor request error",
-      JSON.stringify(error, null, 2)
-    );
     return Promise.reject(error);
   }
 );
 
 client.interceptors.response.use(
   (response) => {
+    console.log(
+      "client interceptor response",
+      JSON.stringify(response.data, null, 2)
+    );
     response.data = camelcaseKeys(response.data, { deep: true });
     return response;
   },
   (error) => {
+    console.log(
+      "client interceptor response error",
+      JSON.stringify(error, null, 2)
+    );
+    console.log(
+      "client interceptor response error2",
+      JSON.stringify(error.response, null, 2)
+    );
     const originalRequest = error.config;
     if (
       isAxiosError(error) &&
       error.response?.data?.errorCode?.startsWith("AUTH") &&
       !originalRequest?.isSecondRequest
     ) {
+      console.log("client interceptor response error3");
       originalRequest.isSecondRequest = true;
-      request(MODE.BLOCKING, "REFRESH_TOKEN", null)
+      return request(MODE.BLOCKING, "REFRESH_TOKEN", null)
         .then((result) => {
           setMainAccessToken(result.token);
           clientResolvingError(originalRequest);
@@ -78,7 +86,6 @@ client.interceptors.response.use(
         .catch((error) => {
           return Promise.reject(error);
         });
-      return Promise.resolve(error);
     }
     return Promise.reject(error);
   }

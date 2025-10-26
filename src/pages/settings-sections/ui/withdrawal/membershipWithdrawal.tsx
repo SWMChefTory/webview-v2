@@ -3,6 +3,7 @@ import { FiEdit2 } from "react-icons/fi";
 import WriteLongTextModal from "./writeLongTextModal";
 import { request, MODE } from "@/src/shared/client/native/client";
 import {useQueryClient} from "@tanstack/react-query";
+import {setMainAccessToken} from "@/src/shared/client/main/client";
 
 const withdrawalReasons = {
   "1": "앱 사용법이 복잡해서",
@@ -101,8 +102,9 @@ export default function MemberShipWithdrawalPage({
                 reason: selectedItems[key],
                 feedback: feedbacks[key] || "",
               }));
-              request(MODE.UNBLOCKING, DELETE_USER, withdrawalData);
               queryClient.clear();
+              setMainAccessToken("");
+              request(MODE.UNBLOCKING, DELETE_USER, withdrawalData);
             }}
             disabled={Object.keys(selectedItems).length === 0}
             className={`w-full py-4 rounded-lg font-bold text-lg transition ${

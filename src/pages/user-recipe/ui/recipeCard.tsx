@@ -9,7 +9,6 @@ import {
 } from "@/src/entities/user_recipe/ui/thumbnail";
 import {
   useFetchRecipeProgress,
-  useFetchRecipeProgressNotSuspense,
   useUpdateCategoryOfRecipe,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { TitleReady, TitleSkeleton } from "@/src/entities/user_recipe/ui/title";
@@ -49,7 +48,9 @@ const RecipeDetailsCardReady = ({
   const progress = useFetchRecipeProgress(userRecipe.recipeId);
   const { handleTapStart } = useResolveLongClick(
     () => {
-      console.log("short click");
+      if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+        userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+      }
     },
     () => {
       setIsCategorySelectOpen(true);
@@ -71,11 +72,7 @@ const RecipeDetailsCardReady = ({
         imgUrl={userRecipe.videoInfo.thumbnailUrl}
         size={{ width: 160, height: 90 }}
       />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden" onClick={() => {
-        if (progress.recipeStatus === RecipeStatus.SUCCESS) {
-          userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
-        }
-      }}>
+      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
           tags={userRecipe.tags || []}

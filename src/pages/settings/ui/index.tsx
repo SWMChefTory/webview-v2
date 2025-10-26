@@ -9,6 +9,7 @@ import { fetchUserModel } from "@/src/pages/settings/entities/user/model";
 import {Skeleton} from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { setMainAccessToken } from "@/src/shared/client/main/client";
 
 function SettingsPage() {
   const router = useRouter();
@@ -88,7 +89,7 @@ const UserSection = ({ type }: { type: "READY" | "SKELETON" }) => {
         ) : (
           <TextSkeleton fontSize="text-lg" />
         )}
-        <MdEdit className="size-4 text-gray-500" />
+        {/* <MdEdit className="size-4 text-gray-500" /> */}
       </div>
     </div>
   );
@@ -100,6 +101,7 @@ function LogoutButton() {
   return (
     <motion.div
       onClick={() => {
+        setMainAccessToken("");
         request(MODE.UNBLOCKING, LOGOUT);
       }}
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}

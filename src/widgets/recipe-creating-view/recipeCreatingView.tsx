@@ -1,8 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
+import { driverObj } from "@/src/pages/home/ui";
+import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -14,6 +16,8 @@ export function RecipeCreatingView() {
     setUrl,
     close,
   } = useRecipeCreatingViewOpenStore();
+  const checkingCountRef = useRef<number>(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const isValidYoutubeUrl = (url: string) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
@@ -22,7 +26,6 @@ export function RecipeCreatingView() {
 
   const isError = () => {
     const error = hasEverTyped && url.length > 0 && !isValidYoutubeUrl(url);
-    console.log("error!!", error);
     return error;
   };
 
@@ -35,10 +38,30 @@ export function RecipeCreatingView() {
     return url.length > 0 && isValidYoutubeUrl(url);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isSubmittable()) {
       create({ youtubeUrl: url });
       setHasEverTyped(false);
+      if (useIsInTutorialStore.getState().isInTutorial && !useIsInTutorialStore.getState().isTutorialRecipeCardCreated) {
+        setIsLoading(true);
+        async function checkTutorialRecipeCardCreated() {
+          setTimeout(() => {
+            if (
+              useIsInTutorialStore.getState().isTutorialRecipeCardCreated &&
+              checkingCountRef.current >= 10
+            ) {
+              driverObj.moveNext();
+              close();
+              return;
+            }
+            setIsLoading(false);
+            checkingCountRef.current++;
+            checkTutorialRecipeCardCreated();
+          }, 200);
+        }
+        checkTutorialRecipeCardCreated();
+        return;
+      }
       close();
     }
   };
@@ -47,7 +70,10 @@ export function RecipeCreatingView() {
     <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
-        <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg">
+        <Dialog.Content
+          data-tour="create-recipe"
+          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
+        >
           <div className="p-5">
             <Dialog.Title className="text-xl font-bold">
               레시피 만들기
@@ -69,6 +95,7 @@ export function RecipeCreatingView() {
               onSubmit={handleSubmit}
               label="완료"
               isSubmittable={isSubmittable()}
+              isLoading={isLoading}
             />
           </div>
         </Dialog.Content>
@@ -76,4 +103,3 @@ export function RecipeCreatingView() {
     </Dialog.Root>
   );
 }
-

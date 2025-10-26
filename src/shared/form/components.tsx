@@ -1,4 +1,7 @@
+import { Loader2 } from "lucide-react";
 import { IoClose } from "react-icons/io5";
+import {useIsInTutorialStore} from "@/src/shared/tutorial/isInTutorialStore";
+
 function FormInput({
   value,
   onChange,
@@ -10,22 +13,18 @@ function FormInput({
   isError: boolean;
   errorMessage: string;
 }) {
-  console.log("isError", isError);
+  const {isInTutorial} = useIsInTutorialStore();
   return (
     <>
       <div className="relative">
         <input
-          ref={(el) => {
-            if (el) {
-              el.focus({ preventScroll: true });
-            }
-          }}
           type="text"
           placeholder="유튜브 링크를 입력해주세요."
           value={value}
           onChange={(e) => {
             onChange(e.target.value);
           }}
+          disabled={isInTutorial}
           onMouseDown={(e) => {
             e.preventDefault();
             e.currentTarget.focus({ preventScroll: true });
@@ -38,7 +37,10 @@ function FormInput({
         />
         {value && (
           <button
-            onClick={() => onChange("")}
+            onClick={() => {
+              onChange("");
+            }}
+            disabled={isInTutorial}
             type="button"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -58,11 +60,14 @@ function FormButton({
   onSubmit,
   isSubmittable,
   label,
+  isLoading=false,
 }: {
   onSubmit: () => void;
   isSubmittable: boolean;
   label: string;
+  isLoading?: boolean;
 }) {
+  const isInTutorial = useIsInTutorialStore.getState().isInTutorial;
   return (
     <button
       onClick={onSubmit}
@@ -74,7 +79,7 @@ function FormButton({
           : "bg-gray-300 text-gray-500 cursor-not-allowed"
       }`}
     >
-      {label}
+      {isLoading ? <Loader2 className="size-[20] animate-spin" /> : label}
     </button>
   );
 }

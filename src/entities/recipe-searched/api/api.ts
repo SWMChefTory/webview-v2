@@ -33,7 +33,7 @@ export const fetchRecipesSearched = async ({
   page: number;
   query: string;
 }): Promise<PaginatedRecipeResponse> => {
-  const url = `/recipes/search?query=${encodeURIComponent(query)}&page=${page}`;
+  const url = `/recipes/search?query=${query?encodeURIComponent(query):"''"}&page=${page}`;
   console.log("요청 url: ", url);
 
   const response = await client.get(url);

@@ -41,7 +41,7 @@ export function useFecthPopularRecipe() {
     queryKey: [POPULAR_RECIPE_QUERY_KEY],
     queryFn: fetchPopularSummary,
     select: (data) =>
-      data.recommendRecipes.map((recipe) =>
+      (data.recommendRecipes||[]).map((recipe) =>
         PopularRecipe.fromApiResponse(recipe)
       ),
   });

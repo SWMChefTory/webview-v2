@@ -150,7 +150,7 @@ export const useTimers = () => {
     addActiveTimer({ id, timer: timer });
     startLiveActivity({
       timerId: id,
-      activityName: name || "셰프토리 타이머",
+      activityName: name || "쉐프토리 타이머",
       endAt: timer.endAt.getTime(),
       recipeId: recipeId || "",
       validTimerIds: getIdOfAllTimers(),

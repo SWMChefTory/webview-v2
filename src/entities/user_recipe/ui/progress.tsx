@@ -32,7 +32,7 @@ export const ProgressDetailsCheckList = ({
             레시피를 만드는데 실패했어요
           </div>
         ) : (
-          <Spinner className="size-16 text-orange-500" />
+          <Spinner className="size-12 text-orange-500" />
         )}
       </div>
     </div>

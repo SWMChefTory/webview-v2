@@ -16,7 +16,6 @@ export const RecipeListSectionReady = ({
     categories.find((category) => category.id === selectedCategoryId) ||
       ALL_RECIPES
   );
-  console.log("selectedCategoryId!!", selectedCategoryId);
 
   return (
     <div

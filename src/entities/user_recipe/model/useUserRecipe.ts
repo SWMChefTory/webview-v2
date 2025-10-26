@@ -247,7 +247,6 @@ export function useCreateRecipe() {
     },
     onError: (error, _vars, ctx) => {
       if (ctx?.prevList) {
-        console.log("rollbackIsViewed!!!!!!!!!!!!!!!!", ctx.prevList);
         rollbackIsViewed(queryClient, { prevList: ctx.prevList });
       }
     },

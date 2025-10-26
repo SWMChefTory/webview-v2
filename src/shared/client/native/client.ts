@@ -102,8 +102,6 @@ export const communication = (event: MessageEvent) => {
     return;
   }
 
-  console.log("1!!!!!!!1", JSON.stringify(msg, null, 2));
-
   if (!msg.intended) {
     console.log("[NOT INTENDED] : ", JSON.stringify(msg));
     return;

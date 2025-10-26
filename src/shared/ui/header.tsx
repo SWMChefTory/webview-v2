@@ -142,9 +142,6 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
 };
 
 
-// export { IconButtonTemplate as HeaderIconButtonTemplate };
-// export { BackButton, ProfileButton, CloseButton, Title, AddButton };
-
 export {
   BackButton,
   CloseButton,

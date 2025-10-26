@@ -15,7 +15,6 @@ export type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 export async function fetchAllRecipesSummary({ page }: { page: number }) {
   const response = await client.get(`/recipes/histories?page=${page}`);
   const data = response.data;
-  console.log("fetch all recipes summary", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.recipeHistories.map((recipe: any) => transformRecipe(recipe)),
@@ -59,7 +58,6 @@ export async function fetchUnCategorizedRecipesSummary(params: {
   const response = await client.get(`/recipes/uncategorized?page=${page}`);
   const data = response.data;
 
-  console.log("fetch uncategorized recipes", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     currentPage: data.currentPage,
     hasNext: data.hasNext,
@@ -108,7 +106,6 @@ export async function createRecipe(videoUrl: string): Promise<string> {
     videoUrl: videoUrl,
   };
   const response = await client.post(`/recipes`, createRequest);
-  console.log("create recipe response", JSON.stringify(response.data, null, 2));
   return CreateRecipeResponseSchema.parse(response.data).recipeId;
 }
 

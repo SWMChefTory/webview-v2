@@ -4,8 +4,6 @@ import { ThemeRecipePageResponseSchema } from "@/src/pages/home/entities/theme-r
 
 export async function fetchTrendingRecipes() {
   const response = await client.get("/recipes/trending");
-  console.log("response!!!", JSON.stringify(response.data, null, 2));
-  console.log("!!!!!!!!!!!!!!", JSON.stringify({...response.data, data: response.data.trendRecipes}, null, 2));
   return parseWithErrLog(ThemeRecipePageResponseSchema, {...response.data, data: response.data.trendRecipes});
 }
 

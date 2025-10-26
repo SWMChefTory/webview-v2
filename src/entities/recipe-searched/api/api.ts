@@ -34,7 +34,6 @@ export const fetchRecipesSearched = async ({
   query: string;
 }): Promise<PaginatedRecipeResponse> => {
   const url = `/recipes/search?query=${query?encodeURIComponent(query):"''"}&page=${page}`;
-  console.log("요청 url: ", url);
 
   const response = await client.get(url);
   const data = {
@@ -44,6 +43,5 @@ export const fetchRecipesSearched = async ({
     hasNext: response.data.hasNext,
     data: response.data.searchedRecipes,
   };
-  console.log("search recipes: ", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedRecipeSchema, data);
 };

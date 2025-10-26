@@ -17,7 +17,6 @@ export function UserRecipe() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | typeof ALL_RECIPES
   >(ALL_RECIPES);
-  console.log("selectedCategoryId!!!", selectedCategoryId);
 
   return (
     <PageMovementTemplate>

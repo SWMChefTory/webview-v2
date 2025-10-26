@@ -17,7 +17,6 @@ const RecipeDetailPage = () => {
   const router = useRouter();
   const id = router.query.id as string | undefined;
 
-  console.log("id!!!!!!!!!!!!!!!!!!!!", JSON.stringify(id, null, 2));
   return (
     <div className="w-full h-dvh bg-white">
       <ConditionalBoundary recipeId={id}>
@@ -53,7 +52,6 @@ function ConditionalBoundary({ children, recipeId }: { children: React.ReactNode
         ) : (
           // 원하지 않는 에러는 "그대로 터지게" 해서 상위 바운더리로 올리기
           (() => {
-            console.log("throw error");
             throw error;
           })()
         )

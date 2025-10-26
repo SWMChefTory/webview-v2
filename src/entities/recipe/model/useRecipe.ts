@@ -217,6 +217,7 @@ export const useFetchRecipe = (id: string) => {
     select: (res) => {
       return Recipe.create(res);
     },
+    
   });
   return { data };
 };

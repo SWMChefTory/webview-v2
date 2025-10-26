@@ -7,7 +7,6 @@ enum ORIENTATION {
 
 export const useOrientation = () => {
   function handleLockOrientation() {
-    console.log("!!!!!!!!!!!!!!!!!!!!!!");
     request(MODE.UNBLOCKING, ORIENTATION.LOCK_ORIENTATION);
   }
   function handleUnlockOrientation() {

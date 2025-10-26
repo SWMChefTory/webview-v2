@@ -30,10 +30,8 @@ export const useResolveLongClick = (
 
   const pointerUpCallback = useRef(() => {
     if (timer.current && checkClickCallable()) {
-        console.log("click");
       onClick();
     }
-    console.log("클리어 이벤트 호출");
     clearClickEvent();
   });
 

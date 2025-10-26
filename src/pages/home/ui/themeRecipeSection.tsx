@@ -104,11 +104,13 @@ function ChefRecommendRecipeCardSectionReady() {
           key={recipe.recipeId}
           trigger={
             <div key={recipe.recipeId}>
-            <ThumbnailReady
-              imgUrl={recipe.videoThumbnailUrl}
-              isViewed={recipe.isViewed}
-            />
-            <div className="text-sm font-semibold line-clamp-2">{recipe.recipeTitle}</div>
+              <ThumbnailReady
+                imgUrl={recipe.videoThumbnailUrl}
+                isViewed={recipe.isViewed}
+              />
+              <div className="text-sm font-semibold line-clamp-2">
+                {recipe.recipeTitle}
+              </div>
             </div>
           }
         />
@@ -127,11 +129,13 @@ export function TrendRecipeCardSectionReady() {
           key={recipe.recipeId}
           trigger={
             <div key={recipe.recipeId}>
-            <ThumbnailReady
-              imgUrl={recipe.videoThumbnailUrl}
-              isViewed={recipe.isViewed}
-            />
-            <div className="text-sm font-semibold line-clamp-2">{recipe.recipeTitle}</div>
+              <ThumbnailReady
+                imgUrl={recipe.videoThumbnailUrl}
+                isViewed={recipe.isViewed}
+              />
+              <div className="text-sm font-semibold line-clamp-2">
+                {recipe.recipeTitle}
+              </div>
             </div>
           }
         />

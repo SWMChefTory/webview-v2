@@ -8,9 +8,6 @@ import {
 } from "@/src/entities/popular_recipe/model/usePopularRecipe";
 import { VideoType } from "../../../entities/popular_recipe/type/videoType";
 import { AlreadyEnrolledChip } from "./chips";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { PopularRecipeCardWrapper } from "./popularRecipeCardDialog";
 
 export function VerticallyLongRecipes() {

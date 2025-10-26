@@ -3,7 +3,6 @@ import {
   fecthAutoCompleteData,
   AutoCompletesData,
 } from "@/src/pages/search-recipe/entities/auto-complete/api/api";
-import { useEffect, useState } from "react";
 
 const AUTO_COMPLETE_DATA_QUERY_KEY = "autoCompleteData";
 

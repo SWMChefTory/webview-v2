@@ -611,6 +611,13 @@ function RecipeStep({
   const THRESH_MINOR = 24;
   const THRESH_MAJOR = 32;
 
+  // 가로모드에서 헤더 외의 영역 클릭 시 헤더를 sheet 상태로 변경
+  const handleContentClick = useCallback(() => {
+    if (isLandscape && headerState === "expanded") {
+      setHeaderState("sheet");
+    }
+  }, [isLandscape, headerState]);
+
   function nextStateByDrag(
     curr: HeaderState,
     origin: "header" | "handle",
@@ -1016,6 +1023,10 @@ function RecipeStep({
                 onClick={(e) => {
                   e.stopPropagation();
                   goToSpecificDetail(item.stepIndex, item.detailIndex);
+                  // 가로모드에서 단계 클릭 시 헤더를 sheet로 접기
+                  if (isLandscape && headerState === "expanded") {
+                    setHeaderState("sheet");
+                  }
                 }}
                 aria-current={isCurrent ? "true" : undefined}
               >
@@ -1040,7 +1051,12 @@ function RecipeStep({
   const topPadding =
     headerState === "expanded" ? headerH : headerState === "sheet" ? sheetH : 8;
   const bottomPadding = 16;
-  const availVideoH = Math.max(240, viewportH - topPadding - bottomPadding);
+  // 가로모드 영상 높이는 sheet 상태 기준으로 고정 (크기 변경 방지)
+  const fixedTopForVideoCalc = sheetH;
+  const availVideoH = Math.max(
+    240,
+    viewportH - fixedTopForVideoCalc - bottomPadding
+  );
 
   // --- 세로모드 고정 플레이어용 보정값
   const portraitVideoH = videoH; // 16:9 계산값 재사용
@@ -1138,23 +1154,29 @@ function RecipeStep({
         <div
           className={
             isLandscape
-              ? [
-                  "grid w-full flex-1 grid-cols-[minmax(36vw,auto)_minmax(0,1fr)] gap-3 overflow-x-hidden",
-                  isRotating ? "" : "transition-[padding-top] duration-200",
-                ].join(" ")
+              ? "grid w-full flex-1 grid-cols-[minmax(36vw,auto)_minmax(0,1fr)] gap-3 overflow-x-hidden"
               : "flex flex-1 flex-col overflow-x-hidden"
           }
           style={{
-            // 세로: 헤더 + 고정 영상만큼 패딩
-            paddingTop: isLandscape ? topPadding : headerH + portraitVideoH,
+            // 가로: sheet 기준 고정 패딩(크기 변화 방지), 세로: 헤더 + 고정 영상만큼 패딩
+            paddingTop: isLandscape
+              ? fixedTopForVideoCalc
+              : headerH + portraitVideoH,
             paddingBottom: isLandscape ? bottomPadding : 0,
             paddingLeft: isLandscape ? 12 : 0,
             paddingRight: isLandscape ? 12 : 0,
           }}
+          onClick={handleContentClick}
         >
           {/* 좌: 영상 */}
           <div
             className={isLandscape ? "relative" : "relative z-[900] bg-black"}
+            onClick={() => {
+              // 가로모드에서 영상 영역 클릭 시 헤더를 sheet로 접기
+              if (isLandscape && headerState === "expanded") {
+                setHeaderState("sheet");
+              }
+            }}
           >
             <div
               className={
@@ -1197,10 +1219,17 @@ function RecipeStep({
                 : "flex flex-col"
             }
           >
-            {/* 진행바: 가로=sticky, 세로=fixed */}
+            {/* 진행바: 가로=fixed(핸들바 바로 아래 고정), 세로=fixed */}
             {isLandscape ? (
               <div
-                className="sticky top-0 z-[850] bg-black/60 px-3 py-2 backdrop-blur-sm"
+                className="fixed z-[850] bg-black/60 px-3 py-2 backdrop-blur-sm"
+                style={{
+                  top: sheetH,
+                  left: rightColBox.left,
+                  width: rightColBox.width,
+                  opacity: rightColBox.width > 0 ? 1 : 0,
+                  pointerEvents: rightColBox.width > 0 ? "auto" : "none",
+                }}
                 ref={progressRef}
               >
                 <ProgressBar
@@ -1236,8 +1265,10 @@ function RecipeStep({
               style={{
                 WebkitOverflowScrolling: "touch",
                 touchAction: "pan-y",
-                // 진행바 높이 측정값 + 여유 8px만큼 항상 띄워 침범 방지
-                paddingTop: (progressH ?? 36) + 8,
+                // 가로: 핸들바(sheetH) + 진행바 높이만큼 패딩, 세로: 진행바 높이만큼 패딩
+                paddingTop: isLandscape
+                  ? sheetH + (progressH ?? 36) + 8
+                  : (progressH ?? 36) + 8,
                 paddingBottom: bottomBarH + 8,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
                 overflowX: "hidden",

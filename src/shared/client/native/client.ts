@@ -159,7 +159,7 @@ export function request<T = any>(
   mode: MODE,
   type: string,
   payload?: any,
-  timeoutMs = 1000
+  timeoutMs = 3000
 ): Promise<T> {
   if (typeof window === "undefined") {
     console.log("[NOT WINDOW] : ", mode, type, payload);

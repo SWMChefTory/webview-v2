@@ -1,20 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import {
-  fecthAutoCompleteData,
+  fetchAutoCompleteData,
   AutoCompletesData,
 } from "@/src/pages/search-recipe/entities/auto-complete/api/api";
 import { useEffect, useState } from "react";
 
 const AUTO_COMPLETE_DATA_QUERY_KEY = "autoCompleteData";
 
-class AutoComplete {
+export class AutoComplete {
   public autocomplete: string;
   constructor(autocomplete: string) {
     this.autocomplete = autocomplete;
   }
 }
 
-class AutoCompletes {
+export class AutoCompletes {
   public autocompletes!: AutoComplete[];
   constructor(data: unknown) {
     Object.assign(this, data);
@@ -30,14 +30,28 @@ class AutoCompletes {
 }
 
 export function useFetchAutoCompleteData(searchQuery: string) {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: [AUTO_COMPLETE_DATA_QUERY_KEY, searchQuery],
-    queryFn: () => fecthAutoCompleteData(searchQuery),
+    queryFn: () => fetchAutoCompleteData(searchQuery),
     select: (data) => AutoCompletes.create(data),
-    initialData: AutoCompletes.createEmpty(),
+    enabled: searchQuery.trim().length > 0,
   });
 
   return {
-    autoCompleteData: data,
+    autoCompleteData: data ?? AutoCompletes.createEmpty(),
+    isLoading,
+  };
+}
+
+export function useInitialAutoCompleteData() {
+  const { data, isLoading } = useQuery({
+    queryKey: [AUTO_COMPLETE_DATA_QUERY_KEY, "initial"],
+    queryFn: () => fetchAutoCompleteData(""),
+    select: (data) => AutoCompletes.create(data)
+  });
+
+  return {
+    autoCompleteData: data ?? AutoCompletes.createEmpty(),
+    isLoading,
   };
 }

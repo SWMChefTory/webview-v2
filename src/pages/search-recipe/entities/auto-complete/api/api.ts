@@ -11,12 +11,9 @@ const AutoCompleteDataSchema = z.object({
 
 export type AutoCompletesData = z.infer<typeof AutoCompleteDataSchema>;
 
-export async function fecthAutoCompleteData(searchQuery: string) {
-  console.log("searchQuery!!", searchQuery);
+export async function fetchAutoCompleteData(searchQuery: string) {
   const response = await client.get(
     `/recipes/search/autocomplete?query=${encodeURIComponent(searchQuery)}`
   );
-  console.log(`/recipes/search/autocomplete?query=${encodeURIComponent(searchQuery)}`)
-  console.log("response!!", JSON.stringify(response.data, null, 2));
   return AutoCompleteDataSchema.parse(response.data);
 }

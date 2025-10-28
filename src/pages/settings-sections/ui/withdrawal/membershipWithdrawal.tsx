@@ -4,6 +4,7 @@ import WriteLongTextModal from "./writeLongTextModal";
 import { request, MODE } from "@/src/shared/client/native/client";
 import {useQueryClient} from "@tanstack/react-query";
 import {setMainAccessToken} from "@/src/shared/client/main/client";
+import { useUser } from "@/src/shared/model/user";
 
 const withdrawalReasons = {
   "1": "앱 사용법이 복잡해서",
@@ -17,13 +18,10 @@ const withdrawalReasons = {
 
 const DELETE_USER = "DELETE_USER";
 
-export default function MemberShipWithdrawalPage({
-  userNickname = "홍길동",
-}: {
-  userNickname?: string;
-}) {
+export default function MemberShipWithdrawalPage() {
   const [selectedItems, setSelectedItems] = useState<{ [key: string]: string }>({});
-  const [feedbacks, setFeedbacks] = useState<{ [key: string]: string }>({}); // 👈 추가
+  const { user } = useUser();
+  const [feedbacks, setFeedbacks] = useState<{ [key: string]: string }>({});
 
   const queryClient = useQueryClient();
 
@@ -43,13 +41,11 @@ export default function MemberShipWithdrawalPage({
     delete newSelectedItems[key];
     setSelectedItems(newSelectedItems);
     
-    // 👇 선택 해제 시 피드백도 삭제
     const newFeedbacks = { ...feedbacks };
     delete newFeedbacks[key];
     setFeedbacks(newFeedbacks);
   };
 
-  // 👇 피드백 저장 함수 추가
   const saveFeedback = (key: string, feedback: string) => {
     setFeedbacks({ ...feedbacks, [key]: feedback });
   };
@@ -59,7 +55,7 @@ export default function MemberShipWithdrawalPage({
       <div className="w-full max-w-2xl bg-white min-h-screen">
         <div className="w-[85%] mx-auto py-2">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{userNickname}님,</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{user?.nickname}님,</h1>
             <h1 className="text-3xl font-bold text-gray-900">정말 탈퇴하시나요?</h1>
             
             <div className="h-8" />

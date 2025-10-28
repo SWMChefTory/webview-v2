@@ -3,13 +3,16 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+
+
 declare module "axios" {
   export interface AxiosRequestConfig {
     isSecondRequest?: boolean;
   }
 }
 
-const BASE_URL = "https://api.cheftories.com/api/v1";
+// const BASE_URL = "https://api.cheftories.com/api/v1";
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -31,6 +34,16 @@ clientResolvingError.interceptors.request.use(
   }
 );
 
+clientResolvingError.interceptors.response.use(
+  (response) => {
+    response.data = camelcaseKeys(response.data, { deep: true });
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 client.interceptors.request.use(
   async (config) => {
     if (typeof window === "undefined") {
@@ -39,7 +52,7 @@ client.interceptors.request.use(
     const token = getMainAccessToken();
     config.headers.Authorization = `${token}`;
     const data = (() => {
-      if (config.data) {
+      if (config.data) {  
         return snakecaseKeys(config.data, { deep: true });
       }
       return {};

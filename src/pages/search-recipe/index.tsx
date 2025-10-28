@@ -1,6 +1,6 @@
 import Header, { BackButton } from "@/src/shared/ui/header";
 import { useRef, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { useFetchAutoCompleteData, AutoComplete } from "./entities/auto-complete/model/model";
 import { useInvalidateSearchHistories } from "./entities/search-history/model/model";
 import { FaMagnifyingGlass } from "react-icons/fa6";
@@ -8,16 +8,15 @@ import { HeaderSpacing } from "@/src/shared/ui/header";
 import { IoMdCloseCircle } from "react-icons/io";
 import { motion } from "framer-motion";
 import { useDebounce } from "use-debounce";
-import { SearchResultsSkelton, SearchResultsReady, DefaultContentOverlay } from "./ui";
-import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { DefaultContentOverlay } from "./ui";
 
 const SearchRecipePage = () => {
-  const [searchKeyword, setSearchKeyword] = useState("");
+  const router = useRouter();
   const invalidateSearchHistories = useInvalidateSearchHistories();
   
   const handleSearchSelect = (keyword: string) => {
-    setSearchKeyword(keyword);
     invalidateSearchHistories();
+    router.push(`/search-results?q=${encodeURIComponent(keyword)}`);
   };
   
   return (
@@ -25,29 +24,24 @@ const SearchRecipePage = () => {
       <Header
         leftContent={
           <HeaderLeftContent
-            searchKeyword={searchKeyword}
-            setSearchKeyword={setSearchKeyword}
             onSearchExecute={invalidateSearchHistories}
+            onSearchSelect={handleSearchSelect}
           />
         }
       />
       <div className="flex flex-col w-full h-full overflow-y-scroll">
-        <SSRSuspense fallback={<SearchResultsSkelton />}>
-          <SearchResultsReady keyword={searchKeyword} onSearchSelect={handleSearchSelect} />
-        </SSRSuspense>
+        <DefaultContentOverlay onSearchSelect={handleSearchSelect} />
       </div>
     </div>
   );
 };
 
 const HeaderLeftContent = ({
-  searchKeyword,
-  setSearchKeyword,
   onSearchExecute,
+  onSearchSelect,
 }: {
-  searchKeyword: string;
-  setSearchKeyword: (keyword: string) => void;
   onSearchExecute: () => void;
+  onSearchSelect: (keyword: string) => void;
 }) => {
   const router = useRouter();
   
@@ -58,9 +52,8 @@ const HeaderLeftContent = ({
           <BackButton onClick={() => router.back()} />
         </div>
         <SearchBar
-          searchKeyword={searchKeyword}
-          setSearchKeyword={setSearchKeyword}
           onSearchExecute={onSearchExecute}
+          onSearchSelect={onSearchSelect}
         />
       </div>
     </div>
@@ -68,17 +61,16 @@ const HeaderLeftContent = ({
 };
 
 const SearchBar = ({
-  searchKeyword,
-  setSearchKeyword,
   onSearchExecute,
+  onSearchSelect,
 }: {
-  searchKeyword: string;
-  setSearchKeyword: (keyword: string) => void;
   onSearchExecute: () => void;
+  onSearchSelect: (keyword: string) => void;
 }) => {
   const [isFocused, setIsFocused] = useState(true);
   const [keyboardInput, setKeyboardInput] = useState("");
   const [debouncedSearchKeyword] = useDebounce(keyboardInput, 300);
+  const router = useRouter();
   const { autoCompleteData, isLoading } = useFetchAutoCompleteData(debouncedSearchKeyword.trim());
   const inputRef = useRef<HTMLInputElement>(null);
   const prevAutocompletesRef = useRef<AutoComplete[]>([]);
@@ -99,20 +91,21 @@ const SearchBar = ({
   const hasAutocompletes = displayAutocompletes.length > 0;
   
   const handleClearInput = () => {
-    setSearchKeyword("");
     setKeyboardInput("");
     prevAutocompletesRef.current = [];
   };
   
   const handleKeywordSelect = (keyword: string) => {
-    setSearchKeyword(keyword);
     setKeyboardInput(keyword);
+    onSearchSelect(keyword);
   };
   
   const handleEnterKey = () => {
-    setSearchKeyword(keyboardInput);
-    onSearchExecute(); // 검색 실행 시 캐시 무효화
-    inputRef.current?.blur();
+    if (keyboardInput.trim()) {
+      onSearchExecute();
+      onSearchSelect(keyboardInput.trim());
+      inputRef.current?.blur();
+    }
   };
   
   return (
@@ -148,6 +141,7 @@ const SearchBar = ({
           autocompletes={displayAutocompletes}
           keyboardInput={keyboardInput}
           onSelect={handleKeywordSelect}
+          onSearchSelect={onSearchSelect}
         />
       )}
     </div>
@@ -159,11 +153,13 @@ const AutoCompleteDropdown = ({
   autocompletes,
   keyboardInput,
   onSelect,
+  onSearchSelect,
 }: {
   hasAutocompletes: boolean;
   autocompletes: AutoComplete[];
   keyboardInput: string;
   onSelect: (keyword: string) => void;
+  onSearchSelect: (keyword: string) => void;
 }) => {
   return (
     <div className="fixed top-0 left-0 right-0">
@@ -178,7 +174,7 @@ const AutoCompleteDropdown = ({
       <div className="flex flex-col w-full bg-white shadow-lg" style={{ height: 'calc(100vh - 60px)' }}>
         {!hasAutocompletes ? (
           <div className="relative z-10 w-full h-full">
-            <DefaultContentOverlay />
+            <DefaultContentOverlay onSearchSelect={onSearchSelect} />
           </div>
         ) : (
           <div className="flex flex-col w-full h-full overflow-y-scroll">

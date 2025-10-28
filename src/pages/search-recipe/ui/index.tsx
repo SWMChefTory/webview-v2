@@ -1,11 +1,3 @@
-import { ThumbnailSkeleton, ThumbnailReady } from "./thumbnail";
-import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import {
-  useFetchRecipesSearched,
-  Recipe,
-} from "@/src/entities/recipe-searched/useRecipeSearched";
-import { FaRegClock } from "react-icons/fa";
-import { BsPeople } from "react-icons/bs";
 import { useEffect, useRef, useState } from "react";
 import { useInitialAutoCompleteData } from "../entities/auto-complete/model/model";
 import { 
@@ -13,10 +5,27 @@ import {
   useDeleteSearchHistory, 
   useDeleteAllSearchHistories 
 } from "../entities/search-history/model/model";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import Trend from "@/src/pages/home/ui/assets/trend.png";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ThemeRecipe } from "@/src/pages/home/entities/theme-recipe/type";
+import { useFetchTrendingRecipes } from "../entities/trend-recipe/model/useTrendRecipe";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useRouter } from "next/router";
 
 export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (keyword: string) => void }) => {
   const { autoCompleteData } = useInitialAutoCompleteData();
-  const { searchHistories, isLoading: isHistoriesLoading, error } = useSearchHistories();
+  const { searchHistories } = useSearchHistories();
   const deleteSearchHistoryMutation = useDeleteSearchHistory();
   const deleteAllSearchHistoriesMutation = useDeleteAllSearchHistories();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -62,15 +71,7 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
             )}
           </div>
           
-          {isHistoriesLoading ? (
-            <div className="flex flex-wrap gap-2">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="px-4 py-2 rounded-full bg-gray-200 animate-pulse">
-                  <div className="w-16 h-4 bg-gray-300 rounded"></div>
-                </div>
-              ))}
-            </div>
-          ) : searchHistories.histories.length > 0 ? (
+          {searchHistories.histories.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {searchHistories.histories.map((search, index) => (
                 <div 
@@ -147,7 +148,7 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
             ) : (
               <div 
                 ref={scrollContainerRef}
-                className="relative overflow-hidden bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 shadow-sm"
+                className="relative overflow-hidden rounded-xl border border-gray-200 bg-white"
                 style={{ height: '80px' }}
               >
                 {/* 상단 그라데이션 오버레이 */}
@@ -170,14 +171,14 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
                 {autoCompleteData.autocompletes.map((item, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center gap-3 px-4 absolute w-full h-20 cursor-pointer hover:bg-white/90 transition-all duration-200 group"
+                    className="flex items-center gap-3 px-4 absolute w-full h-20 cursor-pointer hover:bg-orange-50 transition-all duration-200 group rounded-lg"
                     style={{ top: `${index * 80}px` }}
                     onClick={() => onSearchSelect?.(item.autocomplete)}
                   >
-                    <span className="text-base font-bold text-gray-600 w-6 group-hover:text-orange-600 transition-colors">
+                    <span className="text-base font-bold text-orange-600 shrink-0 w-6 group-hover:text-orange-700 transition-colors">
                       {index + 1}
                     </span>
-                    <span className="text-base font-medium text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">{item.autocomplete}</span>
+                    <span className="text-base font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">{item.autocomplete}</span>
                   </div>
                 ))}
               </div>
@@ -186,188 +187,169 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
             <p className="text-sm text-gray-500 py-6">인기 검색어가 없습니다</p>
           )}
         </section>
+
+        {/* 구분선 */}
+        <div className="border-t border-gray-200"></div>
+
+        {/* 트렌드 레시피 섹션 */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold text-gray-900">급상승 레시피</h2>
+            <img src={Trend.src} className="size-5" alt="trend" />
+          </div>
+          <p className="text-sm text-gray-500">최근 급상승 레시피를 모아봤어요</p>
+          <div className="grid grid-cols-2 gap-4">
+            <SSRSuspense fallback={<TrendRecipeGridSkeleton />}>
+              <TrendRecipeGrid />
+            </SSRSuspense>
+          </div>
+        </section>
       </div>
     </div>
   );
 };
 
-export function SearchResultsSkelton() {
-  return (
-    <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="px-6 py-8">
-        <TextSkeleton fontSize="text-2xl" />
-      </div>
-      <div className="px-6 pb-8">
-        <div className="grid grid-cols-2 gap-4">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <RecipeSearchedCardSkeleton key={index} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export function SearchResultsReady({ keyword, onSearchSelect }: { keyword: string; onSearchSelect?: (keyword: string) => void }) {
-  if (!keyword || keyword.trim() === "") {
-    return <DefaultContentOverlay onSearchSelect={onSearchSelect} />;
-  }
-
-  const { 
-    data: searchResults, 
-    hasNextPage, 
-    fetchNextPage, 
-    isFetchingNextPage 
-  } = useFetchRecipesSearched({ query: keyword });
-  
+const TrendRecipeGrid = () => {
+  const { data: recipes, hasNextPage, fetchNextPage, isFetchingNextPage } = useFetchTrendingRecipes();
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const element = loadMoreRef.current;
+    if (!element) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.1,
+        rootMargin: '200px'
+      }
     );
 
-    if (loadMoreRef.current) {
-      observer.observe(loadMoreRef.current);
-    }
-
+    observer.observe(element);
     return () => observer.disconnect();
   }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
-  if (searchResults.length === 0) {
+  if (recipes.length === 0) {
     return (
-      <div className="flex flex-col w-full h-full items-center justify-center py-24 px-6">
-        <div className="w-32 h-32 mb-8 opacity-60">
-          <img src="/empty_state.png" alt="검색 결과 없음" className="w-full h-full object-contain" />
-        </div>
-        <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">검색어에 해당하는 레시피가 없어요</h3>
-          <p className="text-sm text-gray-600">다른 검색어로 시도해보세요</p>
-        </div>
+      <div className="col-span-2">
+        <p className="text-sm text-gray-500 py-6">급상승 레시피가 없습니다</p>
       </div>
     );
   }
-  
+
   return (
-    <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      {/* 검색 결과 헤더 */}
-      <div className="px-6 py-8">
-        <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{keyword}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">에 대한 검색결과</span>
-        </div>
-      </div>
-      
-      {/* 검색 결과 그리드 */}
-      <div className="px-6 pb-8">
-        <div className="grid grid-cols-2 gap-4">
-          {searchResults.map((recipe) => (
-            <RecipeSearchedCardReady
-              key={recipe.recipeId}
-              searchResults={recipe}
-            />
-          ))}
-          {isFetchingNextPage && (
-            <>
-              <RecipeSearchedCardSkeleton />
-              <RecipeSearchedCardSkeleton />
-            </>
+    <>
+      {recipes.map((recipe) => (
+        <TrendRecipeCardWrapper 
+          key={recipe.recipeId}
+          recipe={recipe}
+        />
+      ))}
+      {isFetchingNextPage && (
+        <>
+          <TrendRecipeCardSkeleton />
+          <TrendRecipeCardSkeleton />
+        </>
+      )}
+      {hasNextPage && !isFetchingNextPage && (
+        <div ref={loadMoreRef} className="col-span-2 h-20" />
+      )}
+    </>
+  );
+};
+
+const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
+  const { create } = useCreateRecipe();
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleCardClick = () => {
+    if (!recipe.isViewed) {
+      setIsOpen(true);
+    } else {
+      router.push(`/recipe/${recipe.recipeId}/detail`);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <div
+        onClick={handleCardClick}
+        className="flex flex-col w-full group cursor-pointer"
+      >
+        <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200 h-[160px]">
+          <img
+            src={recipe.videoThumbnailUrl}
+            className="block w-full h-full object-cover"
+            alt={recipe.recipeTitle}
+          />
+          {recipe.isViewed && (
+            <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
+              이미 등록했어요
+            </div>
           )}
         </div>
-        <div ref={loadMoreRef} className="h-8" />
-      </div>
-    </div>
-  );
-}
-
-const RecipeSearchedCardReady = ({
-  searchResults,
-}: {
-  searchResults: Recipe;
-}) => {
-  const { detailMeta, tags } = searchResults;
-  
-  return (
-    <article className="w-full group">
-      <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
-        <ThumbnailReady imgUrl={searchResults.videoInfo.videoThumbnailUrl} />
-      </div>
-      
-      <div className="mt-3 space-y-2.5">
-        <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
-          {searchResults.recipeTitle}
+        <h3 className="mt-3 text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+          {recipe.recipeTitle}
         </h3>
-        
-        {(detailMeta?.servings || detailMeta?.cookingTime) && (
-          <div className="flex items-center gap-3 text-sm text-gray-600">
-            {detailMeta?.servings && (
-              <div className="flex items-center gap-1.5">
-                <BsPeople size={14} className="shrink-0" />
-                <span className="font-medium">{detailMeta.servings}인분</span>
-              </div>
-            )}
-            {detailMeta?.cookingTime && (
-              <div className="flex items-center gap-1.5">
-                <FaRegClock size={14} className="shrink-0" />
-                <span className="font-medium">{detailMeta.cookingTime}분</span>
-              </div>
-            )}
-          </div>
-        )}
-        
-        {tags && tags.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-            {tags.slice(0, 3).map((tag, index) => (
-              <span key={index} className="text-xs font-semibold text-orange-600 whitespace-nowrap">
-                #{tag.name}
-              </span>
-            ))}
-          </div>
-        )}
-        
-        {detailMeta?.description && (
-          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
-            {detailMeta.description}
-          </p>
-        )}
       </div>
-    </article>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">레시피 생성</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          <div className="text-lg text-gray-400">
+            <span className="text-black font-bold">{recipe.recipeTitle}</span>{" "}
+            레시피를 생성하시겠어요?
+          </div>
+        </DialogDescription>
+        <DialogFooter className="flex flex-row justify-center gap-2">
+          <DialogClose asChild>
+            <Button variant="outline" className="flex-1">
+              취소
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              onClick={async () => {
+                await create({ youtubeUrl: recipe.videoUrl });
+                router.push(`/recipe/${recipe.recipeId}/detail`);
+                setIsOpen(false);
+              }}
+              className="flex-1"
+            >
+              생성
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-const RecipeSearchedCardFetchingNextPage = ({
-  isFetchingNextPage,
-}: {
-  isFetchingNextPage: boolean;
-}) => {
-  return isFetchingNextPage ? (
+const TrendRecipeGridSkeleton = () => {
+  return (
     <>
-      <RecipeSearchedCardSkeleton />
-      <RecipeSearchedCardSkeleton />
+      {Array.from({ length: 6 }).map((_, index) => (
+        <TrendRecipeCardSkeleton key={index} />
+      ))}
     </>
-  ) : null;
+  );
 };
 
-const RecipeSearchedCardSkeleton = () => {
+const TrendRecipeCardSkeleton = () => {
   return (
-    <div className="w-full">
-      <div className="rounded-xl overflow-hidden">
-        <ThumbnailSkeleton />
-      </div>
-      <div className="mt-3 space-y-2.5">
-        <TextSkeleton fontSize="text-base" />
-        <div className="flex gap-3">
-          <TextSkeleton fontSize="text-sm" />
-          <TextSkeleton fontSize="text-sm" />
-        </div>
-        <TextSkeleton fontSize="text-sm" />
-        <TextSkeleton fontSize="text-sm" />
+    <div className="flex flex-col w-full">
+      <Skeleton className="w-full h-[160px] rounded-xl" />
+      <div className="mt-3 space-y-2">
+        <Skeleton className="w-full h-4 rounded" />
+        <Skeleton className="w-3/4 h-4 rounded" />
       </div>
     </div>
   );
 };
+

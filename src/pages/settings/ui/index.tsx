@@ -6,13 +6,20 @@ import { MdEdit } from "react-icons/md";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { motion } from "framer-motion";
 import { fetchUserModel } from "@/src/pages/settings/entities/user/model";
-import {Skeleton} from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 
 function SettingsPage() {
   const router = useRouter();
+  useSafeArea({
+    top: { color: "#FFFFFF", isExists: true },
+    bottom: { color: "#FFFFFF", isExists: true },
+    left: { color: "#FFFFFF", isExists: true },
+    right: { color: "#FFFFFF", isExists: false },
+  });
   return (
     <div>
       <Header
@@ -78,7 +85,7 @@ const UserSection = ({ type }: { type: "READY" | "SKELETON" }) => {
               className="block w-full h-full object-cover object-center"
             />
           ) : (
-            <Skeleton className="w-[60] h-[60] rounded-full"/>
+            <Skeleton className="w-[60] h-[60] rounded-full" />
           )}
         </div>
       </div>

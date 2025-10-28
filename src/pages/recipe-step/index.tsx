@@ -9,12 +9,9 @@ import { useEffect } from "react";
 
 const RecipeStepPage = () => {
   const router = useRouter();
-  const { handleLockOrientation, handleUnlockOrientation } = useOrientation();
+  const { handleUnlockOrientation } = useOrientation();
   useEffect(() => {
     handleUnlockOrientation();
-    return () => {
-      handleLockOrientation();
-    };
   }, []);
   return (
     <div className="w-full h-full">

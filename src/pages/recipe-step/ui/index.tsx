@@ -24,6 +24,10 @@ import Header, { BackButton } from "@/src/shared/ui/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import {TimerBottomSheet} from "@/src/widgets/timer/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
+import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
+import { request, MODE } from "@/src/shared/client/native/client";
+import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
 
 /* =====================================================================================
    전역: 바운스/풀투리프레시 방지 + 배경/높이/가로 스크롤 고정
@@ -112,7 +116,7 @@ function YouTubePlayer({
   autoplay,
   onPlayerReady,
   onStateChange,
-  forceHeightPx,
+  forceWidthPx,
   initialSeekSeconds = 0,
   resumePlaying = false,
 }: {
@@ -121,7 +125,7 @@ function YouTubePlayer({
   autoplay?: boolean;
   onPlayerReady?: (player: YTPlayer) => void;
   onStateChange?: (e: { data: number }) => void;
-  forceHeightPx?: number;
+  forceWidthPx?: number;
   initialSeekSeconds?: number;
   resumePlaying?: boolean;
 }) {
@@ -176,17 +180,17 @@ function YouTubePlayer({
     };
   }, [apiReady, youtubeEmbedId, autoplay]);
 
-  // 고정 높이(가로/세로 공용)
-  if (forceHeightPx && forceHeightPx > 0) {
-    const width = Math.round((forceHeightPx * 16) / 9);
+  // 고정 너비 기준 (16:9 비율 유지)
+  if (forceWidthPx && forceWidthPx > 0) {
+    const height = Math.round((forceWidthPx * 9) / 16);
     return (
       <div
-        className="relative"
+        className="relative w-full"
         aria-label={title}
         role="region"
-        style={{ height: forceHeightPx }}
+        style={{ width: forceWidthPx }}
       >
-        <div className="mx-auto" style={{ width, height: forceHeightPx }}>
+        <div className="mx-auto max-w-full" style={{ width: forceWidthPx, height }}>
           <div
             ref={containerRef}
             className="h-full w-full will-change-transform transform-gpu"
@@ -212,20 +216,88 @@ function YouTubePlayer({
 /* =====================================================================================
    오리엔테이션
 ===================================================================================== */
-function useOrientation(): boolean {
-  const [isLandscape, setIsLandscape] = useState(false);
+type Orientation = "portrait" | "landscape-left" | "landscape-right";
+
+const getOrientationFromAngle = (angle: number): Orientation => {
+  if (angle === 90) return "landscape-right";
+  if (angle === 270 || angle === -90) return "landscape-left";
+  return "portrait";
+};
+
+function useOrientation(): Orientation {
+  const [orientation, setOrientation] = useState<Orientation>("portrait");
+
   useEffect(() => {
-    const mq =
-      typeof window !== "undefined"
-        ? window.matchMedia("(orientation: landscape)")
-        : null;
-    const onChange = () => setIsLandscape(!!mq?.matches);
-    onChange();
-    mq?.addEventListener?.("change", onChange);
-    return () => mq?.removeEventListener?.("change", onChange);
+    if (typeof window === "undefined") return;
+
+    const updateOrientation = () => {
+      const isLandscape = window.matchMedia("(orientation: landscape)").matches;
+      if (!isLandscape) {
+        setOrientation("portrait");
+        return;
+      }
+
+      if (screen.orientation?.angle !== undefined) {
+        setOrientation(getOrientationFromAngle(screen.orientation.angle));
+        return;
+      }
+
+      const windowOrientation = (window as any).orientation;
+      if (windowOrientation !== undefined) {
+        setOrientation(getOrientationFromAngle(windowOrientation));
+        return;
+      }
+
+      // 최종 폴백: 뷰포트 크기로만 판단 (좌우 구분 불가)
+      setOrientation("landscape-right");
+    };
+
+    updateOrientation();
+
+    window.addEventListener("orientationchange", updateOrientation);
+    window.addEventListener("resize", updateOrientation);
+    screen.orientation?.addEventListener("change", updateOrientation);
+
+    return () => {
+      window.removeEventListener("orientationchange", updateOrientation);
+      window.removeEventListener("resize", updateOrientation);
+      screen.orientation?.removeEventListener("change", updateOrientation);
+    };
   }, []);
-  return isLandscape;
+
+  return orientation;
 }
+
+/* =====================================================================================
+   Safe Area 설정
+===================================================================================== */
+type SafeAreaConfig = {
+  top: SafeAreaProps;
+  bottom: SafeAreaProps;
+  left: SafeAreaProps;
+  right: SafeAreaProps;
+};
+
+const SAFE_AREA_CONFIG: Record<Orientation, SafeAreaConfig> = {
+  portrait: {
+    top: { color: "#000000", isExists: true },
+    bottom: { color: "#000000", isExists: false },
+    left: { color: "#000000", isExists: false },
+    right: { color: "#000000", isExists: false },
+  },
+  "landscape-left": {
+    top: { color: "#000000", isExists: false },
+    bottom: { color: "#000000", isExists: false },
+    left: { color: "#000000", isExists: false },
+    right: { color: "#000000", isExists: true },
+  },
+  "landscape-right": {
+    top: { color: "#000000", isExists: false },
+    bottom: { color: "#000000", isExists: false },
+    left: { color: "#000000", isExists: true },
+    right: { color: "#000000", isExists: false },
+  },
+};
 
 /* =====================================================================================
    STEP 내비게이션 훅
@@ -564,7 +636,32 @@ function RecipeStep({
   recipeName: string;
 }) {
   const router = useRouter();
-  const isLandscape = useOrientation();
+  const orientation = useOrientation();
+  const isLandscape = orientation !== "portrait";
+  const { handleLockOrientation } = useOrientationLock();
+  const [shouldGoBack, setShouldGoBack] = useState(false);
+
+  useSafeArea(SAFE_AREA_CONFIG[orientation]);
+
+  // 세로모드로 변경되면 뒤로 가기
+  useEffect(() => {
+    if (shouldGoBack && orientation === "portrait") {
+      router.back();
+      setShouldGoBack(false);
+    }
+  }, [orientation, shouldGoBack, router]);
+
+  // 뒤로 갈 때 safe area 원상복귀
+  useEffect(() => {
+    return () => {
+      request(MODE.UNBLOCKING, "SAFE_AREA", {
+        top: { color: "#ffffff", isExists: true },
+        bottom: { color: "#ffffff", isExists: false },
+        left: { color: "#ffffff", isExists: false },
+        right: { color: "#ffffff", isExists: false },
+      });
+    };
+  }, []);
 
   const [showVoiceGuide, setShowVoiceGuide] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -611,9 +708,6 @@ function RecipeStep({
   const progressRef = useRef<HTMLDivElement | null>(null);
 
   const [headerH, setHeaderH] = useState(56);
-  const [videoH, setVideoH] = useState<number>(
-    typeof window !== "undefined" ? Math.round((window.innerWidth * 9) / 16) : 0
-  );
   const [progressH, setProgressH] = useState(36);
   const [viewportH, setViewportH] = useState<number>(
     typeof window !== "undefined" ? window.innerHeight : 0
@@ -762,7 +856,6 @@ function RecipeStep({
   useEffect(() => {
     const update = () => {
       setHeaderH(headerRef.current?.offsetHeight ?? 56);
-      setVideoH(Math.round((window.innerWidth * 9) / 16));
       setProgressH(progressRef.current?.offsetHeight ?? 36);
       setViewportH(window.innerHeight);
       setSheetH(sheetRef.current?.offsetHeight ?? 40);
@@ -1140,18 +1233,14 @@ function RecipeStep({
   /* =====================
    통합 렌더링
 ======================*/
-  const topPadding =
-    headerState === "expanded" ? headerH : headerState === "sheet" ? sheetH : 8;
-  const bottomPadding = 16;
-  // 가로모드 영상 높이는 sheet 상태 기준으로 고정 (크기 변경 방지)
-  const fixedTopForVideoCalc = sheetH;
-  const availVideoH = Math.max(
-    240,
-    viewportH - fixedTopForVideoCalc - bottomPadding
-  );
+  const landscapeVideoW =
+    typeof window !== "undefined"
+      ? Math.round(window.innerWidth * 0.7 - 16)
+      : 0;
 
   // --- 세로모드 고정 플레이어용 보정값
-  const portraitVideoH = videoH; // 16:9 계산값 재사용
+  const portraitVideoW = typeof window !== "undefined" ? window.innerWidth : 0;
+  const portraitVideoH = Math.round((portraitVideoW * 9) / 16); // 16:9 비율 계산
   const portraitFixedTop = headerH;
   const portraitProgressTop = headerH + portraitVideoH;
 
@@ -1181,7 +1270,14 @@ function RecipeStep({
             fixed={!isLandscape}
             color="bg-black/80 backdrop-blur-sm border-b border-white/10"
             leftContent={
-              <BackButton onClick={() => router.back()} color="text-white" />
+              <BackButton 
+                onClick={() => {
+                  // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
+                  handleLockOrientation();
+                  setShouldGoBack(true);
+                }} 
+                color="text-white" 
+              />
             }
             centerContent={
               <div
@@ -1228,7 +1324,7 @@ function RecipeStep({
               youtubeEmbedId={videoId}
               title={`${videoTitle} - Step ${currentStep + 1}`}
               autoplay
-              forceHeightPx={portraitVideoH}
+              forceWidthPx={portraitVideoW}
               initialSeekSeconds={persistRef.current.time}
               resumePlaying={persistRef.current.wasPlaying}
               onPlayerReady={(player) => {
@@ -1242,48 +1338,38 @@ function RecipeStep({
           </div>
         )}
 
-        {/* 본문 레이아웃: 가로면 2열, 세로면 1열. 좌우 바운스 방지 위해 overflow-x-hidden */}
+        {/* 본문 레이아웃: 가로면 2열(7:3 비율), 세로면 1열. 좌우 바운스 방지 위해 overflow-x-hidden */}
         <div
           className={
             isLandscape
-              ? "grid w-full flex-1 grid-cols-[minmax(36vw,auto)_minmax(0,1fr)] gap-3 overflow-x-hidden"
+              ? "grid w-full flex-1 grid-cols-[70%_30%] gap-0 overflow-x-hidden"
               : "flex flex-1 flex-col overflow-x-hidden"
           }
           style={{
-            // 가로: sheet 기준 고정 패딩(크기 변화 방지), 세로: 헤더 + 고정 영상만큼 패딩
+            // 가로: sheet 기준 고정 패딩(크기 변경 방지), 세로: 헤더 + 고정 영상만큼 패딩
             paddingTop: isLandscape
-              ? fixedTopForVideoCalc
+              ? sheetH
               : headerH + portraitVideoH,
-            paddingBottom: isLandscape ? bottomPadding : 0,
-            paddingLeft: isLandscape ? 12 : 0,
-            paddingRight: isLandscape ? 12 : 0,
+            paddingBottom: 0,
+            paddingLeft: 0,
+            paddingRight: 0,
           }}
           onClick={handleContentClick}
         >
-          {/* 좌: 영상 */}
+          {/* 좌: 영상 (70%) - 검정 배경 */}
           <div
-            className={isLandscape ? "relative" : "relative z-[900] bg-black"}
+            className={isLandscape ? "relative bg-black border-r-2 border-neutral-800 flex items-center justify-center overflow-hidden" : "relative z-[900] bg-black"}
             onClick={handleContentClick}
           >
-            <div
-              className={
-                isLandscape
-                  ? [
-                      "sticky",
-                      isRotating ? "" : "transition-[top] duration-200",
-                    ].join(" ")
-                  : ""
-              }
-              style={isLandscape ? { top: topPadding } : undefined}
-            >
-              {/* 가로모드에서만 렌더(세로는 위의 fixed 블록이 담당) */}
-              {isLandscape && (
-                <div className="relative">
+            {/* 가로모드에서만 렌더(세로는 위의 fixed 블록이 담당) */}
+            {isLandscape && (
+              <div className="relative w-full h-full max-w-full flex items-center justify-center px-2">
+                <div className="w-full max-w-full">
                   <YouTubePlayer
                     youtubeEmbedId={videoId}
                     title={`${videoTitle} - Step ${currentStep + 1}`}
                     autoplay
-                    forceHeightPx={availVideoH}
+                    forceWidthPx={landscapeVideoW}
                     initialSeekSeconds={persistRef.current.time}
                     resumePlaying={persistRef.current.wasPlaying}
                     onPlayerReady={(player) => {
@@ -1294,29 +1380,29 @@ function RecipeStep({
                     }}
                     onStateChange={handleStateChange}
                   />
-                  {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 */}
-                  <div
-                    className="absolute inset-0 z-10"
-                    style={{
-                      pointerEvents:
-                        headerState === "expanded" ? "auto" : "none",
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleContentClick();
-                    }}
-                  />
                 </div>
-              )}
-            </div>
+                {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 */}
+                <div
+                  className="absolute inset-0 z-10"
+                  style={{
+                    pointerEvents:
+                      headerState === "expanded" ? "auto" : "none",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleContentClick();
+                  }}
+                />
+              </div>
+            )}
           </div>
 
-          {/* 우: 진행바 + 텍스트 (내부 스크롤만 허용) */}
+          {/* 우: 진행바 + 텍스트 (내부 스크롤만 허용, 30%) - 진한 회색 배경 */}
           <div
             ref={rightColRef}
             className={
               isLandscape
-                ? "relative grid min-h-0 grid-rows-[auto_1fr]"
+                ? "relative grid min-h-0 grid-rows-[auto_1fr] bg-black overflow-hidden"
                 : "flex min-h-0 flex-1 flex-col"
             }
           >
@@ -1370,13 +1456,12 @@ function RecipeStep({
                 paddingTop: isLandscape
                   ? (progressH ?? 36) + 4
                   : (progressH ?? 36) + 8,
-                paddingBottom: bottomBarH + 8,
+                paddingBottom: isLandscape ? (bottomBarH > 0 ? bottomBarH + 8 : 0) : 0,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
                 overflowX: "hidden",
               }}
             >
               {renderSteps()}
-              <div className={isLandscape ? "pb-20" : "pb-24"} />
             </section>
           </div>
         </div>
@@ -1397,7 +1482,6 @@ function RecipeStep({
           >
             <div
               className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3"
-              style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
             >
               {/* ...버튼 동일... */}
               <TimerBottomSheet type="button" recipeId={recipeId} recipeName={recipeName} />

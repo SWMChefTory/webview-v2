@@ -39,7 +39,7 @@ client.interceptors.request.use(
     const token = getMainAccessToken();
     config.headers.Authorization = `${token}`;
     const data = (() => {
-      if (config.data) {
+      if (config.data) {  
         return snakecaseKeys(config.data, { deep: true });
       }
       return {};

@@ -1,45 +1,71 @@
 import Header, { BackButton } from "@/src/shared/ui/header";
-import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { useFetchAutoCompleteData, AutoComplete } from "./entities/auto-complete/model/model";
-import { useInvalidateSearchHistories } from "./entities/search-history/model/model";
+import { useEffect, useRef, useState } from "react";
+import { SearchResultsSkeleton, SearchResultsContent } from "./ui";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useFetchAutoCompleteData, AutoComplete } from "@/src/pages/search-recipe/entities/auto-complete/model/model";
+import { useInvalidateSearchHistories } from "@/src/pages/search-recipe/entities/search-history/model/model";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { HeaderSpacing } from "@/src/shared/ui/header";
 import { IoMdCloseCircle } from "react-icons/io";
 import { motion } from "framer-motion";
 import { useDebounce } from "use-debounce";
-import { DefaultContentOverlay } from "./ui";
+import { DefaultContentOverlay } from "@/src/pages/search-recipe/ui";
 
-const SearchRecipePage = () => {
+
+const SearchResultsPage = () => {
   const router = useRouter();
+  const queryParam = router.query.q as string;
+  const [searchKeyword, setSearchKeyword] = useState("");
   const invalidateSearchHistories = useInvalidateSearchHistories();
-  
+
+  // URL의 query 파라미터를 초기 검색어로 설정
+  useEffect(() => {
+    if (router.isReady) {
+      if (!queryParam || queryParam.trim() === "") {
+        // 검색어가 없으면 검색 페이지로 리다이렉트
+        router.replace("/search-recipe");
+      } else {
+        setSearchKeyword(queryParam);
+      }
+    }
+  }, [router.isReady, queryParam, router]);
+
   const handleSearchSelect = (keyword: string) => {
     invalidateSearchHistories();
-    router.push(`/search-results?q=${encodeURIComponent(keyword)}`);
+    setSearchKeyword(keyword);
   };
-  
+
+  if (!router.isReady || !queryParam || queryParam.trim() === "") {
+    return null;
+  }
+
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
       <Header
         leftContent={
           <HeaderLeftContent
+            initialKeyword={searchKeyword}
             onSearchExecute={invalidateSearchHistories}
             onSearchSelect={handleSearchSelect}
           />
         }
       />
       <div className="flex flex-col w-full h-full overflow-y-scroll">
-        <DefaultContentOverlay onSearchSelect={handleSearchSelect} />
+        <SSRSuspense fallback={<SearchResultsSkeleton />}>
+          <SearchResultsContent keyword={searchKeyword} />
+        </SSRSuspense>
       </div>
     </div>
   );
 };
 
 const HeaderLeftContent = ({
+  initialKeyword,
   onSearchExecute,
   onSearchSelect,
 }: {
+  initialKeyword: string;
   onSearchExecute: () => void;
   onSearchSelect: (keyword: string) => void;
 }) => {
@@ -52,6 +78,7 @@ const HeaderLeftContent = ({
           <BackButton onClick={() => router.back()} />
         </div>
         <SearchBar
+          initialKeyword={initialKeyword}
           onSearchExecute={onSearchExecute}
           onSearchSelect={onSearchSelect}
         />
@@ -61,20 +88,26 @@ const HeaderLeftContent = ({
 };
 
 const SearchBar = ({
+  initialKeyword,
   onSearchExecute,
   onSearchSelect,
 }: {
+  initialKeyword: string;
   onSearchExecute: () => void;
   onSearchSelect: (keyword: string) => void;
 }) => {
-  const [isFocused, setIsFocused] = useState(true);
-  const [keyboardInput, setKeyboardInput] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+  const [keyboardInput, setKeyboardInput] = useState(initialKeyword);
   const [debouncedSearchKeyword] = useDebounce(keyboardInput, 300);
-  const router = useRouter();
   const { autoCompleteData, isLoading } = useFetchAutoCompleteData(debouncedSearchKeyword.trim());
   const inputRef = useRef<HTMLInputElement>(null);
   const prevAutocompletesRef = useRef<AutoComplete[]>([]);
   
+  // initialKeyword가 변경되면 input 값 업데이트
+  useEffect(() => {
+    setKeyboardInput(initialKeyword);
+  }, [initialKeyword]);
+
   // 로딩 완료 후 실제 데이터가 있을 때만 이전 값 업데이트
   useEffect(() => {
     if (!isLoading && autoCompleteData.autocompletes.length > 0) {
@@ -121,7 +154,6 @@ const SearchBar = ({
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
           onKeyDown={(e) => e.key === "Enter" && handleEnterKey()}
-          autoFocus
           enterKeyHint="search"
         />
         {keyboardInput.length > 0 && (
@@ -243,4 +275,5 @@ const HighlightKeywordText = ({
   );
 };
 
-export default SearchRecipePage;
+export default SearchResultsPage;
+

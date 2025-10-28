@@ -22,7 +22,7 @@ import React, {
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import Header, { BackButton } from "@/src/shared/ui/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import {TimerBottomSheet} from "@/src/widgets/timer/timerBottomSheet";
+import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
@@ -190,7 +190,10 @@ function YouTubePlayer({
         role="region"
         style={{ width: forceWidthPx }}
       >
-        <div className="mx-auto max-w-full" style={{ width: forceWidthPx, height }}>
+        <div
+          className="mx-auto max-w-full"
+          style={{ width: forceWidthPx, height }}
+        >
           <div
             ref={containerRef}
             className="h-full w-full will-change-transform transform-gpu"
@@ -1270,13 +1273,13 @@ function RecipeStep({
             fixed={!isLandscape}
             color="bg-black/80 backdrop-blur-sm border-b border-white/10"
             leftContent={
-              <BackButton 
+              <BackButton
                 onClick={() => {
                   // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
                   handleLockOrientation();
                   setShouldGoBack(true);
-                }} 
-                color="text-white" 
+                }}
+                color="text-white"
               />
             }
             centerContent={
@@ -1347,9 +1350,7 @@ function RecipeStep({
           }
           style={{
             // 가로: sheet 기준 고정 패딩(크기 변경 방지), 세로: 헤더 + 고정 영상만큼 패딩
-            paddingTop: isLandscape
-              ? sheetH
-              : headerH + portraitVideoH,
+            paddingTop: isLandscape ? sheetH : headerH + portraitVideoH,
             paddingBottom: 0,
             paddingLeft: 0,
             paddingRight: 0,
@@ -1358,7 +1359,11 @@ function RecipeStep({
         >
           {/* 좌: 영상 (70%) - 검정 배경 */}
           <div
-            className={isLandscape ? "relative bg-black border-r-2 border-neutral-800 flex items-center justify-center overflow-hidden" : "relative z-[900] bg-black"}
+            className={
+              isLandscape
+                ? "relative bg-black border-r-2 border-neutral-800 flex items-center justify-center overflow-hidden"
+                : "relative z-[900] bg-black"
+            }
             onClick={handleContentClick}
           >
             {/* 가로모드에서만 렌더(세로는 위의 fixed 블록이 담당) */}
@@ -1385,8 +1390,7 @@ function RecipeStep({
                 <div
                   className="absolute inset-0 z-10"
                   style={{
-                    pointerEvents:
-                      headerState === "expanded" ? "auto" : "none",
+                    pointerEvents: headerState === "expanded" ? "auto" : "none",
                   }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1456,7 +1460,11 @@ function RecipeStep({
                 paddingTop: isLandscape
                   ? (progressH ?? 36) + 4
                   : (progressH ?? 36) + 8,
-                paddingBottom: isLandscape ? (bottomBarH > 0 ? bottomBarH + 8 : 0) : 0,
+                paddingBottom: isLandscape
+                  ? bottomBarH > 0
+                    ? bottomBarH + 8
+                    : 0
+                  : 0,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
                 overflowX: "hidden",
               }}
@@ -1480,12 +1488,13 @@ function RecipeStep({
             }}
             onClick={handleContentClick}
           >
-            <div
-              className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3"
-            >
+            <div className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3">
               {/* ...버튼 동일... */}
-              <TimerBottomSheet type="button" recipeId={recipeId} recipeName={recipeName} />
-
+              <TimerBottomSheet
+                type="button"
+                recipeId={recipeId}
+                recipeName={recipeName}
+              />
 
               <div className="flex flex-col items-center gap-1">
                 <button
@@ -1588,7 +1597,11 @@ function RecipeStep({
                 paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)",
               }}
             >
-              <TimerBottomSheet type="button" recipeId={recipeId} recipeName={recipeName} />
+              <TimerBottomSheet
+                type="button"
+                recipeId={recipeId}
+                recipeName={recipeName}
+              />
               <div className="flex flex-col items-center gap-2">
                 <button
                   className={[
@@ -1695,7 +1708,14 @@ const RecipeStepPageReady = ({ id }: { id: string }) => {
     return <RecipeStepPageSkeleton />;
   }
 
-  return <RecipeStep videoInfo={videoInfo} steps={steps} recipeId={id} recipeName={data.videoInfo.videoTitle ?? ""} />;
+  return (
+    <RecipeStep
+      videoInfo={videoInfo}
+      steps={steps}
+      recipeId={id}
+      recipeName={data.videoInfo.videoTitle ?? ""}
+    />
+  );
 };
 
 const RecipeStepPageSkeleton = () => {

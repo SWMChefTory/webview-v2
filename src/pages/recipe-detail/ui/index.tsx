@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MeasurementOverlay } from "./MeasurementOverlay";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeleton = () => (
@@ -42,6 +43,12 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
 
   // YouTube 플레이어 ref
   const playerRef = useRef<YT.Player | null>(null);
+  useSafeArea({
+    top: { color: "#FFFFFF", isExists: true },
+    bottom: { color: "#FFFFFF", isExists: true },
+    left: { color: "#FFFFFF", isExists: true },
+    right: { color: "#FFFFFF", isExists: true },
+  });
 
   useEffect(() => {
     const measure = () => {

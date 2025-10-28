@@ -43,7 +43,7 @@ const ThumbnailReady = ({ imgUrl }: { imgUrl: string }) => {
 
 const ThumbnailTemplate = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className=" h-[156px] w-full overflow-hidden rounded-md">{children}</div>
+    <div className="h-[160px] w-full overflow-hidden rounded-lg">{children}</div>
   );
 };
 

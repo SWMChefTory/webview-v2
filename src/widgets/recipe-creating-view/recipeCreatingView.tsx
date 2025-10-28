@@ -5,6 +5,7 @@ import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
 import { driverObj } from "@/src/pages/home/ui";
 import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
+import { ShareTutorialModal } from "./shareTutorialModal";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -67,39 +68,42 @@ export function RecipeCreatingView() {
   };
 
   return (
-    <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
-        <Dialog.Content
-          data-tour="create-recipe"
-          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
-        >
-          <div className="p-5">
-            <Dialog.Title className="text-xl font-bold">
-              레시피 만들기
-            </Dialog.Title>
-          </div>
+    <>
+      <ShareTutorialModal />
+      <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
+          <Dialog.Content
+            data-tour="create-recipe"
+            className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
+          >
+            <div className="p-5">
+              <Dialog.Title className="text-xl font-bold">
+                레시피 만들기
+              </Dialog.Title>
+            </div>
 
-          <div className="px-4 pb-5">
-            <FormInput
-              value={url}
-              onChange={handleUrlChange}
-              isError={isError()}
-              errorMessage="유튜브 링크를 입력해주세요."
-            />
-          </div>
+            <div className="px-4 pb-5">
+              <FormInput
+                value={url}
+                onChange={handleUrlChange}
+                isError={isError()}
+                errorMessage="유튜브 링크를 입력해주세요."
+              />
+            </div>
 
-          {/* Submit Button */}
-          <div className="p-3">
-            <FormButton
-              onSubmit={handleSubmit}
-              label="완료"
-              isSubmittable={isSubmittable()}
-              isLoading={isLoading}
-            />
-          </div>
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+            {/* Submit Button */}
+            <div className="p-3">
+              <FormButton
+                onSubmit={handleSubmit}
+                label="완료"
+                isSubmittable={isSubmittable()}
+                isLoading={isLoading}
+              />
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+    </>
   );
 }

@@ -3,13 +3,15 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+
 declare module "axios" {
   export interface AxiosRequestConfig {
     isSecondRequest?: boolean;
   }
 }
 
-const BASE_URL = "https://api.cheftories.com/api/v1";
+// const BASE_URL = "https://api.cheftories.com/api/v1";
 
 const client = axios.create({
   baseURL: BASE_URL,

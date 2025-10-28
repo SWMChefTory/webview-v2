@@ -3,13 +3,12 @@ import { CgProfile } from "react-icons/cg";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdArrowBack, IoMdClose } from "react-icons/io";
 
-
 const Header = ({
   leftContent,
   centerContent,
   rightContent,
   color,
-  fixed = true, // ★ 추가: 고정 여부 (기본값 고정)
+  fixed = true,
   className = "",
 }: {
   leftContent?: React.ReactNode;
@@ -19,46 +18,40 @@ const Header = ({
   fixed?: boolean;
   className?: string;
 }) => {
-  const Wrapper: React.ElementType = fixed ? "header" : "div";
-  const fixedCls = fixed ? "fixed top-0 left-0 right-0" : "relative";
-  const zCls = fixed ? "z-[1000]" : ""; // z-1 → 잘못된 클래스. 필요 시 정수 지정.
-
   return (
     <div className={className}>
-      <Wrapper className={`${fixedCls} ${zCls} ${color || ""}`}>
-        {fixed && <div className="pt-safe" />} {/* 고정일 때만 safe-area */}
-        <div className="flex relative items-center py-2 px-2 h-[44px]">
-          {" "}
-          {/* h-[44] → h-[44px] */}
-          {leftContent && (
-            <div className="absolute flex pl-2 h-full w-full top-0 left-0 items-center pointer-events-auto">
-              {leftContent}
-            </div>
-          )}
-          {centerContent && (
-            <div className="flex items-center w-full pointer-events-none">
-              <HeaderCenterItem>{centerContent}</HeaderCenterItem>
-            </div>
-          )}
-          {rightContent && (
-            <div className="absolute pr-2 h-full w-full top-0 right-0 flex justify-end items-center pointer-events-auto">
-              {rightContent}
-            </div>
-          )}
-        </div>
-      </Wrapper>
-
-      {/* 고정 모드에서만 spacer 렌더 */}
-      {fixed && <HeaderSpacing />}
+      <div
+        className={`flex fixed top-0 left-0 right-0  items-center py-2 px-2 h-[44px] z-40 ${
+          color || "bg-transparent"
+        }`}
+      >
+        {" "}
+        {/* h-[44] → h-[44px] */}
+        {leftContent && (
+          <div className="absolute flex pl-2 h-full w-full top-0 left-0 items-center pointer-events-auto">
+            {leftContent}
+          </div>
+        )}
+        {centerContent && (
+          <div className="flex items-center w-full pointer-events-none">
+            <HeaderCenterItem>{centerContent}</HeaderCenterItem>
+          </div>
+        )}
+        {rightContent && (
+          <div className="absolute pr-2 h-full w-full top-0 right-0 flex justify-end items-center pointer-events-auto">
+            {rightContent}
+          </div>
+        )}
+      </div>
+      <div className="h-[44px]" />
     </div>
   );
 };
 
+//다른 페이지에서 호환성 때문에 남겨둠. 지워야 함.
 export const HeaderSpacing = () => {
   return (
-    <div className={`pt-safe`}>
       <div className="flex flex-col h-[44px] bg-transparent" />
-    </div>
   );
 };
 
@@ -140,7 +133,6 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
     />
   );
 };
-
 
 export {
   BackButton,

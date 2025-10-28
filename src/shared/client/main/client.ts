@@ -5,6 +5,10 @@ import snakecaseKeys from "snakecase-keys";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
+console.log('🔍 BASE_URL:', BASE_URL)
+console.log('🔍 모든 환경 변수:', process.env)
+
+
 declare module "axios" {
   export interface AxiosRequestConfig {
     isSecondRequest?: boolean;

@@ -9,7 +9,7 @@ declare module "axios" {
   }
 }
 
-const BASE_URL = "https://api.cheftories.com/api/v1";
+const BASE_URL = "https://dev.api.cheftories.com/api/v1";
 
 const client = axios.create({
   baseURL: BASE_URL,
@@ -39,7 +39,7 @@ client.interceptors.request.use(
     const token = getMainAccessToken();
     config.headers.Authorization = `${token}`;
     const data = (() => {
-      if (config.data) {
+      if (config.data) {  
         return snakecaseKeys(config.data, { deep: true });
       }
       return {};

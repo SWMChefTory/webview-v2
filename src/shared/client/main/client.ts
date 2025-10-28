@@ -31,6 +31,16 @@ clientResolvingError.interceptors.request.use(
   }
 );
 
+clientResolvingError.interceptors.response.use(
+  (response) => {
+    response.data = camelcaseKeys(response.data, { deep: true });
+    return response;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 client.interceptors.request.use(
   async (config) => {
     if (typeof window === "undefined") {

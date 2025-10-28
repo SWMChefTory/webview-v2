@@ -1,4 +1,4 @@
-import Header, { BackButton, } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header";
 import { useRouter } from "next/router";
 
 import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
@@ -10,9 +10,16 @@ import {
 import { useState } from "react";
 import PageMovementTemplate from "@/src/shared/ui/page-movement/pageMovement";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 
 export function UserRecipe() {
   const router = useRouter();
+  useSafeArea({
+    top: { color: "#292524", isExists: true },
+    bottom: { color: "#FFFFFF", isExists: true },
+    left: { color: "#FFFFFF", isExists: true },
+    right: { color: "#FFFFFF", isExists: false },
+  });
 
   const [selectedCategoryId, setSelectedCategoryId] = useState<
     string | typeof ALL_RECIPES

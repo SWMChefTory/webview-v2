@@ -24,7 +24,8 @@ import "driver.js/dist/driver.css";
 import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
 import ThemeRecipeSection from "./themeRecipeSection";
 
-import Bowser from 'bowser';
+import Bowser from "bowser";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 
 export const driverObj = driver({
   showProgress: true,
@@ -115,7 +116,6 @@ export const driverObj = driver({
   onDestroyStarted: () => {
     driverObj.destroy();
     useIsInTutorialStore.getState().finishTutorial();
-
   },
 });
 
@@ -125,6 +125,12 @@ function startTheMagicShow() {
 
 function HomePage() {
   const router = useRouter();
+  useSafeArea({
+    top: { color: "#FFFFFF", isExists: true },
+    bottom: { color: "#FFFFFF", isExists: false },
+    left: { color: "#FFFFFF", isExists: true },
+    right: { color: "#FFFFFF", isExists: true },
+  });
   useEffect(() => {
     if (useIsInTutorialStore.getState().isInTutorial) {
       startTheMagicShow();
@@ -146,6 +152,7 @@ function HomePage() {
         }
         color="bg-white"
       />
+      <div className="h-[16px]" />
       <Toaster />
       <div className="h-[40]" />
       <div className="pt-8 px-2">
@@ -156,7 +163,6 @@ function HomePage() {
           </div>
         </Link>
       </div>
-      {/* <button onClick={startTheMagicShow}>Start Magical Tour</button> */}
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
@@ -165,71 +171,30 @@ function HomePage() {
         <TimerSection />
       </HydrationZustand>
       <ThemeRecipeSection />
-      
+
       <HorizontallyLongRecipes />
       <VerticallyLongRecipes />
       <FloatingButton />
-      {/* <div className="fixed bottom-[200] right-[20] bg-red-500">
-        <button
-          onClick={() => {
-            useIsInTutorialStore.getState().startTutorial();
-          }}
-        >
-          Temp
-        </button>
-      </div> */}
-    </div>
-  );
-}
-
-
-const ChromeLogo = () =>{
-  const { scrollY } = useScroll();
-  const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
-  const translateY = useTransform(scrollY, [0, 40], [0, -72]);
-  return (
-    <div>
-      <div className="h-[84]"/>
-      <motion.img
-        src="/logo.png"
-        alt="logo"
-        className="h-[40] w-auto z-1 origin-left"
-        style={{ scale: scale, translateY: translateY, originX: 0 }}
-      />
-    </div>
-  );
-}
-
-
-const SafariLogo = () =>{
-  const { scrollY } = useScroll();
-  const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
-  const translateY = useTransform(scrollY, [0, 40], [0, -52]);
-
-  return (
-    <div className="pl-2 ">
-      <HeaderSpacing />
-      <motion.img
-        src="/logo.png"
-        alt="logo"
-        className="h-[40] w-auto z-1 origin-left"
-        style={{ scale: scale, translateY: translateY, originX: 0 }}
-      />
     </div>
   );
 }
 
 const Logo = () => {
-  const browser = Bowser.getParser(window.navigator.userAgent);
-  const browserName = browser.getBrowserName();
-
-  if (browserName === "Chrome") {
-    return <ChromeLogo />;
-  } else if (browserName === "Safari") {
-    return <SafariLogo />;
-  } else {
-    return <div>Logo</div>;
-  }
+  const { scrollY } = useScroll();
+  const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
+  const translateY = useTransform(scrollY, [0, 40], [0, -64]);
+  return (
+    <div>
+      <div className="h-[84]" />
+      <HeaderSpacing />
+      <motion.img
+        src="/logo.png"
+        alt="logo"
+        className="h-[40] w-auto z-1 origin-left pl-2"
+        style={{ scale: scale, translateY: translateY, originX: 0 }}
+      />
+    </div>
+  );
 };
 
 export default HomePage;

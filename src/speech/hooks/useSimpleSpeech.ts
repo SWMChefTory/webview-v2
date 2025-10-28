@@ -5,7 +5,7 @@ import { getMainAccessToken } from "@/src/shared/client/main/client";
 import type { TenVADInstance } from "ten-vad-lib";
 import { VADInstance, VADModuleLoader } from "ten-vad-lib";
 
-const BASE_API_URL = "https://dev.api.cheftories.com";
+const BASE_API_URL = "https://api.cheftories.com";
 
 const STT_URL =
   BASE_API_URL.replace(/^http/, "ws") + "/api/v1/voice-command/ws";

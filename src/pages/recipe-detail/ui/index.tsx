@@ -5,6 +5,7 @@ import Header, { BackButton } from "@/src/shared/ui/header";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { MeasurementOverlay } from "./MeasurementOverlay";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeleton = () => (
@@ -198,6 +199,7 @@ export const RecipeBottomSheet = ({
   >("summary");
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [measurementOpen, setMeasurementOpen] = useState(false);
 
   const [isMeasured, setIsMeasured] = useState(false);
   const [topPx, setTopPx] = useState<number>(() => collapsedTopPx || 0);
@@ -543,7 +545,7 @@ export const RecipeBottomSheet = ({
                 </div>
                 <button
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm"
-                  onClick={() => window.location.assign("/recipes/measurement")}
+                  onClick={() => setMeasurementOpen(true)}
                 >
                   <span>계량법</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -651,6 +653,12 @@ export const RecipeBottomSheet = ({
           )}
         </div>
       </div>
+
+      {/* Measurement Overlay */}
+      <MeasurementOverlay
+        open={measurementOpen}
+        onOpenChange={setMeasurementOpen}
+      />
     </>
   );
 };

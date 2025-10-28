@@ -11,7 +11,7 @@ const PopularSummaryRecipeResponseSchema = z.object({
   videoId: z.string(),
   videoUrl: z.string(),
   count: z.number(),
-  isViewd: z.boolean(),
+  isViewed: z.boolean(),
   videoType: z.enum(VideoType),
 });
 

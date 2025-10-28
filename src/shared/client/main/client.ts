@@ -3,7 +3,7 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
 declare module "axios" {
   export interface AxiosRequestConfig {

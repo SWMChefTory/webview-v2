@@ -1271,6 +1271,9 @@ function RecipeStep({
   const portraitFixedTop = headerH;
   const portraitProgressTop = headerH + portraitVideoH;
 
+  // 유튜브 플레이어 너비 계산 (orientation에 따라 동적)
+  const playerWidth = isLandscape ? landscapeVideoW : portraitVideoW;
+
   return (
     <>
       <GlobalNoBounce />
@@ -1341,17 +1344,33 @@ function RecipeStep({
           </div>
         )}
 
-        {/* (세로모드 전용) 고정 유튜브 */}
-        {!isLandscape && (
-          <div
-            className="fixed left-0 right-0 z-[920] bg-black"
-            style={{ top: portraitFixedTop }}
-          >
+        {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
+        <div
+          className={
+            isLandscape
+              ? "fixed z-[900] flex items-center justify-center px-2"
+              : "fixed left-0 right-0 z-[920] bg-black"
+          }
+          style={
+            isLandscape
+              ? {
+                  top: sheetH,
+                  bottom: bottomBarH > 0 ? bottomBarH : 0,
+                  left: 0,
+                  right: rightColBox.width > 0 ? rightColBox.width : "30%",
+                  width: "70%",
+                }
+              : {
+                  top: portraitFixedTop,
+                }
+          }
+        >
+          <div className={isLandscape ? "w-full max-w-full" : ""}>
             <YouTubePlayer
               youtubeEmbedId={videoId}
               title={`${videoTitle} - Step ${currentStep + 1}`}
               autoplay
-              forceWidthPx={portraitVideoW}
+              forceWidthPx={playerWidth}
               initialSeekSeconds={persistRef.current.time}
               resumePlaying={persistRef.current.wasPlaying}
               onPlayerReady={(player) => {
@@ -1363,7 +1382,20 @@ function RecipeStep({
               onStateChange={handleStateChange}
             />
           </div>
-        )}
+          {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 (가로모드) */}
+          {isLandscape && (
+            <div
+              className="absolute inset-0 z-10"
+              style={{
+                pointerEvents: headerState === "expanded" ? "auto" : "none",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleContentClick();
+              }}
+            />
+          )}
+        </div>
 
         {/* 본문 레이아웃: 가로면 2열(7:3 비율), 세로면 1열. 좌우 바운스 방지 위해 overflow-x-hidden */}
         <div
@@ -1381,7 +1413,7 @@ function RecipeStep({
           }}
           onClick={handleContentClick}
         >
-          {/* 좌: 영상 (70%) - 검정 배경 */}
+          {/* 좌: 영상 (70%) - 검정 배경 (가로모드에서만 표시, 실제 영상은 상단 통합 플레이어에서 처리) */}
           <div
             className={
               isLandscape
@@ -1390,39 +1422,7 @@ function RecipeStep({
             }
             onClick={handleContentClick}
           >
-            {/* 가로모드에서만 렌더(세로는 위의 fixed 블록이 담당) */}
-            {isLandscape && (
-              <div className="relative w-full h-full max-w-full flex items-center justify-center px-2">
-                <div className="w-full max-w-full">
-                  <YouTubePlayer
-                    youtubeEmbedId={videoId}
-                    title={`${videoTitle} - Step ${currentStep + 1}`}
-                    autoplay
-                    forceWidthPx={landscapeVideoW}
-                    initialSeekSeconds={persistRef.current.time}
-                    resumePlaying={persistRef.current.wasPlaying}
-                    onPlayerReady={(player) => {
-                      ytRef.current = player;
-                      const d = player.getDuration?.() ?? 0;
-                      if (d > 0) setVideoDuration(d);
-                      setIsInitialized(true);
-                    }}
-                    onStateChange={handleStateChange}
-                  />
-                </div>
-                {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 */}
-                <div
-                  className="absolute inset-0 z-10"
-                  style={{
-                    pointerEvents: headerState === "expanded" ? "auto" : "none",
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleContentClick();
-                  }}
-                />
-              </div>
-            )}
+            {/* 영상은 통합 플레이어에서 처리하므로 여기는 빈 공간 */}
           </div>
 
           {/* 우: 진행바 + 텍스트 (내부 스크롤만 허용, 30%) - 진한 회색 배경 */}

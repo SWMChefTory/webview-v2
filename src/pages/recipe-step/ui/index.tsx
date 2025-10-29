@@ -20,14 +20,14 @@ import React, {
 } from "react";
 
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
+import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
+import { MODE, request } from "@/src/shared/client/native/client";
+import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import Header, { BackButton } from "@/src/shared/ui/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
-import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
-import { request, MODE } from "@/src/shared/client/native/client";
-import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
+import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 
 /* =====================================================================================
    전역: 바운스/풀투리프레시 방지 + 배경/높이/가로 스크롤 고정
@@ -728,9 +728,12 @@ function RecipeStep({
   const dragOriginRef = useRef<"header" | "handle" | null>(null);
   const dragStartYRef = useRef<number | null>(null);
   const draggingRef = useRef(false);
+  const dragStartTimeRef = useRef<number>(0);
 
   const THRESH_MINOR = 24;
   const THRESH_MAJOR = 32;
+  const TAP_THRESHOLD = 10; // 10px 이하 이동시 탭으로 간주
+  const TAP_TIME_THRESHOLD = 300; // 300ms 이하시 탭으로 간주
 
   // 가로모드에서 헤더 외의 영역 클릭 시 헤더를 sheet 상태로 변경
   const handleContentClick = useCallback(() => {
@@ -782,12 +785,32 @@ function RecipeStep({
 
     const startY = dragStartYRef.current ?? ev.clientY;
     const dy = startY - ev.clientY;
+    const deltaTime = Date.now() - dragStartTimeRef.current;
+    const distance = Math.abs(dy);
+
     dragStartYRef.current = null;
+    dragStartTimeRef.current = 0;
 
     const origin = dragOriginRef.current ?? "handle";
     dragOriginRef.current = null;
 
-    setHeaderState((curr) => nextStateByDrag(curr as HeaderState, origin, dy));
+    // 탭으로 감지 (이동 거리가 작고 시간이 짧으면)
+    const isTap = distance < TAP_THRESHOLD && deltaTime < TAP_TIME_THRESHOLD;
+
+    if (isTap) {
+      // 탭일 경우 토글
+      setHeaderState((curr) => {
+        if (curr === "expanded") return "sheet";
+        if (curr === "sheet") return "expanded";
+        if (curr === "hidden") return "sheet";
+        return curr;
+      });
+    } else {
+      // 드래그일 경우 기존 로직
+      setHeaderState((curr) =>
+        nextStateByDrag(curr as HeaderState, origin, dy)
+      );
+    }
 
     window.removeEventListener("pointermove", onPointerMoveHeader as any);
     window.removeEventListener("pointerup", onPointerUpHeader as any);
@@ -801,6 +824,7 @@ function RecipeStep({
       lockScroll();
       dragOriginRef.current = origin;
       dragStartYRef.current = ev.clientY;
+      dragStartTimeRef.current = Date.now();
       (ev.currentTarget as HTMLElement).setPointerCapture?.(ev.pointerId);
       window.addEventListener("pointermove", onPointerMoveHeader as any, {
         passive: true,

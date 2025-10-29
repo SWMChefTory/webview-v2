@@ -1,14 +1,20 @@
+
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { MODE, request } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { useMemo } from "react";
+import { useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 
 export function ShareTutorialModal() {
   const { isTutorialOpen, closeTutorial, openRecipeCreatingView, videoUrl, markTutorialAsSeen } =
     useRecipeCreatingViewOpenStore();
+
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const startYRef = useRef(0);
+  const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
   const { guideVideoSrc, deviceType, deviceStyles } = useMemo(() => {
     if (typeof window === "undefined") {
@@ -16,7 +22,7 @@ export function ShareTutorialModal() {
         guideVideoSrc: "",
         deviceType: "android" as const,
         deviceStyles: {
-          container: "px-2.5 py-5",
+          container: "px-2.5 py-4",
           frame: "rounded-xl bg-gray-900 border-[2px] border-gray-700",
           screen: "rounded-lg",
           reflection: "rounded-t-xl",
@@ -29,10 +35,10 @@ export function ShareTutorialModal() {
 
     if (isIOS) {
       return {
-        guideVideoSrc: "/guilde-ios.mp4",
+        guideVideoSrc: "/guide-ios.mp4",
         deviceType: "ios" as const,
         deviceStyles: {
-          container: "px-3 py-6",
+          container: "px-3 py-4",
           frame: "rounded-[2.5rem] bg-black border-[3px] border-gray-800",
           screen: "rounded-[2rem]",
           reflection: "rounded-t-[2.5rem]",
@@ -44,7 +50,7 @@ export function ShareTutorialModal() {
       guideVideoSrc: "/guide-android.webm",
       deviceType: "android" as const,
       deviceStyles: {
-        container: "px-2.5 py-5",
+        container: "px-2.5 py-4",
         frame: "rounded-xl bg-gray-900 border-[2px] border-gray-700",
         screen: "rounded-lg",
         reflection: "rounded-t-xl",
@@ -82,28 +88,72 @@ export function ShareTutorialModal() {
     }
   };
 
+  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    if (!isTutorialOpen) return;
+    
+    startYRef.current = e.touches[0].clientY;
+    
+    const scrollTop = scrollAreaRef.current?.scrollTop ?? 0;
+    
+    if (scrollTop <= 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
+    if (!isDragging) return;
+    
+    const currentY = e.touches[0].clientY;
+    const deltaY = currentY - startYRef.current;
+    const scrollTop = scrollAreaRef.current?.scrollTop ?? 0;
+
+    if (deltaY > 0 && scrollTop <= 0) {
+      setDragOffset(deltaY);
+      e.preventDefault();
+    } else if (scrollTop > 0) {
+      setIsDragging(false);
+      setDragOffset(0);
+    }
+  };
+
+  const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
+    if (!isDragging) return;
+    
+    const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
+    const threshold = Math.min(240, viewportHeight * 0.25);
+    const shouldClose = dragOffset > threshold;
+    
+    setIsDragging(false);
+    setDragOffset(0);
+    
+    if (shouldClose) {
+      handleClose();
+    }
+  };
+
   return (
     <Dialog.Root open={isTutorialOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1500] animate-in fade-in duration-300" />
         <Dialog.Content
-          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[90vh] flex flex-col shadow-2xl"
+          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[92svh] flex flex-col shadow-2xl"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+          style={{ transform: `translateY(${dragOffset}px)`, transition: isDragging ? "none" : "transform 200ms ease" }}
         >
-          {/* 모달 상단 핸들 바 */}
-          <div className="flex justify-center pt-3 pb-2 flex-shrink-0">
+          <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
           </div>
 
-          {/* 헤더 영역 - 고정 */}
-          <div className="px-6 pt-2 pb-5 border-b border-gray-100 flex-shrink-0 relative">
-            <Dialog.Title className="text-2xl font-bold mb-2 text-gray-900 pr-8">
+          <div className="px-6 pt-1 pb-2 border-b border-gray-100 flex-shrink-0 relative">
+            <Dialog.Title className="text-xl font-bold mb-1 text-gray-900 pr-8">
               레시피 공유하기
             </Dialog.Title>
-            <Dialog.Description className="text-xs text-gray-600 leading-relaxed">
+            <Dialog.Description className="text-xs text-gray-600">
               유튜브에서 레시피 영상을 공유하는 방법을 알려드릴게요
             </Dialog.Description>
             
-            {/* 닫기 버튼 */}
             <Dialog.Close asChild>
               <button
                 onClick={handleClose}
@@ -115,20 +165,19 @@ export function ShareTutorialModal() {
             </Dialog.Close>
           </div>
 
-          {/* 콘텐츠 영역 */}
-          <div className="flex-1 overflow-hidden px-6 py-3 flex items-center justify-center">
-            <div className="space-y-2 w-full">
+          <div 
+            ref={scrollAreaRef} 
+            className="flex-1 overflow-y-auto overflow-x-hidden"
+          >
+            <div className="px-6 py-3 space-y-3">
               {guideVideoSrc && (
                 <div className="flex justify-center">
-                  <div className={`relative max-w-[220px] w-full ${deviceStyles.container}`}>
-                    {/* 휴대폰 외부 프레임 */}
+                  <div className={`relative w-full max-w-[240px] ${deviceStyles.container}`}>
                     <div className={`relative p-1 shadow-2xl ${deviceStyles.frame}`}>
-                      {/* 스피커 (Android) */}
                       {deviceType === "android" && (
                         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gray-800 rounded-full z-10" />
                       )}
 
-                      {/* 화면 영역 */}
                       <div className={`relative overflow-hidden bg-black aspect-[9/19.5] ${deviceStyles.screen}`}>
                         <video
                           src={guideVideoSrc}
@@ -136,19 +185,17 @@ export function ShareTutorialModal() {
                           loop
                           muted
                           playsInline
-                          className="w-full h-full object-contain"
+                          className="absolute inset-0 w-full h-full object-contain"
                         >
                           브라우저가 비디오 태그를 지원하지 않습니다.
                         </video>
                       </div>
 
-                      {/* 홈 인디케이터 (iOS) */}
                       {deviceType === "ios" && (
                         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-32 h-1 bg-white/30 rounded-full" />
                       )}
                     </div>
 
-                    {/* 반사 효과 */}
                     <div className="absolute inset-0 pointer-events-none opacity-10">
                       <div className={`absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white to-transparent ${deviceStyles.reflection}`} />
                     </div>
@@ -156,35 +203,33 @@ export function ShareTutorialModal() {
                 </div>
               )}
               
-              {/* 추가 안내 텍스트 */}
-              <div className="text-center space-y-1 pt-2">
-                <p className="text-xs text-gray-500">
-                  위 영상을 따라 유튜브 앱에서 공유 버튼을 찾아보세요
+              <div className="text-center space-y-2">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  위 영상을 따라 유튜브 앱에서<br />
+                  공유 버튼을 찾아보세요
                 </p>
               </div>
             </div>
           </div>
 
-          {/* 하단 버튼 영역 */}
-          <div className="px-6 pt-5 pb-6 pb-safe border-t border-gray-100 bg-white flex-shrink-0 space-y-3">
+          <div className="px-6 pt-3 pb-4 pb-safe border-t border-gray-100 bg-white flex-shrink-0 space-y-2">
             <Button
               onClick={handleOpenYouTube}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200"
             >
               공유하러 가기
             </Button>
             <Button
               onClick={handleDirectInput}
               variant="outline"
-              className="w-full border-2 border-gray-200 text-gray-700 font-semibold py-4 rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200"
+              className="w-full border-2 border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200"
             >
               직접 입력하기
             </Button>
             
-            {/* 다시 보지 않기 버튼 */}
             <button
               onClick={handleDontShowAgain}
-              className="w-full text-xs text-gray-400 text-center py-3 hover:text-gray-600 active:text-gray-700 transition-colors font-medium"
+              className="w-full text-xs text-gray-400 text-center py-1 hover:text-gray-600 active:text-gray-700 transition-colors font-medium"
             >
               다시 보지 않기
             </button>
@@ -194,4 +239,3 @@ export function ShareTutorialModal() {
     </Dialog.Root>
   );
 }
-

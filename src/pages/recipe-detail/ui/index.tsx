@@ -1,12 +1,12 @@
 // src/pages/recipe-detail/ui/index.tsx
 import { Skeleton } from "@/components/ui/skeleton";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import Header, { BackButton } from "@/src/shared/ui/header";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MeasurementOverlay } from "./MeasurementOverlay";
-import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeleton = () => (
@@ -342,7 +342,12 @@ export const RecipeBottomSheet = ({
                     active ? "text-neutral-900" : "text-gray-400",
                     "relative",
                   ].join(" ")}
-                  onClick={() => setActiveTab(tab)}
+                  onClick={() => {
+                    setActiveTab(tab);
+                    if (tab === "recipe") {
+                      setExpanded(new Set(steps.map((_, idx) => idx)));
+                    }
+                  }}
                 >
                   {tab === "summary"
                     ? "요약"

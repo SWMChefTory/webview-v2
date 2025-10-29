@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function middleware(request) {
   // 1초 지연
-  await new Promise((resolve) => setTimeout(resolve, 6000));
+//   await new Promise((resolve) => setTimeout(resolve, 6000));
   return NextResponse.next();
 }
 

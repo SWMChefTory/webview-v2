@@ -1300,14 +1300,20 @@ function RecipeStep({
             fixed={!isLandscape}
             color="bg-black/80 backdrop-blur-sm border-b border-white/10"
             leftContent={
-              <BackButton
-                onClick={() => {
-                  // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
-                  handleLockOrientation();
-                  setShouldGoBack(true);
-                }}
-                color="text-white"
-              />
+              <div
+                className={
+                  orientation === "landscape-left" ? "ml-8" : undefined
+                }
+              >
+                <BackButton
+                  onClick={() => {
+                    // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
+                    handleLockOrientation();
+                    setShouldGoBack(true);
+                  }}
+                  color="text-white"
+                />
+              </div>
             }
             centerContent={
               <div

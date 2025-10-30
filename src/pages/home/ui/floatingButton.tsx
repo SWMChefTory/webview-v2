@@ -3,8 +3,8 @@ import { FaPlus } from "react-icons/fa6";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { driverObj } from ".";
-import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
+import { driverObj } from "@/src/features/tutorial/tutorial";
+import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 
 export const FloatingButton = () => {
   const { open } = useRecipeCreatingViewOpenStore();

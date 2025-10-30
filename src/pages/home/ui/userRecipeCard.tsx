@@ -26,8 +26,8 @@ import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
-import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
-import { driverObj } from ".";
+import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
+import { driverObj } from "@/src/features/tutorial/tutorial";
 import { useEffect } from "react";
 
 export const UserRecipeCardReady = ({

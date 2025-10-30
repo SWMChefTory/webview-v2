@@ -601,10 +601,14 @@ export const RecipeBottomSheet = ({
                         >
                           {ing.name}
                         </span>
-                        {(ing.amount ?? 0) > 0 && (
+                        {(ing.amount ?? 0) > 0 ? (
                           <span className="text-sm text-gray-600">
                             {ing.amount}
                             {ing.unit ?? ""}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-gray-600">
+                            (영상 참고)
                           </span>
                         )}
 

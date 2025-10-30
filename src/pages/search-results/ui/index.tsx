@@ -9,16 +9,25 @@ import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
-import { RecipeCreateDialog } from "@/src/widgets/recipe-search-view";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export function SearchResultsSkeleton() {
   return (
-    <div className="flex flex-col w-full min-h-screen bg-white">
-      <div className="px-4 py-4">
-        <TextSkeleton fontSize="text-xl" />
+    <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
+      <div className="px-4 py-6">
+        <TextSkeleton fontSize="text-2xl" />
       </div>
-      <div className="px-4 pb-4">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="px-4 pb-6">
+        <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <RecipeSearchedCardSkeleton key={index} />
           ))}
@@ -63,28 +72,30 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
   if (searchResults.length === 0) {
     return (
       <div className="flex flex-col w-full h-full items-center justify-center py-16 px-4">
-        <div className="w-24 h-24 mb-6 opacity-60">
+        <div className="w-32 h-32 mb-8 opacity-60">
           <img src="/empty_state.png" alt="검색 결과 없음" className="w-full h-full object-contain" />
         </div>
-        <div className="text-center space-y-2">
-          <h3 className="font-bold text-lg text-gray-900">검색 결과가 없어요</h3>
-          <p className="text-sm text-gray-600">다른 검색어를 시도해보세요</p>
+        <div className="text-center space-y-3">
+          <h3 className="font-bold text-xl text-gray-900">검색어에 해당하는 레시피가 없어요</h3>
+          <p className="text-sm text-gray-600">다른 검색어로 시도해보세요</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col w-full min-h-screen bg-white">
-      <div className="px-4 py-4 border-b border-gray-100">
+    <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
+      {/* 검색 결과 헤더 */}
+      <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-xl font-bold text-gray-900 truncate">{keyword}</h1>
-          <span className="text-base font-medium text-gray-600 shrink-0">검색결과</span>
+          <h1 className="text-2xl font-bold text-gray-900 truncate">{keyword}</h1>
+          <span className="text-lg font-medium text-gray-600 shrink-0">에 대한 검색결과</span>
         </div>
       </div>
 
-      <div className="px-4 py-4">
-        <div className="grid grid-cols-2 gap-3">
+      {/* 검색 결과 그리드 */}
+      <div className="px-4 pb-6">
+        <div className="grid grid-cols-2 gap-4">
           {searchResults.map((recipe) => (
             <RecipeSearchedCardReady
               key={recipe.recipeId}
@@ -98,7 +109,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
             </>
           )}
         </div>
-        <div ref={loadMoreRef} className="h-10" />
+        <div ref={loadMoreRef} className="h-20" />
       </div>
     </div>
   );
@@ -118,44 +129,40 @@ const RecipeSearchedCardReady = ({
     setIsOpen(true);
   };
 
-  const handleConfirm = async () => {
-    await create({ youtubeUrl: `https://www.youtube.com/watch?v=${searchResults.videoInfo.videoId}` });
-    router.push(`/recipe/${searchResults.recipeId}/detail`);
-    setIsOpen(false);
-  };
-
   return (
-    <>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <article 
-        className="w-full cursor-pointer"
+        className="w-full group cursor-pointer"
         onClick={handleCardClick}
       >
-        <div className="relative overflow-hidden rounded-lg">
+        <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
           <ThumbnailReady imgUrl={searchResults.videoInfo.videoThumbnailUrl} />
         </div>
 
-        <div className="mt-2 space-y-1.5">
-          <h3 className="text-sm font-bold text-gray-900 line-clamp-2 leading-tight">
+        <div className="mt-3 space-y-2.5">
+          <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
             {searchResults.recipeTitle}
           </h3>
 
-          <div className="flex items-center gap-2 text-xs text-gray-600">
-            {detailMeta?.servings && (
-              <div className="flex items-center gap-1">
-                <BsPeople size={12} className="shrink-0" />
-                <span>{detailMeta.servings}인분</span>
-              </div>
-            )}
-            {detailMeta?.cookingTime && (
-              <div className="flex items-center gap-1">
-                <FaRegClock size={12} className="shrink-0" />
-                <span>{detailMeta.cookingTime}분</span>
-              </div>
-            )}
-          </div>
+          {(detailMeta?.servings || detailMeta?.cookingTime) && (
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              {detailMeta?.servings && (
+                <div className="flex items-center gap-1.5">
+                  <BsPeople size={14} className="shrink-0" />
+                  <span className="font-medium">{detailMeta.servings}인분</span>
+                </div>
+              )}
+              {detailMeta?.cookingTime && (
+                <div className="flex items-center gap-1.5">
+                  <FaRegClock size={14} className="shrink-0" />
+                  <span className="font-medium">{detailMeta.cookingTime}분</span>
+                </div>
+              )}
+            </div>
+          )}
 
           {tags && tags.length > 0 && (
-            <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {tags.slice(0, 3).map((tag, index) => (
                 <span key={index} className="text-xs font-semibold text-orange-600 whitespace-nowrap">
                   #{tag.name}
@@ -165,41 +172,61 @@ const RecipeSearchedCardReady = ({
           )}
 
           {detailMeta?.description && (
-            <p className="text-xs text-gray-600 line-clamp-2 leading-snug">
+            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
               {detailMeta.description}
             </p>
           )}
         </div>
       </article>
-      <RecipeCreateDialog
-        isOpen={isOpen}
-        onOpenChange={setIsOpen}
-        recipeTitle={searchResults.recipeTitle}
-        onConfirm={handleConfirm}
-      />
-    </>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">레시피 생성</DialogTitle>
+        </DialogHeader>
+        <DialogDescription>
+          <div className="text-lg text-gray-400">
+            <span className="text-black font-bold">{searchResults.recipeTitle}</span>{" "}
+            레시피를 생성하시겠어요?
+          </div>
+        </DialogDescription>
+        <DialogFooter className="flex flex-row justify-center gap-2">
+          <DialogClose asChild>
+            <Button variant="outline" className="flex-1">
+              취소
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              onClick={async () => {
+                await create({ youtubeUrl: `https://www.youtube.com/watch?v=${searchResults.videoInfo.videoId}` });
+                router.push(`/recipe/${searchResults.recipeId}/detail`);
+                setIsOpen(false);
+              }}
+              className="flex-1"
+            >
+              생성
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 };
 
 const RecipeSearchedCardSkeleton = () => {
   return (
     <div className="w-full">
-      <div className="rounded-lg overflow-hidden">
+      <div className="rounded-xl overflow-hidden">
         <ThumbnailSkeleton />
       </div>
-      <div className="mt-2 space-y-1.5">
-        <div className="space-y-1">
+      <div className="mt-3 space-y-2.5">
+        <TextSkeleton fontSize="text-base" />
+        <div className="flex gap-3">
           <TextSkeleton fontSize="text-sm" />
           <TextSkeleton fontSize="text-sm" />
         </div>
-        <TextSkeleton fontSize="text-xs" />
-        <TextSkeleton fontSize="text-xs" />
-        <div className="space-y-1">
-          <TextSkeleton fontSize="text-xs" />
-          <TextSkeleton fontSize="text-xs" />
-        </div>
+        <TextSkeleton fontSize="text-sm" />
+        <TextSkeleton fontSize="text-sm" />
       </div>
     </div>
   );
 };
-

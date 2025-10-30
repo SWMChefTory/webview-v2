@@ -16,7 +16,7 @@ import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { VerticallyLongRecipes } from "./vericallyLongRecipes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import React from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -24,7 +24,6 @@ import "driver.js/dist/driver.css";
 import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
 import ThemeRecipeSection from "./themeRecipeSection";
 
-import Bowser from "bowser";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 
 export const driverObj = driver({
@@ -182,19 +181,22 @@ const Logo = () => {
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
   const translateY = useTransform(scrollY, [0, 40], [0, -64]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(()=>{
-    scrollY.set(window.scrollY);
+    setIsInitialized(true);
   }, [])
 
   return (
       <motion.div style={{ translateY: translateY }} className="relative w-full h-[168]">
-        <motion.img
-          src="/logo.png"
-          alt="logo"
-          className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
-          style={{ scale: scale, originX: 0 }}
-        />
+        {isInitialized && (
+          <motion.img
+            src="/logo.png"
+            alt="logo"
+            className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
+            style={{ scale: scale, originX: 0 }}
+          />
+        )}
       </motion.div>
   );
 };

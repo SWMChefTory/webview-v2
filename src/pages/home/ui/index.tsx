@@ -16,7 +16,7 @@ import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { VerticallyLongRecipes } from "./vericallyLongRecipes";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import React from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -79,7 +79,7 @@ export const driverObj = driver({
       element: "[data-tour='floating-button']",
       popover: {
         title: "레시피 추가하기",
-        description: "이 버튼을 눌러 유튜브 레시피를 추가할 수 있어요",
+        description: "이 버튼을 누르면 레시피를 추가할 수 있어요.",
         side: "top",
         align: "center",
         showButtons: ["close"],
@@ -162,9 +162,9 @@ function HomePage() {
           </div>
         </Link>
       </div>
-      <SSRSuspense fallback={<MyRecipesSkeleton />}>
+      <Suspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
-      </SSRSuspense>
+      </Suspense>
       <div className="h-4"></div>
       <HydrationZustand>
         <TimerSection />
@@ -177,36 +177,48 @@ function HomePage() {
   );
 }
 
+// let beforeScrollY = 0;
+
 const Logo = () => {
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
   const translateY = useTransform(scrollY, [0, 40], [0, -64]);
-  const [isInitialized, setIsInitialized] = useState(false);
+  // const [isInitialized, setIsInitialized] = useState(false);
   // const y = useMotionValue(0);
 
-  useEffect(()=>{
-    setIsInitialized(true);
-    // scrollY.set(y.get());
-    scrollY.set(window.scrollY);
-    console.log("!!!!! get",scrollY.get());
-    console.log("!!!!! scroll",window.scrollY);
-    return () => {
-      // y.set(scrollY.get());
-      console.log("!!!!!",scrollY.get());
-    }
-  }, []);
+  // useEffect(()=>{
+  //   setIsInitialized(true);
+  //   scrollY.set(y.get());
+  //   scrollY.set(beforeScrollY);
+  //   console.log("!!!!! get",scrollY.get());
+  //   console.log("!!!!! scroll",window.scrollY);
+  //   console.log("!!!!! beforeScrollY",beforeScrollY);
+  //   return () => {
+  //     beforeScrollY = window.scrollY;
+  //     console.log("!!!!! beforeScrollY",beforeScrollY);
+  //   }
+  // }, []);
 
   return (
-      <motion.div style={{ translateY: translateY }} className="relative w-full h-[168]">
-        {isInitialized && (
+    <motion.div
+      style={{ translateY: translateY }}
+      className="relative w-full h-[168]"
+    >
+      {/* {isInitialized && (
           <motion.img
             src="/logo.png"
             alt="logo"
             className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
             style={{ scale: scale, originX: 0 }}
           />
-        )}
-      </motion.div>
+        )} */}
+      <motion.img
+        src="/logo.png"
+        alt="logo"
+        className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
+        style={{ scale: scale, originX: 0 }}
+      />
+    </motion.div>
   );
 };
 

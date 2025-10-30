@@ -185,6 +185,7 @@ const Logo = () => {
 
   useEffect(()=>{
     setIsInitialized(true);
+    scrollY.set(window.scrollY);
   }, [])
 
   return (

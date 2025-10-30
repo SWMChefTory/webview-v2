@@ -1,6 +1,6 @@
 import { HorizontallyLongRecipes } from "@/src/pages/home/ui/horizontalyLongRecipes";
 import Header, { HeaderSpacing, ProfileButton } from "@/src/shared/ui/header";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useMotionValue, useScroll, useTransform } from "framer-motion";
 import { FloatingButton } from "@/src/pages/home/ui/floatingButton";
 import { Toaster } from "@/components/ui/sonner";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -16,7 +16,7 @@ import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { VerticallyLongRecipes } from "./vericallyLongRecipes";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { driver } from "driver.js";
 import "driver.js/dist/driver.css";
@@ -182,12 +182,19 @@ const Logo = () => {
   const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
   const translateY = useTransform(scrollY, [0, 40], [0, -64]);
   const [isInitialized, setIsInitialized] = useState(false);
+  // const y = useMotionValue(0);
 
   useEffect(()=>{
     setIsInitialized(true);
-    console.log(window.scrollY);
+    // scrollY.set(y.get());
     scrollY.set(window.scrollY);
-  }, [])
+    console.log("!!!!! get",scrollY.get());
+    console.log("!!!!! scroll",window.scrollY);
+    return () => {
+      // y.set(scrollY.get());
+      console.log("!!!!!",scrollY.get());
+    }
+  }, []);
 
   return (
       <motion.div style={{ translateY: translateY }} className="relative w-full h-[168]">

@@ -1,5 +1,9 @@
 function TopSafeArea() {
-  return <div style={{backgroundColor: "red", height: "env(safe-area-inset-top)" }}></div>;
+  return (
+    <div
+      style={{ backgroundColor: "red", height: "env(safe-area-inset-top)" }}
+    ></div>
+  );
 }
 
 function BottomSafeArea() {
@@ -27,3 +31,4 @@ export function SafeArea({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+

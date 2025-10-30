@@ -91,8 +91,6 @@ export function RecipeCreatingView() {
                 errorMessage="유튜브 링크를 입력해주세요."
               />
             </div>
-
-            {/* Submit Button */}
             <div className="p-3">
               <FormButton
                 onSubmit={handleSubmit}

@@ -10,9 +10,9 @@ const userSchema = z.object({
     gender: z.enum(Gender).nullable().optional(),
     nickname: z.string(),
     dateOfBirth: z.string().nullable().optional(),
-    marketingAgreedAt: z.string().optional(),
-    termsOfUseAgreedAt: z.string().optional(),
-    privacyAgreedAt: z.string().optional(),
+    marketingAgreedAt: z.string().nullable(),
+    termsOfUseAgreedAt: z.string(),
+    privacyAgreedAt: z.string(),
 });
 
 export type UserResponse = z.infer<typeof userSchema>;

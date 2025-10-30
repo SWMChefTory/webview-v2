@@ -171,7 +171,6 @@ function HomePage() {
         <TimerSection />
       </HydrationZustand>
       <ThemeRecipeSection />
-
       <HorizontallyLongRecipes />
       <VerticallyLongRecipes />
       <FloatingButton />
@@ -183,17 +182,20 @@ const Logo = () => {
   const { scrollY } = useScroll();
   const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
   const translateY = useTransform(scrollY, [0, 40], [0, -64]);
+
+  useEffect(()=>{
+    scrollY.set(window.scrollY);
+  }, [])
+
   return (
-    <div>
-      <div className="h-[84]" />
-      <HeaderSpacing />
-      <motion.img
-        src="/logo.png"
-        alt="logo"
-        className="h-[40] w-auto z-1 origin-left pl-2"
-        style={{ scale: scale, translateY: translateY, originX: 0 }}
-      />
-    </div>
+      <motion.div style={{ translateY: translateY }} className="relative w-full h-[168]">
+        <motion.img
+          src="/logo.png"
+          alt="logo"
+          className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
+          style={{ scale: scale, originX: 0 }}
+        />
+      </motion.div>
   );
 };
 

@@ -210,6 +210,7 @@ export const RecipeBottomSheet = ({
 
   const [isMeasured, setIsMeasured] = useState(false);
   const [topPx, setTopPx] = useState<number>(() => collapsedTopPx || 0);
+  const contentRef = useRef<HTMLDivElement | null>(null);
 
   const dragging = useRef(false);
   const dragStartY = useRef(0);
@@ -344,6 +345,7 @@ export const RecipeBottomSheet = ({
                   ].join(" ")}
                   onClick={() => {
                     setActiveTab(tab);
+                    contentRef.current?.scrollTo({ top: 0, behavior: "auto" });
                     if (tab === "recipe") {
                       setExpanded(new Set(steps.map((_, idx) => idx)));
                     }
@@ -364,7 +366,7 @@ export const RecipeBottomSheet = ({
         </div>
 
         {/* content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div ref={contentRef} className="flex-1 overflow-y-auto p-4">
           {activeTab === "summary" && (
             <div className="flex flex-col gap-4">
               <div className="flex items-center gap-2 p-2 rounded-lg border border-orange-200 bg-orange-50 text-sm text-gray-500">
@@ -665,6 +667,7 @@ export const RecipeBottomSheet = ({
                     if (!allSel) return;
                     setSelected(new Set());
                     setActiveTab("summary");
+                    contentRef.current?.scrollTo({ top: 0, behavior: "auto" });
                     setTopPx(minCollapseTop);
                   }}
                   disabled={!allSel}

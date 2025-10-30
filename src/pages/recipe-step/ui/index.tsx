@@ -675,6 +675,7 @@ function RecipeStep({
 
   const [isRotating, setIsRotating] = useState(false);
   const rotateTimerRef = useRef<number | null>(null);
+  const kwsDeactivateTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const onOC = () => {
@@ -688,6 +689,15 @@ function RecipeStep({
     return () => {
       window.removeEventListener("orientationchange", onOC);
       if (rotateTimerRef.current) window.clearTimeout(rotateTimerRef.current);
+    };
+  }, []);
+
+  // KWS 비활성화 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (kwsDeactivateTimerRef.current) {
+        window.clearTimeout(kwsDeactivateTimerRef.current);
+      }
     };
   }, []);
 
@@ -1064,6 +1074,21 @@ function RecipeStep({
 
   useSimpleSpeech({
     recipeId: router.query.id as string,
+    onVoiceStart: () => {
+      // 기존 비활성화 타이머가 있으면 취소
+      if (kwsDeactivateTimerRef.current) {
+        window.clearTimeout(kwsDeactivateTimerRef.current);
+        kwsDeactivateTimerRef.current = null;
+      }
+      setIsKwsActiveUI(true);
+    },
+    onVoiceEnd: () => {
+      // VAD 종료 1초 후에 UI 효과 비활성화
+      kwsDeactivateTimerRef.current = window.setTimeout(() => {
+        setIsKwsActiveUI(false);
+        kwsDeactivateTimerRef.current = null;
+      }, 1000);
+    },
     onIntent: (intent: any) => {
       const now = Date.now();
       const parsedIntent = parseIntent(intent?.base_intent || intent);
@@ -1563,7 +1588,12 @@ function RecipeStep({
               </div>
 
               <button
-                className="relative flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 p-2 shadow-[0_2px_16px_rgba(0,0,0,0.32)] transition active:scale-95"
+                className={[
+                  "relative flex h-14 w-14 items-center justify-center rounded-full p-2 transition active:scale-95",
+                  isKwsActiveUI
+                    ? "bg-orange-500 shadow-[0_2px_24px_rgba(251,146,60,0.8)]"
+                    : "bg-orange-500 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
+                ].join(" ")}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowVoiceGuide(true);
@@ -1573,11 +1603,45 @@ function RecipeStep({
                 type="button"
                 title="음성 명령 가이드"
               >
-                <img
-                  src="/tori-idle.png"
-                  alt="토리"
-                  className="h-8 w-8 object-contain"
-                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-8 w-8"
+                >
+                  <path d="M12 1a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+                {isKwsActiveUI &&
+                  (console.log("isKwsActiveUI", isKwsActiveUI),
+                  (
+                    <>
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
+                      <style jsx>{`
+                        @keyframes listening {
+                          0% {
+                            transform: scale(1);
+                            opacity: 0.8;
+                          }
+                          70% {
+                            transform: scale(1.8);
+                            opacity: 0.2;
+                          }
+                          100% {
+                            transform: scale(2.2);
+                            opacity: 0;
+                          }
+                        }
+                      `}</style>
+                    </>
+                  ))}
               </button>
             </div>
 
@@ -1668,7 +1732,12 @@ function RecipeStep({
               </div>
 
               <button
-                className="relative flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-orange-500 p-2 shadow-[0_2px_16px_rgba(0,0,0,0.32)] transition active:scale-95"
+                className={[
+                  "relative flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full p-2 transition active:scale-95",
+                  isKwsActiveUI
+                    ? "bg-orange-500 shadow-[0_2px_24px_rgba(251,146,60,0.8)]"
+                    : "bg-orange-500 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
+                ].join(" ")}
                 onClick={(e) => {
                   e.stopPropagation();
                   setShowVoiceGuide(true);
@@ -1676,11 +1745,45 @@ function RecipeStep({
                 aria-label="음성 명령 가이드"
                 type="button"
               >
-                <img
-                  src="/tori-idle.png"
-                  alt="토리"
-                  className="h-8 w-8 object-contain"
-                />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-8 w-8"
+                >
+                  <path d="M12 1a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+                {isKwsActiveUI &&
+                  (console.log("isKwsActiveUI", isKwsActiveUI),
+                  (
+                    <>
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
+                      <style jsx>{`
+                        @keyframes listening {
+                          0% {
+                            transform: scale(1);
+                            opacity: 0.8;
+                          }
+                          70% {
+                            transform: scale(1.8);
+                            opacity: 0.2;
+                          }
+                          100% {
+                            transform: scale(2.2);
+                            opacity: 0;
+                          }
+                        }
+                      `}</style>
+                    </>
+                  ))}
               </button>
             </div>
 

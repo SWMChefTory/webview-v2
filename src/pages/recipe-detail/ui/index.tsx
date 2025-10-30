@@ -666,7 +666,7 @@ export const RecipeBottomSheet = ({
                   onClick={() => {
                     if (!allSel) return;
                     setSelected(new Set());
-                    setActiveTab("summary");
+                    setActiveTab("recipe");
                     contentRef.current?.scrollTo({ top: 0, behavior: "auto" });
                     setTopPx(minCollapseTop);
                   }}

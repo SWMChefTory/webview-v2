@@ -189,7 +189,7 @@ export const RecipeBottomSheet = ({
   tags = [],
   briefings = [],
   collapsedTopPx,
-  expandedTopPx, // ⬅️ 추가
+  expandedTopPx,
 }: {
   steps: RecipeStep[];
   ingredients: Ingredient[];
@@ -199,7 +199,7 @@ export const RecipeBottomSheet = ({
   tags?: RecipeTag[];
   briefings?: RecipeBriefing[];
   collapsedTopPx: number;
-  expandedTopPx: number; // ⬅️ 추가
+  expandedTopPx: number;
 }) => {
   const [activeTab, setActiveTab] = useState<
     "summary" | "recipe" | "ingredients"
@@ -573,38 +573,54 @@ export const RecipeBottomSheet = ({
               <div className="grid grid-cols-3 gap-2">
                 {ingredients.map((ing, i) => {
                   const isSel = selected.has(i);
+                  const isFirst = i === 0;
+                  const showTooltip = isFirst && selected.size === 0;
+
                   return (
-                    <button
-                      key={i}
-                      className={[
-                        "aspect-square min-w-20 border rounded-md px-3 py-3 flex flex-col items-center justify-center gap-1 transition-all",
-                        isSel
-                          ? "border-orange-500 ring-1 ring-orange-500"
-                          : "border-gray-200",
-                      ].join(" ")}
-                      onClick={() =>
-                        setSelected((prev) => {
-                          const next = new Set(prev);
-                          next.has(i) ? next.delete(i) : next.add(i);
-                          return next;
-                        })
-                      }
-                    >
-                      <span
+                    <div key={i} className="relative">
+                      <button
                         className={[
-                          "text-center font-bold text-base leading-5 break-keep break-words",
-                          isSel ? "text-orange-500" : "text-neutral-900",
+                          "aspect-square min-w-20 w-full border rounded-md px-3 py-3 flex flex-col items-center justify-center gap-1 transition-all relative overflow-visible",
+                          isSel
+                            ? "border-orange-500 ring-1 ring-orange-500"
+                            : "border-gray-200",
                         ].join(" ")}
+                        onClick={() =>
+                          setSelected((prev) => {
+                            const next = new Set(prev);
+                            next.has(i) ? next.delete(i) : next.add(i);
+                            return next;
+                          })
+                        }
                       >
-                        {ing.name}
-                      </span>
-                      {(ing.amount ?? 0) > 0 && (
-                        <span className="text-sm text-gray-600">
-                          {ing.amount}
-                          {ing.unit ?? ""}
+                        <span
+                          className={[
+                            "text-center font-bold text-base leading-5 break-keep break-words",
+                            isSel ? "text-orange-500" : "text-neutral-900",
+                          ].join(" ")}
+                        >
+                          {ing.name}
                         </span>
-                      )}
-                    </button>
+                        {(ing.amount ?? 0) > 0 && (
+                          <span className="text-sm text-gray-600">
+                            {ing.amount}
+                            {ing.unit ?? ""}
+                          </span>
+                        )}
+
+                        {showTooltip && (
+                          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-10 animate-bounce pointer-events-none">
+                            <div className="relative bg-orange-500 text-white px-3 py-1.5 rounded-2xl shadow-md">
+                              <span className="text-xs font-semibold whitespace-nowrap block">
+                                준비한 재료는 터치
+                              </span>
+                              {/* 꼬리 (위로 향함) */}
+                              <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-b-[6px] border-b-orange-500" />
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    </div>
                   );
                 })}
               </div>

@@ -5,10 +5,7 @@ import { getMainAccessToken } from "@/src/shared/client/main/client";
 import type { TenVADInstance } from "ten-vad-lib";
 import { VADInstance, VADModuleLoader } from "ten-vad-lib";
 
-const BASE_API_URL = "https://api.cheftories.com";
-
-const STT_URL =
-  BASE_API_URL.replace(/^http/, "ws") + "/api/v1/voice-command/ws";
+const STT_URL = process.env.NEXT_PUBLIC_STT_URL ?? "";
 const SAMPLE_RATE = 16000;
 const CHUNK_SIZE = 160; // 10ms @ 16kHz
 const BUFFER_CHUNKS = 3; // 30ms 묶음
@@ -141,13 +138,12 @@ export const useSimpleSpeech = ({
           if (j.status === 200 && j.data?.intent) {
             onIntentRef.current?.(j.data.intent);
             // STT 인텐트 로그
-            console.log(
-              `[STT] intent: ${j.data.intent}, raw: ${j.data.base_intent}`
-            );
+            // console.log(`[STT] intent: ${j.data.intent}, raw: ${j.data.base_intent}`);
           }
         } catch {}
       };
-      ws.onerror = () => {
+      ws.onerror = (event) => {
+        console.error("[STT] WebSocket error:", event);
         setError("알 수 없는 오류가 발생했습니다.");
       };
       ws.onclose = (e) => {};
@@ -184,7 +180,7 @@ export const useSimpleSpeech = ({
         const vad = new VADInstance(module, hopSize, voiceThreshold);
         vadInstanceRef.current = vad;
         // 3) 마이크 오픈
-        console.log("[Mic Open]" + navigator.mediaDevices);
+        // console.log("[Mic Open]" + navigator.mediaDevices);
         const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             channelCount: 1,
@@ -228,7 +224,7 @@ export const useSimpleSpeech = ({
               const { probability } = await inst.processFrame(i16);
 
               // VAD 확률 로그
-              console.log("[VAD] probability:", probability.toFixed(3));
+              // console.log("[VAD] probability:", probability.toFixed(3));
 
               // Pre-buffer 관리 (항상 최근 청크들을 보관)
               preBufferRef.current.push(chunkF32.slice()); // 복사본 저장

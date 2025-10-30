@@ -25,6 +25,7 @@ export const useRecipeCreatingViewOpenStore = create<RecipeCreatingViewOpenStore
       hasSeenTutorial: false,
       open: (videoUrl) => {
         // 딥링크로 videoUrl이 있으면 튜토리얼 스킵하고 바로 레시피 만들기 모달 열기
+        //TODO : 자체 스페이싱
         if (videoUrl && videoUrl.trim().length > 0) {
           set({ isOpen: true, videoUrl });
           return;
@@ -32,10 +33,12 @@ export const useRecipeCreatingViewOpenStore = create<RecipeCreatingViewOpenStore
 
         const { hasSeenTutorial } = get();
         // 튜토리얼을 본 적이 없으면 튜토리얼 먼저 표시
+        // 소거
         if (!hasSeenTutorial) {
           set({ isTutorialOpen: true, videoUrl });
         } else {
           // 튜토리얼을 이미 봤으면 바로 레시피 만들기 모달 열기
+          //소거
           set({ isOpen: true, videoUrl });
         }
       },

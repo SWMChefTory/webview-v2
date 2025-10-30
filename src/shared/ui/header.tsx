@@ -25,7 +25,6 @@ const Header = ({
           color || "bg-transparent"
         }`}
       >
-        {" "}
         {/* h-[44] → h-[44px] */}
         {leftContent && (
           <div className="absolute flex pl-2 h-full w-full top-0 left-0 items-center pointer-events-auto">

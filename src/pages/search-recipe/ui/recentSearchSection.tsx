@@ -29,9 +29,9 @@ export const RecentSearchSection = ({
       </div>
 
       {searchHistories.histories.length > 0 ? (
-        <div className="-mx-6 min-h-[52px]">
+        <div className="-mx-4 min-h-[52px]">
           <div
-            className="px-6 py-1 flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory overscroll-x-contain scroll-px-6"
+            className="px-4 py-1 flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory overscroll-x-contain scroll-px-4"
             style={{
               WebkitOverflowScrolling: "touch",
               scrollbarWidth: "none",

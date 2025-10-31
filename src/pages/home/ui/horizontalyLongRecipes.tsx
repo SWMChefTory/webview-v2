@@ -4,13 +4,13 @@ import {
   useFecthPopularRecipe,
   PopularRecipe,
   sortByViewed,
-} from "@/src/entities/popular_recipe/model/usePopularRecipe";
+} from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { AlreadyEnrolledChip } from "./chips";
-import { VideoType } from "../../../entities/popular_recipe/type/videoType";
+import { VideoType } from "../../../entities/popular-recipe/type/videoType";
 import { PopularRecipeCardWrapper } from "./popularRecipeCardDialog";
 
 export function HorizontallyLongRecipes() {

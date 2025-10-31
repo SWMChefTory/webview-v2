@@ -2,7 +2,7 @@ import {
   fetchPopularSummary,
   PopularSummaryRecipe,
   PopularSummaryRecipeResponse,
-} from "@/src/entities/popular_recipe/api/api";
+} from "@/src/entities/popular-recipe/api/api";
 import { QueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { VideoType } from "../type/videoType";
 

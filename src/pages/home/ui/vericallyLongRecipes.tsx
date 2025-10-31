@@ -5,8 +5,8 @@ import {
   PopularRecipe,
   sortByViewed,
   useFecthPopularRecipe,
-} from "@/src/entities/popular_recipe/model/usePopularRecipe";
-import { VideoType } from "../../../entities/popular_recipe/type/videoType";
+} from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { VideoType } from "../../../entities/popular-recipe/type/videoType";
 import { AlreadyEnrolledChip } from "./chips";
 import { PopularRecipeCardWrapper } from "./popularRecipeCardDialog";
 

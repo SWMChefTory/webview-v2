@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PopularRecipe } from "@/src/entities/popular_recipe/model/usePopularRecipe";
+import { PopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useState } from "react";
 import { ThemeRecipe } from "../entities/theme-recipe/type";

@@ -26,7 +26,7 @@ import { UserRecipe } from "@/src/entities/user_recipe/model/schema";
 import {
   patchIsViewedOptimistically,
   rollbackIsViewed,
-} from "../../popular_recipe/model/usePopularRecipe";
+} from "../../popular-recipe/model/usePopularRecipe";
 
 import { useFakeRecipeInCreatingStore } from "@/src/entities/user_recipe/model/fake-recipe-creating/store/useFakeRecipeInCreatingStore";
 

@@ -25,10 +25,12 @@ import ThemeRecipeSection from "./themeRecipeSection";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
 
+import { createPortal } from "react-dom";
+
 function HomePage() {
   const router = useRouter();
   useSafeArea({
-    top: { color: "#FFFFFF", isExists: true },
+    top: { color: "transparent", isExists: true },
     bottom: { color: "#FFFFFF", isExists: false },
     left: { color: "#FFFFFF", isExists: true },
     right: { color: "#FFFFFF", isExists: true },
@@ -40,21 +42,23 @@ function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen w-screen w-full overflow-hidden pb-safe">
-      <Header
-        leftContent={<Logo />}
-        rightContent={
-          <div className="flex flex-row">
-            <ProfileButton
-              onClick={() => {
-                router.push("/user/settings");
-              }}
-            />
-          </div>
-        }
-        color="bg-white"
-      />
-      <div className="h-[16px]" />
+    <div className="min-h-screen w-screen w-full overflow-hidden bg-white">
+      <div className="fixed top-0 left-0 right-0 z-50 h-[100]">
+        <Header
+          leftContent={<Logo />}
+          rightContent={
+            <div className="flex flex-row">
+              <ProfileButton
+                onClick={() => {
+                  router.push("/user/settings");
+                }}
+              />
+            </div>
+          }
+          color="bg-white"
+        />
+      </div>
+      <div className="h-[56px]" />
       <Toaster />
       <div className="h-[40]" />
       <div className="pt-8 px-2">

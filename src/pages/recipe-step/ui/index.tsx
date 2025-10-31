@@ -1368,7 +1368,7 @@ function RecipeStep({
         <div
           className={
             isLandscape
-              ? "fixed z-[900] flex items-center justify-center px-2"
+              ? "fixed z-[900] flex items-start justify-center px-2"
               : "fixed left-0 right-0 z-[920] bg-black"
           }
           style={

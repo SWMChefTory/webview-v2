@@ -1,14 +1,3 @@
-// --- Single-file Step Page (Next.js + Tailwind)
-// Portrait + Landscape (가로모드) 지원 버전
-// - 항상 로컬 STT(Web Speech API) + KWS(ONNX) + VAD 동작
-// - STT 결과가 '토리야'면 KWS 활성화
-// - KWS 활성화 이후 발생한 STT 결과(웨이크워드 제외)를 서버로 전송 + 콘솔 출력
-// - 3초 무음 시 KWS 자동 비활성화
-// - 기존: 현재 단계 최상단 스냅, 부드러운 진행바, 그룹 반복, VoiceGuide 모달 포함
-// - 추가: 가로모드일 때 영상/목록 좌우 분할 레이아웃 + 상단/하단 UI 동작 개선
-// - NEW: 전역 바운스 방지(상하좌우 흰 화면/풀투리프레시 차단)
-// - NEW: 세로모드 스크롤 시 유튜브 고정
-
 import { useRouter } from "next/router";
 import React, {
   useCallback,
@@ -1648,30 +1637,28 @@ function RecipeStep({
                   <line x1="12" y1="19" x2="12" y2="23" />
                   <line x1="8" y1="23" x2="16" y2="23" />
                 </svg>
-                {isKwsActiveUI &&
-                  (console.log("isKwsActiveUI", isKwsActiveUI),
-                  (
-                    <>
-                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
-                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
-                      <style jsx>{`
-                        @keyframes listening {
-                          0% {
-                            transform: scale(1);
-                            opacity: 0.8;
-                          }
-                          70% {
-                            transform: scale(1.8);
-                            opacity: 0.2;
-                          }
-                          100% {
-                            transform: scale(2.2);
-                            opacity: 0;
-                          }
+                {isKwsActiveUI && (
+                  <>
+                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
+                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
+                    <style jsx>{`
+                      @keyframes listening {
+                        0% {
+                          transform: scale(1);
+                          opacity: 0.8;
                         }
-                      `}</style>
-                    </>
-                  ))}
+                        70% {
+                          transform: scale(1.8);
+                          opacity: 0.2;
+                        }
+                        100% {
+                          transform: scale(2.2);
+                          opacity: 0;
+                        }
+                      }
+                    `}</style>
+                  </>
+                )}
               </button>
             </div>
 
@@ -1790,30 +1777,28 @@ function RecipeStep({
                   <line x1="12" y1="19" x2="12" y2="23" />
                   <line x1="8" y1="23" x2="16" y2="23" />
                 </svg>
-                {isKwsActiveUI &&
-                  (console.log("isKwsActiveUI", isKwsActiveUI),
-                  (
-                    <>
-                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
-                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
-                      <style jsx>{`
-                        @keyframes listening {
-                          0% {
-                            transform: scale(1);
-                            opacity: 0.8;
-                          }
-                          70% {
-                            transform: scale(1.8);
-                            opacity: 0.2;
-                          }
-                          100% {
-                            transform: scale(2.2);
-                            opacity: 0;
-                          }
+                {isKwsActiveUI && (
+                  <>
+                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
+                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
+                    <style jsx>{`
+                      @keyframes listening {
+                        0% {
+                          transform: scale(1);
+                          opacity: 0.8;
                         }
-                      `}</style>
-                    </>
-                  ))}
+                        70% {
+                          transform: scale(1.8);
+                          opacity: 0.2;
+                        }
+                        100% {
+                          transform: scale(2.2);
+                          opacity: 0;
+                        }
+                      }
+                    `}</style>
+                  </>
+                )}
               </button>
             </div>
 

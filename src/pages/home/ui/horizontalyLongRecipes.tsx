@@ -52,25 +52,21 @@ function RecipeCardSectionReady() {
   return (
     <>
       {sortedRecipes.map((recipe) => (
-        <PopularRecipeCardWrapper recipe={recipe} key={recipe.recipeId} trigger={<RecipeCardReady recipe={recipe} />} />
+        <PopularRecipeCardWrapper
+          recipe={recipe}
+          key={recipe.recipeId}
+          trigger={<RecipeCardReady recipe={recipe} />}
+        />
       ))}
     </>
   );
 }
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
-  const { create } = useCreateRecipe();
   return (
     <div className="flex flex-col">
       <div className="flex relative flex-col w-[320px]">
-        <div
-          className="h-[180] overflow-hidden rounded-md"
-          onClick={() => {
-            if (!recipe.isViewed) {
-              create({ youtubeUrl: recipe.videoUrl });
-            }
-          }}
-        >
+        <div className="h-[180] overflow-hidden rounded-md">
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
             <AlreadyEnrolledChip isEnrolled={recipe.isViewed} />
           </div>

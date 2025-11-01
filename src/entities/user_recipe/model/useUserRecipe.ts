@@ -19,7 +19,7 @@ import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/model/api
 
 import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "@/src/entities/user_recipe/model/api";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 import { PaginatedRecipes } from "@/src/entities/user_recipe/model/api";
 import { UserRecipe } from "@/src/entities/user_recipe/model/schema";
@@ -29,6 +29,10 @@ import {
 } from "../../popular-recipe/model/usePopularRecipe";
 
 import { useFakeRecipeInCreatingStore } from "@/src/entities/user_recipe/model/fake-recipe-creating/store/useFakeRecipeInCreatingStore";
+import {
+  RecipeCreateToastStatus,
+  useRecipeCreateToastAction,
+} from "./useToast";
 
 export const QUERY_KEY = "categoryRecipes";
 export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
@@ -200,6 +204,7 @@ export function useUpdateCategoryOfRecipe() {
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
   const { handleAddFakeCreating } = useFakeRecipeInCreatingStore();
+  const { handleOpenToast } = useRecipeCreateToastAction();
   const {
     mutate,
     data,
@@ -223,6 +228,9 @@ export function useCreateRecipe() {
       return { recipeId, standardUrl };
     },
     onMutate: async ({ youtubeUrl, recipeId: existingRecipeId }) => {
+      handleOpenToast({
+        toastInfo: { status: RecipeCreateToastStatus.IN_PROGRESS, recipeTitle: "test" },
+      });
       if (!existingRecipeId) {
         return null;
       }
@@ -246,6 +254,12 @@ export function useCreateRecipe() {
       });
     },
     onError: (error, _vars, ctx) => {
+      handleOpenToast({
+        toastInfo: {
+          status: RecipeCreateToastStatus.FAILED,
+          errorMessage: `url 주소 : ${_vars.youtubeUrl} 레시피 생성에 실패했어요`,
+        },
+      });
       if (ctx?.prevList) {
         rollbackIsViewed(queryClient, { prevList: ctx.prevList });
       }
@@ -293,6 +307,7 @@ const createInProress = (
 
 export const useFetchRecipeProgress = (recipeId: string) => {
   const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
+  const { handleOpenToast } = useRecipeCreateToastAction();
   const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -300,74 +315,64 @@ export const useFetchRecipeProgress = (recipeId: string) => {
     select: (data) => RecipeProgressStatus.create(data),
   });
 
+  const [isInProgressBefore, setIsInProgressBefore] = useState<boolean>(false);
+  const [isFakeInProgressBefore, setIsFakeInProgressBefore] = useState<boolean>(false);
+  const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const isInFakeCreating = isInCreatingFake(recipeId);
+
+  console.log("isFakeInProgressBefore!!!!!!!!!", isFakeInProgressBefore);
+
   useEffect(() => {
-    const interval = (() => {
-      if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
-        return setInterval(() => {
-          refetch();
-        }, 1000);
-      }
-    })();
-    if (progress.recipeStatus !== RecipeStatus.IN_PROGRESS) {
-      clearInterval(interval);
+    if(isInFakeCreating) {
+      setIsFakeInProgressBefore(true);
+    }
+    if(isFakeInProgressBefore && !isInFakeCreating) {
+      handleOpenToast({
+        toastInfo: {
+          status: RecipeCreateToastStatus.SUCCESS,
+          recipeId: recipeId,
+          recipeTitle: "test",
+        },
+      });
+    }
+    if (
+      progress.recipeStatus === RecipeStatus.IN_PROGRESS
+    ) {
+      timerRef.current = setInterval(() => {
+        refetch();
+        console.log("refetch");
+      }, 1000);
+      setIsInProgressBefore(true);
+    }
+    if (progress.recipeStatus === RecipeStatus.FAILED) {
+      handleOpenToast({
+        toastInfo: {
+          status: RecipeCreateToastStatus.FAILED,
+          errorMessage: "test",
+        },
+      });
+      clearInterval(timerRef.current);
+      setIsInProgressBefore(false);
+    }
+    if (isInProgressBefore && progress.recipeStatus === RecipeStatus.SUCCESS) {
+      handleOpenToast({
+        toastInfo: {
+          status: RecipeCreateToastStatus.SUCCESS,
+          recipeId: recipeId,
+          recipeTitle: "test",
+        },
+      });
+      clearInterval(timerRef.current);
+      setIsInProgressBefore(false);
     }
     return () => {
-      clearInterval(interval);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     };
-  }, [progress.recipeStatus, refetch]);
+  }, [progress.recipeStatus, isFakeInProgressBefore, isInFakeCreating, recipeId]);
 
   return {
     recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
-  };
-};
-
-export const useFetchRecipeProgressNotSuspense = (recipeId: string) => {
-  const {
-    data: progress,
-    isLoading,
-    isError,
-    refetch,
-  } = useQuery({
-    queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
-    queryFn: () => fetchRecipeProgress(recipeId),
-    staleTime: 5 * 60 * 1000,
-    select: (data) => RecipeProgressStatus.create(data),
-  });
-  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
-  const isCreatingSuccessRef = useRef(false);
-  const queryClient = useQueryClient();
-
-  useEffect(() => {
-    if (!progress) {
-      return;
-    }
-    const interval = (() => {
-      if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
-        return setInterval(() => {
-          refetch();
-          isCreatingSuccessRef.current = true;
-        }, 1000);
-      }
-    })();
-    if (
-      progress.recipeStatus !== RecipeStatus.IN_PROGRESS ||
-      isCreatingSuccessRef.current
-    ) {
-      queryClient.invalidateQueries({
-        queryKey: [ALL_RECIPE_QUERY_KEY],
-      });
-      clearInterval(interval);
-    }
-    return () => {
-      clearInterval(interval);
-    };
-  }, [progress?.recipeStatus, refetch]);
-
-  return {
-    recipeStatus: progress
-      ? createInProress(progress, isInCreatingFake(recipeId))
-      : undefined,
-    isLoading,
-    isError,
   };
 };

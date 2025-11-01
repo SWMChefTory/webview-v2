@@ -2,7 +2,6 @@ import { HorizontallyLongRecipes } from "@/src/pages/home/ui/horizontalyLongReci
 import Header, { ProfileButton } from "@/src/shared/ui/header";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FloatingButton } from "@/src/pages/home/ui/floatingButton";
-import { Toaster } from "@/components/ui/sonner";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import {
   MyRecipesReady,
@@ -24,8 +23,9 @@ import ThemeRecipeSection from "./themeRecipeSection";
 
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
-
-import { createPortal } from "react-dom";
+import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
+import * as Toast from "@radix-ui/react-toast";
+import { RecipeCreateToastStatus, useRecipeCreateToastAction } from "@/src/entities/user_recipe/model/useToast";
 
 function HomePage() {
   const router = useRouter();
@@ -59,11 +59,10 @@ function HomePage() {
         />
       </div>
       <div className="h-[56px]" />
-      <Toaster />
       <div className="h-[40]" />
       <div className="pt-8 px-2">
         <Link href="/search-recipe">
-          <div className="flex flex-row items-center justify-between px-4  w-full h-[36] text-gray-800  bg-gray-100 rounded-lg">
+          <div className="flex flex-row items-center justify-between px-4 w-full h-[36] text-gray-800 bg-gray-100 rounded-lg">
             검색어를 입력해주세요.
             <PiMagnifyingGlassBold size={16} />
           </div>
@@ -72,7 +71,7 @@ function HomePage() {
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
-      <div className="h-4"></div>
+      <div className="h-4" />
       <HydrationZustand>
         <TimerSection />
       </HydrationZustand>
@@ -80,12 +79,13 @@ function HomePage() {
       <HorizontallyLongRecipes />
       <VerticallyLongRecipes />
       <FloatingButton />
-      <div className="h-4" />
+      <RecipeCreateToast>
+        <Toast.Viewport className="fixed right-3 top-2 z-1000 w-[300px]" />
+      </RecipeCreateToast>
+      <div className="h-8" />
     </div>
   );
 }
-
-// let beforeScrollY = 0;
 
 const Logo = () => {
   const { scrollY } = useScroll();

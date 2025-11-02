@@ -23,6 +23,7 @@ import "driver.js/dist/driver.css";
 
 import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
 import ThemeRecipeSection from "./themeRecipeSection";
+import { CategorySection } from "./categorySection";
 
 import Bowser from "bowser";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
@@ -163,6 +164,7 @@ function HomePage() {
           </div>
         </Link>
       </div>
+      <CategorySection />
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
@@ -170,7 +172,6 @@ function HomePage() {
       <HydrationZustand>
         <TimerSection />
       </HydrationZustand>
-      <ThemeRecipeSection />
       <HorizontallyLongRecipes />
       <VerticallyLongRecipes />
       <FloatingButton />

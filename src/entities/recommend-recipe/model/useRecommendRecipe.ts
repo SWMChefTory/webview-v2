@@ -1,16 +1,16 @@
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { fetchRecipesSearched } from "@/src/entities/recipe-searched/api/api";
-export type { Recipe } from "@/src/entities/recipe-searched/api/api";
+import { fetchRecommendRecipes } from "@/src/entities/recommend-recipe/api/api";
+import { RecommendType } from "@/src/entities/category/type/cuisineType";
+export type { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
 
+const RECOMMEND_RECIPE_QUERY_KEY = "RecommendRecipeQueryKey";
 
-const RECIPE_SEARCH_QUERY_KEY = "RecipeSearchQueryKey";
-
-export function useFetchRecipesSearched({ query }: { query: string }) {
+export function useFetchRecommendRecipes({ recommendType }: { recommendType: RecommendType }) {
   const { data: queryData, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useSuspenseInfiniteQuery({
-      queryKey: [RECIPE_SEARCH_QUERY_KEY, query],
+      queryKey: [RECOMMEND_RECIPE_QUERY_KEY, recommendType],
       queryFn: ({ pageParam = 0 }: { pageParam: number }) => {
-        return fetchRecipesSearched({ query: query, page: pageParam });
+        return fetchRecommendRecipes({ recommendType, page: pageParam });
       },
       getNextPageParam: (lastPage) => {
         return lastPage.hasNext ? lastPage.currentPage + 1 : undefined;
@@ -24,3 +24,4 @@ export function useFetchRecipesSearched({ query }: { query: string }) {
     
   return { data, totalElements, hasNextPage, fetchNextPage, isFetchingNextPage };
 }
+

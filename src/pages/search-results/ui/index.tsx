@@ -40,6 +40,7 @@ export function SearchResultsSkeleton() {
 export function SearchResultsContent({ keyword }: { keyword: string }) {
   const {
     data: searchResults,
+    totalElements,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage
@@ -91,6 +92,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
           <h1 className="text-2xl font-bold text-gray-900 truncate">{keyword}</h1>
           <span className="text-lg font-medium text-gray-600 shrink-0">에 대한 검색결과</span>
         </div>
+        <p className="text-sm text-gray-500 mt-2">총 {totalElements}개의 레시피</p>
       </div>
 
       {/* 검색 결과 그리드 */}
@@ -198,7 +200,7 @@ const RecipeSearchedCardReady = ({
             <Button
               onClick={async () => {
                 await create({ youtubeUrl: `https://www.youtube.com/watch?v=${searchResults.videoInfo.videoId}` });
-                router.push(`/recipe/${searchResults.recipeId}/detail`);
+                router.replace(`/recipe/${searchResults.recipeId}/detail`);
                 setIsOpen(false);
               }}
               className="flex-1"

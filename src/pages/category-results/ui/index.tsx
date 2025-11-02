@@ -317,6 +317,7 @@ const RecommendRecipeCardReady = ({
   recipe: RecommendRecipe;
 }) => {
   const router = useRouter();
+  const { detailMeta, tags, isViewed } = recipe;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -331,18 +332,51 @@ const RecommendRecipeCardReady = ({
         onClick={handleCardClick}
       >
         <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
-          <ThumbnailReady imgUrl={recipe.videoThumbnailUrl} />
-          {recipe.isViewed && (
+          <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
+          {isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
               이미 등록했어요
             </div>
           )}
         </div>
 
-        <div className="mt-3">
-          <h3 className="text-base font-bold text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+        <div className="mt-3 space-y-2.5">
+          <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
             {recipe.recipeTitle}
           </h3>
+
+          {(detailMeta?.servings || detailMeta?.cookingTime) && (
+            <div className="flex items-center gap-3 text-sm text-gray-600">
+              {detailMeta?.servings && (
+                <div className="flex items-center gap-1.5">
+                  <BsPeople size={14} className="shrink-0" />
+                  <span className="font-medium">{detailMeta.servings}인분</span>
+                </div>
+              )}
+              {detailMeta?.cookingTime && (
+                <div className="flex items-center gap-1.5">
+                  <FaRegClock size={14} className="shrink-0" />
+                  <span className="font-medium">{detailMeta.cookingTime}분</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {tags && tags.length > 0 && (
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {tags.slice(0, 3).map((tag, index) => (
+                <span key={index} className="text-xs font-semibold text-orange-600 whitespace-nowrap">
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {detailMeta?.description && (
+            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
+              {detailMeta.description}
+            </p>
+          )}
         </div>
       </article>
       <DialogContent>
@@ -363,7 +397,8 @@ const RecommendRecipeCardReady = ({
           </DialogClose>
           <Button
             onClick={async () => {
-              await create({ youtubeUrl: recipe.videoUrl });
+              const videoId = recipe.videoInfo?.videoId || "";
+              await create({ youtubeUrl: `https://www.youtube.com/watch?v=${videoId}` });
               setIsOpen(false);
               router.replace(`/recipe/${recipe.recipeId}/detail`);
             }}

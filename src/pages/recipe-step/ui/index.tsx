@@ -1520,7 +1520,9 @@ function RecipeStep({
                   ? bottomBarH > 0
                     ? bottomBarH + 8
                     : 0
-                  : 0,
+                  : bottomBarH > 0
+                  ? bottomBarH + 16 // 세로 모드에서도 하단 바 높이 + 여유 공간
+                  : 80,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
                 overflowX: "hidden",
               }}

@@ -19,7 +19,7 @@ import { useEffect } from "react";
 import React from "react";
 
 import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
-import ThemeRecipeSection from "./themeRecipeSection";
+import { CategorySection } from "./categorySection";
 
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
@@ -67,6 +67,7 @@ function HomePage() {
           </div>
         </Link>
       </div>
+      <CategorySection />
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>

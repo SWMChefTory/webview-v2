@@ -28,11 +28,12 @@ import {
   rollbackIsViewed,
 } from "../../popular-recipe/model/usePopularRecipe";
 
-import { useFakeRecipeInCreatingStore } from "@/src/entities/user_recipe/model/fake-recipe-creating/store/useFakeRecipeInCreatingStore";
+import { useFakeRecipeInCreatingStore } from "@/src/entities/user_recipe/model/useFakeRecipeInCreatingStore";
 import {
   RecipeCreateToastStatus,
   useRecipeCreateToastAction,
 } from "./useToast";
+import { VideoType } from "../../popular-recipe/type/videoType";
 
 export const QUERY_KEY = "categoryRecipes";
 export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
@@ -215,10 +216,14 @@ export function useCreateRecipe() {
       youtubeUrl,
       targetCategoryId = null,
       recipeId: existingRecipeId,
+      videoType,
+      recipeTitle,
     }: {
       youtubeUrl: string;
       targetCategoryId?: string | null;
       recipeId?: string;
+      videoType?: VideoType;
+      recipeTitle?: string;
     }) => {
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
@@ -227,18 +232,22 @@ export function useCreateRecipe() {
         await updateCategory({ recipeId, targetCategoryId });
       return { recipeId, standardUrl };
     },
-    onMutate: async ({ youtubeUrl, recipeId: existingRecipeId }) => {
+    onMutate: async ({ youtubeUrl, recipeId: existingRecipeId, videoType, recipeTitle }) => {
       handleOpenToast({
-        toastInfo: { status: RecipeCreateToastStatus.IN_PROGRESS, recipeTitle: "test" },
+        toastInfo: { status: RecipeCreateToastStatus.IN_PROGRESS, recipeTitle: recipeTitle || "" },
       });
       if (!existingRecipeId) {
         return null;
       }
-      handleAddFakeCreating(existingRecipeId);
+      if (!videoType) {
+        throw new Error("videoType is required");
+      }
+      handleAddFakeCreating({ recipeId: existingRecipeId, recipeTitle: recipeTitle ?? "" });
       return await patchIsViewedOptimistically(
         queryClient,
         existingRecipeId,
-        true
+        true,
+        videoType
       );
     },
     throwOnError: false,
@@ -260,8 +269,12 @@ export function useCreateRecipe() {
           errorMessage: `url 주소 : ${_vars.youtubeUrl} 레시피 생성에 실패했어요`,
         },
       });
+      if (!_vars.videoType) {
+        console.log("videoType is not found");
+        throw new Error("videoType is required");
+      }
       if (ctx?.prevList) {
-        rollbackIsViewed(queryClient, { prevList: ctx.prevList });
+        rollbackIsViewed(queryClient, { prevList: ctx.prevList }, _vars.videoType);
       }
     },
   });
@@ -316,25 +329,9 @@ export const useFetchRecipeProgress = (recipeId: string) => {
   });
 
   const [isInProgressBefore, setIsInProgressBefore] = useState<boolean>(false);
-  const [isFakeInProgressBefore, setIsFakeInProgressBefore] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const isInFakeCreating = isInCreatingFake(recipeId);
-
-  console.log("isFakeInProgressBefore!!!!!!!!!", isFakeInProgressBefore);
 
   useEffect(() => {
-    if(isInFakeCreating) {
-      setIsFakeInProgressBefore(true);
-    }
-    if(isFakeInProgressBefore && !isInFakeCreating) {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.SUCCESS,
-          recipeId: recipeId,
-          recipeTitle: "test",
-        },
-      });
-    }
     if (
       progress.recipeStatus === RecipeStatus.IN_PROGRESS
     ) {
@@ -370,7 +367,7 @@ export const useFetchRecipeProgress = (recipeId: string) => {
         clearInterval(timerRef.current);
       }
     };
-  }, [progress.recipeStatus, isFakeInProgressBefore, isInFakeCreating, recipeId]);
+  }, [progress.recipeStatus, recipeId]);
 
   return {
     recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),

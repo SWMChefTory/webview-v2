@@ -21,6 +21,7 @@ import {
 import Link from "next/link";
 import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
 import RecipeBook from "@/src/pages/home/ui/assets/recipe-book.png";
+import { HorizontalScrollArea } from "./horizontalScrollArea";
 
 export const MyRecipesReady = () => {
   const { data: categories } = useFetchCategories();
@@ -86,12 +87,9 @@ const MyRecipesTemplate = ({
 const MyRecipeTitleSkeleton = () => {
   return (
     <>
-      <div className="h-[44px] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500 gap-2">
-        <img
-          src={RecipeBook.src}
-          className="size-6"
-        />
-        <div className="pr-1"/>
+      <div className="h-[44px] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500">
+        <img src={RecipeBook.src} className="size-6" />
+        <div className="pr-1" />
         나의 레시피
         <IoChevronForwardOutline className="size-6 text-gray-400 ml-1" />
       </div>
@@ -107,11 +105,8 @@ const MyRecipeTitleReady = () => {
         whileTap={{ opacity: 0.2 }}
         transition={{ duration: 0.2 }}
       >
-        <img
-          src={RecipeBook.src}
-          className="size-6"
-        />
-        <div className="pr-1"/>
+        <img src={RecipeBook.src} className="size-6" />
+        <div className="pr-1" />
         나의 레시피
         <IoChevronForwardOutline className="size-6" color="black" />
       </motion.div>
@@ -177,6 +172,7 @@ const UserRecipesSection = ({
     recipes: userRecipes,
     fetchNextPage,
     isFetchingNextPage,
+    hasNextPage,
   } = useFetchUserRecipes(selectedCategory);
   if (userRecipes.length === 0) {
     return (
@@ -187,11 +183,8 @@ const UserRecipesSection = ({
   }
   return (
     <HorizontalScrollArea
-      onScroll={(event: any) => {
-        if (
-          event.target.scrollLeft + event.target.clientWidth >=
-          event.target.scrollWidth + 10
-        ) {
+      onReachEnd={() => {
+        if (hasNextPage) {
           fetchNextPage();
         }
       }}
@@ -211,24 +204,5 @@ const UserRecipesSectionSkeleton = () => {
         <UserRecipeCardSkeleton key={index} />
       ))}
     </HorizontalScrollArea>
-  );
-};
-
-const HorizontalScrollArea = ({
-  children,
-  onScroll,
-}: {
-  children: React.ReactNode;
-  onScroll?: (event: any) => void;
-}) => {
-  return (
-    <div className="w-full">
-      <div
-        className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw] overflow-x-scroll scrollbar-hide"
-        onScroll={onScroll}
-      >
-        {children}
-      </div>
-    </div>
   );
 };

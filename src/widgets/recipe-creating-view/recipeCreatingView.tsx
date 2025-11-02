@@ -41,7 +41,7 @@ export function RecipeCreatingView() {
 
   const handleSubmit = async () => {
     if (isSubmittable()) {
-      create({ youtubeUrl: url });
+      create({ youtubeUrl: url});
       setHasEverTyped(false);
       if (useIsInTutorialStore.getState().isInTutorial && !useIsInTutorialStore.getState().isTutorialRecipeCardCreated) {
         setIsLoading(true);

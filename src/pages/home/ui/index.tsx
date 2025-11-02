@@ -1,5 +1,5 @@
-import { HorizontallyLongRecipes } from "@/src/pages/home/ui/horizontalyLongRecipes";
-import Header, { ProfileButton } from "@/src/shared/ui/header";
+import { PopularRecipes } from "@/src/pages/home/ui/popularRecipes";
+import Header, { ProfileButton } from "@/src/shared/ui/header/header";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { FloatingButton } from "@/src/pages/home/ui/floatingButton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -14,7 +14,7 @@ import { PiMagnifyingGlassBold } from "react-icons/pi";
 import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
-import { VerticallyLongRecipes } from "./vericallyLongRecipes";
+import { PopularShortsRecipes } from "./popularShortsRecipes";
 import { useEffect } from "react";
 import React from "react";
 
@@ -25,7 +25,6 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
 import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
-import { RecipeCreateToastStatus, useRecipeCreateToastAction } from "@/src/entities/user_recipe/model/useToast";
 
 function HomePage() {
   const router = useRouter();
@@ -75,9 +74,9 @@ function HomePage() {
       <HydrationZustand>
         <TimerSection />
       </HydrationZustand>
-      <ThemeRecipeSection />
-      <HorizontallyLongRecipes />
-      <VerticallyLongRecipes />
+      {/* <ThemeRecipeSection /> */}
+      <PopularRecipes />
+      <PopularShortsRecipes />
       <FloatingButton />
       <RecipeCreateToast>
         <Toast.Viewport className="fixed right-3 top-2 z-1000 w-[300px]" />

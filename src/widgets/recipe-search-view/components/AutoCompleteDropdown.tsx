@@ -1,4 +1,4 @@
-import { HeaderSpacing } from "@/src/shared/ui/header";
+import { HeaderSpacing } from "@/src/shared/ui/header/header";
 import { AutoComplete } from "@/src/pages/search-recipe/entities/auto-complete/model/model";
 import { AutoCompleteKeywordItem } from "./AutoCompleteKeywordItem";
 import { ReactNode } from "react";

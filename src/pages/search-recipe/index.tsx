@@ -1,4 +1,4 @@
-import Header from "@/src/shared/ui/header";
+import Header from "@/src/shared/ui/header/header";
 import { useRouter } from "next/router";
 import { useInvalidateSearchHistories } from "./entities/search-history/model/model";
 import { SearchRecipeContent } from "./ui";

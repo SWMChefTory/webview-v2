@@ -34,6 +34,16 @@ export type RecipeCreateToastState =
   | RecipeInProgressState
   | RecipeSuccessState;
 
+const toastStartTimeStore = create<{
+  startTime: Date | null;
+  setStartTime: (startTime: Date | null) => void;
+}>((set) => ({
+  startTime: null,
+  setStartTime: (startTime: Date | null) => {
+    set({ startTime: startTime });
+  },
+}));
+
 const useRecipeCreateToastStore = create<{
   toastInfo: RecipeCreateToastState | undefined;
   closeTimer: NodeJS.Timeout | undefined;
@@ -46,6 +56,7 @@ const useRecipeCreateToastStore = create<{
 }>((set) => ({
   toastInfo: undefined,
   closeTimer: undefined,
+  hasAppeared: false,
   setCloseTimer: ({ timer }: { timer: NodeJS.Timeout | undefined }) => {
     set({ closeTimer: timer });
   },
@@ -60,17 +71,20 @@ const useRecipeCreateToastStore = create<{
 
 export const useRecipeCreateToastInfo = () => {
   const { toastInfo } = useRecipeCreateToastStore();
-  return { toastInfo };
+  const { startTime } = toastStartTimeStore();
+  return { toastInfo, startTime };
 };
 
 //토스트 열기 혹은 닫기 관리 커스텀 훅
 export const useRecipeCreateToastAction = () => {
-  const { setToastInfo, closeTimer, setCloseTimer } = useRecipeCreateToastStore();
+  const { setToastInfo, closeTimer, setCloseTimer } =
+    useRecipeCreateToastStore();
 
   function close() {
     setToastInfo({ toastInfo: undefined });
     clearTimeout(closeTimer);
     setCloseTimer({ timer: undefined });
+    toastStartTimeStore.setState({ startTime: null });
   }
 
   function scheduleNextOpen({
@@ -80,6 +94,7 @@ export const useRecipeCreateToastAction = () => {
   }) {
     setTimeout(() => {
       setToastInfo({ toastInfo });
+      toastStartTimeStore.setState({ startTime: new Date() });
       setCloseTimer({
         timer: setTimeout(() => {
           setToastInfo({ toastInfo: undefined });

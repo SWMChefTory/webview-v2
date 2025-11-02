@@ -1,4 +1,4 @@
-import Header, { BackButton } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { useRouter } from "next/router";
 import MembershipWithdrawalPage from "./ui/withdrawal/membershipWithdrawal";
 import { PrivacyPolicyPage, TermsAndConditionsPage } from "./ui";

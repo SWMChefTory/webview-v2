@@ -11,9 +11,10 @@ import {
 import { PopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useState } from "react";
-import { ThemeRecipe } from "../entities/theme-recipe/type";
+import { ThemeRecipe } from "../../pages/home/entities/theme-recipe/type";
 
-export function PopularRecipeCardWrapper({
+//이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
+export function RecipeCardWrapper({
   recipe,
   trigger,
 }: {
@@ -57,6 +58,8 @@ export function PopularRecipeCardWrapper({
                     youtubeUrl: recipe.videoUrl,
                     targetCategoryId: null,
                     recipeId: recipe.recipeId,
+                    videoType: recipe.videoType,
+                    recipeTitle: recipe.recipeTitle,
                   });
                 }
               }}

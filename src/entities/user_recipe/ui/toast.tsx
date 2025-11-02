@@ -2,14 +2,18 @@ import * as Toast from "@radix-ui/react-toast";
 import {
   RecipeCreateToastStatus,
   useRecipeCreateToastInfo,
+  useRecipeCreateToastAction,
 } from "../model/useToast";
 import { ReactElement } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type ViewportEl = ReactElement<React.ComponentProps<typeof Toast.Viewport>>;
 
 export function RecipeCreateToast({ children }: { children: ViewportEl }) {
-  const { toastInfo } = useRecipeCreateToastInfo();
+  const { toastInfo, startTime } = useRecipeCreateToastInfo();
+  const { close } = useRecipeCreateToastAction();
+  const router = useRouter();
   if (!toastInfo) {
     return null;
   }
@@ -33,7 +37,22 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
         };
       case RecipeCreateToastStatus.SUCCESS:
         return {
-          title: "레시피 생성이 완료되었어요",
+          title: (
+            <div className="flex flex-row justify-between items-center" onClick={(e) => {
+              close();
+            }}>
+              <div>레시피 생성이 완료되었어요</div>
+              <div
+                className="text-orange-500 border rounded-md px-2 py-1 text-sm font-bold cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  router.push(`/recipe/${toastInfo.recipeId}/detail`);
+                }}
+              >
+                이동
+              </div>
+            </div>
+          ),
           description: `${toastInfo.recipeTitle}`,
         };
     }
@@ -46,10 +65,26 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
           <Toast.Root className="z-1000 w-[300px]">
             <motion.div
               whileInView={{ x: 0 }}
-              initial={{ x: 100 }}
+              initial={{
+                x: startTime
+                  ? Math.max(
+                      0,
+                      100 -
+                        Math.ceil(
+                          (new Date().getTime() - startTime.getTime()) / 10
+                        ) *
+                          4
+                    )
+                  : 100,
+              }}
               transition={{
                 type: "tween",
-                duration: 0.25,
+                duration: startTime
+                  ? Math.max(
+                      0,
+                      (new Date().getTime() - startTime.getTime()) / 10
+                    )
+                  : 0.25,
                 ease: "easeOut",
               }}
             >

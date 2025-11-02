@@ -3,9 +3,9 @@ function AlreadyEnrolledChip({ isEnrolled }: { isEnrolled: boolean }) {
     return null;
   }
   return (
-      <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">
-        이미 등록된 레시피예요
-      </div>
+    <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">
+      이미 등록된 레시피예요
+    </div>
   );
 }
 

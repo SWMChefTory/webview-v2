@@ -20,7 +20,7 @@ import React, {
 } from "react";
 
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
-import Header, { BackButton } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";

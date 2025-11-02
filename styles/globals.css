@@ -2,7 +2,6 @@
 @import "tw-animate-css";
 @import "tailwindcss-safe-area";
 
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -45,9 +44,22 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* overflow-y-scroll 스크롤바 숨기기 */
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    /* Chrome, Safari */
+    display: none;
+  }
+}
+
 /*오래 누르면 선택되는 것을 막는 css, 만약 선택이 필요하다면 allow-select클래스 추가*/
 @layer base {
-  html, body {
+  html,
+  body {
     @apply select-none;
   }
 
@@ -55,7 +67,6 @@
     @apply select-text;
   }
 }
-
 
 :root {
   --radius: 0.625rem;

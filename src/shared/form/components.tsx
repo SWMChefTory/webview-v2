@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { IoClose } from "react-icons/io5";
-import {useIsInTutorialStore} from "@/src/shared/tutorial/isInTutorialStore";
+import {useIsInTutorialStore} from "@/src/features/tutorial/isInTutorialStore";
 
 function FormInput({
   value,

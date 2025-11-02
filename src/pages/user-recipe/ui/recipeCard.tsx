@@ -63,11 +63,9 @@ const RecipeDetailsCardReady = ({
       className="relative w-full px-[10] flex flex-row items-center justify-center z-10"
       onTapStart={handleTapStart}
     >
-      {recipeStatus && recipeStatus === RecipeStatus.IN_PROGRESS && (
-        <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
-          <ProgressDetailsCheckList recipeStatus={recipeStatus} />
-        </div>
-      )}
+      <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
+        <ProgressDetailsCheckList recipeStatus={recipeStatus} />
+      </div>
       <ThumbnailReady
         imgUrl={userRecipe.videoInfo.thumbnailUrl}
         size={{ width: 160, height: 90 }}

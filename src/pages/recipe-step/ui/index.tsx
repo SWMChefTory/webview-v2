@@ -1,3 +1,14 @@
+// --- Single-file Step Page (Next.js + Tailwind)
+// Portrait + Landscape (가로모드) 지원 버전
+// - 항상 로컬 STT(Web Speech API) + KWS(ONNX) + VAD 동작
+// - STT 결과가 '토리야'면 KWS 활성화
+// - KWS 활성화 이후 발생한 STT 결과(웨이크워드 제외)를 서버로 전송 + 콘솔 출력
+// - 3초 무음 시 KWS 자동 비활성화
+// - 기존: 현재 단계 최상단 스냅, 부드러운 진행바, 그룹 반복, VoiceGuide 모달 포함
+// - 추가: 가로모드일 때 영상/목록 좌우 분할 레이아웃 + 상단/하단 UI 동작 개선
+// - NEW: 전역 바운스 방지(상하좌우 흰 화면/풀투리프레시 차단)
+// - NEW: 세로모드 스크롤 시 유튜브 고정
+
 import { useRouter } from "next/router";
 import React, {
   useCallback,
@@ -9,14 +20,14 @@ import React, {
 } from "react";
 
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
-import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
-import { MODE, request } from "@/src/shared/client/native/client";
-import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
-import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import Header, { BackButton } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
 import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
+import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
+import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
+import { request, MODE } from "@/src/shared/client/native/client";
+import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
 
 /* =====================================================================================
    전역: 바운스/풀투리프레시 방지 + 배경/높이/가로 스크롤 고정
@@ -444,11 +455,7 @@ function ProgressBar({
               <div
                 className={`absolute bottom-0 left-0 w-full rounded-full will-change-[height] ${
                   seg.isCompleted || seg.isCurrent ? "bg-white" : "bg-white/0"
-                } ${
-                  seg.isCurrent
-                    ? "transition-[height] duration-500 ease-out"
-                    : ""
-                }`}
+                } transition-[height] duration-500 ease-out`}
                 style={{ height: `${seg.progress * 100}%` }}
               />
             </div>
@@ -469,9 +476,7 @@ function ProgressBar({
             <div
               className={`absolute inset-y-0 left-0 rounded-full will-change-[width] ${
                 seg.isCompleted || seg.isCurrent ? "bg-white" : "bg-white/0"
-              } ${
-                seg.isCurrent ? "transition-[width] duration-500 ease-out" : ""
-              }`}
+              } transition-[width] duration-500 ease-out`}
               style={{ width: `${seg.progress * 100}%` }}
             />
           </div>
@@ -609,15 +614,11 @@ type BasicIntent =
   | "PREV"
   | `TIMESTAMP ${number}`
   | `STEP ${number}`
-  | "VIDEO PLAY"
-  | "VIDEO STOP"
   | "EXTRA";
 function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
   if (key === "NEXT") return "NEXT";
   if (key === "PREV") return "PREV";
-  if (key === "VIDEO PLAY") return "VIDEO PLAY";
-  if (key === "VIDEO STOP") return "VIDEO STOP";
   if (/^TIMESTAMP\s+\d+$/.test(key)) return key as BasicIntent;
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
   return "EXTRA";
@@ -737,12 +738,9 @@ function RecipeStep({
   const dragOriginRef = useRef<"header" | "handle" | null>(null);
   const dragStartYRef = useRef<number | null>(null);
   const draggingRef = useRef(false);
-  const dragStartTimeRef = useRef<number>(0);
 
   const THRESH_MINOR = 24;
   const THRESH_MAJOR = 32;
-  const TAP_THRESHOLD = 10; // 10px 이하 이동시 탭으로 간주
-  const TAP_TIME_THRESHOLD = 300; // 300ms 이하시 탭으로 간주
 
   // 가로모드에서 헤더 외의 영역 클릭 시 헤더를 sheet 상태로 변경
   const handleContentClick = useCallback(() => {
@@ -794,32 +792,12 @@ function RecipeStep({
 
     const startY = dragStartYRef.current ?? ev.clientY;
     const dy = startY - ev.clientY;
-    const deltaTime = Date.now() - dragStartTimeRef.current;
-    const distance = Math.abs(dy);
-
     dragStartYRef.current = null;
-    dragStartTimeRef.current = 0;
 
     const origin = dragOriginRef.current ?? "handle";
     dragOriginRef.current = null;
 
-    // 탭으로 감지 (이동 거리가 작고 시간이 짧으면)
-    const isTap = distance < TAP_THRESHOLD && deltaTime < TAP_TIME_THRESHOLD;
-
-    if (isTap) {
-      // 탭일 경우 토글
-      setHeaderState((curr) => {
-        if (curr === "expanded") return "sheet";
-        if (curr === "sheet") return "expanded";
-        if (curr === "hidden") return "sheet";
-        return curr;
-      });
-    } else {
-      // 드래그일 경우 기존 로직
-      setHeaderState((curr) =>
-        nextStateByDrag(curr as HeaderState, origin, dy)
-      );
-    }
+    setHeaderState((curr) => nextStateByDrag(curr as HeaderState, origin, dy));
 
     window.removeEventListener("pointermove", onPointerMoveHeader as any);
     window.removeEventListener("pointerup", onPointerUpHeader as any);
@@ -833,7 +811,6 @@ function RecipeStep({
       lockScroll();
       dragOriginRef.current = origin;
       dragStartYRef.current = ev.clientY;
-      dragStartTimeRef.current = Date.now();
       (ev.currentTarget as HTMLElement).setPointerCapture?.(ev.pointerId);
       window.addEventListener("pointermove", onPointerMoveHeader as any, {
         passive: true,
@@ -1134,14 +1111,6 @@ function RecipeStep({
         }, 50);
         return;
       }
-      if (parsedIntent === "VIDEO PLAY") {
-        ytRef.current?.playVideo();
-        return;
-      }
-      if (parsedIntent === "VIDEO STOP") {
-        ytRef.current?.pauseVideo();
-        return;
-      }
       if (parsedIntent.startsWith("TIMESTAMP")) {
         const sec = Number(parsedIntent.split(/\s+/)[1] ?? "0");
         ytRef.current?.seekTo(Math.max(0, sec), true);
@@ -1249,7 +1218,7 @@ function RecipeStep({
               ref={isCurrent ? currentRowRef : undefined}
             >
               {showSubtitle && (
-                <div className="mb-3">
+                <div className="mb-3">  
                   <span className={subtitleCls}>
                     {String.fromCharCode(65 + item.stepIndex)}. {item.subtitle}
                   </span>
@@ -1303,9 +1272,6 @@ function RecipeStep({
   const portraitFixedTop = headerH;
   const portraitProgressTop = headerH + portraitVideoH;
 
-  // 유튜브 플레이어 너비 계산 (orientation에 따라 동적)
-  const playerWidth = isLandscape ? landscapeVideoW : portraitVideoW;
-
   return (
     <>
       <GlobalNoBounce />
@@ -1332,20 +1298,14 @@ function RecipeStep({
             fixed={!isLandscape}
             color="bg-black/80 backdrop-blur-sm border-b border-white/10"
             leftContent={
-              <div
-                className={
-                  orientation === "landscape-left" ? "ml-8" : undefined
-                }
-              >
-                <BackButton
-                  onClick={() => {
-                    // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
-                    handleLockOrientation();
-                    setShouldGoBack(true);
-                  }}
-                  color="text-white"
-                />
-              </div>
+              <BackButton
+                onClick={() => {
+                  // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
+                  handleLockOrientation();
+                  setShouldGoBack(true);
+                }}
+                color="text-white"
+              />
             }
             centerContent={
               <div
@@ -1382,33 +1342,17 @@ function RecipeStep({
           </div>
         )}
 
-        {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
-        <div
-          className={
-            isLandscape
-              ? "fixed z-[900] flex items-start justify-center px-2"
-              : "fixed left-0 right-0 z-[920] bg-black"
-          }
-          style={
-            isLandscape
-              ? {
-                  top: sheetH,
-                  bottom: bottomBarH > 0 ? bottomBarH : 0,
-                  left: 0,
-                  right: rightColBox.width > 0 ? rightColBox.width : "30%",
-                  width: "70%",
-                }
-              : {
-                  top: portraitFixedTop,
-                }
-          }
-        >
-          <div className={isLandscape ? "w-full max-w-full" : ""}>
+        {/* (세로모드 전용) 고정 유튜브 */}
+        {!isLandscape && (
+          <div
+            className="fixed left-0 right-0 z-[920] bg-black"
+            style={{ top: portraitFixedTop }}
+          >
             <YouTubePlayer
               youtubeEmbedId={videoId}
               title={`${videoTitle} - Step ${currentStep + 1}`}
               autoplay
-              forceWidthPx={playerWidth}
+              forceWidthPx={portraitVideoW}
               initialSeekSeconds={persistRef.current.time}
               resumePlaying={persistRef.current.wasPlaying}
               onPlayerReady={(player) => {
@@ -1420,20 +1364,7 @@ function RecipeStep({
               onStateChange={handleStateChange}
             />
           </div>
-          {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 (가로모드) */}
-          {isLandscape && (
-            <div
-              className="absolute inset-0 z-10"
-              style={{
-                pointerEvents: headerState === "expanded" ? "auto" : "none",
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleContentClick();
-              }}
-            />
-          )}
-        </div>
+        )}
 
         {/* 본문 레이아웃: 가로면 2열(7:3 비율), 세로면 1열. 좌우 바운스 방지 위해 overflow-x-hidden */}
         <div
@@ -1451,7 +1382,7 @@ function RecipeStep({
           }}
           onClick={handleContentClick}
         >
-          {/* 좌: 영상 (70%) - 검정 배경 (가로모드에서만 표시, 실제 영상은 상단 통합 플레이어에서 처리) */}
+          {/* 좌: 영상 (70%) - 검정 배경 */}
           <div
             className={
               isLandscape
@@ -1460,7 +1391,39 @@ function RecipeStep({
             }
             onClick={handleContentClick}
           >
-            {/* 영상은 통합 플레이어에서 처리하므로 여기는 빈 공간 */}
+            {/* 가로모드에서만 렌더(세로는 위의 fixed 블록이 담당) */}
+            {isLandscape && (
+              <div className="relative w-full h-full max-w-full flex items-center justify-center px-2">
+                <div className="w-full max-w-full">
+                  <YouTubePlayer
+                    youtubeEmbedId={videoId}
+                    title={`${videoTitle} - Step ${currentStep + 1}`}
+                    autoplay
+                    forceWidthPx={landscapeVideoW}
+                    initialSeekSeconds={persistRef.current.time}
+                    resumePlaying={persistRef.current.wasPlaying}
+                    onPlayerReady={(player) => {
+                      ytRef.current = player;
+                      const d = player.getDuration?.() ?? 0;
+                      if (d > 0) setVideoDuration(d);
+                      setIsInitialized(true);
+                    }}
+                    onStateChange={handleStateChange}
+                  />
+                </div>
+                {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 */}
+                <div
+                  className="absolute inset-0 z-10"
+                  style={{
+                    pointerEvents: headerState === "expanded" ? "auto" : "none",
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleContentClick();
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* 우: 진행바 + 텍스트 (내부 스크롤만 허용, 30%) - 진한 회색 배경 */}
@@ -1526,9 +1489,7 @@ function RecipeStep({
                   ? bottomBarH > 0
                     ? bottomBarH + 8
                     : 0
-                  : bottomBarH > 0
-                  ? bottomBarH + 16 // 세로 모드에서도 하단 바 높이 + 여유 공간
-                  : 80,
+                  : 0,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
                 overflowX: "hidden",
               }}
@@ -1657,28 +1618,30 @@ function RecipeStep({
                   <line x1="12" y1="19" x2="12" y2="23" />
                   <line x1="8" y1="23" x2="16" y2="23" />
                 </svg>
-                {isKwsActiveUI && (
-                  <>
-                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
-                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
-                    <style jsx>{`
-                      @keyframes listening {
-                        0% {
-                          transform: scale(1);
-                          opacity: 0.8;
+                {isKwsActiveUI &&
+                  (console.log("isKwsActiveUI", isKwsActiveUI),
+                  (
+                    <>
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
+                      <style jsx>{`
+                        @keyframes listening {
+                          0% {
+                            transform: scale(1);
+                            opacity: 0.8;
+                          }
+                          70% {
+                            transform: scale(1.8);
+                            opacity: 0.2;
+                          }
+                          100% {
+                            transform: scale(2.2);
+                            opacity: 0;
+                          }
                         }
-                        70% {
-                          transform: scale(1.8);
-                          opacity: 0.2;
-                        }
-                        100% {
-                          transform: scale(2.2);
-                          opacity: 0;
-                        }
-                      }
-                    `}</style>
-                  </>
-                )}
+                      `}</style>
+                    </>
+                  ))}
               </button>
             </div>
 
@@ -1797,28 +1760,30 @@ function RecipeStep({
                   <line x1="12" y1="19" x2="12" y2="23" />
                   <line x1="8" y1="23" x2="16" y2="23" />
                 </svg>
-                {isKwsActiveUI && (
-                  <>
-                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
-                    <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
-                    <style jsx>{`
-                      @keyframes listening {
-                        0% {
-                          transform: scale(1);
-                          opacity: 0.8;
+                {isKwsActiveUI &&
+                  (console.log("isKwsActiveUI", isKwsActiveUI),
+                  (
+                    <>
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
+                      <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
+                      <style jsx>{`
+                        @keyframes listening {
+                          0% {
+                            transform: scale(1);
+                            opacity: 0.8;
+                          }
+                          70% {
+                            transform: scale(1.8);
+                            opacity: 0.2;
+                          }
+                          100% {
+                            transform: scale(2.2);
+                            opacity: 0;
+                          }
                         }
-                        70% {
-                          transform: scale(1.8);
-                          opacity: 0.2;
-                        }
-                        100% {
-                          transform: scale(2.2);
-                          opacity: 0;
-                        }
-                      }
-                    `}</style>
-                  </>
-                )}
+                      `}</style>
+                    </>
+                  ))}
               </button>
             </div>
 

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
+import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 
 export const ThemeRecipeSchema = z.object({
   recipeId: z.string(),
@@ -9,7 +10,7 @@ export const ThemeRecipeSchema = z.object({
   count: z.number(),
   videoUrl: z.string(),
   isViewed: z.boolean(),
-  videoType: z.string(),
+  videoType: z.enum(VideoType),
 });
 
 export const ThemeRecipesSchema = z.array(ThemeRecipeSchema);

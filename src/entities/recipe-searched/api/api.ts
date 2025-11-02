@@ -13,15 +13,16 @@ import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 const RawSearchRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
-  tags: z.array(RecipeTagSchema).optional(),
-  description: z.string().optional(),
-  servings: z.number().optional(),
-  cookingTime: z.number().optional(),
+  tags: z.array(RecipeTagSchema),
+  isViewed: z.boolean().optional(),
+  description: z.string(),
+  servings: z.number(),
+  cookingTime: z.number(),
   videoId: z.string(),
-  videoTitle: z.string().optional(),
-  title: z.string().optional(),
-  videoThumbnailUrl: z.string().optional(),
-  thumbnailUrl: z.string().optional(),
+  count: z.number(),
+  videoUrl: z.string(),
+  videoType: z.enum(['SHORTS', 'NORMAL']),
+  videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
 });
 
@@ -29,9 +30,9 @@ const RawSearchRecipeSchema = z.object({
 const RecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
-  tags: z.array(RecipeTagSchema).optional(),
+  tags: z.array(RecipeTagSchema),
   videoInfo: VideoInfoSchema,
-  detailMeta: RecipeDetailMetaSchema.optional(),
+  detailMeta: RecipeDetailMetaSchema,
 });
 
 const RecipesSchema = z.array(RecipeSchema);
@@ -58,25 +59,26 @@ export const fetchRecipesSearched = async ({
   const rawRecipes = z.array(RawSearchRecipeSchema).parse(response.data.searchedRecipes || []);
   
   const data = {
-    currentPage: response.data.currentPage ?? 0,
-    totalPages: response.data.totalPages ?? 0,
-    totalElements: response.data.totalElements ?? 0,
-    hasNext: response.data.hasNext ?? false,
+    currentPage: response.data.currentPage,
+    totalPages: response.data.totalPages,
+    totalElements: response.data.totalElements,
+    hasNext: response.data.hasNext,
     data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
       recipeTitle: recipe.recipeTitle,
       tags: recipe.tags,
+      isViewed: recipe.isViewed,
       videoInfo: {
         videoId: recipe.videoId,
-        videoTitle: recipe.videoTitle || recipe.title,
-        videoThumbnailUrl: recipe.videoThumbnailUrl || recipe.thumbnailUrl,
+        videoTitle: recipe.recipeTitle,
+        videoThumbnailUrl: recipe.videoThumbnailUrl,
         videoSeconds: recipe.videoSeconds,
       },
-      detailMeta: recipe.description || recipe.servings || recipe.cookingTime ? {
+      detailMeta: {
         description: recipe.description,
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
-      } : undefined,
+      },
     })),
   };
   

@@ -1,5 +1,11 @@
 import client from "@/src/shared/client/main/client";
 import { z } from "zod";
+import {
+  RecipeDetailMetaSchema,
+  RecipeTagSchema,
+  RecipeStatusSchema,
+} from "@/src/shared/schema/recipeSchema";
+import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 import { RecommendType } from "@/src/entities/category/type/cuisineType";
@@ -8,24 +14,24 @@ import { RecommendType } from "@/src/entities/category/type/cuisineType";
 const RawRecommendRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
-  videoThumbnailUrl: z.string(),
+  tags: z.array(RecipeTagSchema),
+  isViewed: z.boolean().optional(),
+  description: z.string(),
+  servings: z.number(),
+  cookingTime: z.number(),
   videoId: z.string(),
-  count: z.number().optional(),
-  videoUrl: z.string(),
-  isViewed: z.boolean(),
-  videoType: z.string(),
+  videoThumbnailUrl: z.string(),
+  videoSeconds: z.number(),
 });
 
 // 변환된 레시피 스키마
 const RecommendRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
-  videoThumbnailUrl: z.string(),
-  videoId: z.string(),
-  count: z.number().optional(),
-  videoUrl: z.string(),
+  tags: z.array(RecipeTagSchema),
   isViewed: z.boolean(),
-  videoType: z.string(),
+  videoInfo: VideoInfoSchema,
+  detailMeta: RecipeDetailMetaSchema,
 });
 
 const RecommendRecipesSchema = z.array(RecommendRecipeSchema);
@@ -59,21 +65,28 @@ export const fetchRecommendRecipes = async ({
   
   // API 응답 데이터 파싱
   const rawRecipes = z.array(RawRecommendRecipeSchema).parse(response.data.recommendRecipes || []);
-  
+
   const data = {
-    currentPage: response.data.currentPage ?? 0,
-    totalPages: response.data.totalPages ?? 0,
-    totalElements: response.data.totalElements ?? 0,
-    hasNext: response.data.hasNext ?? false,
+    currentPage: response.data.currentPage,
+    totalPages: response.data.totalPages,
+    totalElements: response.data.totalElements,
+    hasNext: response.data.hasNext,
     data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
       recipeTitle: recipe.recipeTitle,
-      videoThumbnailUrl: recipe.videoThumbnailUrl,
-      videoId: recipe.videoId,
-      count: recipe.count,
-      videoUrl: recipe.videoUrl,
+      tags: recipe.tags,
       isViewed: recipe.isViewed,
-      videoType: recipe.videoType,
+      videoInfo: {
+        videoId: recipe.videoId,
+        videoTitle: recipe.recipeTitle,
+        videoThumbnailUrl: recipe.videoThumbnailUrl,
+        videoSeconds: recipe.videoSeconds,
+      },
+      detailMeta: {
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookingTime,
+      },
     })),
   };
   

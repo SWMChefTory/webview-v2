@@ -36,11 +36,7 @@ const ThumbnailEmpty = ({
   return (
     <ThumbnailTemplate size={size}>
       <div className="w-full h-full flex items-center justify-center bg-gray-200">
-      <img
-        src="/inactive_logo.png"
-        className="h-[14%]"
-        alt="logo"
-      />
+        <img src="/inactive_logo.png" className="h-[14%]" alt="logo" />
       </div>
     </ThumbnailTemplate>
   );
@@ -58,6 +54,7 @@ const ThumbnailReady = ({
       <img
         src={imgUrl}
         className={`block w-full h-full object-cover object-center`}
+        onDragStart={(e) => e.preventDefault()}
       />
     </ThumbnailTemplate>
   );

@@ -1,4 +1,4 @@
-import Header, { BackButton } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import TimerPageContent from "./ui";
 import { useRouter } from "next/router";
 import { TimerBottomSheet } from "../../widgets/timer/timerBottomSheet";

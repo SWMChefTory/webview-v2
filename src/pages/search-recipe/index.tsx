@@ -1,4 +1,5 @@
-import Header, { BackButton } from "@/src/shared/ui/header";
+
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { useRef, useState, useEffect, useCallback, memo, useMemo } from "react";
 import { useRouter } from "next/router";
 import { useFetchAutoCompleteData, AutoComplete } from "./entities/auto-complete/model/model";

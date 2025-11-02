@@ -1,4 +1,4 @@
-import Header, { BackButton } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { GoChevronRight } from "react-icons/go";
 import { useRouter } from "next/router";
 import Chef from "@/src/pages/settings/assets/chef.png";

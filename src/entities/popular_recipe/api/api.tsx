@@ -3,22 +3,16 @@ import { z } from "zod";
 import { VideoType } from "../type/videoType";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
-import { RecipeTagSchema } from "@/src/shared/schema/recipeSchema";
 
 const PopularSummaryRecipeResponseSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
-  tags: z.array(RecipeTagSchema),
-  isViewed: z.boolean().optional(),
-  description: z.string(),
-  servings: z.number(),
-  cookingTime: z.number(),
-  videoId: z.string(),
-  count: z.number(),
-  videoUrl: z.string(),
-  videoType: z.enum(['SHORTS', 'NORMAL']),
   videoThumbnailUrl: z.string(),
-  videoSeconds: z.number(),
+  videoId: z.string(),
+  videoUrl: z.string(),
+  count: z.number(),
+  isViewed: z.boolean(),
+  videoType: z.enum(VideoType),
 });
 
 const PopularSummaryRecipeApiResponseSchema = z.object({

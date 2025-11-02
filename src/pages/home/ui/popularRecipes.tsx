@@ -1,34 +1,45 @@
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import Fire from "./assets/fire.png";
 import {
   useFecthPopularRecipe,
   PopularRecipe,
-  sortByViewed,
-} from "@/src/entities/popular_recipe/model/usePopularRecipe";
+} from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { AlreadyEnrolledChip } from "./chips";
-import { VideoType } from "../../../entities/popular_recipe/type/videoType";
-import { PopularRecipeCardWrapper } from "./popularRecipeCardDialog";
+import { AlreadyEnrolledChip } from "../../../shared/ui/chip/chip";
+import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
+import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
+import { HorizontalScrollArea } from "./horizontalScrollArea";
+import { IoChevronForwardOutline } from "react-icons/io5";
+import Link from "next/link";
 
-export function HorizontallyLongRecipes() {
+export function PopularRecipes() {
+  const { fetchNextPage, hasNextPage } = useFecthPopularRecipe(
+    VideoType.NORMAL
+  );
+
   return (
     <div>
       <div className="h-12" />
-      <div className="pl-4 flex items-center gap-2">
-        <div className="text-2xl font-semibold">인기 레시피</div>
-      </div>
+      <Link href="/popular-recipe">
+        <div className="pl-4 flex items-center">
+          <div className="text-2xl font-semibold">인기 레시피</div>
+          <IoChevronForwardOutline className="size-6" color="black" />
+        </div>
+      </Link>
       <div className="h-3" />
-      <ScrollArea className="whitespace-nowrap w-[100vw]">
-        <div className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
+      <HorizontalScrollArea
+        onReachEnd={() => {
+          if (hasNextPage) {
+            fetchNextPage();
+          }
+        }}
+      >
+        <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
           <SSRSuspense fallback={<RecipeCardSectionSkeleton />}>
             <RecipeCardSectionReady />
           </SSRSuspense>
         </div>
-        <ScrollBar orientation="horizontal" className="opacity-0  z-10" />
-      </ScrollArea>
+      </HorizontalScrollArea>
     </div>
   );
 }
@@ -44,33 +55,28 @@ function RecipeCardSectionSkeleton() {
 }
 
 function RecipeCardSectionReady() {
-  const { data: recipes } = useFecthPopularRecipe();
-  const longRecipes = recipes.filter(
-    (recipe) => recipe.videoType === VideoType.NORMAL
+  const { data: recipes, isFetchingNextPage } = useFecthPopularRecipe(
+    VideoType.NORMAL
   );
-  const sortedRecipes = sortByViewed(longRecipes);
   return (
     <>
-      {sortedRecipes.map((recipe) => (
-        <PopularRecipeCardWrapper recipe={recipe} key={recipe.recipeId} trigger={<RecipeCardReady recipe={recipe} />} />
+      {recipes.map((recipe) => (
+        <RecipeCardWrapper
+          recipe={recipe}
+          key={recipe.recipeId}
+          trigger={<RecipeCardReady recipe={recipe} />}
+        />
       ))}
+      {isFetchingNextPage && <RecipeCardSkeleton />}
     </>
   );
 }
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
-  const { create } = useCreateRecipe();
   return (
     <div className="flex flex-col">
       <div className="flex relative flex-col w-[320px]">
-        <div
-          className="h-[180] overflow-hidden rounded-md"
-          onClick={() => {
-            if (!recipe.isViewed) {
-              create({ youtubeUrl: recipe.videoUrl });
-            }
-          }}
-        >
+        <div className="h-[180] overflow-hidden rounded-md">
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
             <AlreadyEnrolledChip isEnrolled={recipe.isViewed} />
           </div>

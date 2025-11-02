@@ -3,8 +3,8 @@ import { useRef, useState } from "react";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
-import { driverObj } from "@/src/pages/home/ui";
-import { useIsInTutorialStore } from "@/src/shared/tutorial/isInTutorialStore";
+import { driverObj } from "@/src/features/tutorial/tutorial";
+import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 import { ShareTutorialModal } from "./shareTutorialModal";
 
 export function RecipeCreatingView() {
@@ -41,7 +41,7 @@ export function RecipeCreatingView() {
 
   const handleSubmit = async () => {
     if (isSubmittable()) {
-      create({ youtubeUrl: url });
+      create({ youtubeUrl: url});
       setHasEverTyped(false);
       if (useIsInTutorialStore.getState().isInTutorial && !useIsInTutorialStore.getState().isTutorialRecipeCardCreated) {
         setIsLoading(true);

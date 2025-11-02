@@ -6,7 +6,7 @@ import {
   useFetchTrendingRecipes,
 } from "@/src/pages/home/entities/theme-recipe/useThemeRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { PopularRecipeCardWrapper } from "./popularRecipeCardDialog";
+import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
 
 function ThemeRecipeSection() {
   return (
@@ -39,14 +39,6 @@ function ChefRecommendRecipeList() {
       }
     />
   );
-}
-
-{
-  /* <PopularRecipeCardWrapper
-  recipe={recipe}
-  key={recipe.recipeId}
-  trigger={<ShortsRecipeCardContent recipe={recipe} />}
-/>; */
 }
 
 function TrendingRecipeList() {
@@ -99,7 +91,7 @@ function ChefRecommendRecipeCardSectionReady() {
   return (
     <>
       {data.data.map((recipe) => (
-        <PopularRecipeCardWrapper
+        <RecipeCardWrapper
           recipe={recipe}
           key={recipe.recipeId}
           trigger={
@@ -124,7 +116,7 @@ export function TrendRecipeCardSectionReady() {
   return (
     <>
       {data.data.map((recipe, index) => (
-        <PopularRecipeCardWrapper
+        <RecipeCardWrapper
           recipe={recipe}
           key={recipe.recipeId}
           trigger={

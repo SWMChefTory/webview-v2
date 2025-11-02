@@ -1,4 +1,4 @@
-import Header, { BackButton } from "@/src/shared/ui/header";
+import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState, useCallback, memo, useMemo } from "react";
 import { SearchResultsSkeleton, SearchResultsContent } from "./ui";

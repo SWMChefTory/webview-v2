@@ -55,6 +55,7 @@ client.interceptors.request.use(
       return {};
     })();
     config.data = data;
+    
     return config;
   },
   (error) => {

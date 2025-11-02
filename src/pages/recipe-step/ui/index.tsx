@@ -444,7 +444,11 @@ function ProgressBar({
               <div
                 className={`absolute bottom-0 left-0 w-full rounded-full will-change-[height] ${
                   seg.isCompleted || seg.isCurrent ? "bg-white" : "bg-white/0"
-                } transition-[height] duration-500 ease-out`}
+                } ${
+                  seg.isCurrent
+                    ? "transition-[height] duration-500 ease-out"
+                    : ""
+                }`}
                 style={{ height: `${seg.progress * 100}%` }}
               />
             </div>
@@ -465,7 +469,9 @@ function ProgressBar({
             <div
               className={`absolute inset-y-0 left-0 rounded-full will-change-[width] ${
                 seg.isCompleted || seg.isCurrent ? "bg-white" : "bg-white/0"
-              } transition-[width] duration-500 ease-out`}
+              } ${
+                seg.isCurrent ? "transition-[width] duration-500 ease-out" : ""
+              }`}
               style={{ width: `${seg.progress * 100}%` }}
             />
           </div>
@@ -603,11 +609,15 @@ type BasicIntent =
   | "PREV"
   | `TIMESTAMP ${number}`
   | `STEP ${number}`
+  | "VIDEO PLAY"
+  | "VIDEO STOP"
   | "EXTRA";
 function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
   if (key === "NEXT") return "NEXT";
   if (key === "PREV") return "PREV";
+  if (key === "VIDEO PLAY") return "VIDEO PLAY";
+  if (key === "VIDEO STOP") return "VIDEO STOP";
   if (/^TIMESTAMP\s+\d+$/.test(key)) return key as BasicIntent;
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
   return "EXTRA";
@@ -1124,6 +1134,14 @@ function RecipeStep({
         }, 50);
         return;
       }
+      if (parsedIntent === "VIDEO PLAY") {
+        ytRef.current?.playVideo();
+        return;
+      }
+      if (parsedIntent === "VIDEO STOP") {
+        ytRef.current?.pauseVideo();
+        return;
+      }
       if (parsedIntent.startsWith("TIMESTAMP")) {
         const sec = Number(parsedIntent.split(/\s+/)[1] ?? "0");
         ytRef.current?.seekTo(Math.max(0, sec), true);
@@ -1508,7 +1526,9 @@ function RecipeStep({
                   ? bottomBarH > 0
                     ? bottomBarH + 8
                     : 0
-                  : 0,
+                  : bottomBarH > 0
+                  ? bottomBarH + 16 // 세로 모드에서도 하단 바 높이 + 여유 공간
+                  : 80,
                 // 스크롤/애니메이션 중 상단으로 튀는 시각적 침범도 잘라내기
                 overflowX: "hidden",
               }}

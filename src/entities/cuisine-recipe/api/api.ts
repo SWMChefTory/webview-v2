@@ -13,16 +13,16 @@ import { CuisineType } from "@/src/entities/category/type/cuisineType";
 const RawCuisineRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
-  tags: z.array(RecipeTagSchema).optional(),
+  tags: z.array(RecipeTagSchema),
   isViewed: z.boolean().optional(),
-  description: z.string().optional(),
-  servings: z.number().optional(),
-  cookingTime: z.number().optional(),
+  description: z.string(),
+  servings: z.number(),
+  cookingTime: z.number(),
   videoId: z.string(),
-  videoTitle: z.string().optional(),
-  title: z.string().optional(),
-  videoThumbnailUrl: z.string().optional(),
-  thumbnailUrl: z.string().optional(),
+  count: z.number(),
+  videoUrl: z.string(),
+  videoType: z.enum(['SHORTS', 'NORMAL']),
+  videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
 });
 
@@ -80,15 +80,15 @@ export const fetchCuisineRecipes = async ({
       isViewed: recipe.isViewed,
       videoInfo: {
         videoId: recipe.videoId,
-        videoTitle: recipe.videoTitle || recipe.title,
-        videoThumbnailUrl: recipe.videoThumbnailUrl || recipe.thumbnailUrl,
+        videoTitle: recipe.recipeTitle,
+        videoThumbnailUrl: recipe.videoThumbnailUrl,
         videoSeconds: recipe.videoSeconds,
       },
-      detailMeta: recipe.description || recipe.servings || recipe.cookingTime ? {
+      detailMeta: {
         description: recipe.description,
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
-      } : undefined,
+      },
     })),
   };
   

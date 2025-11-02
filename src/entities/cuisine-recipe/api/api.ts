@@ -3,17 +3,18 @@ import { z } from "zod";
 import {
   RecipeDetailMetaSchema,
   RecipeTagSchema,
-  RecipeStatusSchema,
 } from "@/src/shared/schema/recipeSchema";
 import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
+import { CuisineType } from "@/src/entities/category/type/cuisineType";
 
 // API 원시 응답 데이터 스키마
-const RawSearchRecipeSchema = z.object({
+const RawCuisineRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
   tags: z.array(RecipeTagSchema).optional(),
+  isViewed: z.boolean().optional(),
   description: z.string().optional(),
   servings: z.number().optional(),
   cookingTime: z.number().optional(),
@@ -26,36 +27,46 @@ const RawSearchRecipeSchema = z.object({
 });
 
 // 변환된 레시피 스키마
-const RecipeSchema = z.object({
+const CuisineRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
   tags: z.array(RecipeTagSchema).optional(),
+  isViewed: z.boolean().optional(),
   videoInfo: VideoInfoSchema,
   detailMeta: RecipeDetailMetaSchema.optional(),
 });
 
-const RecipesSchema = z.array(RecipeSchema);
+const CuisineRecipesSchema = z.array(CuisineRecipeSchema);
 
-const PaginatedRecipeSchema = createPaginatedSchema(RecipesSchema);
+const PaginatedCuisineRecipeSchema = createPaginatedSchema(CuisineRecipesSchema);
 
-export type VideoInfoResponse = z.infer<typeof VideoInfoSchema>;
-export type RecipeTagResponse = z.infer<typeof RecipeTagSchema>;
-export type Recipe = z.infer<typeof RecipeSchema>;
-export type PaginatedRecipeResponse = z.infer<typeof PaginatedRecipeSchema>;
+export type CuisineRecipe = z.infer<typeof CuisineRecipeSchema>;
+export type PaginatedCuisineRecipeResponse = z.infer<typeof PaginatedCuisineRecipeSchema>;
 
-export const fetchRecipesSearched = async ({
+export const fetchCuisineRecipes = async ({
   page,
-  query,
+  cuisineType,
 }: {
   page: number;
-  query: string;
-}): Promise<PaginatedRecipeResponse> => {
-  const url = `/recipes/search?query=${query?encodeURIComponent(query):"''"}&page=${page}`;
-
+  cuisineType: CuisineType;
+}): Promise<PaginatedCuisineRecipeResponse> => {
+  const url = `/recipes/cuisine/${cuisineType}?page=${page}`;
+  
   const response = await client.get(url);
   
+  // 빈 응답 처리
+  if (!response.data || Object.keys(response.data).length === 0) {
+    return {
+      currentPage: 0,
+      totalPages: 0,
+      totalElements: 0,
+      hasNext: false,
+      data: [],
+    };
+  }
+  
   // API 응답 데이터 파싱
-  const rawRecipes = z.array(RawSearchRecipeSchema).parse(response.data.searchedRecipes || []);
+  const rawRecipes = z.array(RawCuisineRecipeSchema).parse(response.data.cuisineRecipes || []);
   
   const data = {
     currentPage: response.data.currentPage ?? 0,
@@ -66,6 +77,7 @@ export const fetchRecipesSearched = async ({
       recipeId: recipe.recipeId,
       recipeTitle: recipe.recipeTitle,
       tags: recipe.tags,
+      isViewed: recipe.isViewed,
       videoInfo: {
         videoId: recipe.videoId,
         videoTitle: recipe.videoTitle || recipe.title,
@@ -80,5 +92,6 @@ export const fetchRecipesSearched = async ({
     })),
   };
   
-  return parseWithErrLog(PaginatedRecipeSchema, data);
+  return parseWithErrLog(PaginatedCuisineRecipeSchema, data);
 };
+

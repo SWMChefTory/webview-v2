@@ -13,11 +13,11 @@ export const PaginatedSchema = createPaginatedSchema(UserRecipesSchema);
 export type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 
 export async function fetchAllRecipesSummary({ page }: { page: number }) {
-  const response = await client.get(`/recipes/histories?page=${page}`);
+  const response = await client.get(`/recipes/recent?page=${page}`);
   const data = response.data;
   return parseWithErrLog(PaginatedSchema, {
     ...data,
-    data: data.recipeHistories.map((recipe: any) => transformRecipe(recipe)),
+    data: data.recentRecipes.map((recipe: any) => transformRecipe(recipe)),
   });
 }
 

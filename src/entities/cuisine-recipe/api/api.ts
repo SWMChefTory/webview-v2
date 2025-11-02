@@ -9,6 +9,24 @@ import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 import { CuisineType } from "@/src/entities/category/type/cuisineType";
 
+// API 원시 응답 데이터 스키마
+const RawCuisineRecipeSchema = z.object({
+  recipeId: z.string(),
+  recipeTitle: z.string(),
+  tags: z.array(RecipeTagSchema).optional(),
+  isViewed: z.boolean().optional(),
+  description: z.string().optional(),
+  servings: z.number().optional(),
+  cookingTime: z.number().optional(),
+  videoId: z.string(),
+  videoTitle: z.string().optional(),
+  title: z.string().optional(),
+  videoThumbnailUrl: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
+  videoSeconds: z.number(),
+});
+
+// 변환된 레시피 스키마
 const CuisineRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
@@ -33,18 +51,11 @@ export const fetchCuisineRecipes = async ({
   cuisineType: CuisineType;
 }): Promise<PaginatedCuisineRecipeResponse> => {
   const url = `/recipes/cuisine/${cuisineType}?page=${page}`;
-
-  console.log('Fetching Cuisine Recipes:', { url, cuisineType, page });
   
   const response = await client.get(url);
   
-  console.log('Response status:', response.status);
-  console.log('Response data:', JSON.stringify(response.data, null, 2));
-  console.log('Response data keys:', Object.keys(response.data));
-  
   // 빈 응답 처리
   if (!response.data || Object.keys(response.data).length === 0) {
-    console.warn('Empty response from cuisine API, returning empty data');
     return {
       currentPage: 0,
       totalPages: 0,
@@ -54,15 +65,18 @@ export const fetchCuisineRecipes = async ({
     };
   }
   
+  // API 응답 데이터 파싱
+  const rawRecipes = z.array(RawCuisineRecipeSchema).parse(response.data.cuisineRecipes || []);
+  
   const data = {
     currentPage: response.data.currentPage ?? 0,
     totalPages: response.data.totalPages ?? 0,
     totalElements: response.data.totalElements ?? 0,
     hasNext: response.data.hasNext ?? false,
-    data: (response.data.cuisineRecipes || []).map((recipe: any) => ({
+    data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
       recipeTitle: recipe.recipeTitle,
-      tags: recipe.tags?.map((tag: any) => ({ name: tag.name })),
+      tags: recipe.tags,
       isViewed: recipe.isViewed,
       videoInfo: {
         videoId: recipe.videoId,
@@ -77,8 +91,6 @@ export const fetchCuisineRecipes = async ({
       } : undefined,
     })),
   };
-  
-  console.log('Mapped data:', JSON.stringify(data, null, 2));
   
   return parseWithErrLog(PaginatedCuisineRecipeSchema, data);
 };

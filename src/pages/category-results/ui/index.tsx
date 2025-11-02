@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CategoryType, getCategoryTypeLabel, isRecommendType } from "@/src/entities/category/type/cuisineType";
+import { CategoryType, getCategoryTypeLabel, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
 
 export function CategoryResultsSkeleton() {
   return (
@@ -50,14 +50,14 @@ export function CategoryResultsContent({ categoryType }: { categoryType: Categor
   return <CuisineCategoryContent cuisineType={categoryType} />;
 }
 
-function RecommendCategoryContent({ recommendType }: { recommendType: CategoryType }) {
+function RecommendCategoryContent({ recommendType }: { recommendType: RecommendType }) {
   const {
     data: recipes,
     totalElements,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage
-  } = useFetchRecommendRecipes({ recommendType: recommendType as any });
+  } = useFetchRecommendRecipes({ recommendType });
   
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -130,14 +130,14 @@ function RecommendCategoryContent({ recommendType }: { recommendType: CategoryTy
   );
 }
 
-function CuisineCategoryContent({ cuisineType }: { cuisineType: CategoryType }) {
+function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
   const {
     data: recipes,
     totalElements,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage
-  } = useFetchCuisineRecipes({ cuisineType: cuisineType as any });
+  } = useFetchCuisineRecipes({ cuisineType });
   
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -294,19 +294,17 @@ const CuisineRecipeCardReady = ({
               취소
             </Button>
           </DialogClose>
-          <DialogClose asChild>
-            <Button
-              onClick={async () => {
-                const videoId = recipe.videoInfo?.videoId || "";
-                await create({ youtubeUrl: `https://www.youtube.com/watch?v=${videoId}` });
-                router.push(`/recipe/${recipe.recipeId}/detail`);
-                setIsOpen(false);
-              }}
-              className="flex-1"
-            >
-              생성
-            </Button>
-          </DialogClose>
+          <Button
+            onClick={async () => {
+              const videoId = recipe.videoInfo?.videoId || "";
+              await create({ youtubeUrl: `https://www.youtube.com/watch?v=${videoId}` });
+              setIsOpen(false);
+              router.replace(`/recipe/${recipe.recipeId}/detail`);
+            }}
+            className="flex-1"
+          >
+            생성
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -363,18 +361,16 @@ const RecommendRecipeCardReady = ({
               취소
             </Button>
           </DialogClose>
-          <DialogClose asChild>
-            <Button
-              onClick={async () => {
-                await create({ youtubeUrl: recipe.videoUrl });
-                router.push(`/recipe/${recipe.recipeId}/detail`);
-                setIsOpen(false);
-              }}
-              className="flex-1"
-            >
-              생성
-            </Button>
-          </DialogClose>
+          <Button
+            onClick={async () => {
+              await create({ youtubeUrl: recipe.videoUrl });
+              setIsOpen(false);
+              router.replace(`/recipe/${recipe.recipeId}/detail`);
+            }}
+            className="flex-1"
+          >
+            생성
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

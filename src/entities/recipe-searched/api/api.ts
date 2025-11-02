@@ -9,6 +9,23 @@ import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 
+// API 원시 응답 데이터 스키마
+const RawSearchRecipeSchema = z.object({
+  recipeId: z.string(),
+  recipeTitle: z.string(),
+  tags: z.array(RecipeTagSchema).optional(),
+  description: z.string().optional(),
+  servings: z.number().optional(),
+  cookingTime: z.number().optional(),
+  videoId: z.string(),
+  videoTitle: z.string().optional(),
+  title: z.string().optional(),
+  videoThumbnailUrl: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
+  videoSeconds: z.number(),
+});
+
+// 변환된 레시피 스키마
 const RecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
@@ -37,15 +54,18 @@ export const fetchRecipesSearched = async ({
 
   const response = await client.get(url);
   
+  // API 응답 데이터 파싱
+  const rawRecipes = z.array(RawSearchRecipeSchema).parse(response.data.searchedRecipes || []);
+  
   const data = {
     currentPage: response.data.currentPage ?? 0,
     totalPages: response.data.totalPages ?? 0,
     totalElements: response.data.totalElements ?? 0,
     hasNext: response.data.hasNext ?? false,
-    data: (response.data.searchedRecipes || []).map((recipe: any) => ({
+    data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
       recipeTitle: recipe.recipeTitle,
-      tags: recipe.tags?.map((tag: any) => ({ name: tag.name })),
+      tags: recipe.tags,
       videoInfo: {
         videoId: recipe.videoId,
         videoTitle: recipe.videoTitle || recipe.title,
@@ -59,8 +79,6 @@ export const fetchRecipesSearched = async ({
       } : undefined,
     })),
   };
-
-  console.log('Data:', JSON.stringify(data, null, 2));
   
   return parseWithErrLog(PaginatedRecipeSchema, data);
 };

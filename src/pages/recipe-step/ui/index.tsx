@@ -603,11 +603,15 @@ type BasicIntent =
   | "PREV"
   | `TIMESTAMP ${number}`
   | `STEP ${number}`
+  | "VIDEO PLAY"
+  | "VIDEO STOP"
   | "EXTRA";
 function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
   if (key === "NEXT") return "NEXT";
   if (key === "PREV") return "PREV";
+  if (key === "VIDEO PLAY") return "VIDEO PLAY";
+  if (key === "VIDEO STOP") return "VIDEO STOP";
   if (/^TIMESTAMP\s+\d+$/.test(key)) return key as BasicIntent;
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
   return "EXTRA";
@@ -1122,6 +1126,14 @@ function RecipeStep({
         setTimeout(() => {
           snapCurrentToTop("smooth");
         }, 50);
+        return;
+      }
+      if (parsedIntent === "VIDEO PLAY") {
+        ytRef.current?.playVideo();
+        return;
+      }
+      if (parsedIntent === "VIDEO STOP") {
+        ytRef.current?.pauseVideo();
         return;
       }
       if (parsedIntent.startsWith("TIMESTAMP")) {

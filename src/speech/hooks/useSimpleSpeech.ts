@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 
 // TEN VAD exports (너가 올린 index 기준)
-import { getMainAccessToken } from "@/src/shared/client/main/client";
-import type { TenVADInstance } from "ten-vad-lib";
-import { VADInstance, VADModuleLoader } from "ten-vad-lib";
+import {
+  getMainAccessToken,
+  setMainAccessToken,
+} from "@/src/shared/client/main/client";
+import { MODE, request } from "@/src/shared/client/native/client";
+import { TenVADInstance, VADInstance, VADModuleLoader } from "ten-vad-lib";
 
 const STT_URL = process.env.NEXT_PUBLIC_STT_URL ?? "";
 const SAMPLE_RATE = 16000;
@@ -146,7 +149,36 @@ export const useSimpleSpeech = ({
         console.error("[STT] WebSocket error:", event);
         setError("알 수 없는 오류가 발생했습니다.");
       };
-      ws.onclose = (e) => {};
+      ws.onclose = async (e) => {
+        isWSReady.current = false;
+
+        // console.log("[STT] WebSocket 연결 종료:", e);
+
+        // 1008: Policy Violation (토큰 인증 실패)
+        if (e.code === 1008 && isMountedRef.current) {
+          try {
+            // 토큰 갱신
+            const result = await request(MODE.BLOCKING, "REFRESH_TOKEN", null);
+            setMainAccessToken(result.token);
+
+            // 토큰 갱신 성공 후 즉시 재연결
+            if (isMountedRef.current) {
+              openWS();
+            }
+          } catch (error) {
+            console.error("[STT] 토큰 갱신 실패:", error);
+            setError("인증 정보를 갱신할 수 없습니다. 다시 로그인해주세요.");
+          }
+        }
+        // 정상 종료(1000)가 아닌 다른 에러인 경우 일반 재연결
+        else if (e.code !== 1000 && isMountedRef.current) {
+          reconnectTimeoutRef.current = window.setTimeout(() => {
+            if (isMountedRef.current) {
+              openWS();
+            }
+          }, 3000);
+        }
+      };
     };
 
     openWS();

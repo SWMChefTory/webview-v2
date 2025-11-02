@@ -444,7 +444,11 @@ function ProgressBar({
               <div
                 className={`absolute bottom-0 left-0 w-full rounded-full will-change-[height] ${
                   seg.isCompleted || seg.isCurrent ? "bg-white" : "bg-white/0"
-                } transition-[height] duration-500 ease-out`}
+                } ${
+                  seg.isCurrent
+                    ? "transition-[height] duration-500 ease-out"
+                    : ""
+                }`}
                 style={{ height: `${seg.progress * 100}%` }}
               />
             </div>
@@ -465,7 +469,9 @@ function ProgressBar({
             <div
               className={`absolute inset-y-0 left-0 rounded-full will-change-[width] ${
                 seg.isCompleted || seg.isCurrent ? "bg-white" : "bg-white/0"
-              } transition-[width] duration-500 ease-out`}
+              } ${
+                seg.isCurrent ? "transition-[width] duration-500 ease-out" : ""
+              }`}
               style={{ width: `${seg.progress * 100}%` }}
             />
           </div>

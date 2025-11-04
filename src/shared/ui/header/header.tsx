@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { CgProfile } from "react-icons/cg";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdArrowBack, IoMdClose } from "react-icons/io";
-import { LuTimer } from "react-icons/lu";
 
 const Header = ({
   leftContent,

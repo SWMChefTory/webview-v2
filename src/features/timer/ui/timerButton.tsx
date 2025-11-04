@@ -90,23 +90,23 @@ function ActiveTimerButton({
         />
       </svg>
       <motion.circle
-          cx={3.75 / 2}
-          cy={3.75 / 2}
-          r={radius}
-          fill="none"
-          stroke="gray"
-          strokeWidth={0.25}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          style={{ strokeDashoffset: dashOffset }}
-        />
+        cx={3.75 / 2}
+        cy={3.75 / 2}
+        r={radius}
+        fill="none"
+        stroke="gray"
+        strokeWidth={0.25}
+        strokeLinecap="round"
+        strokeDasharray={circumference}
+        style={{ strokeDashoffset: dashOffset }}
+      />
       <div className="flex flex-col absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-      <span className="text-xl font-medium leading-none tabular-nums z-10">
-        {important}
-      </span>
-      <span className="text-sm leading-none text-gray-200 tabular-nums z-10">
-        {secondary}
-      </span>
+        <span className="text-xl font-medium leading-none tabular-nums z-10">
+          {important}
+        </span>
+        <span className="text-sm leading-none text-gray-200 tabular-nums z-10">
+          {secondary}
+        </span>
       </div>
     </button>
   );

@@ -29,6 +29,7 @@ import { useRouter } from "next/router";
 import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 import { driverObj } from "@/src/features/tutorial/tutorial";
 import { useEffect } from "react";
+import { TimerTag } from "@/src/features/timer/ui/timerTag";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -38,8 +39,8 @@ export const UserRecipeCardReady = ({
   const userRouter = useRouter();
   const progress = useFetchRecipeProgress(userRecipe.recipeId);
 
-  function isTutorialId(){
-    return userRecipe.videoInfo.id === "XPmywm8Dnx4"
+  function isTutorialId() {
+    return userRecipe.videoInfo.id === "XPmywm8Dnx4";
   }
   useEffect(() => {
     if (useIsInTutorialStore.getState().isInTutorial && isTutorialId()) {
@@ -54,17 +55,27 @@ export const UserRecipeCardReady = ({
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
-      <div className="relative w-[320] h-[180]" onClick={() => {
-        if (progress.recipeStatus === RecipeStatus.SUCCESS) {
-          userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
-          if (useIsInTutorialStore.getState().isInTutorial && isTutorialId()) {
-            driverObj.destroy();
-            useIsInTutorialStore.getState().finishTutorial();
+      <div
+        className="relative w-[320] h-[180]"
+        onClick={() => {
+          if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+            userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+            if (
+              useIsInTutorialStore.getState().isInTutorial &&
+              isTutorialId()
+            ) {
+              driverObj.destroy();
+              useIsInTutorialStore.getState().finishTutorial();
+            }
           }
-        }
-      }}>
+        }}
+      >
         <div className="absolute top-0 left-0">
-          <div className="absolute top-[12] left-[12]">
+          <div className="absolute top-[12] right-[12]">
+            <TimerTag
+              recipeId={userRecipe.recipeId}
+              recipeName={userRecipe.title}
+            />
           </div>
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
@@ -114,16 +125,12 @@ const RecipeProgressSkeleton = () => {
 
 const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
   const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
-  if (
-    recipeStatus === RecipeStatus.SUCCESS
-  ) {
+  if (recipeStatus === RecipeStatus.SUCCESS) {
     return <></>;
   }
   return (
     <div className="absolute inset-0 flex items-center overflow-hidden z-10">
-      <ProgressDetailsCheckList
-        recipeStatus={recipeStatus}
-      />
+      <ProgressDetailsCheckList recipeStatus={recipeStatus} />
     </div>
   );
 };

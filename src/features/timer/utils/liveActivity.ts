@@ -1,33 +1,33 @@
 import { MODE, request } from "@/src/shared/client/native/client";
 
-export enum LIVE_ACTIVITY_TYPE  {
-  START_LIVE_ACTIVITY= "START_LIVE_ACTIVITY",
-  PAUSE_LIVE_ACTIVITY= "PAUSE_LIVE_ACTIVITY",
-  RESUME_LIVE_ACTIVITY= "RESUME_LIVE_ACTIVITY",
-  END_LIVE_ACTIVITY= "END_LIVE_ACTIVITY",
-};
+export enum LIVE_ACTIVITY_TYPE {
+  START_LIVE_ACTIVITY = "START_LIVE_ACTIVITY",
+  PAUSE_LIVE_ACTIVITY = "PAUSE_LIVE_ACTIVITY",
+  RESUME_LIVE_ACTIVITY = "RESUME_LIVE_ACTIVITY",
+  END_LIVE_ACTIVITY = "END_LIVE_ACTIVITY",
+}
 
 type StartLiveActivityPayload = {
-    timerId: string;
-    activityName: string;
-    endAt: number ;
-    recipeId: string;
-    validTimerIds: string[];
+  timerId: string;
+  activityName: string;
+  endAt: number;
+  recipeId: string;
+  validTimerIds?: string[]; // 이 정보를 보내면 이 정보에 없는 타이머들은 네이티브에서 삭제됨. 안 보낼 경우 네이티브에서 삭제하지 않음.
 };
 
 type PauseLiveActivityPayload = {
-    timerId: string;
-    startedAt: number | null;
-    pausedAt: number | null;
-    duration: number;
-    remainingTime: number;
+  timerId: string;
+  startedAt: number | null;
+  pausedAt: number | null;
+  duration: number;
+  remainingTime: number;
 };
 
 type ResumeLiveActivityPayload = {
-    timerId: string;
-    startedAt: number | null;
-    endAt: number ;
-    duration: number;
+  timerId: string;
+  startedAt: number | null;
+  endAt: number;
+  duration: number;
 };
 
 type EndLiveActivityPayload = {
@@ -42,7 +42,9 @@ export const pauseLiveActivity = async (payload: PauseLiveActivityPayload) => {
   request(MODE.UNBLOCKING, LIVE_ACTIVITY_TYPE.PAUSE_LIVE_ACTIVITY, payload);
 };
 
-export const resumeLiveActivity = async (payload: ResumeLiveActivityPayload) => {
+export const resumeLiveActivity = async (
+  payload: ResumeLiveActivityPayload
+) => {
   request(MODE.UNBLOCKING, LIVE_ACTIVITY_TYPE.RESUME_LIVE_ACTIVITY, payload);
 };
 

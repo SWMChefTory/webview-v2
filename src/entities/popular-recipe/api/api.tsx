@@ -15,10 +15,6 @@ const PopularSummaryRecipeResponseSchema = z.object({
   videoType: z.enum(VideoType),
 });
 
-// const PopularSummaryRecipeApiResponseSchema = z.object({
-//   recommendRecipes: PopularSummaryRecipeResponseSchema.array(),
-// });
-
 const PopularSummaryRecipePagenatedResponse = createPaginatedSchema(
   PopularSummaryRecipeResponseSchema.array()
 );
@@ -38,7 +34,6 @@ export async function fetchPopularSummary({
   page: number;
   videoType: VideoType;
 }): Promise<PopularSummaryRecipePagenatedResponse> {
-  console.log("fetchPopularSummary", `/recipes/recommend?page=${page}&query=${videoType}`);
   const response = await client.get(`/recipes/recommend?page=${page}&query=${videoType}`);
   return parseWithErrLog(PopularSummaryRecipePagenatedResponse, {
     currentPage: response.data.currentPage,

@@ -11,7 +11,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { PiMagnifyingGlassBold } from "react-icons/pi";
-import { TimerSection } from "./TimerSection";
 
 import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { PopularShortsRecipes } from "./popularShortsRecipes";
@@ -25,6 +24,8 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
 import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
+
+import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 
 function HomePage() {
   const router = useRouter();
@@ -52,6 +53,7 @@ function HomePage() {
                   router.push("/user/settings");
                 }}
               />
+              
             </div>
           }
           color="bg-white"
@@ -72,9 +74,6 @@ function HomePage() {
         <MyRecipesReady />
       </SSRSuspense>
       <div className="h-4" />
-      <HydrationZustand>
-        <TimerSection />
-      </HydrationZustand>
       {/* <ThemeRecipeSection /> */}
       <PopularRecipes />
       <PopularShortsRecipes />

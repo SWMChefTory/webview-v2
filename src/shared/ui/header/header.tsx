@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { CgProfile } from "react-icons/cg";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdArrowBack, IoMdClose } from "react-icons/io";
+import { LuTimer } from "react-icons/lu";
 
 const Header = ({
   leftContent,
@@ -49,9 +50,7 @@ const Header = ({
 
 //다른 페이지에서 호환성 때문에 남겨둠. 지워야 함.
 export const HeaderSpacing = () => {
-  return (
-      <div className="flex flex-col h-[44px] bg-transparent" />
-  );
+  return <div className="flex flex-col h-[44px] bg-transparent" />;
 };
 
 const HeaderCenterItem = ({ children }: { children: React.ReactNode }) => {
@@ -133,6 +132,27 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
+const TimerButton = ({
+  onClick,
+  waitingCount = 0,
+}: {
+  onClick: () => void;
+  waitingCount?: number;
+}) => {
+  return (
+    <div className="relative">
+      {waitingCount > 0 && (
+        <div className="absolute top-0.5 right-0 bg-red-400 text-sm w-4 h-4 flex items-center justify-center font-semibold text-white z-1 rounded-full">
+          {waitingCount}
+        </div>
+      )}
+      <IconButtonTemplate
+        icon={<LuTimer className="!w-6 !h-6" />}
+        onClick={onClick}
+      />
+    </div>
+  );
+};
 export {
   BackButton,
   CloseButton,
@@ -140,6 +160,7 @@ export {
   ProfileButton,
   Title,
   AddButton,
+  TimerButton,
 };
 
 export default Header;

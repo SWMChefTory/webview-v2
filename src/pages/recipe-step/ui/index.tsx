@@ -28,6 +28,7 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
+import { TimerButton } from "@/src/features/timer/ui/timerButton";
 
 /* =====================================================================================
    전역: 바운스/풀투리프레시 방지 + 배경/높이/가로 스크롤 고정
@@ -1516,7 +1517,7 @@ function RecipeStep({
             <div className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3">
               {/* ...버튼 동일... */}
               <TimerBottomSheet
-                type="button"
+                trigger={<TimerButton recipeId={recipeId} recipeName={recipeName} />}
                 recipeId={recipeId}
                 recipeName={recipeName}
               />
@@ -1662,7 +1663,7 @@ function RecipeStep({
               }}
             >
               <TimerBottomSheet
-                type="button"
+                trigger={<TimerButton recipeId={recipeId} recipeName={recipeName} />}
                 recipeId={recipeId}
                 recipeName={recipeName}
               />
@@ -1836,11 +1837,6 @@ const RecipeStepPageSkeleton = () => {
               </div>
             }
           />
-        </div>
-        <div className="space-y-3 pt-6">
-          <TextSkeleton />
-          <TextSkeleton />
-          <TextSkeleton />
         </div>
       </div>
     </>

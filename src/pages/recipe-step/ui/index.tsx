@@ -1317,12 +1317,12 @@ function RecipeStep({
               </div>
             }
           />
-          {isLandscape && (
+          {/* {isLandscape && (
             <div
-              className="absolute inset-x-0 bottom-0 h-5 cursor-ns-resize touch-none select-none"
+              className="absolute inset-x-0 bottom-0 h-5 cursor-ns-resize bg-red-500 touch-none select-none"
               onPointerDown={(ev) => onPointerDownHeader(ev, "header")}
             />
-          )}
+          )} */}
         </div>
 
         {/* 핸들바(가로모드에서만 노출) */}
@@ -1520,6 +1520,8 @@ function RecipeStep({
                 trigger={<TimerButton recipeId={recipeId} recipeName={recipeName} />}
                 recipeId={recipeId}
                 recipeName={recipeName}
+                isDarkMode={true}
+                isLandscape={isLandscape}
               />
 
               <div className="flex flex-col items-center gap-1">
@@ -1666,6 +1668,7 @@ function RecipeStep({
                 trigger={<TimerButton recipeId={recipeId} recipeName={recipeName} />}
                 recipeId={recipeId}
                 recipeName={recipeName}
+                isDarkMode={true}
               />
               <div className="flex flex-col items-center gap-2">
                 <button

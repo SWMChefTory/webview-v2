@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import Picker from "react-mobile-picker";
-import { Drawer } from "vaul";
+// import { Drawer } from "vaul";
 import {
   useHandleTimers,
   useTimers,
@@ -11,15 +11,20 @@ import {
   PausedTimerItem,
   IdleTimerItem,
 } from "@/src/features/timer/ui/timerItem";
+import { createPortal } from "react-dom";
 
 export function TimerBottomSheet({
   trigger,
   recipeId,
   recipeName,
+  isDarkMode = false,
+  isLandscape = false,
 }: {
   trigger: React.ReactNode;
   recipeId: string;
   recipeName: string;
+  isDarkMode?: boolean;
+  isLandscape?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const timers = useTimers(recipeId, recipeName);
@@ -34,98 +39,109 @@ export function TimerBottomSheet({
   } = useHandleTimers({ recipeId, recipeName });
 
   return (
-    <Drawer.Root open={open} onOpenChange={setOpen} repositionInputs={false} >
-      <Drawer.Trigger>{trigger}</Drawer.Trigger>
-
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40 z-[800]" />
-        <Drawer.Content
-          className="flex flex-col bg-gray-100 rounded-t-[20px] z-1000 fixed top-16 bottom-0 left-0 right-0 z-[1000]"
-          style={{ height: "90dvh" }}
-        >
-          <TimerHeader
-            onStartTimer={({ duration, timerName }) => {
-              handleStartTimer({ timerName, duration });
-            }}
-          />
+    <div>
+      <div
+        className="z-[1000]"
+        onClick={() => {
+          setOpen((prev) => !prev);
+        }}
+      >
+        {trigger}
+      </div>
+      {timers.size === 0 &&
+        open &&
+        createPortal(
           <div
-            data-vaul-no-drag
-            className="flex-1 px-1 py-4 overflow-y-auto transform-gpu will-change-transform
-      [backface-visibility:hidden]"
+            className={`${
+              isLandscape
+                ? "fixed bottom-0 top-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
+                : "fixed bottom-0 left-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
+            }`}
           >
+            <TimerStarter
+              setOpen={setOpen}
+              onStartTimer={({ duration, timerName }) => {
+                handleStartTimer({ timerName, duration });
+              }}
+            />
+          </div>,
+          document.body
+        )}
+      {open && timers.size !== 0 && (
+        <>
+          {createPortal(
             <div
-              data-vaul-no-drag
-              className="grid grid-cols-2 auto-rows-max gap-2 p-1"
+              className={`flex flex-col ${
+                isDarkMode ? "bg-gray-200/30" : "bg-gray-200/80"
+              } rounded-t-[20px] z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${isLandscape ? "top-0" : "left-0"}` }
             >
-              {timers.entries().map(([id, timer]) => {
-                switch (timer.state) {
-                  case TimerState.ACTIVE:
-                    return (
-                      <ActiveTimerItem
-                        timer={timer}
-                        onDelete={() => handleDeleteTimer({ id })}
-                        onPause={() => handlePauseTimer({ id })}
-                        onCancel={() => handleCancelTimer({ id })}
-                        onFinish={() => handleFinishTimerSuccessfully({ id })}
-                      />
-                    );
-                  case TimerState.PAUSED:
-                    return (
-                      <PausedTimerItem
-                        timer={timer}
-                        onDelete={() => handleDeleteTimer({ id })}
-                        onCancel={() => handleCancelTimer({ id })}
-                        onResume={() => handleResumeTimer({ id })}
-                      />
-                    );
-                  case TimerState.IDLE:
-                    return (
-                      <IdleTimerItem
-                        timer={timer}
-                        onDelete={() => handleDeleteTimer({ id })}
-                        onStart={() => handleReplayTimer({ id })}
-                      />
-                    );
-                }
-              })}
-            </div>
-          </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+              <div
+                data-vaul-no-drag
+                className="flex-1 px-1 py-1 overflow-y-auto"
+              >
+                <div className="flex items-center px-4 justify-between">
+                  <button
+                    onClick={() => setOpen(false)}
+                    className="text-lg text-orange-500 p-2"
+                  >
+                    닫기
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDeleteTimer({ id: Array.from(timers.keys())[0] });
+                    }}
+                    className="text-lg text-orange-500 p-2"
+                  >
+                    재설정
+                  </button>
+                </div>
+                <div data-vaul-no-drag className="gap-2 p-1">
+                  {timers.entries().map(([id, timer]) => {
+                    switch (timer.state) {
+                      case TimerState.ACTIVE:
+                        return (
+                          <ActiveTimerItem
+                            timer={timer}
+                            onPause={() => handlePauseTimer({ id })}
+                            onCancel={() => handleCancelTimer({ id })}
+                            onFinish={() =>
+                              handleFinishTimerSuccessfully({ id })
+                            }
+                          />
+                        );
+                      case TimerState.PAUSED:
+                        return (
+                          <PausedTimerItem
+                            timer={timer}
+                            onCancel={() => handleCancelTimer({ id })}
+                            onResume={() => handleResumeTimer({ id })}
+                          />
+                        );
+                      case TimerState.IDLE:
+                        return (
+                          <IdleTimerItem
+                            timer={timer}
+                            onStart={() => handleReplayTimer({ id })}
+                          />
+                        );
+                    }
+                  })}
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
+        </>
+      )}
+    </div>
   );
 }
 
-export function TimerButton() {
-  return (
-    <button
-      className="flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-orange-500 p-2 shadow-[0_2px_16px_rgba(0,0,0,0.32)] transition active:scale-95"
-      aria-label="타이머"
-      type="button"
-    >
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="13" r="8" stroke="#FFFFFF" strokeWidth="2" />
-        <path
-          d="M12 9v4l3 2"
-          stroke="#FFFFFF"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M9 3h6"
-          stroke="#FFFFFF"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    </button>
-  );
-}
-
-function TimerHeader({
+function TimerStarter({
+  setOpen,
   onStartTimer,
 }: {
+  setOpen: (open: boolean) => void;
   onStartTimer: ({
     duration,
     timerName,
@@ -161,15 +177,15 @@ function TimerHeader({
   };
   return (
     <>
-      <div className="p-4 flex-shrink-0">
-        <div className="mx-auto w-12 h-1.5 flex-shrink-0 bg-gray-300 mb-4" />
-        <div className="flex justify-between items-center">
-          <Drawer.Close asChild>
-            <button className="text-lg text-orange-500 p-2">취소</button>
-          </Drawer.Close>
-          <Drawer.Title className="text-xl font-bold text-gray-900">
-            타이머
-          </Drawer.Title>
+      <div className="px-4 py-3 flex-shrink-0  rounded-md">
+        <div className="flex justify-between items-center p-2">
+          <button
+            onClick={() => setOpen(false)}
+            className="text-lg text-orange-500 p-2"
+          >
+            닫기
+          </button>
+          <div className="text-xl font-bold text-gray-900">타이머</div>
           <button
             className={`text-lg p-2 ${
               isInvalid ? "text-gray-500" : "text-orange-500"
@@ -181,19 +197,21 @@ function TimerHeader({
           </button>
         </div>
       </div>
-      <input
-        onChange={(e) => setTimerName(e.target.value)}
-        type="text"
-        value={timerName}
-        className="w-full p-4 outline-none focus:outline-none focus:ring-0"
-        placeholder="타이머 이름을 입력해주세요."
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-          }
-        }}
-        enterKeyHint="done"
-      />
-      <div className="bg-white rounded-[20px] pb-4 shadow-md z-10">
+      <div className="pb-2 px-2 ">
+        <input
+          onChange={(e) => setTimerName(e.target.value)}
+          type="text"
+          value={timerName}
+          className="w-full p-4 outline-none focus:outline-none focus:ring-0 "
+          placeholder="타이머 이름을 입력해주세요."
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+            }
+          }}
+          enterKeyHint="done"
+        />
+      </div>
+      <div className="bg-white pb-4 z-10">
         <div
           ref={scrollRef}
           data-vaul-no-drag

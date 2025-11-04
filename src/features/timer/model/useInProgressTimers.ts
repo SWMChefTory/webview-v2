@@ -51,7 +51,7 @@ interface TimersStoreState {
 
 export class TimerLimitExceededError extends Error {
   constructor() {
-    super("타이머는 최대 5개 까지 실행 할 수 있습니다. ");
+    super("타이머는 1개만 실행 할 수 있습니다. ");
     this.name = "TimerLimitExceededError";
   }
 }
@@ -70,7 +70,7 @@ const createTimerStore = ({
         recipeName,
         timers: new Map(),
         addTimer: ({ id, timer }: { id: string; timer: Timer }) => {
-          if (!get().timers.has(id) && get().timers.size >= 5) {
+          if (!get().timers.has(id) && get().timers.size >= 1) {
             throw new TimerLimitExceededError();
           }
           set({ timers: new Map([...get().timers, [id, timer]]) });
@@ -104,7 +104,7 @@ const createTimerStore = ({
         },
       }),
       {
-        name: `timer-store-${recipeId}`,
+        name: `timer-store-${recipeId}-1`,
         partialize: (state) => ({
           recipeId,
           recipeName,
@@ -158,16 +158,16 @@ function getOrCreateRecipeStore(recipeId: string, recipeName: string) {
   return newStore;
 }
 
-function disposeRecipeStore(recipeId: string) {
-  const store = registry.get(recipeId);
-  if (store) {
-    registry.delete(recipeId);
-  }
-}
+// function disposeRecipeStore(recipeId: string) {
+//   const store = registry.get(recipeId);
+//   if (store) {
+//     registry.delete(recipeId);
+//   }
+// }
 
-function listRecipeStores() {
-  return Array.from(registry.keys());
-}
+// function listRecipeStores() {
+//   return Array.from(registry.keys());
+// }
 
 export function useTimers(recipeId: string, recipeName: string) {
   const store = getOrCreateRecipeStore(recipeId, recipeName);

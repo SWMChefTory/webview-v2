@@ -6,27 +6,25 @@ import {
   PausedTimer,
 } from "../model/useInProgressTimers";
 import { formatTime } from "../utils/time";
-import { IoIosClose } from "react-icons/io";
 import { useProgressTimer } from "../model/useProgressTimer";
 
 export function ActiveTimerItem(props: {
   timer: ActiveTimer;
-  onDelete: () => void;
   onPause: () => void;
   onCancel: () => void;
   onFinish: () => void;
 }) {
-  const { timer, onDelete, onPause, onCancel, onFinish } = props;
+  const { timer, onPause, onCancel, onFinish } = props;
   const { time } = useProgressTimer({ timer, onFinish });
 
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-xs p-2">
-      <TimerItemHeader onDelete={onDelete} title={timer.timerName} />
+    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+      {/* <TimerItemHeader  title={timer.timerName} /> */}
       <TimerItemTime duration={timer.duration} remaining={time} />
       <TimerButtonTemplate
         leftButton={
           <div className="pl-0.5">
-            <IoMdClose className="text-lg text-orange-400" />
+            <IoMdClose className="text-2xl text-bold " />
           </div>
         }
         onClickLeft={() => {
@@ -34,7 +32,7 @@ export function ActiveTimerItem(props: {
         }}
         rightButton={
           <div className="pl-0.5">
-            <IoPauseOutline className="text-lg text-orange-400" />
+            <IoPauseOutline className="text-2xl text-bold text-orange-400" />
           </div>
         }
         onClickRight={() => {
@@ -47,14 +45,13 @@ export function ActiveTimerItem(props: {
 
 export function PausedTimerItem(props: {
   timer: PausedTimer;
-  onDelete: () => void;
   onCancel: () => void;
   onResume: () => void;
 }) {
-  const { timer, onDelete, onCancel, onResume } = props;
+  const { timer, onCancel, onResume } = props;
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-xs p-2">
-      <TimerItemHeader onDelete={onDelete} title={timer.timerName} />
+    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+      {/* <TimerItemHeader title={timer.timerName} /> */}
       <TimerItemTime
         duration={timer.duration}
         remaining={timer.remainingTime}
@@ -65,12 +62,12 @@ export function PausedTimerItem(props: {
         }}
         leftButton={
           <div className="pl-0.5">
-            <IoMdClose className="text-lg text-orange-400" />
+            <IoMdClose className="text-2xl text-bold" />
           </div>
         }
         rightButton={
           <div className="pl-0.5">
-            <IoPlayOutline className="text-lg text-orange-400" />
+            <IoPlayOutline className="text-2xl text-bold text-orange-400" />
           </div>
         }
         onClickRight={() => {
@@ -83,16 +80,14 @@ export function PausedTimerItem(props: {
 
 export function IdleTimerItem({
   timer,
-  onDelete,
   onStart,
 }: {
   timer: IdleTimer;
-  onDelete: () => void;
   onStart: () => void;
 }) {
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-xs p-2">
-      <TimerItemHeader onDelete={onDelete} title={timer.timerName} />
+    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+      {/* <TimerItemHeader title={timer.timerName} /> */}
       <TimerItemTime duration={timer.duration} remaining={timer.duration} />
       <TimerButtonTemplate
         onClickLeft={() => {
@@ -100,7 +95,7 @@ export function IdleTimerItem({
         }}
         leftButton={
           <div className="pl-0.5">
-            <IoPlayOutline className="text-lg" />
+            <IoPlayOutline className="text-2xl text-bold text-orange-400" />
           </div>
         }
       ></TimerButtonTemplate>
@@ -109,10 +104,8 @@ export function IdleTimerItem({
 }
 
 function TimerItemHeader({
-  onDelete,
   title,
 }: {
-  onDelete: () => void;
   title: string;
 }) {
   return (
@@ -123,7 +116,7 @@ function TimerItemHeader({
         >
           {title || "이름 없음"}
         </span>
-        <IoIosClose className="text-gray-400 size-8" onClick={onDelete} />
+        
       </div>
       <div className="h-2" />
     </div>
@@ -139,7 +132,7 @@ export function TimerItemTime({
   //높이 60px
   return (
     <div className="flex flex-col">
-      <span className={`pl-3 text-4xl font-semibold tabular-nums`}>
+      <span className={`pl-3 text-6xl font-semibold tabular-nums`}>
         {formatTime(Math.ceil(remaining))}
       </span>
     </div>

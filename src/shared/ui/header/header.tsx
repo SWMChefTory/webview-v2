@@ -132,27 +132,6 @@ const CloseButton = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-const TimerButton = ({
-  onClick,
-  waitingCount = 0,
-}: {
-  onClick: () => void;
-  waitingCount?: number;
-}) => {
-  return (
-    <div className="relative">
-      {waitingCount > 0 && (
-        <div className="absolute top-0.5 right-0 bg-red-400 text-sm w-4 h-4 flex items-center justify-center font-semibold text-white z-1 rounded-full">
-          {waitingCount}
-        </div>
-      )}
-      <IconButtonTemplate
-        icon={<LuTimer className="!w-6 !h-6" />}
-        onClick={onClick}
-      />
-    </div>
-  );
-};
 export {
   BackButton,
   CloseButton,
@@ -160,7 +139,6 @@ export {
   ProfileButton,
   Title,
   AddButton,
-  TimerButton,
 };
 
 export default Header;

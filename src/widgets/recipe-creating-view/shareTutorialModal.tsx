@@ -148,10 +148,10 @@ export function ShareTutorialModal() {
 
           <div className="px-6 pt-1 pb-2 border-b border-gray-100 flex-shrink-0 relative">
             <Dialog.Title className="text-xl font-bold mb-1 text-gray-900 pr-8">
-              레시피 공유하기
+              레시피 생성하기
             </Dialog.Title>
             <Dialog.Description className="text-xs text-gray-600">
-              유튜브에서 레시피 영상을 공유하는 방법을 알려드릴게요
+              유튜브에서 레시피 영상을 생성하는 방법을 알려드릴게요
             </Dialog.Description>
             
             <Dialog.Close asChild>
@@ -217,7 +217,7 @@ export function ShareTutorialModal() {
               onClick={handleOpenYouTube}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200"
             >
-              공유하러 가기
+              생성하러 가기
             </Button>
             <Button
               onClick={handleDirectInput}

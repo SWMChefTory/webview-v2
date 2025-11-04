@@ -127,8 +127,12 @@ const RecipeSearchedCardReady = ({
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleCardClick = () => {
-    setIsOpen(true);
+  const handleCardClick = async () => {
+    if (!searchResults.isViewed) {
+      setIsOpen(true);
+    } else {
+      router.replace(`/recipe/${searchResults.recipeId}/detail`);
+    }
   };
 
   return (
@@ -139,6 +143,11 @@ const RecipeSearchedCardReady = ({
       >
         <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
           <ThumbnailReady imgUrl={searchResults.videoInfo.videoThumbnailUrl} />
+          {searchResults.isViewed && (
+            <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
+              이미 등록했어요
+            </div>
+          )}
         </div>
 
         <div className="mt-3 space-y-2.5">

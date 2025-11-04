@@ -14,7 +14,7 @@ const RawSearchRecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
   tags: z.array(RecipeTagSchema),
-  isViewed: z.boolean().optional(),
+  isViewed: z.boolean(),
   description: z.string(),
   servings: z.number(),
   cookingTime: z.number(),
@@ -30,6 +30,7 @@ const RawSearchRecipeSchema = z.object({
 const RecipeSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
+  isViewed: z.boolean(),
   tags: z.array(RecipeTagSchema),
   videoInfo: VideoInfoSchema,
   detailMeta: RecipeDetailMetaSchema,

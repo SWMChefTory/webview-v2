@@ -18,7 +18,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-
+import {
+  MicButtonPopover,
+  popoverHandle as micButtonPopoverHandle,
+} from "./micButtonPopover";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
@@ -630,6 +633,7 @@ type BasicIntent =
   | "VIDEO PLAY"
   | "VIDEO STOP"
   | `TIMER ${TimerCommandType} ${number}`
+  | `INGREDIENT ${string}`
   | "EXTRA";
 function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
@@ -642,6 +646,9 @@ function parseIntent(raw: string | undefined): BasicIntent {
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
   const timerCmd = "(SET|START|STOP|CHECK)";
   if (new RegExp(`^TIMER\\s+${timerCmd}(?:\\s+\\d+)?$`).test(key)) {
+    return key as BasicIntent;
+  }
+  if (/^INGREDIENT\s+.+$/.test(key)) {
     return key as BasicIntent;
   }
   return "EXTRA";
@@ -1124,6 +1131,14 @@ function RecipeStep({
     });
   }, [currentStep, currentDetailIndex, progressH, isLandscape]);
 
+  const micButtonPopoverRef = useRef<micButtonPopoverHandle | undefined>(
+    undefined
+  );
+
+  const handleMicButtonPopover = (message: string) => {
+    micButtonPopoverRef.current?.showMessage(message);
+  };
+
   useSimpleSpeech({
     recipeId: router.query.id as string,
     onVoiceStart: () => {
@@ -1198,6 +1213,18 @@ function RecipeStep({
         handleTimerIntent(parsedIntent, (error: string) => {
           errorPopoverRef.current?.showErrorMessage(error);
         });
+        return;
+      }
+      if (parsedIntent.startsWith("INGREDIENT")) {
+        const ingredient = parsedIntent.split(/\s+/);
+        if (ingredient.length <= 1) {
+          return;
+        }
+        const [ingredientName, ingredientAmount] = ingredient;
+        if (ingredientAmount === "0") {
+          handleMicButtonPopover(`영상을 참조해주세요.`);
+        }
+        handleMicButtonPopover(`${ingredientName} ${ingredientAmount} 필요해요.`);
         return;
       }
     },
@@ -1684,6 +1711,7 @@ function RecipeStep({
                 type="button"
                 title="음성 명령 가이드"
               >
+                <MicButtonPopover ref={micButtonPopoverRef} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"

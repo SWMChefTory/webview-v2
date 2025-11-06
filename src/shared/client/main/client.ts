@@ -96,8 +96,8 @@ const MAIN_ACCESS_TOKEN_KEY = "MAIN_ACCESS_TOKEN";
 
 export const getMainAccessToken = () => {
   if (typeof window === "undefined") return "";
-  // return "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI0YjkwMGMzZi1jZTJiLTQ3NTktYTI2ZS1hNDI0NmY4ZjgxNjEiLCJ0eXBlIjoiJHtKV1RfQUNDRVNTX1RPS0VOX1RZUEV9IiwiaWF0IjoxNzYyMzUxNDAwLCJleHAiOjE3NjIzNTE3MDB9.sEZN1kMofMmTtMB-aDN-ypvpS4jLVccEZUmaKnFJB-sxeRux6W1HKFZbEIBZgO9tWKSpdg95k9YF7axmCU-h3Q"
-  return localStorage.getItem(MAIN_ACCESS_TOKEN_KEY) || "";
+  return "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI0YjkwMGMzZi1jZTJiLTQ3NTktYTI2ZS1hNDI0NmY4ZjgxNjEiLCJ0eXBlIjoiJHtKV1RfQUNDRVNTX1RPS0VOX1RZUEV9IiwiaWF0IjoxNzYyNDE5MDI5LCJleHAiOjE3NjI0MTkzMjl9.cjHfcp2WGbbYylmP84A09Qb-WyCSLW_GSz1NeaFcD0O1q7CdKAi7AyQU7sXK4lGtdwVS6qte93Hr5Wk-lofb_A"
+  // return localStorage.getItem(MAIN_ACCESS_TOKEN_KEY) || "";
 };
 
 export const setMainAccessToken = (token: string) => {

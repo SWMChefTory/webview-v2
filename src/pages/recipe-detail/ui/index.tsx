@@ -6,6 +6,7 @@ import Header, { BackButton } from "@/src/shared/ui/header/header";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { IngredientPurchaseModal } from "./IngredientPurchaseModal";
 import { MeasurementOverlay } from "./MeasurementOverlay";
 import { TimerButton } from "./timerButton";
 
@@ -81,7 +82,11 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
     <div className="relative w-full h-[100dvh] overflow-hidden bg-white">
       <div ref={headerWrapRef}>
         <Header
-          leftContent={<div className="z-1"><BackButton onClick={() => router.back()} /></div>}
+          leftContent={
+            <div className="z-1">
+              <BackButton onClick={() => router.back()} />
+            </div>
+          }
           centerContent={
             <div
               className="
@@ -95,7 +100,7 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
             </div>
           }
           rightContent={
-            <TimerButton recipeId={id} recipeName={videoInfo?.videoTitle}  />
+            <TimerButton recipeId={id} recipeName={videoInfo?.videoTitle} />
           }
         />
       </div>
@@ -211,6 +216,7 @@ export const RecipeBottomSheet = ({
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [measurementOpen, setMeasurementOpen] = useState(false);
+  const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
 
   const [isMeasured, setIsMeasured] = useState(false);
   const [topPx, setTopPx] = useState<number>(() => collapsedTopPx || 0);
@@ -576,6 +582,41 @@ export const RecipeBottomSheet = ({
                 </button>
               </div>
 
+              {/* 재료 구매 배너 */}
+              <div
+                className="relative overflow-hidden rounded-md border border-gray-200 bg-gradient-to-r from-orange-50 to-white cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setPurchaseModalOpen(true)}
+              >
+                <div className="flex items-center justify-between px-4 py-2.5">
+                  <div className="flex items-center gap-2.5">
+                    {/* 왼쪽 아이콘 */}
+                    <div className="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center">
+                      <div className="text-xl">🛒</div>
+                    </div>
+
+                    {/* 텍스트 */}
+                    <span className="text-base font-semibold text-neutral-900">
+                      영상 속 재료 바로 구매하기
+                    </span>
+                  </div>
+
+                  {/* 오른쪽 화살표 */}
+                  <svg
+                    className="w-5 h-5 text-gray-400 flex-shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+
               <div className="grid grid-cols-3 gap-2">
                 {ingredients.map((ing, i) => {
                   const isSel = selected.has(i);
@@ -697,6 +738,13 @@ export const RecipeBottomSheet = ({
       <MeasurementOverlay
         open={measurementOpen}
         onOpenChange={setMeasurementOpen}
+      />
+
+      {/* Purchase Modal */}
+      <IngredientPurchaseModal
+        open={purchaseModalOpen}
+        onOpenChange={setPurchaseModalOpen}
+        ingredients={ingredients}
       />
     </>
   );

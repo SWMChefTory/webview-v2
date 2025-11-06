@@ -6,8 +6,7 @@ import {
   useTimers,
 } from "../model/useInProgressTimers";
 import { useProgressTimer } from "../model/useProgressTimer";
-import { filterActiveTimers, findEarliestFinishTimer } from "../utils/query";
-import { motion, useSpring, useTransform } from "framer-motion";
+import { filterActiveTimers } from "../utils/query";
 import { useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
 

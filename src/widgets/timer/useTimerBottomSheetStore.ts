@@ -6,6 +6,7 @@ const useTimerBottomSheetVisibilityStore = create<{
   timer: NodeJS.Timeout | undefined;
   handleFlip: () => void;
   handleClose: () => void;
+  handleOpen: () => void;
   handleOpenTemporarily: ({ seconds }: { seconds: number }) => void;
 }>((set, get) => ({
   open: false,
@@ -14,6 +15,12 @@ const useTimerBottomSheetVisibilityStore = create<{
   handleFlip: () => set({ open: !get().open }),
   handleClose: () => {
     set({ open: false });
+    clearTimeout(get().timer);
+    set({ timer: undefined });
+    set({ endAt: null });
+  },
+  handleOpen: () => {
+    set({ open: true });
     clearTimeout(get().timer);
     set({ timer: undefined });
     set({ endAt: null });
@@ -35,7 +42,7 @@ const useTimerBottomSheetVisibilityStore = create<{
 }));
 
 export const useTimerBottomSheetVisibility = () => {
-  const { open, endAt, handleFlip, handleClose, handleOpenTemporarily } =
+  const { open, endAt, handleFlip, handleClose, handleOpen, handleOpenTemporarily } =
     useTimerBottomSheetVisibilityStore();
-  return { open, endAt, handleFlip, handleClose, handleOpenTemporarily };
+  return { open, endAt, handleFlip, handleClose, handleOpen, handleOpenTemporarily };
 };

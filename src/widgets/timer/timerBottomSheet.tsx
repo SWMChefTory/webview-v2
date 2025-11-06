@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Picker from "react-mobile-picker";
 // import { Drawer } from "vaul";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/src/features/timer/ui/timerItem";
 import { createPortal } from "react-dom";
 import { useTimerBottomSheetVisibility } from "./useTimerBottomSheetStore";
+import { useInterval } from "@/src/shared/hooks/useInterval";
 
 export function TimerBottomSheet({
   trigger = null,
@@ -27,7 +28,8 @@ export function TimerBottomSheet({
   isDarkMode?: boolean;
   isLandscape?: boolean;
 }) {
-  const { open, handleFlip , handleClose } = useTimerBottomSheetVisibility();
+  const { open, endAt, handleOpenTemporarily, handleClose, handleOpen } =
+    useTimerBottomSheetVisibility();
   const timers = useTimers(recipeId, recipeName);
   const {
     handleStartTimer,
@@ -38,13 +40,30 @@ export function TimerBottomSheet({
     handleDeleteTimer,
     handleReplayTimer,
   } = useHandleTimers({ recipeId, recipeName });
+  const [remaingTime, setRemainingTime] = useState<number | null>(null);
+
+  useInterval(
+    () => {
+      if (endAt) {
+        setRemainingTime(Math.ceil((endAt.getTime() - Date.now()) / 1000));
+      }
+    },
+    endAt ? 200 : null
+  );
+
+  useEffect(() => {
+    if (!endAt) {
+      setRemainingTime(null);
+    }
+  }, [endAt]);
 
   return (
     <div>
       <div
         className="z-[1000] bg-transparent"
         onClick={() => {
-          handleFlip();
+          // handleFlip();
+          handleOpenTemporarily({ seconds: 5 });
         }}
       >
         {trigger}
@@ -58,7 +77,14 @@ export function TimerBottomSheet({
                 ? "fixed bottom-0 top-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
                 : "fixed bottom-0 left-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
             }`}
+            onPointerDown={() => handleOpen()}
+            onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
           >
+            {endAt && remaingTime && remaingTime > 0 && remaingTime < 4 && (
+              <div className="flex w-full justify-center items-center p-2">
+                {remaingTime}초 후에 자동으로 종료돼요.
+              </div>
+            )}
             <TimerStarter
               handleClose={handleClose}
               onStartTimer={({ duration, timerName }) => {
@@ -77,7 +103,14 @@ export function TimerBottomSheet({
               } rounded-t-[20px] z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${
                 isLandscape ? "top-0" : "left-0"
               }`}
+              onPointerDown={() => handleOpen()}
+              onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
             >
+              {endAt && remaingTime && remaingTime > 0 && remaingTime < 4 && (
+                <div className="flex w-full justify-center items-center p-2">
+                  {remaingTime}초 후에 자동으로 종료돼요.
+                </div>
+              )}
               <div
                 data-vaul-no-drag
                 className="flex-1 px-1 py-1 overflow-y-auto"
@@ -200,7 +233,7 @@ function TimerStarter({
           </button>
         </div>
       </div>
-      <div className="pb-2 px-2 ">
+      {/* <div className="pb-2 px-2 ">
         <input
           onChange={(e) => setTimerName(e.target.value)}
           type="text"
@@ -213,7 +246,7 @@ function TimerStarter({
           }}
           enterKeyHint="done"
         />
-      </div>
+      </div> */}
       <div className="bg-white pb-4 z-10">
         <div
           ref={scrollRef}

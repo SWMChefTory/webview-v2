@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { TimerState, ActiveTimer } from "./useInProgressTimers";
+import { useInterval } from "@/src/shared/hooks/useInterval";
 
 export function useProgressTimer({
   timer,
@@ -31,23 +32,3 @@ export function useProgressTimer({
   };
 }
 
-function useInterval(callback: () => void, delay: number | null) {
-  const savedCallback = useRef<() => void>(callback);
-
-  useEffect(() => {
-    savedCallback.current = callback;
-  });
-
-  useEffect(() => {
-    function tick() {
-      savedCallback.current();
-    }
-
-    if (delay !== null) {
-      let id = setInterval(tick, delay);
-      return () => clearInterval(id);
-    }
-  }, [delay]);
-
-  return callback;
-}

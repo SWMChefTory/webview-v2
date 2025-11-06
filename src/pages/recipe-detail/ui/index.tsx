@@ -95,7 +95,7 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
             </div>
           }
           rightContent={
-            <TimerButton recipeId={id} recipeName={videoInfo?.videoTitle} />
+            <TimerButton recipeId={id} recipeName={videoInfo?.videoTitle}  />
           }
         />
       </div>

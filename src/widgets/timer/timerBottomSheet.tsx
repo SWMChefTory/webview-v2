@@ -12,21 +12,22 @@ import {
   IdleTimerItem,
 } from "@/src/features/timer/ui/timerItem";
 import { createPortal } from "react-dom";
+import { useTimerBottomSheetVisibility } from "./useTimerBottomSheetStore";
 
 export function TimerBottomSheet({
-  trigger,
+  trigger = null,
   recipeId,
   recipeName,
   isDarkMode = false,
   isLandscape = false,
 }: {
-  trigger: React.ReactNode;
+  trigger?: React.ReactNode;
   recipeId: string;
   recipeName: string;
   isDarkMode?: boolean;
   isLandscape?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const { open, handleFlip , handleClose } = useTimerBottomSheetVisibility();
   const timers = useTimers(recipeId, recipeName);
   const {
     handleStartTimer,
@@ -41,9 +42,9 @@ export function TimerBottomSheet({
   return (
     <div>
       <div
-        className="z-[1000]"
+        className="z-[1000] bg-transparent"
         onClick={() => {
-          setOpen((prev) => !prev);
+          handleFlip();
         }}
       >
         {trigger}
@@ -59,7 +60,7 @@ export function TimerBottomSheet({
             }`}
           >
             <TimerStarter
-              setOpen={setOpen}
+              handleClose={handleClose}
               onStartTimer={({ duration, timerName }) => {
                 handleStartTimer({ timerName, duration });
               }}
@@ -73,7 +74,9 @@ export function TimerBottomSheet({
             <div
               className={`flex flex-col ${
                 isDarkMode ? "bg-gray-200/30" : "bg-gray-200/80"
-              } rounded-t-[20px] z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${isLandscape ? "top-0" : "left-0"}` }
+              } rounded-t-[20px] z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${
+                isLandscape ? "top-0" : "left-0"
+              }`}
             >
               <div
                 data-vaul-no-drag
@@ -81,7 +84,7 @@ export function TimerBottomSheet({
               >
                 <div className="flex items-center px-4 justify-between">
                   <button
-                    onClick={() => setOpen(false)}
+                    onClick={handleClose}
                     className="text-lg text-orange-500 p-2"
                   >
                     닫기
@@ -96,7 +99,7 @@ export function TimerBottomSheet({
                   </button>
                 </div>
                 <div data-vaul-no-drag className="gap-2 p-1">
-                  {timers.entries().map(([id, timer]) => {
+                  {[...timers.entries()].map(([id, timer]) => {
                     switch (timer.state) {
                       case TimerState.ACTIVE:
                         return (
@@ -107,6 +110,7 @@ export function TimerBottomSheet({
                             onFinish={() =>
                               handleFinishTimerSuccessfully({ id })
                             }
+                            key={`active-${id}`}
                           />
                         );
                       case TimerState.PAUSED:
@@ -115,6 +119,7 @@ export function TimerBottomSheet({
                             timer={timer}
                             onCancel={() => handleCancelTimer({ id })}
                             onResume={() => handleResumeTimer({ id })}
+                            key={`paused-${id}`}
                           />
                         );
                       case TimerState.IDLE:
@@ -122,6 +127,7 @@ export function TimerBottomSheet({
                           <IdleTimerItem
                             timer={timer}
                             onStart={() => handleReplayTimer({ id })}
+                            key={`idle-${id}`}
                           />
                         );
                     }
@@ -138,10 +144,10 @@ export function TimerBottomSheet({
 }
 
 function TimerStarter({
-  setOpen,
+  handleClose,
   onStartTimer,
 }: {
-  setOpen: (open: boolean) => void;
+  handleClose: () => void;
   onStartTimer: ({
     duration,
     timerName,
@@ -179,10 +185,7 @@ function TimerStarter({
     <>
       <div className="px-4 py-3 flex-shrink-0  rounded-md">
         <div className="flex justify-between items-center p-2">
-          <button
-            onClick={() => setOpen(false)}
-            className="text-lg text-orange-500 p-2"
-          >
+          <button onClick={handleClose} className="text-lg text-orange-500 p-2">
             닫기
           </button>
           <div className="text-xl font-bold text-gray-900">타이머</div>

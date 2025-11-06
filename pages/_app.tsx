@@ -76,6 +76,7 @@ function AppInner({ Component, pageProps }: AppProps) {
     setRecipeDetailLinkUrl(path);
   }
 
+
   useEffect(() => {
     request(MODE.BLOCKING, "CONSUME_INITIAL_DATA").then((result) => {
       if (result.messagesConsumed.length <= 0) return;

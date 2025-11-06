@@ -28,7 +28,11 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
-import { TimerButton } from "@/src/features/timer/ui/timerButton";
+import {
+  popoverHandle,
+  TimerButton,
+} from "@/src/features/timer/ui/timerButton";
+import { useHandleTimerVoiceIntent } from "@/src/pages/recipe-step/hooks/useTimerIntent";
 
 /* =====================================================================================
    전역: 바운스/풀투리프레시 방지 + 배경/높이/가로 스크롤 고정
@@ -613,6 +617,8 @@ function LoadingOverlay() {
   );
 }
 
+type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
+
 /* =====================================================================================
    Intent 타입 및 파싱
 ===================================================================================== */
@@ -623,15 +629,21 @@ type BasicIntent =
   | `STEP ${number}`
   | "VIDEO PLAY"
   | "VIDEO STOP"
+  | `TIMER ${TimerCommandType} ${number}`
   | "EXTRA";
 function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
+  console.log("key", key);
   if (key === "NEXT") return "NEXT";
   if (key === "PREV") return "PREV";
   if (key === "VIDEO PLAY") return "VIDEO PLAY";
   if (key === "VIDEO STOP") return "VIDEO STOP";
   if (/^TIMESTAMP\s+\d+$/.test(key)) return key as BasicIntent;
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
+  const timerCmd = "(SET|START|STOP|CHECK)";
+  if (new RegExp(`^TIMER\\s+${timerCmd}(?:\\s+\\d+)?$`).test(key)) {
+    return key as BasicIntent;
+  }
   return "EXTRA";
 }
 
@@ -809,7 +821,7 @@ function RecipeStep({
 
     const deltaTime = Date.now() - dragStartTimeRef.current;
     const distance = Math.abs(dy);
-    
+
     dragStartYRef.current = null;
     dragStartTimeRef.current = 0;
 
@@ -944,6 +956,7 @@ function RecipeStep({
       persistRef.current.time = t;
     },
   });
+  const errorPopoverRef = useRef<popoverHandle | undefined>(undefined);
 
   const computeGroupBounds = useCallback(
     (stepIdx: number) => {
@@ -1078,6 +1091,11 @@ function RecipeStep({
     [progressH, isLandscape]
   );
 
+  const { handleTimerIntent } = useHandleTimerVoiceIntent({
+    recipeId: recipeId,
+    recipeName: recipeName,
+  });
+
   // 현재 단계가 변경될 때마다 자동으로 상단으로 스크롤
   useEffect(() => {
     const container = listRef.current;
@@ -1124,8 +1142,10 @@ function RecipeStep({
       }, 1000);
     },
     onIntent: (intent: any) => {
+      console.log("onIntent!!", JSON.stringify(intent, null, 2));
       const now = Date.now();
       const parsedIntent = parseIntent(intent?.base_intent || intent);
+      console.log("parsedIntent3", parsedIntent);
 
       if (parsedIntent === "NEXT") {
         goToNextStep();
@@ -1171,6 +1191,13 @@ function RecipeStep({
         setTimeout(() => {
           snapCurrentToTop("smooth");
         }, 50);
+        return;
+      }
+      if (parsedIntent.startsWith("TIMER")) {
+        console.log("parsedIntentStart", parsedIntent);
+        handleTimerIntent(parsedIntent, (error: string) => {
+          errorPopoverRef.current?.showErrorMessage(error);
+        });
         return;
       }
     },
@@ -1260,7 +1287,7 @@ function RecipeStep({
               ref={isCurrent ? currentRowRef : undefined}
             >
               {showSubtitle && (
-                <div className="mb-3">  
+                <div className="mb-3">
                   <span className={subtitleCls}>
                     {String.fromCharCode(65 + item.stepIndex)}. {item.subtitle}
                   </span>
@@ -1342,19 +1369,19 @@ function RecipeStep({
             color="bg-black/80 backdrop-blur-sm border-b border-white/10"
             leftContent={
               <div
-              className={
-                orientation === "landscape-left" ? "ml-8" : undefined
-              }
-            >
-              <BackButton
-                onClick={() => {
-                  // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
-                  handleLockOrientation();
-                  setShouldGoBack(true);
-                }}
-                color="text-white"
-              />
-            </div>
+                className={
+                  orientation === "landscape-left" ? "ml-8" : undefined
+                }
+              >
+                <BackButton
+                  onClick={() => {
+                    // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
+                    handleLockOrientation();
+                    setShouldGoBack(true);
+                  }}
+                  color="text-white"
+                />
+              </div>
             }
             centerContent={
               <div
@@ -1392,8 +1419,8 @@ function RecipeStep({
         )}
 
         {/* (세로모드 전용) 고정 유튜브 */}
-                {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
-                <div
+        {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
+        <div
           className={
             isLandscape
               ? "fixed z-[900] flex items-start justify-center px-2"
@@ -1430,8 +1457,8 @@ function RecipeStep({
               onStateChange={handleStateChange}
             />
           </div>
-                 {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 (가로모드) */}
-                 {isLandscape && (
+          {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 (가로모드) */}
+          {isLandscape && (
             <div
               className="absolute inset-0 z-10"
               style={{
@@ -1468,8 +1495,7 @@ function RecipeStep({
                 : "relative z-[900] bg-black"
             }
             onClick={handleContentClick}
-          >
-          </div>
+          ></div>
 
           {/* 우: 진행바 + 텍스트 (내부 스크롤만 허용, 30%) - 진한 회색 배경 */}
           <div
@@ -1563,7 +1589,13 @@ function RecipeStep({
             <div className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3">
               {/* ...버튼 동일... */}
               <TimerBottomSheet
-                trigger={<TimerButton recipeId={recipeId} recipeName={recipeName} />}
+                trigger={
+                  <TimerButton
+                    recipeId={recipeId}
+                    recipeName={recipeName}
+                    errorPopoverRef={errorPopoverRef}
+                  />
+                }
                 recipeId={recipeId}
                 recipeName={recipeName}
                 isDarkMode={true}
@@ -1684,9 +1716,6 @@ function RecipeStep({
                         100% {
                           transform: scale(2.2);
                           opacity: 0;
-
-
-
                         }
                       }
                     `}</style>
@@ -1712,7 +1741,13 @@ function RecipeStep({
               }}
             >
               <TimerBottomSheet
-                trigger={<TimerButton recipeId={recipeId} recipeName={recipeName} />}
+                trigger={
+                  <TimerButton
+                    recipeId={recipeId}
+                    recipeName={recipeName}
+                    errorPopoverRef={errorPopoverRef}
+                  />
+                }
                 recipeId={recipeId}
                 recipeName={recipeName}
                 isDarkMode={true}
@@ -1828,9 +1863,6 @@ function RecipeStep({
                         100% {
                           transform: scale(2.2);
                           opacity: 0;
-
-
-
                         }
                       }
                     `}</style>

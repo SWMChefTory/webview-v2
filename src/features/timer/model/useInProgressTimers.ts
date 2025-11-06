@@ -71,6 +71,14 @@ const createTimerStore = ({
         timers: new Map(),
         addTimer: ({ id, timer }: { id: string; timer: Timer }) => {
           if (!get().timers.has(id) && get().timers.size >= 1) {
+            if([...get().timers.entries()][0][1]?.state === TimerState.IDLE || [...get().timers.entries()][0][1]?.state === TimerState.PAUSED) {
+              const nextTimers = new Map([[id, timer]]);
+              // nextTimers.delete(id);
+              // nextTimers.set(id, timer);
+              console.log("nextTimers", nextTimers);
+              set({ timers: nextTimers });
+              return;
+            }
             throw new TimerLimitExceededError();
           }
           set({ timers: new Map([...get().timers, [id, timer]]) });
@@ -216,6 +224,7 @@ export const useHandleTimers = ({
   };
 
   const handlePauseTimer = ({ id }: { id: string }) => {
+    console.log("handlePauseTimer", id);
     const timer = getTimerById(id);
     if (!timer) {
       throw new Error("Timer not found");

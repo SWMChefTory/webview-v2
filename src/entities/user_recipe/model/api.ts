@@ -15,6 +15,7 @@ export type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 export async function fetchAllRecipesSummary({ page }: { page: number }) {
   const response = await client.get(`/recipes/recent?page=${page}`);
   const data = response.data;
+  console.log("fetchRecipe!!", JSON.stringify(data, null, 2));
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.recentRecipes.map((recipe: any) => transformRecipe(recipe)),

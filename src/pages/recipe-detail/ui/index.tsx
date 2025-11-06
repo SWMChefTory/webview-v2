@@ -447,8 +447,24 @@ export const RecipeBottomSheet = ({
               {Array.isArray(briefings) && briefings.length > 0 && (
                 <section className="p-4 rounded-xl border border-gray-200 bg-white shadow-sm">
                   <h4 className="text-neutral-900 font-bold text-base mb-3">
-                    💡 요리 팁
+                    실제 사용자 후기
                   </h4>
+                  <p className="text-sm text-gray-500 mb-3 flex gap-1.5 items-center">
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    유튜브 댓글을 참고해서 만들었어요.
+                  </p>
                   <ul className="flex flex-col gap-2">
                     {briefings.map((b, i) => {
                       const text = b?.content ?? "";
@@ -458,7 +474,7 @@ export const RecipeBottomSheet = ({
                           key={`${i}-${text.slice(0, 12)}`}
                           className="flex gap-2 items-start"
                         >
-                          <span className="w-1.5 h-1.5 mt-1.5 rounded-full bg-orange-500" />
+                          <span className="w-1.5 h-1.5 mt-2.5 rounded-full bg-orange-500 flex-shrink-0" />
                           <span className="text-base leading-7 text-neutral-900 break-keep break-words">
                             {text}
                           </span>

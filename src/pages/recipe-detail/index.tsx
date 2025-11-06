@@ -10,8 +10,6 @@ import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { ShieldAlert, Home, RefreshCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useEffect } from "react";
-import { useTimers } from "@/src/features/timer/model/useInProgressTimers";
 
 const RecipeDetailPage = () => {
   const router = useRouter();
@@ -79,13 +77,7 @@ export function SectionFallback({
   recipeId,
 }: SectionFallbackProps) {
   const router = useRouter();
-  const { handleDeleteTimerByRecipeId } = useTimers();
-
-  useEffect(()=>{
-    if(recipeId){
-      handleDeleteTimerByRecipeId({ recipeId });
-    }
-  }, [recipeId]);
+  
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-6 py-12">

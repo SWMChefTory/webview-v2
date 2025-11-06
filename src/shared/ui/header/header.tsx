@@ -49,9 +49,7 @@ const Header = ({
 
 //다른 페이지에서 호환성 때문에 남겨둠. 지워야 함.
 export const HeaderSpacing = () => {
-  return (
-      <div className="flex flex-col h-[44px] bg-transparent" />
-  );
+  return <div className="flex flex-col h-[44px] bg-transparent" />;
 };
 
 const HeaderCenterItem = ({ children }: { children: React.ReactNode }) => {

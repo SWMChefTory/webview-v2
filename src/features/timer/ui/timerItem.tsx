@@ -1,237 +1,171 @@
-import { IoPlayOutline, IoPauseOutline, IoTimerOutline } from "react-icons/io5";
-import { TimerState, useTimers } from "../model/useInProgressTimers";
-import { formatTimeKorean, formatTime } from "../utils/time";
-import useInterval from "../model/useInterval";
-import { useCallback, useState } from "react";
-import { IoIosClose } from "react-icons/io";
-import router from "next/router";
+import { IoPlayOutline, IoPauseOutline } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
+import {
+  ActiveTimer,
+  IdleTimer,
+  PausedTimer,
+} from "../model/useInProgressTimers";
+import { formatTime } from "../utils/time";
+import { useProgressTimer } from "../model/useProgressTimer";
 
-function useTimerItem(timerId: string) {
-  const { getTimerById, handleFinishTimer } = useTimers();
-  const timer = getTimerById(timerId);
-
-  const [remainingTime, setRemainingTime] = useState(() => {
-    switch (timer.state) {
-      case TimerState.ACTIVE:
-        const remaining = Math.ceil((timer.endAt.getTime() - new Date().getTime()) / 1000);
-        return remaining > 0 ? Math.ceil(remaining) : 0;
-      case TimerState.PAUSED:
-        return Math.ceil(timer.remainingTime);
-      case TimerState.FINISHED:
-        return 0;
-    }
-  });
-
-  const tick = useCallback(() => {
-    if (timer.state === TimerState.ACTIVE) {
-      const remaining = (timer.endAt.getTime() - new Date().getTime()) / 1000;
-      if (remaining <= 0) {
-        handleFinishTimer({ id: timerId });
-        setRemainingTime(0);
-        return;
-      }
-      setRemainingTime(Math.ceil(remaining));
-    }
-  }, [timer, timerId]);
-
-  useInterval(tick, timer.state === TimerState.ACTIVE ? 200 : null);
-
-  return {
-    timer,
-    remainingTime,
-  };
-}
-
-export function EmptyTimerItem() {
-  return (
-    <TimerItemTemplate isIdle={true}>
-      <div className="flex  flex-col items-center justify-center py-2">
-        <div className="bg-gray-100 rounded-full p-4 mb-4">
-          <IoTimerOutline className="size-8 text-gray-400" />
-        </div>
-        <p className="text-gray-600 font-medium text-base mb-1">
-          실행 중인 타이머가 없어요
-        </p>
-      </div>
-    </TimerItemTemplate>
-  );
-}
-
-export function TimerItem({
-  timerId,
-  isShort = false,
-}: {
-  timerId: string;
-  isShort?: boolean;
+export function ActiveTimerItem(props: {
+  timer: ActiveTimer;
+  onPause: () => void;
+  onCancel: () => void;
+  onFinish: () => void;
 }) {
-  const { handleCancelTimer } = useTimers();
-  const { timer, remainingTime } = useTimerItem(timerId);
-  return (
-    <TimerItemTemplate isShort={isShort} onClose={() => {
-      handleCancelTimer({ id: timerId });
-    }} name={timer.recipeName ?? undefined}
-    recipeId={timer.recipeId ?? undefined}
-    >
-      <TimerItemTime duration={timer.duration} remaining={remainingTime} />
-      <div className="w-8" />
-      <TimerItemButton timerId={timerId} />
-    </TimerItemTemplate>
-  );
-}
+  const { timer, onPause, onCancel, onFinish } = props;
+  const { time } = useProgressTimer({ timer, onFinish });
 
-
-export function IdleTimerItem({ time }: { time: number }) {
-  const { handleStartTimer } = useTimers();
   return (
-    <TimerItemTemplate isIdle={true}>
-      <TimerItemTime duration={time} remaining={time} />
+    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+      {/* <TimerItemHeader  title={timer.timerName} /> */}
+      <TimerItemTime duration={timer.duration} remaining={time} />
       <TimerButtonTemplate
-        isOrange={false}
-        onClick={() => {
-          handleStartTimer({ recipeId: null, name: null, duration: time });
+        leftButton={
+          <div className="pl-0.5">
+            <IoMdClose className="text-2xl text-bold " />
+          </div>
+        }
+        onClickLeft={() => {
+          onCancel();
         }}
-      >
-        <div className="pl-0.5">
-          <IoPlayOutline className="text-lg text-gray-500" />
-        </div>
-      </TimerButtonTemplate>
-    </TimerItemTemplate>
-  );
-}
-
-function TimerItemTemplate({
-  children,
-  onClose,
-  recipeId,
-  name,
-  isIdle = false,
-  isShort = false,
-}: {
-  children: React.ReactNode;
-  onClose?: () => void;
-  recipeId?: string;
-  name?: string;
-  isIdle?: boolean;
-  isShort?: boolean;
-}) {
-  return (
-    <div
-      className={`flex flex-col border border-[2] px-3 py-2  rounded-md ${
-        isIdle ? "border-gray-300" : "border-orange-300"
-      } ${isShort && "w-[224px]"}` }
-    >
-      {!isIdle && <IoIosClose className="text-gray-400 size-6 " onClick={onClose} />}
-      {!isIdle && <TimerName name={name} recipeId={recipeId} />}
-      <div
-        className={`flex items-center ${
-          isShort ? "justify-start" : "justify-between"
-        }  px-2 pt-1 pb-2`}
-      >
-        {children}
-      </div>
+        rightButton={
+          <div className="pl-0.5">
+            <IoPauseOutline className="text-2xl text-bold text-orange-400" />
+          </div>
+        }
+        onClickRight={() => {
+          onPause();
+        }}
+      />
     </div>
   );
 }
 
-import { IoIosArrowForward } from "react-icons/io";
-
-
-function TimerName({name, recipeId}: {name?: string, recipeId?: string}) {
+export function PausedTimerItem(props: {
+  timer: PausedTimer;
+  onCancel: () => void;
+  onResume: () => void;
+}) {
+  const { timer, onCancel, onResume } = props;
   return (
-    <div className="flex gap-1 items-center px-2 text-sm font-semibold" onClick={()=>{
-      if (recipeId) {
-        router.push(`/recipe/${recipeId}/detail`);
-      }
-    }}>
-      <div className="truncate">
-      {name ?? "쉐프토리 타이머"}
+    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+      {/* <TimerItemHeader title={timer.timerName} /> */}
+      <TimerItemTime
+        duration={timer.duration}
+        remaining={timer.remainingTime}
+      />
+      <TimerButtonTemplate
+        onClickLeft={() => {
+          onCancel();
+        }}
+        leftButton={
+          <div className="pl-0.5">
+            <IoMdClose className="text-2xl text-bold" />
+          </div>
+        }
+        rightButton={
+          <div className="pl-0.5">
+            <IoPlayOutline className="text-2xl text-bold text-orange-400" />
+          </div>
+        }
+        onClickRight={() => {
+          onResume();
+        }}
+      />
+    </div>
+  );
+}
+
+export function IdleTimerItem({
+  timer,
+  onStart,
+}: {
+  timer: IdleTimer;
+  onStart: () => void;
+}) {
+  return (
+    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+      {/* <TimerItemHeader title={timer.timerName} /> */}
+      <TimerItemTime duration={timer.duration} remaining={timer.duration} />
+      <TimerButtonTemplate
+        onClickLeft={() => {
+          onStart();
+        }}
+        leftButton={
+          <div className="pl-0.5">
+            <IoPlayOutline className="text-2xl text-bold text-orange-400" />
+          </div>
+        }
+      ></TimerButtonTemplate>
+    </div>
+  );
+}
+
+function TimerItemHeader({
+  title,
+}: {
+  title: string;
+}) {
+  return (
+    <div className="flex flex-col px-3 py-2">
+      <div className="flex flex-row justify-between items-center">
+        <span
+          className={`${title ? "text-black" : "text-gray-400"} line-clamp-1`}
+        >
+          {title || "이름 없음"}
+        </span>
+        
       </div>
-      {recipeId && <IoIosArrowForward className="text-gray-400 size-4 shrink-0" />}
+      <div className="h-2" />
     </div>
   );
 }
 
 export function TimerItemTime({
-  duration,
   remaining,
 }: {
-  duration: number;
+  duration?: number;
   remaining: number;
 }) {
   //높이 60px
   return (
     <div className="flex flex-col">
-      <span className={`text-sm`}>{formatTimeKorean(duration)}</span>
-      <span className={`text-4xl font-semibold tabular-nums`}>
+      <span className={`pl-3 text-6xl font-semibold tabular-nums`}>
         {formatTime(Math.ceil(remaining))}
       </span>
     </div>
   );
 }
 
-function TimerItemButton({ timerId }: { timerId: string }) {
-  const {
-    handleDeleteTimer,
-    handlePauseTimer,
-    handleResumeTimer,
-    getTimerById,
-  } = useTimers();
-  const timer = getTimerById(timerId);
-  if (!timer) {
-    return null;
-  }
-  switch (timer.state) {
-    case TimerState.ACTIVE:
-      return (
-        <TimerButtonTemplate
-          onClick={() => {
-            handlePauseTimer({ id: timerId });
-          }}
-        >
-          <IoPauseOutline className="text-lg text-orange-400" />
-        </TimerButtonTemplate>
-      );
-    case TimerState.PAUSED:
-      return (
-        <TimerButtonTemplate
-          onClick={() => {
-            handleResumeTimer({ id: timerId });
-          }}
-        >
-          <div className="pl-0.5">
-            <IoPlayOutline className="text-lg text-orange-400 " />
-          </div>
-        </TimerButtonTemplate>
-      );
-    case TimerState.FINISHED:
-      return (
-        <TimerButtonTemplate
-          onClick={() => {
-            handleDeleteTimer(timerId);
-          }}
-        >
-          <div className="text-sm text-orange-500">확인</div>
-        </TimerButtonTemplate>
-      );
-  }
-}
-
 function TimerButtonTemplate({
-  children,
-  onClick,
-  isOrange = true,
+  leftButton,
+  rightButton,
+  onClickLeft,
+  onClickRight,
 }: {
-  children: React.ReactNode;
-  onClick: () => void;
-  isOrange?: boolean;
+  leftButton: React.ReactNode;
+  rightButton?: React.ReactNode;
+  onClickLeft: () => void;
+  onClickRight?: () => void;
 }) {
-  const borderColor = isOrange ? "border-orange-300" : "border-gray-300";
   return (
-    <button
-      className={`w-10 h-10 flex items-center justify-center rounded-full border-2 ${borderColor}`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
+    <div className="flex flex-col w-full justify-between items-center pt-[24px]">
+      <div className="w-full border" />
+      <div className="flex flex-row justify-evenly w-full h-10 items-center">
+        <div onClick={onClickLeft} className="flex-1 flex justify-center">
+          {leftButton}
+        </div>
+        {onClickRight && (
+          <>
+            <div className="w-px h-full border" />
+            <div onClick={onClickRight} className="flex-1 flex justify-center">
+              {rightButton}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
   );
 }

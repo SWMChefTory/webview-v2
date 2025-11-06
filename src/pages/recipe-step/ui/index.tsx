@@ -18,7 +18,10 @@ import React, {
   useRef,
   useState,
 } from "react";
-
+import {
+  MicButtonPopover,
+  popoverHandle as micButtonPopoverHandle,
+} from "./micButtonPopover";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
@@ -28,6 +31,11 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
+import {
+  popoverHandle,
+  TimerButton,
+} from "@/src/features/timer/ui/timerButton";
+import { useHandleTimerVoiceIntent } from "@/src/pages/recipe-step/hooks/useTimerIntent";
 
 /* =====================================================================================
    전역: 바운스/풀투리프레시 방지 + 배경/높이/가로 스크롤 고정
@@ -612,6 +620,8 @@ function LoadingOverlay() {
   );
 }
 
+type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
+
 /* =====================================================================================
    Intent 타입 및 파싱
 ===================================================================================== */
@@ -622,15 +632,25 @@ type BasicIntent =
   | `STEP ${number}`
   | "VIDEO PLAY"
   | "VIDEO STOP"
+  | `TIMER ${TimerCommandType} ${number}`
+  | `INGREDIENT ${string}`
   | "EXTRA";
 function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
+  console.log("key", key);
   if (key === "NEXT") return "NEXT";
   if (key === "PREV") return "PREV";
   if (key === "VIDEO PLAY") return "VIDEO PLAY";
   if (key === "VIDEO STOP") return "VIDEO STOP";
   if (/^TIMESTAMP\s+\d+$/.test(key)) return key as BasicIntent;
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
+  const timerCmd = "(SET|START|STOP|CHECK)";
+  if (new RegExp(`^TIMER\\s+${timerCmd}(?:\\s+\\d+)?$`).test(key)) {
+    return key as BasicIntent;
+  }
+  if (/^INGREDIENT\s+.+$/.test(key)) {
+    return key as BasicIntent;
+  }
   return "EXTRA";
 }
 
@@ -808,7 +828,7 @@ function RecipeStep({
 
     const deltaTime = Date.now() - dragStartTimeRef.current;
     const distance = Math.abs(dy);
-    
+
     dragStartYRef.current = null;
     dragStartTimeRef.current = 0;
 
@@ -943,6 +963,7 @@ function RecipeStep({
       persistRef.current.time = t;
     },
   });
+  const errorPopoverRef = useRef<popoverHandle | undefined>(undefined);
 
   const computeGroupBounds = useCallback(
     (stepIdx: number) => {
@@ -1077,6 +1098,11 @@ function RecipeStep({
     [progressH, isLandscape]
   );
 
+  const { handleTimerIntent } = useHandleTimerVoiceIntent({
+    recipeId: recipeId,
+    recipeName: recipeName,
+  });
+
   // 현재 단계가 변경될 때마다 자동으로 상단으로 스크롤
   useEffect(() => {
     const container = listRef.current;
@@ -1105,6 +1131,14 @@ function RecipeStep({
     });
   }, [currentStep, currentDetailIndex, progressH, isLandscape]);
 
+  const micButtonPopoverRef = useRef<micButtonPopoverHandle | undefined>(
+    undefined
+  );
+
+  const handleMicButtonPopover = (message: string) => {
+    micButtonPopoverRef.current?.showMessage(message);
+  };
+
   useSimpleSpeech({
     recipeId: router.query.id as string,
     onVoiceStart: () => {
@@ -1123,8 +1157,10 @@ function RecipeStep({
       }, 1000);
     },
     onIntent: (intent: any) => {
+      console.log("onIntent!!", JSON.stringify(intent, null, 2));
       const now = Date.now();
       const parsedIntent = parseIntent(intent?.base_intent || intent);
+      console.log("parsedIntent3", parsedIntent);
 
       if (parsedIntent === "NEXT") {
         goToNextStep();
@@ -1170,6 +1206,25 @@ function RecipeStep({
         setTimeout(() => {
           snapCurrentToTop("smooth");
         }, 50);
+        return;
+      }
+      if (parsedIntent.startsWith("TIMER")) {
+        console.log("parsedIntentStart", parsedIntent);
+        handleTimerIntent(parsedIntent, (error: string) => {
+          errorPopoverRef.current?.showErrorMessage(error);
+        });
+        return;
+      }
+      if (parsedIntent.startsWith("INGREDIENT")) {
+        const ingredient = parsedIntent.split(/\s+/);
+        if (ingredient.length <= 1) {
+          return;
+        }
+        const [ingredientName, ingredientAmount] = ingredient;
+        if (ingredientAmount === "0") {
+          handleMicButtonPopover(`영상을 참조해주세요.`);
+        }
+        handleMicButtonPopover(`${ingredientName} ${ingredientAmount} 필요해요.`);
         return;
       }
     },
@@ -1259,7 +1314,7 @@ function RecipeStep({
               ref={isCurrent ? currentRowRef : undefined}
             >
               {showSubtitle && (
-                <div className="mb-3">  
+                <div className="mb-3">
                   <span className={subtitleCls}>
                     {String.fromCharCode(65 + item.stepIndex)}. {item.subtitle}
                   </span>
@@ -1341,19 +1396,19 @@ function RecipeStep({
             color="bg-black/80 backdrop-blur-sm border-b border-white/10"
             leftContent={
               <div
-              className={
-                orientation === "landscape-left" ? "ml-8" : undefined
-              }
-            >
-              <BackButton
-                onClick={() => {
-                  // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
-                  handleLockOrientation();
-                  setShouldGoBack(true);
-                }}
-                color="text-white"
-              />
-            </div>
+                className={
+                  orientation === "landscape-left" ? "ml-8" : undefined
+                }
+              >
+                <BackButton
+                  onClick={() => {
+                    // 방향 잠금 후 세로모드로 변경되면 useEffect에서 뒤로 가기
+                    handleLockOrientation();
+                    setShouldGoBack(true);
+                  }}
+                  color="text-white"
+                />
+              </div>
             }
             centerContent={
               <div
@@ -1364,12 +1419,12 @@ function RecipeStep({
               </div>
             }
           />
-          {isLandscape && (
+          {/* {isLandscape && (
             <div
-              className="absolute inset-x-0 bottom-0 h-5 cursor-ns-resize touch-none select-none"
+              className="absolute inset-x-0 bottom-0 h-5 cursor-ns-resize bg-red-500 touch-none select-none"
               onPointerDown={(ev) => onPointerDownHeader(ev, "header")}
             />
-          )}
+          )} */}
         </div>
 
         {/* 핸들바(가로모드에서만 노출) */}
@@ -1391,8 +1446,8 @@ function RecipeStep({
         )}
 
         {/* (세로모드 전용) 고정 유튜브 */}
-                {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
-                <div
+        {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
+        <div
           className={
             isLandscape
               ? "fixed z-[900] flex items-start justify-center px-2"
@@ -1429,8 +1484,8 @@ function RecipeStep({
               onStateChange={handleStateChange}
             />
           </div>
-                 {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 (가로모드) */}
-                 {isLandscape && (
+          {/* 유튜브 iframe 클릭 감지를 위한 투명 레이어 (가로모드) */}
+          {isLandscape && (
             <div
               className="absolute inset-0 z-10"
               style={{
@@ -1467,8 +1522,7 @@ function RecipeStep({
                 : "relative z-[900] bg-black"
             }
             onClick={handleContentClick}
-          >
-          </div>
+          ></div>
 
           {/* 우: 진행바 + 텍스트 (내부 스크롤만 허용, 30%) - 진한 회색 배경 */}
           <div
@@ -1562,9 +1616,17 @@ function RecipeStep({
             <div className="mx-auto flex max-w-full items-center justify-center gap-4 px-3 py-3">
               {/* ...버튼 동일... */}
               <TimerBottomSheet
-                type="button"
+                trigger={
+                  <TimerButton
+                    recipeId={recipeId}
+                    recipeName={recipeName}
+                    errorPopoverRef={errorPopoverRef}
+                  />
+                }
                 recipeId={recipeId}
                 recipeName={recipeName}
+                isDarkMode={true}
+                isLandscape={isLandscape}
               />
 
               <div className="flex flex-col items-center gap-1">
@@ -1649,6 +1711,7 @@ function RecipeStep({
                 type="button"
                 title="음성 명령 가이드"
               >
+                <MicButtonPopover ref={micButtonPopoverRef} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
@@ -1681,9 +1744,6 @@ function RecipeStep({
                         100% {
                           transform: scale(2.2);
                           opacity: 0;
-
-
-
                         }
                       }
                     `}</style>
@@ -1709,9 +1769,16 @@ function RecipeStep({
               }}
             >
               <TimerBottomSheet
-                type="button"
+                trigger={
+                  <TimerButton
+                    recipeId={recipeId}
+                    recipeName={recipeName}
+                    errorPopoverRef={errorPopoverRef}
+                  />
+                }
                 recipeId={recipeId}
                 recipeName={recipeName}
+                isDarkMode={true}
               />
               <div className="flex flex-col items-center gap-2">
                 <button
@@ -1824,9 +1891,6 @@ function RecipeStep({
                         100% {
                           transform: scale(2.2);
                           opacity: 0;
-
-
-
                         }
                       }
                     `}</style>
@@ -1884,11 +1948,6 @@ const RecipeStepPageSkeleton = () => {
               </div>
             }
           />
-        </div>
-        <div className="space-y-3 pt-6">
-          <TextSkeleton />
-          <TextSkeleton />
-          <TextSkeleton />
         </div>
       </div>
     </>

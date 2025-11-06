@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { MeasurementOverlay } from "./MeasurementOverlay";
+import { TimerButton } from "./timerButton";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeleton = () => (
@@ -80,7 +81,7 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
     <div className="relative w-full h-[100dvh] overflow-hidden bg-white">
       <div ref={headerWrapRef}>
         <Header
-          leftContent={<BackButton onClick={() => router.back()} />}
+          leftContent={<div className="z-1"><BackButton onClick={() => router.back()} /></div>}
           centerContent={
             <div
               className="
@@ -92,6 +93,9 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
             >
               {videoInfo?.videoTitle}
             </div>
+          }
+          rightContent={
+            <TimerButton recipeId={id} recipeName={videoInfo?.videoTitle}  />
           }
         />
       </div>

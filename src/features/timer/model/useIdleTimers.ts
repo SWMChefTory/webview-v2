@@ -14,7 +14,7 @@ function toMap(m: unknown): Map<number, number> {
   return new Map();
 }
 
-export const useIdleTimersStore = create<IdleTimersStoreState>()(
+const useIdleTimersStore = create<IdleTimersStoreState>()(
   persist(
     (set, get) => ({
       idleTimers: new Map(),

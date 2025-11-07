@@ -1220,11 +1220,19 @@ function RecipeStep({
         if (ingredient.length <= 1) {
           return;
         }
-        const [ingredientName, ingredientAmount] = ingredient;
-        if (ingredientAmount === "0") {
+          const [_, ingredientName, ingredientAmount, _ingredientUnit] = ingredient;
+          if (ingredientAmount === "0") {
           handleMicButtonPopover(`영상을 참조해주세요.`);
         }
-        handleMicButtonPopover(`${ingredientName} ${ingredientAmount} 필요해요.`);
+        const ingredientUnit = (()=>{
+          const trimmed = _ingredientUnit.trim();
+
+          if (/^[A-Za-z]+$/.test(trimmed)) {
+            return trimmed.toLowerCase();
+          }
+          return _ingredientUnit;
+        })();
+        handleMicButtonPopover(`${ingredientName} ${ingredientAmount} ${ingredientUnit} 필요해요.`);
         return;
       }
     },
@@ -1797,6 +1805,7 @@ function RecipeStep({
                   aria-pressed={repeatGroup}
                   type="button"
                 >
+                  
                   <svg
                     width="28"
                     height="28"
@@ -1859,6 +1868,7 @@ function RecipeStep({
                 aria-label="음성 명령 가이드"
                 type="button"
               >
+                <MicButtonPopover ref={micButtonPopoverRef} />
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"

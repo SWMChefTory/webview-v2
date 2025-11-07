@@ -31,6 +31,9 @@ interface IngredientPurchaseModalProps {
   ingredients: Ingredient[];
 }
 
+const FALLBACK_IMAGE_SVG =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23f3f4f6' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='32'%3E🛒%3C/text%3E%3C/svg%3E";
+
 export const IngredientPurchaseModal = ({
   open,
   onOpenChange,
@@ -40,6 +43,9 @@ export const IngredientPurchaseModal = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+    const abortController = new AbortController();
+
     if (open && ingredients.length > 0) {
       setLoading(true);
 
@@ -49,49 +55,77 @@ export const IngredientPurchaseModal = ({
           const response = await client.get(
             `/affiliate/search/coupang?keyword=${encodeURIComponent(
               ingredient.name
-            )}`
-          );
-
-          console.log(
-            `[${ingredient.name}] API Response:`,
-            JSON.stringify(response.data, null, 2)
+            )}`,
+            { signal: abortController.signal }
           );
 
           // 응답에서 첫 번째 상품만 추출
           const coupangProducts =
             response.data?.coupangProducts?.coupangProducts;
           if (Array.isArray(coupangProducts) && coupangProducts.length > 0) {
-            const firstProduct = coupangProducts[0] as CoupangProduct;
-            return {
-              id: `${firstProduct.productId}`,
-              name: ingredient.name,
-              description: firstProduct.productName,
-              price: firstProduct.productPrice,
-              imageUrl: firstProduct.productImage,
-              purchaseUrl: firstProduct.productUrl,
-              isRocket: firstProduct.isRocket,
-            } as IngredientProduct;
+            const firstProduct = coupangProducts[0];
+            // 필수 속성 존재 여부 검사로 안정성 향상
+            if (
+              firstProduct &&
+              typeof firstProduct.productId === "number" &&
+              typeof firstProduct.productName === "string" &&
+              typeof firstProduct.productPrice === "number" &&
+              typeof firstProduct.productUrl === "string" &&
+              typeof firstProduct.productImage === "string"
+            ) {
+              return {
+                id: `${firstProduct.productId}`,
+                name: ingredient.name,
+                description: firstProduct.productName,
+                price: firstProduct.productPrice,
+                imageUrl: firstProduct.productImage,
+                purchaseUrl: firstProduct.productUrl,
+                isRocket: firstProduct.isRocket ?? false,
+              };
+            }
           }
           return null;
         } catch (error) {
-          console.error(`[${ingredient.name}] API Error:`, error);
+          // AbortError는 정상적인 취소이므로 무시
+          if (
+            (error as Error).name === "AbortError" ||
+            (error as Error).name === "CanceledError"
+          ) {
+            return null;
+          }
           return null;
         }
       });
 
       Promise.all(fetchPromises)
         .then((results) => {
+          if (!isMounted) return;
+
           // null이 아닌 상품만 필터링
-          const validProducts = results.filter(
-            (product): product is IngredientProduct => product !== null
-          );
-          console.log("Valid Products:", validProducts);
+          const validProducts = results.filter((product) => product !== null);
           setProducts(validProducts);
         })
+        .catch((error) => {
+          // Promise.all이 reject되는 경우 처리
+          if (isMounted) {
+            setProducts([]);
+          }
+        })
         .finally(() => {
-          setLoading(false);
+          if (isMounted) {
+            setLoading(false);
+          }
         });
+    } else if (open && ingredients.length === 0) {
+      // 재료가 없는 경우 초기화
+      setProducts([]);
+      setLoading(false);
     }
+
+    return () => {
+      isMounted = false;
+      abortController.abort(); // 진행 중인 모든 요청 취소
+    };
   }, [open, ingredients]);
 
   if (!open) return null;
@@ -174,7 +208,7 @@ export const IngredientPurchaseModal = ({
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.target as HTMLImageElement).src =
-                            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='96' height='96'%3E%3Crect fill='%23f3f4f6' width='96' height='96'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='32'%3E🛒%3C/text%3E%3C/svg%3E";
+                            FALLBACK_IMAGE_SVG;
                         }}
                       />
                       {product.isRocket && (

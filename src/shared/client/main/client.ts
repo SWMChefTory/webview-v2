@@ -96,9 +96,7 @@ const MAIN_ACCESS_TOKEN_KEY = "MAIN_ACCESS_TOKEN";
 
 export const getMainAccessToken = () => {
   if (typeof window === "undefined") return "";
-  // return localStorage.getItem(MAIN_ACCESS_TOKEN_KEY) || "";
-  // ret
-  return "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiIyYzhjZjRkMi00MTczLTQxYzUtYTgzYi1hMjM4ZDMyMTg1MjAiLCJ0eXBlIjoiJHtKV1RfQUNDRVNTX1RPS0VOX1RZUEV9IiwiaWF0IjoxNzYyNTA4ODk5LCJleHAiOjE3NjI1MDkxOTl9.BXb7oI8pTrv7P7vNAgDEql0xoJKSGS8wwp9WC-pDNMBGZalIT8aCckJ8rdlGXkKHAAQoNe6U-hy8IztB1cRQCQ";
+  return localStorage.getItem(MAIN_ACCESS_TOKEN_KEY) || "";
 };
 
 export const setMainAccessToken = (token: string) => {

@@ -25,9 +25,7 @@ export function useHandleTimerVoiceIntent({
   const { handleOpenTemporarily } = useTimerBottomSheetVisibility();
 
   function handleTimerIntent(parsedIntent: string, onError: (error: string) => void) {
-    console.log("parsedIntent1", parsedIntent);
     if (parsedIntent.startsWith("TIMER")) {
-        console.log("parsedIntent2", parsedIntent);
       const [_, commandRaw, secondsRaw] = parsedIntent.split(/\s+/);
       const seconds = secondsRaw ? Number(secondsRaw) : undefined;
       if(!commandRaw){

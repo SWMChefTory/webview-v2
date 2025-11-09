@@ -1863,8 +1863,7 @@ function RecipeStep({
                 ].join(" ")}
                 onClick={(e) => {
                   e.stopPropagation();
-                  // setShowVoiceGuide(true);
-                  handleMicButtonPopover("그룹 반복을 켜거나 끄려면 음성 명령 가이드를 열어주세요.");
+                  setShowVoiceGuide(true);
                 }}
                 aria-label="음성 명령 가이드"
                 type="button"

@@ -18,7 +18,7 @@ export function MicButtonPopover({
       animate(
         scope.current,
         { opacity: [1, 1, 0] },
-        { times: [0, 0.5, 1], duration: 2, ease: "easeOut" }
+        { times: [0, 0.5, 1], duration: 5, ease: "easeOut" }
       );
       setMessage(message);
     },

@@ -5,9 +5,11 @@ import {
   useHandleTimers,
   useTimers,
 } from "../model/useInProgressTimers";
+import { motion } from "framer-motion";
+
 import { useProgressTimer } from "../model/useProgressTimer";
 import { filterActiveTimers } from "../utils/query";
-import { useImperativeHandle, useState } from "react";
+import { useEffect, useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
 
 export function TimerButton({
@@ -30,7 +32,12 @@ export function TimerButton({
     timers.size > 0 ? Array.from(timers.entries())[0] : undefined;
 
   if (!curTimer) {
-    return <StaticTimerButton />;
+    return (
+      <div className="relative">
+        <StaticTimerButton />
+        {/* <TimerButtonEffect /> */}
+      </div>
+    );
   }
 
   return (
@@ -46,9 +53,7 @@ export function TimerButton({
       {curTimer[1].state === TimerState.PAUSED && (
         <PausedTimerButton time={(curTimer[1] as PausedTimer).remainingTime} />
       )}
-      {curTimer[1].state === TimerState.IDLE && (
-        <StaticTimerButton />
-      )}
+      {curTimer[1].state === TimerState.IDLE && <StaticTimerButton />}
     </div>
   );
 }
@@ -97,6 +102,50 @@ function TimerTemplate({
         </span>
       </div>
     </button>
+  );
+}
+
+function TimerButtonEffect() {
+  return (
+    <>
+      {/* 1번째 링 */}
+      <motion.span
+        className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 z-[1010]"
+        style={{ willChange: "transform, opacity", transformOrigin: "50% 50%" }}
+        animate={{
+          // 1) 작게 보임 → 2) 크게 사라짐 → 3) 안 보이는 상태로 원래 크기 복귀(루프 대비)
+          scale: [1, 2.2, 1],
+          opacity: [0.8, 0.0, 0.0],
+        }}
+        transition={{
+          duration: 1.8,
+          ease: "easeOut",
+          times: [0, 0.85, 1],
+          repeat: Infinity,
+          repeatType: "loop",
+          repeatDelay: 0,
+        }}
+      />
+
+      {/* 2번째 링 (0.9s 지연 시작) */}
+      <motion.span
+        className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 z-[1010]"
+        style={{ willChange: "transform, opacity", transformOrigin: "50% 50%" }}
+        animate={{
+          scale: [1, 2.2, 1],
+          opacity: [0.8, 0.0, 0.0],
+        }}
+        transition={{
+          duration: 1.8,
+          ease: "easeOut",
+          times: [0, 0.85, 1],
+          repeat: Infinity,
+          repeatType: "loop",
+          repeatDelay: 0,
+          delay: 0.9, // ← 시차
+        }}
+      />
+    </>
   );
 }
 

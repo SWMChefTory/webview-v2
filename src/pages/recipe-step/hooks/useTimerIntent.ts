@@ -34,7 +34,6 @@ export function useHandleTimerVoiceIntent({
       const command = commandRaw;
       switch (command) {
         case "SET":
-          console.log("SET", seconds);
           if (seconds) {
             try {
               handleStartTimer({
@@ -52,7 +51,6 @@ export function useHandleTimerVoiceIntent({
           }
           return;
         case "STOP":
-          console.log("STOP", earliestFinishTimer);
           if (earliestFinishTimer) {
             console.log("STOP2", earliestFinishTimer[0]);
             handlePauseTimer({ id: earliestFinishTimer[0] });

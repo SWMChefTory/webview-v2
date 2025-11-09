@@ -11,8 +11,6 @@ import { useRouter } from "next/router";
 import Link from "next/link";
 
 import { PiMagnifyingGlassBold } from "react-icons/pi";
-
-import HydrationZustand from "@/src/shared/hydration-zustand/hydrationZustand";
 import { PopularShortsRecipes } from "./popularShortsRecipes";
 import { useEffect } from "react";
 import React from "react";
@@ -24,8 +22,6 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
 import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
-
-import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 
 function HomePage() {
   const router = useRouter();

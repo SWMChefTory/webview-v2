@@ -28,11 +28,11 @@ export function MicButtonPopover({
     <div
       ref={scope}
       style={{ opacity: 0 }}
-      className="absolute left-[2] bottom-full bg-gray-500 text-white text-xs px-3 py-2 rounded-md shadow-md whitespace-nowrap z-[100]"
+      className="absolute right-[2] -top-[2] bottom-full bg-gray-500 text-white text-xs px-3 py-2 rounded-md shadow-md whitespace-nowrap z-[100]"
     >
       {message}
       <div
-        className="absolute left-[8] top-full w-0 h-0 
+        className="absolute right-[8] top-full w-0 h-0 
             border-l-8 border-l-transparent   
             border-r-8 border-r-transparent 
             border-t-8 border-t-gray-500"

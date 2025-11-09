@@ -107,8 +107,10 @@ export function TimerBottomSheet({
               onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
             >
               {endAt && remaingTime && remaingTime > 0 && remaingTime < 4 && (
-                <div className="flex w-full justify-center items-center p-2">
-                  {remaingTime}초 후에 자동으로 종료돼요.
+                <div className="w-full px-4 py-4">
+                  <div className="flex w-full justify-center items-center p-1 bg-white rounded-md">
+                    {remaingTime}초 후에 자동으로 종료돼요.
+                  </div>
                 </div>
               )}
               <div

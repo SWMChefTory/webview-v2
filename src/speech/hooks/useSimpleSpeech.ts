@@ -146,7 +146,7 @@ export const useSimpleSpeech = ({
         } catch {}
       };
       ws.onerror = (event) => {
-        console.error("[STT] WebSocket error:", event);
+        console.error("[STT] WebSocket error:");
         setError("알 수 없는 오류가 발생했습니다.");
       };
       ws.onclose = async (e) => {
@@ -166,7 +166,7 @@ export const useSimpleSpeech = ({
               openWS();
             }
           } catch (error) {
-            console.error("[STT] 토큰 갱신 실패:", error);
+            console.error("[STT] 토큰 갱신 실패:");
             setError("인증 정보를 갱신할 수 없습니다. 다시 로그인해주세요.");
           }
         }

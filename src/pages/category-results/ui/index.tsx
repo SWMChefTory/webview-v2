@@ -86,12 +86,16 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
   if (recipes.length === 0) {
     return (
       <div className="flex flex-col w-full h-full items-center justify-center py-16 px-4">
-        <div className="w-32 h-32 mb-8 opacity-60">
-          <img src="/empty_state.png" alt="검색 결과 없음" className="w-full h-full object-contain" />
+        <div className="w-44 h-44 mb-8">
+          <img
+              src={"/empty_state.png"}
+              alt="empty inbox"
+              className="block w-full h-full object-contain"
+          />
         </div>
         <div className="text-center space-y-3">
           <h3 className="font-bold text-xl text-gray-900">해당 카테고리의 레시피가 없어요</h3>
-          <p className="text-sm text-gray-600">다른 카테고리를 선택해보세요</p>
+          <p className="text-s text-gray-600">다른 카테고리를 선택해보세요</p>
         </div>
       </div>
     );
@@ -165,13 +169,17 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
 
   if (recipes.length === 0) {
     return (
-      <div className="flex flex-col w-full h-full items-center justify-center py-16 px-4">
-        <div className="w-32 h-32 mb-8 opacity-60">
-          <img src="/empty_state.png" alt="검색 결과 없음" className="w-full h-full object-contain" />
+        <div className="flex flex-col w-full h-full items-center pt-50 px-4">
+        <div className="w-40 h-40 mb-8">
+          <img
+              src={"/empty_state.png"}
+              alt="empty inbox"
+              className="block w-full h-full object-contain"
+          />
         </div>
         <div className="text-center space-y-3">
           <h3 className="font-bold text-xl text-gray-900">해당 카테고리의 레시피가 없어요</h3>
-          <p className="text-sm text-gray-600">다른 카테고리를 선택해보세요</p>
+          <p className="text-s text-gray-600">다른 카테고리를 선택해보세요</p>
         </div>
       </div>
     );

@@ -72,17 +72,22 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
 
   if (searchResults.length === 0) {
     return (
-      <div className="flex flex-col w-full h-full items-center justify-center py-16 px-4">
-        <div className="w-32 h-32 mb-8 opacity-60">
-          <img src="/empty_state.png" alt="검색 결과 없음" className="w-full h-full object-contain" />
+        <div className="flex flex-col w-full h-full items-center pt-54 px-4">
+          <div className="w-44 h-44 mb-8">
+            <img
+                src={"/empty_state.png"}
+                alt="empty inbox"
+                className="block w-full h-full object-contain"
+            />
+          </div>
+          <div className="text-center space-y-3">
+            <h3 className="font-bold text-xl text-gray-900">검색어에 해당하는 레시피가 없어요</h3>
+            <p className="text-s text-gray-600">다른 검색어로 시도해보세요</p>
+          </div>
         </div>
-        <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">검색어에 해당하는 레시피가 없어요</h3>
-          <p className="text-sm text-gray-600">다른 검색어로 시도해보세요</p>
-        </div>
-      </div>
     );
   }
+
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">

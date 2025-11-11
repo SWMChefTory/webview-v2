@@ -9,6 +9,8 @@ import {
   filterActiveTimers,
 } from "@/src/features/timer/utils/query";
 import { useTimerBottomSheetVisibility } from "@/src/widgets/timer/useTimerBottomSheetStore";
+import { useTimerEffectVisibilityStore } from "@/src/features/timer/ui/timerButton";
+import { useEffect, useRef } from "react";
 
 export function useHandleTimerVoiceIntent({
   recipeId,
@@ -23,6 +25,26 @@ export function useHandleTimerVoiceIntent({
   const activeTimers = filterActiveTimers(timers);
   const earliestFinishTimer = findEarliestFinishTimer(activeTimers);
   const { handleOpenTemporarily } = useTimerBottomSheetVisibility();
+  const { setVisible, visible } = useTimerEffectVisibilityStore();
+
+  const timerEffectVisibilityRef = useRef<NodeJS.Timeout | undefined>(undefined);
+
+  function handleTimerEffectVisibility() {
+    if(!visible){
+      setVisible(true);
+      timerEffectVisibilityRef.current = setTimeout(() => {
+        setVisible(false);
+      }, 2000);
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if(timerEffectVisibilityRef.current){
+        clearTimeout(timerEffectVisibilityRef.current);
+      }
+    };
+  }, []);
 
   function handleTimerIntent(parsedIntent: string, onError: (error: string) => void) {
     if (parsedIntent.startsWith("TIMER")) {

@@ -318,7 +318,21 @@ const createInProress = (
   return isInCreating;
 };
 
-export const useFetchRecipeProgress = (recipeId: string) => {
+export const useFetchRecipeProgress = ({recipeId}:{recipeId:string}) =>{
+  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
+  const { data: progress } = useSuspenseQuery({
+    queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
+    queryFn: () => fetchRecipeProgress(recipeId),
+    staleTime: 5 * 60 * 1000,
+    select: (data) => RecipeProgressStatus.create(data),
+  });
+
+  return {
+    recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
+  };
+}
+
+export const useFetchRecipeProgressWithToast = (recipeId: string) => {
   const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
   const { handleOpenToast } = useRecipeCreateToastAction();
   const { data: progress, refetch } = useSuspenseQuery({

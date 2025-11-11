@@ -101,6 +101,7 @@ export const useSimpleSpeech = ({
   useEffect(() => {
     recipeIdRef.current = recipeId;
   }, [recipeId]);
+
   useEffect(() => {
     onIntentRef.current = onIntent;
   }, [onIntent]);

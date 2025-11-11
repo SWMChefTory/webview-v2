@@ -269,6 +269,7 @@ export const useHandleTimers = ({
   };
 
   //티이머가 완료되었을 때 호출하는 함수
+  //완료라는 것은 유저가 끝내는게 아니라 시간이 다 되어서 끝날 때를 의미함.
   const handleFinishTimerSuccessfully = ({ id }: { id: string }) => {
     const timer = getTimerById(id);
     if (!timer) {
@@ -284,7 +285,6 @@ export const useHandleTimers = ({
     endLiveActivity({
       timerId: id,
     });
-    cancelNotification({ timerId: id });
     return id;
   };
 

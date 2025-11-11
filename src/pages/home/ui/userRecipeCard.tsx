@@ -10,7 +10,7 @@ import {
 } from "@/src/entities/user_recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
-import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useFetchRecipeProgressWithToast } from "@/src/entities/user_recipe/model/useUserRecipe";
 
 import {
   getElapsedTime,
@@ -36,8 +36,8 @@ export const UserRecipeCardReady = ({
 }: {
   userRecipe: UserRecipe;
 }) => {
-  const userRouter = useRouter();
-  const progress = useFetchRecipeProgress(userRecipe.recipeId);
+  const router = useRouter();
+  const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   function isTutorialId() {
     return userRecipe.videoInfo.id === "XPmywm8Dnx4";
@@ -59,7 +59,7 @@ export const UserRecipeCardReady = ({
         className="relative w-[320] h-[180]"
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
-            userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
+            router.push(`/recipe/${userRecipe.recipeId}/detail`);
             if (
               useIsInTutorialStore.getState().isInTutorial &&
               isTutorialId()
@@ -124,7 +124,7 @@ const RecipeProgressSkeleton = () => {
 };
 
 const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
-  const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
+  const { recipeStatus } = useFetchRecipeProgressWithToast(userRecipe.recipeId);
   if (recipeStatus === RecipeStatus.SUCCESS) {
     return <></>;
   }

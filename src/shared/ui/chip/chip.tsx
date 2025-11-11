@@ -4,7 +4,18 @@ function AlreadyEnrolledChip({ isEnrolled }: { isEnrolled: boolean }) {
   }
   return (
     <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">
-      이미 등록된 레시피예요
+      등록된 레시피예요
+    </div>
+  );
+}
+
+function CreatingStatusChip({isInCreating}:{isInCreating: boolean}){
+  if(!isInCreating){
+    return null;
+  }
+  return (
+    <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">
+      생성중인 레시피예요
     </div>
   );
 }
@@ -17,4 +28,4 @@ function NewRecipeChip() {
   );
 }
 
-export { AlreadyEnrolledChip, NewRecipeChip };
+export { AlreadyEnrolledChip, NewRecipeChip, CreatingStatusChip };

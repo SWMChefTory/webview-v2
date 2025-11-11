@@ -24,12 +24,11 @@ import {
 } from "./micButtonPopover";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
-import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import type { SafeAreaProps } from "@/src/shared/safearea/useSafaArea";
-import { request, MODE } from "@/src/shared/client/native/client";
+import { request, MODE  } from "@/src/shared/client/native/client";
 import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
 import {
   popoverHandle,
@@ -116,6 +115,28 @@ function useYouTubeIframeAPI() {
   }, []);
   return ready;
 }
+
+/* =====================================================================================
+   페이지 래퍼 / 스켈레톤
+===================================================================================== */
+const RecipeStepPageReady = ({ id }: { id: string }) => {
+  const { data } = useFetchRecipe(id);
+  const videoInfo = (data as RecipeAPIData | undefined)?.videoInfo ?? {};
+  const steps = (data as RecipeAPIData | undefined)?.steps ?? [];
+
+  if (!data || !videoInfo?.id || steps.length === 0) {
+    return <RecipeStepPageSkeleton />;
+  }
+
+  return (
+    <RecipeStep
+      videoInfo={videoInfo}
+      steps={steps}
+      recipeId={id}
+      recipeName={data.videoInfo.videoTitle ?? ""}
+    />
+  );
+};
 
 // --- YouTubePlayer 컴포넌트 ---
 function YouTubePlayer({
@@ -673,6 +694,7 @@ function RecipeStep({
   const isLandscape = orientation !== "portrait";
   const { handleLockOrientation } = useOrientationLock();
   const [shouldGoBack, setShouldGoBack] = useState(false);
+  const [systemVolume, setSystemVolume] = useState(0);
 
   useSafeArea(SAFE_AREA_CONFIG[orientation]);
 
@@ -684,7 +706,7 @@ function RecipeStep({
     }
   }, [orientation, shouldGoBack, router]);
 
-  // 뒤로 갈 때 safe area 원상복귀
+  // 뒤로 갈 때 safe area 원상복귀 뒤로가기 눌러도 backpress caching땨뮨애 전애 있던 패이지에서 useEffect실행 안될 수 도 있음. pageshow 혹은 visibilitychange 이벤트 사용해서 처리
   useEffect(() => {
     return () => {
       request(MODE.UNBLOCKING, "SAFE_AREA", {
@@ -696,17 +718,19 @@ function RecipeStep({
     };
   }, []);
 
-  const [showVoiceGuide, setShowVoiceGuide] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [isHeaderVisible] = useState(true);
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [repeatGroup, setRepeatGroup] = useState(false);
-  const [isKwsActiveUI, setIsKwsActiveUI] = useState(false);
 
-  const [isRotating, setIsRotating] = useState(false);
-  const rotateTimerRef = useRef<number | null>(null);
-  const kwsDeactivateTimerRef = useRef<number | null>(null);
+  const [showVoiceGuide, setShowVoiceGuide] = useState(false); // 이거는 가로모드 세로모드 구분할 필요가 있음.
+  const [currentTime, setCurrentTime] = useState(0); // 유튜브에서만 실행되는 건가
+  const [isHeaderVisible] = useState(true); // 이거는 가로모드에서만 실행
+  const [isInitialized, setIsInitialized] = useState(false); //로딩을 위한 상태값
+  const [repeatGroup, setRepeatGroup] = useState(false); // 그룹 반복
+  const [isKwsActiveUI, setIsKwsActiveUI] = useState(false); // KWS 활성화 그런데 지금은 KWS 사용하지 않아서 VAD로 변경해야됨.
 
+  const [isRotating, setIsRotating] = useState(false); //이건 뭐지
+  const rotateTimerRef = useRef<number | null>(null); //이건 뭐지
+  const kwsDeactivateTimerRef = useRef<number | null>(null); //이건 뭐지
+
+  //orientationChange를 왜 알필요가 있지?
   useEffect(() => {
     const onOC = () => {
       setIsRotating(true);
@@ -722,7 +746,7 @@ function RecipeStep({
     };
   }, []);
 
-  // KWS 비활성화 타이머 정리
+  // KWS 활성화 타이머 정리
   useEffect(() => {
     return () => {
       if (kwsDeactivateTimerRef.current) {
@@ -737,9 +761,12 @@ function RecipeStep({
   });
 
   // 상단의 refs/state 모음 근처에 추가
+  //bottomBarRef를 둔 이유는?
+  //아래 왜이렇게 ref가 많지?
   const bottomBarRef = useRef<HTMLDivElement | null>(null);
   const [bottomBarH, setBottomBarH] = useState(0);
 
+  //sheetRef를 둔 이유는?
   const sheetRef = useRef<HTMLDivElement | null>(null);
   const [sheetH, setSheetH] = useState(40);
 
@@ -783,12 +810,14 @@ function RecipeStep({
   }, [isLandscape, headerState]);
 
   // 세로모드로 변경될 때 헤더를 항상 expanded 상태로 리셋
+  //expanded 상태가 뭔데?
   useEffect(() => {
     if (!isLandscape) {
       setHeaderState("expanded");
     }
   }, [isLandscape]);
 
+  //이건 뭐지?
   function nextStateByDrag(
     curr: HeaderState,
     origin: "header" | "handle",
@@ -804,6 +833,7 @@ function RecipeStep({
     return curr;
   }
 
+  //왜 scroll을 lock하지?
   const lockScroll = () => {
     document.body.style.overscrollBehaviorY = "contain";
     document.body.style.touchAction = "none";
@@ -876,6 +906,7 @@ function RecipeStep({
     []
   );
 
+  //오른쪽에 박스가 있나?
   const updateRightColBox = useCallback(() => {
     const el = rightColRef.current;
     if (!el) return;
@@ -963,6 +994,8 @@ function RecipeStep({
       persistRef.current.time = t;
     },
   });
+
+  //이건 뭐지?
   const errorPopoverRef = useRef<popoverHandle | undefined>(undefined);
 
   const computeGroupBounds = useCallback(
@@ -979,6 +1012,9 @@ function RecipeStep({
     [steps, videoDuration]
   );
 
+  //컨텍스트를 줘야 해
+  //만약 무엇을 위한 기능인지 사전 지식이 있었다면
+  //그리고 그냥 t가 아니라 youtubeTime이란 변수명을 사용했다면
   const syncByTime = useCallback(() => {
     let t = ytRef.current?.getCurrentTime?.() ?? 0;
     const now = Date.now();
@@ -993,6 +1029,7 @@ function RecipeStep({
       if (d > 0) setVideoDuration(d);
     }
 
+    //그룹 반복 기능이 켜져있다면
     if (repeatGroup) {
       const { groupStart, groupEnd } = computeGroupBounds(currentStep);
       const epsilon = 0.08;
@@ -1023,6 +1060,8 @@ function RecipeStep({
     const flat = getAllDetailsFlat();
     const sorted = [...flat].sort((a, b) => a.start - b.start);
     let idx = 0;
+
+    //다음에 시작해야 할 시간을 가져오는 거 같다.
     for (let i = sorted.length - 1; i >= 0; i--) {
       if (t >= sorted[i].start) {
         idx = i;
@@ -1046,12 +1085,12 @@ function RecipeStep({
     videoDuration,
     repeatGroup,
     computeGroupBounds,
-  ]);
+  ]); //setState는 안정적인 참조가 보장되기 때문에 의존성 배열에 넣을 필요 없음 근데 취향차이인듯?
 
   useEffect(() => {
     const id = setInterval(syncByTime, 200);
     return () => clearInterval(id);
-  }, [syncByTime]);
+  }, [syncByTime]); //syncByTime은 언제 바뀌는지 알려면 의존성 배열에 있는 변수가 각 뭔 역할을 하는지 알아야 하는데, 너무 읽기 어려움.
 
   const handleStateChange = useCallback(
     (e: { data: number }) => {
@@ -1220,11 +1259,12 @@ function RecipeStep({
         if (ingredient.length <= 1) {
           return;
         }
-          const [_, ingredientName, ingredientAmount, _ingredientUnit] = ingredient;
-          if (ingredientAmount === "0") {
+        const [_, ingredientName, ingredientAmount, _ingredientUnit] =
+          ingredient;
+        if (ingredientAmount === "0") {
           handleMicButtonPopover(`영상을 참조해주세요.`);
         }
-        const ingredientUnit = (()=>{
+        const ingredientUnit = (() => {
           const trimmed = _ingredientUnit.trim();
 
           if (/^[A-Za-z]+$/.test(trimmed)) {
@@ -1232,7 +1272,9 @@ function RecipeStep({
           }
           return _ingredientUnit;
         })();
-        handleMicButtonPopover(`${ingredientName} ${ingredientAmount} ${ingredientUnit} 필요해요.`);
+        handleMicButtonPopover(
+          `${ingredientName} ${ingredientAmount} ${ingredientUnit} 필요해요.`
+        );
         return;
       }
     },
@@ -1241,6 +1283,7 @@ function RecipeStep({
   /* ---------------------------
      목록 렌더링
   ----------------------------*/
+  //JSX를 안쓰고 함수로 쓴 이유는?
   const renderSteps = () => {
     const flat = steps.flatMap((st, sIdx) =>
       st.details.map((d, dIdx) => ({
@@ -1436,6 +1479,7 @@ function RecipeStep({
         </div>
 
         {/* 핸들바(가로모드에서만 노출) */}
+        {/*이렇게 킨 컴포넌트를 따로 안 만들고 삼중 연산자를 쓰면 보는 입장에서 빡셈*/}
         {isLandscape && (
           <div
             ref={sheetRef}
@@ -1806,7 +1850,6 @@ function RecipeStep({
                   aria-pressed={repeatGroup}
                   type="button"
                 >
-                  
                   <svg
                     width="28"
                     height="28"
@@ -1921,28 +1964,6 @@ function RecipeStep({
     </>
   );
 }
-
-/* =====================================================================================
-   페이지 래퍼 / 스켈레톤
-===================================================================================== */
-const RecipeStepPageReady = ({ id }: { id: string }) => {
-  const { data } = useFetchRecipe(id);
-  const videoInfo = (data as RecipeAPIData | undefined)?.videoInfo ?? {};
-  const steps = (data as RecipeAPIData | undefined)?.steps ?? [];
-
-  if (!data || !videoInfo?.id || steps.length === 0) {
-    return <RecipeStepPageSkeleton />;
-  }
-
-  return (
-    <RecipeStep
-      videoInfo={videoInfo}
-      steps={steps}
-      recipeId={id}
-      recipeName={data.videoInfo.videoTitle ?? ""}
-    />
-  );
-};
 
 const RecipeStepPageSkeleton = () => {
   const router = useRouter();

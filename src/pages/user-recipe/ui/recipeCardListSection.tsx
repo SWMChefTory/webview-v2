@@ -36,17 +36,18 @@ export const RecipeListSectionReady = ({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center w-full h-full">
-          <div className="flex flex-col items-center justify-center w-[100] h-[100]">
-            <img
-              src={"/empty_state.png"}
-              alt="empty inbox"
-              className="block w-full h-full object-cover object-center"
-            />
-          </div>
-          <div className="h-[20]"/>
-          <div className="font-bold">카테고리에 해당하는 레시피가 없어요</div>
-          <div className="h-[200]"/>
+        <div className="flex flex-col w-full h-full items-center pt-50 px-4">
+            <div className="w-44 h-44 mb-8">
+                <img
+                    src={"/empty_state.png"}
+                    alt="empty inbox"
+                    className="block w-full h-full object-contain"
+                />
+            </div>
+            <div className="text-center space-y-3">
+                <h3 className="font-bold text-xl text-gray-900">카테고리에 해당하는 레시피가 없어요</h3>
+                <p className="text-s text-gray-600">레시피를 생성해 보세요</p>
+            </div>
         </div>
       )}
     </div>

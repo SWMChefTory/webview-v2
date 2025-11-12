@@ -9,14 +9,11 @@ import {
   TitleSkeleton,
 } from "@/src/entities/user_recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-
 import { useFetchRecipeProgressWithToast } from "@/src/entities/user_recipe/model/useUserRecipe";
-
 import {
   getElapsedTime,
   UserRecipe,
 } from "@/src/entities/user_recipe/model/schema";
-
 import {
   ElapsedViewTimeEmpty,
   ElapsedViewTimeReady,
@@ -56,7 +53,7 @@ export const UserRecipeCardReady = ({
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
       <div
-        className="relative w-[320] h-[180]"
+        className="relative w-[160] h-[160]"
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
             router.push(`/recipe/${userRecipe.recipeId}/detail`);
@@ -79,7 +76,7 @@ export const UserRecipeCardReady = ({
           </div>
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
-            size={{ width: 320, height: 180 }}
+            size={{ width: 160, height: 160 }}
           />
         </div>
       </div>
@@ -93,7 +90,7 @@ export const UserRecipeCardReady = ({
 
 export const UserRecipeCardEmpty = () => {
   return (
-    <div className="w-[320px]">
+    <div className="w-[160px]">
       <ThumbnailEmpty size={{ width: 320, height: 180 }} />
       <div className="w-full">
         <TitleEmpty />
@@ -106,7 +103,7 @@ export const UserRecipeCardEmpty = () => {
 export const UserRecipeCardSkeleton = () => {
   return (
     <div>
-      <ThumbnailSkeleton size={{ width: 320, height: 180 }} />
+      <ThumbnailSkeleton size={{ width: 160, height: 160 }} />
       <div className="w-full">
         <TitleSkeleton />
         <ElapsedViewTimeSkeleton />

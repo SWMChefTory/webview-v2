@@ -27,27 +27,35 @@ export const RecipeListSectionReady = ({
           fetchNextPage();
         }
       }}
-      className="flex-1 flex flex-col w-full rounded-t-[20] bg-white border-t border-t-stone-600 overflow-y-scroll"
+      className="flex-1 flex flex-col w-full overflow-y-scroll px-2"
     >
       {recipes.length !== 0 ? (
-        <div className="flex flex-col w-full pt-6 rounded-t-[20] gap-4 ">
+        <div className="flex flex-col w-full gap-2">
           {recipes.map((recipe) => (
-            <RecipeDetailsCardReady key={recipe.recipeId} userRecipe={recipe} selectedCategoryId={selectedCategoryId} />
+            <RecipeDetailsCardReady
+              key={recipe.recipeId}
+              userRecipe={recipe}
+              selectedCategoryId={selectedCategoryId}
+            />
           ))}
         </div>
       ) : (
-        <div className="flex flex-col w-full h-full items-center pt-50 px-4">
+        <div className="flex flex-col w-full h-full items-center pt-20 px-4">
+          <div className="pr-2">
             <div className="w-44 h-44 mb-8">
-                <img
-                    src={"/empty_state.png"}
-                    alt="empty inbox"
-                    className="block w-full h-full object-contain"
-                />
+              <img
+                src={"/empty_state.png"}
+                alt="empty inbox"
+                className="block w-full h-fullobject-contain"
+              />
             </div>
-            <div className="text-center space-y-3">
-                <h3 className="font-bold text-xl text-gray-900">카테고리에 해당하는 레시피가 없어요</h3>
-                <p className="text-s text-gray-600">레시피를 생성해 보세요</p>
-            </div>
+          </div>
+          <div className="text-center space-y-3">
+            <h3 className="font-bold text-xl text-gray-600">
+              카테고리에 해당하는 레시피가 없어요
+            </h3>
+            <p className="text-s text-gray-600">레시피를 생성해 보세요</p>
+          </div>
         </div>
       )}
     </div>

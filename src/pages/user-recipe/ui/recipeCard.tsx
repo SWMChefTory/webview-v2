@@ -34,6 +34,7 @@ import { useResolveLongClick } from "@/src/shared/hooks/useClick";
 import { useState } from "react";
 import { IoFolderOpenOutline } from "react-icons/io5";
 import { useRouter } from "next/router";
+import { TimerTag } from "@/src/features/timer/ui/timerTag";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -60,17 +61,26 @@ const RecipeDetailsCardReady = ({
     <motion.div
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
       transition={{ duration: 1 }}
-      className="relative w-full px-[10] flex flex-row items-center justify-center z-10"
+      className="relative w-full  flex flex-row items-center justify-center z-10"
       onTapStart={handleTapStart}
     >
       <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
         <ProgressDetailsCheckList recipeStatus={recipeStatus} />
       </div>
-      <ThumbnailReady
-        imgUrl={userRecipe.videoInfo.thumbnailUrl}
-        size={{ width: 160, height: 90 }}
-      />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+      <div className="relative h-[108] w-[192]">
+        <div className="absolute top-1 right-1">
+          <TimerTag
+            recipeId={userRecipe.recipeId}
+            recipeName={userRecipe.title}
+          />
+        </div>
+        <ThumbnailReady
+          imgUrl={userRecipe.videoInfo.thumbnailUrl}
+          size={{ height: 108, width: 192 }}
+        />
+      </div>
+      <div className="w-1"/>
+      <div className=" flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
           tags={userRecipe.tags || []}

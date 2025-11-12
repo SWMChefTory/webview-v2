@@ -63,15 +63,7 @@ export const CategoryListSection = ({
   }, []);
 
   return (
-    <div className="px-6 pt-2 flex flex-col flex-none items-center w-full ">
-      <div className="flex flex-row items-center justify-start w-full gap-1">
-        <p className="text-xl font-semibold text-white">
-          카테고리를 선택해주세요
-        </p>
-      </div>
-
-      <div className="flex-none h-[24px] bg-transparent" />
-
+    <div className="px-6 pt-2 flex flex-col flex-none items-center w-full pb-[12] no-scrollbar">
       <div className=" w-[100vw] overflow-x-auto">
         <SSRSuspense fallback={<CategoryListSkeleton />}>
           <CategoryListReady
@@ -79,7 +71,6 @@ export const CategoryListSection = ({
             setSelectedCategoryId={setSelectedCategoryId}
           />
         </SSRSuspense>
-        <div className="h-[24px] bg-transparent" />
       </div>
     </div>
   );
@@ -104,7 +95,7 @@ const CategoryListReady = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[20]">
+    <div className="flex flex-row flex-nowrap min-w-[101vw] pl-[10]">
       <CategoryChip
         props={{
           type: ChipType.FILTER,
@@ -155,18 +146,15 @@ const CategoryListReady = ({
   );
 };
 
-
 const CategoryListSkeleton = () => {
   return (
-    <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[20]">
+    <div className="flex flex-row gap-2 flex-nowrap min-w-[101vw] pl-[10]">
       {Array.from({ length: 3 }, (_, i) => (
         <CategoryChip props={{ type: ChipType.SKELETON }} key={i} />
       ))}
     </div>
   );
 };
-
-
 
 function CategoryDeleteAlert({
   category,
@@ -175,7 +163,7 @@ function CategoryDeleteAlert({
   category: Category;
   onClose: () => void;
 }) {
-  const { deleteCategory, isPending, error } = useDeleteCategory();
+  const { deleteCategory, isPending } = useDeleteCategory();
   const handleCancel = () => {
     onClose();
   };

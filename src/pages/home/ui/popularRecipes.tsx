@@ -21,10 +21,10 @@ export function PopularRecipes() {
 
   return (
     <div>
-      <div className="h-12" />
+      <div className="h-4" />
       <Link href="/popular-recipe">
         <div className="pl-4 flex items-center">
-          <div className="text-2xl font-semibold">인기 레시피</div>
+          <div className="text-xl font-semibold">인기 레시피</div>
           <IoChevronForwardOutline className="size-6" color="black" />
         </div>
       </Link>

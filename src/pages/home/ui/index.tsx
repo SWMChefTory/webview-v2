@@ -39,7 +39,6 @@ function HomePage() {
 
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden bg-white">
-      <div className="fixed top-0 left-0 right-0 z-50 h-[100]">
         <Header
           leftContent={<Logo />}
           rightContent={
@@ -49,15 +48,11 @@ function HomePage() {
                   router.push("/user/settings");
                 }}
               />
-              
             </div>
           }
           color="bg-white"
         />
-      </div>
-      <div className="h-[56px]" />
-      <div className="h-[40]" />
-      <div className="pt-8 px-2">
+      <div className="pt-2 px-2">
         <Link href="/search-recipe">
           <div className="flex flex-row items-center justify-between px-4 w-full h-[36] text-gray-800 bg-gray-100 rounded-lg">
             검색어를 입력해주세요.
@@ -69,8 +64,6 @@ function HomePage() {
       <SSRSuspense fallback={<MyRecipesSkeleton />}>
         <MyRecipesReady />
       </SSRSuspense>
-      <div className="h-4" />
-      {/* <ThemeRecipeSection /> */}
       <PopularRecipes />
       <PopularShortsRecipes />
       <FloatingButton />
@@ -83,45 +76,12 @@ function HomePage() {
 }
 
 const Logo = () => {
-  const { scrollY } = useScroll();
-  const scale = useTransform(scrollY, [0, 40], [1, 0.5]);
-  const translateY = useTransform(scrollY, [0, 40], [0, -64]);
-  // const [isInitialized, setIsInitialized] = useState(false);
-  // const y = useMotionValue(0);
-
-  // useEffect(()=>{
-  //   setIsInitialized(true);
-  //   scrollY.set(y.get());
-  //   scrollY.set(beforeScrollY);
-  //   console.log("!!!!! get",scrollY.get());
-  //   console.log("!!!!! scroll",window.scrollY);
-  //   console.log("!!!!! beforeScrollY",beforeScrollY);
-  //   return () => {
-  //     beforeScrollY = window.scrollY;
-  //     console.log("!!!!! beforeScrollY",beforeScrollY);
-  //   }
-  // }, []);
-
   return (
-    <motion.div
-      style={{ translateY: translateY }}
-      className="relative w-full h-[168]"
-    >
-      {/* {isInitialized && (
-          <motion.img
-            src="/logo.png"
-            alt="logo"
-            className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
-            style={{ scale: scale, originX: 0 }}
-          />
-        )} */}
-      <motion.img
-        src="/logo.png"
-        alt="logo"
-        className="h-[40] w-auto z-1 origin-left pl-2 absolute bottom-0 left-0 right-0"
-        style={{ scale: scale, originX: 0 }}
-      />
-    </motion.div>
+    <img
+      src="/logo.png"
+      alt="logo"
+      className="h-[20] w-auto pl-2"
+    />
   );
 };
 

@@ -27,14 +27,13 @@ export function UserRecipe() {
 
   return (
     <PageMovementTemplate>
-      <div className="flex flex-col overflow-hidden bg-stone-800 h-[100vh] w-[100vw] select-none">
+      <div className="flex flex-col overflow-hidden h-[100vh] w-[100vw] select-none">
         <Header
           leftContent={
             <BackButton
               onClick={() => {
                 router.back();
               }}
-              color="text-white"
             />
           }
         />

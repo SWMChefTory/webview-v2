@@ -69,7 +69,7 @@ const MyRecipesTemplate = ({
   userRecipesSection: React.ReactNode;
 }) => {
   return (
-    <div className="pt-8">
+    <div className="pt-2">
       {title}
       <div className="h-2" />
       <ScrollArea className="whitespace-nowrap w-[100vw]">
@@ -87,11 +87,11 @@ const MyRecipesTemplate = ({
 const MyRecipeTitleSkeleton = () => {
   return (
     <>
-      <div className="h-[44px] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500">
+      <div className="h-[44px] flex flex-row items-center pl-4 text-xl font-semibold text-gray-500">
         <img src={RecipeBook.src} className="size-6" />
         <div className="pr-1" />
         나의 레시피
-        <IoChevronForwardOutline className="size-6 text-gray-400 ml-1" />
+        <IoChevronForwardOutline className="size-6 text-gray-400" />
       </div>
     </>
   );
@@ -101,7 +101,7 @@ const MyRecipeTitleReady = () => {
   return (
     <Link href="/user/recipes" className="w-full h-full">
       <motion.div
-        className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold"
+        className="h-[32] flex flex-row items-center pl-4 text-xl font-semibold"
         whileTap={{ opacity: 0.2 }}
         transition={{ duration: 0.2 }}
       >

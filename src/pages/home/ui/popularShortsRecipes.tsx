@@ -19,9 +19,9 @@ export function PopularShortsRecipes() {
 
   return (
     <div>
-      <div className="h-12" />
+      {/* <div className="h-6" /> */}
       <div className="pl-4 flex items-center gap-2">
-        <div className="text-2xl font-semibold">쇼츠 인기 레시피</div>
+        <div className="text-xl font-semibold">쇼츠 인기 레시피</div>
         <img src={Fire.src} className="size-6" />
       </div>
       <div className="h-3" />

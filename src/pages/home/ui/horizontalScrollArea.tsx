@@ -13,7 +13,7 @@ export function HorizontalScrollArea({
 }) {
   return (
     <div
-      className="whitespace-nowrap w-[100vw] overflow-x-scroll scrollbar-hide"
+      className="whitespace-nowrap w-[100vw] overflow-x-scroll scrollbar-hide no-scrollbar"
       onScroll={(e: any) => {
         if (
           e.target.scrollLeft + e.target.clientWidth >=

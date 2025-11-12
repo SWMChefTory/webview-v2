@@ -80,12 +80,11 @@ function ChipSkeleton({
   className?: string;
 }) {
   return (
-    <Skeleton className={`rounded-full w-32 px-[16] py-[8] ${className}`}>
-      <TextSkeleton fontSize={fontSize} />
+    <Skeleton className={`rounded-full w-18 px-[16] py-[4]`}>
+      <TextSkeleton fontSize="text-base" />
     </Skeleton>
   );
 }
-
 
 function FilterChip({
   fontSize,
@@ -96,33 +95,19 @@ function FilterChip({
   isSelected,
   isDarkMode = false,
 }: Omit<FilterChipProps, "type"> & { fontSize: string; isDarkMode?: boolean }) {
-  const calFontColor = () => {
-    return isDarkMode !== isSelected ? "text-white" : "text-black";
-  };
   const { handleTapStart } = useResolveLongClick(onClick, onClickLong);
-
-  const calBackgroundColor = () => {
-    if (isSelected) {
-      if (isDarkMode) {
-        return "bg-stone-200";
-      }
-      return "bg-black";
-    }
-    if (isDarkMode) {
-      return "bg-stone-600";
-    }
-    return "bg-gray-100";
-  };
 
   return (
     <motion.div
-      className={`rounded-full px-[16] py-[8] flex flex-row items-center whitespace-nowrap select-none ${calFontColor()} ${calBackgroundColor()} gap-1`}
+      className={`rounded-xl ${isSelected && "bg-gray-200"} px-[12] py-[4] flex flex-row items-center whitespace-nowrap select-none gap-1`}
       whileTap={isSelected ? undefined : { scale: 0.9 }}
       transition={isSelected ? undefined : { duration: 0.2 }}
       onTapStart={handleTapStart}
     >
-      <p className={`${fontSize} line-clamp-1`}>{name}</p>
-      <p className={`text-xs flex-shrink-0 ${calFontColor()}`}>{accessary}</p>
+      <p className={`${isSelected?"text-gray-800 font-extrabold":"text-gray-500 font-bold"} line-clamp-1`}>{name}</p>
+      <p className={`${isSelected?"text-gray-800 font-extrabold":"text-gray-500 font-bold"} text-xs flex-shrink-0`}>
+        {accessary}
+      </p>
     </motion.div>
   );
 }
@@ -139,13 +124,9 @@ function EditableChip({
 }) {
   const Icon = accessary as IconType;
 
-  const calFontColor = () => {
-    return isDarkMode ? "text-white" : "text-black";
-  };
-
   return (
     <motion.div
-      className={`rounded-full px-[14] py-[6] flex flex-row items-center border border-orange-500 gap-1 whitespace-nowrap`}
+      className={` px-[12] py-[4] flex flex-row items-center gap-1 whitespace-nowrap`}
       onClick={() => {
         onClick();
       }}
@@ -153,8 +134,8 @@ function EditableChip({
       whileTap={{ scale: 0.9 }}
       transition={{ duration: 0.2 }}
     >
-      <p className={`${fontSize} line-clamp-1 ${calFontColor()}`}>{name}</p>
-      <Icon className={`size-[16] flex-shrink-0 ${calFontColor()}`} />
+      <p className={`line-clamp-1 text-orange-500`}>{name}</p>
+      <Icon className={`size-[16] text-orange-500 flex-shrink-0`} />
     </motion.div>
   );
 }

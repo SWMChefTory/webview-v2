@@ -59,34 +59,40 @@ export const IngredientPurchaseModal = ({
             { signal: abortController.signal }
           );
 
-          // 응답에서 첫 번째 상품만 추출
-          const coupangProducts =
-            response.data?.coupangProducts?.coupangProducts;
-          if (Array.isArray(coupangProducts) && coupangProducts.length > 0) {
-            const firstProduct = coupangProducts[0];
-            // 필수 속성 존재 여부 검사로 안정성 향상
-            if (
-              firstProduct &&
-              typeof firstProduct.productId === "number" &&
-              typeof firstProduct.productName === "string" &&
-              typeof firstProduct.productPrice === "number" &&
-              typeof firstProduct.productUrl === "string" &&
-              typeof firstProduct.productImage === "string"
-            ) {
-              return {
-                id: `${firstProduct.productId}`,
-                name: ingredient.name,
-                description: firstProduct.productName,
-                price: firstProduct.productPrice,
-                imageUrl: firstProduct.productImage,
-                purchaseUrl: firstProduct.productUrl,
-                isRocket: firstProduct.isRocket ?? false,
-              };
-            }
+          const coupangProducts: CoupangProduct[] =
+            response.data?.coupangProducts?.coupangProducts ?? [];
+
+          // 유효한 상품만 필터링
+          const validProducts = coupangProducts.filter((p) => {
+            return (
+              p &&
+              typeof p.productId === "number" &&
+              typeof p.productName === "string" &&
+              typeof p.productPrice === "number" &&
+              typeof p.productUrl === "string" &&
+              typeof p.productImage === "string"
+            );
+          });
+
+          // 가격이 가장 싼 상품 하나 선택
+          if (validProducts.length > 0) {
+            const cheapestProduct = validProducts.reduce((prev, curr) =>
+              curr.productPrice < prev.productPrice ? curr : prev
+            );
+
+            return {
+              id: `${cheapestProduct.productId}`,
+              name: ingredient.name,
+              description: cheapestProduct.productName,
+              price: cheapestProduct.productPrice,
+              imageUrl: cheapestProduct.productImage,
+              purchaseUrl: cheapestProduct.productUrl,
+              isRocket: cheapestProduct.isRocket ?? false,
+            } satisfies IngredientProduct;
           }
+
           return null;
         } catch (error) {
-          // AbortError는 정상적인 취소이므로 무시
           if (
             (error as Error).name === "AbortError" ||
             (error as Error).name === "CanceledError"

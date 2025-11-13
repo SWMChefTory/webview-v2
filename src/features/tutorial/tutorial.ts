@@ -37,6 +37,7 @@ export const driverObj = driver({
             footer
               .querySelector(".custom-skip-btn")
               ?.addEventListener("click", () => {
+                useIsInTutorialStore.getState().finishTutorial();
                 driverObj.destroy();
               });
 
@@ -89,7 +90,6 @@ export const driverObj = driver({
     },
   ],
   onDestroyStarted: () => {
-    driverObj.destroy();
     useIsInTutorialStore.getState().finishTutorial();
   },
 });

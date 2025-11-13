@@ -77,18 +77,18 @@ export const CategorySection = () => {
   };
 
   return (
-    <div className="w-full pt-8 pb-4 bg-white">
-      <div className="px-4 mb-4">
-        <h2 className="text-2xl font-semibold text-gray-900">요리 카테고리</h2>
+    <div className="w-full pt-4 pb-4 bg-white">
+      <div className="px-4 mb-2">
+        <h2 className="text-xl font-semibold text-gray-900">요리 카테고리</h2>
       </div>
       
       {/* 5열 2행 그리드 */}
-      <div className="grid grid-cols-5 gap-x-3 gap-y-4 px-4">
+      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4">
         {categories.map((category) => (
           <button
             key={category.type}
             onClick={() => handleCategoryClick(category)}
-            className="flex flex-col items-center justify-center gap-1.5 active:opacity-70 transition-opacity"
+            className="flex flex-col items-center justify-center gap-1 active:opacity-70 transition-opacity"
           >
             {/* 둥근 사각형 아이콘 배경 */}
             <div className="w-full aspect-square rounded-4xl bg-gray-100 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow overflow-hidden">

@@ -125,7 +125,8 @@ function CategoryCreatingInputForm({
         value={name}
         onChange={handleNameChange}
         isError={isError}
-        errorMessage="카테고리 이름을 입력해주세요."
+        errorMessage="카테고리 이름을 채워주세요"
+        placeholder="추가할 카테고리 이름을 입력해주세요"
       />
     </div>
   );

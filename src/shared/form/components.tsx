@@ -1,25 +1,27 @@
 import { Loader2 } from "lucide-react";
 import { IoClose } from "react-icons/io5";
-import {useIsInTutorialStore} from "@/src/features/tutorial/isInTutorialStore";
+import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 
 function FormInput({
   value,
   onChange,
   isError,
   errorMessage,
+  placeholder,
 }: {
   value: string;
   onChange: (value: string) => void;
   isError: boolean;
   errorMessage: string;
+  placeholder: string;
 }) {
-  const {isInTutorial} = useIsInTutorialStore();
+  const { isInTutorial } = useIsInTutorialStore();
   return (
     <>
       <div className="relative">
         <input
           type="text"
-          placeholder="유튜브 링크를 입력해주세요."
+          placeholder={placeholder}
           value={value}
           onChange={(e) => {
             onChange(e.target.value);
@@ -60,7 +62,7 @@ function FormButton({
   onSubmit,
   isSubmittable,
   label,
-  isLoading=false,
+  isLoading = false,
 }: {
   onSubmit: () => void;
   isSubmittable: boolean;

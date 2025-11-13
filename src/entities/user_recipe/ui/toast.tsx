@@ -7,6 +7,8 @@ import {
 import { ReactElement } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useFetchRecipeOverview } from "../../recipe-overview/model/model";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 type ViewportEl = ReactElement<React.ComponentProps<typeof Toast.Viewport>>;
 
@@ -38,9 +40,12 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
       case RecipeCreateToastStatus.SUCCESS:
         return {
           title: (
-            <div className="flex flex-row justify-between items-center" onClick={(e) => {
-              close();
-            }}>
+            <div
+              className="flex flex-row justify-between items-center"
+              onClick={(e) => {
+                close();
+              }}
+            >
               <div>레시피 생성이 완료되었어요</div>
               <div
                 className="text-orange-500 border rounded-md px-2 py-1 text-sm font-bold cursor-pointer"
@@ -53,7 +58,9 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
               </div>
             </div>
           ),
-          description: `${toastInfo.recipeTitle}`,
+          description: <SSRSuspense fallback={<SuccessDiscriptionSkeleton/>}>
+            <SuccessDiscription recipeId={toastInfo.recipeId}/>
+          </SSRSuspense>,
         };
     }
   })();
@@ -105,4 +112,14 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
       </Toast.Provider>
     </>
   );
+}
+
+//suspence fallback 필요
+function SuccessDiscription({ recipeId }: { recipeId: string }) {
+  const { data: recipeOverview } = useFetchRecipeOverview(recipeId);
+  return <>{recipeOverview.recipeTitle}</>;
+}
+
+function SuccessDiscriptionSkeleton() {
+  return <></>;
 }

@@ -150,6 +150,7 @@ export const communication = (event: MessageEvent) => {
 export const enum MODE {
   BLOCKING = "BLOCKING",
   UNBLOCKING = "UNBLOCKING",
+  SYSTEN_VOLUME = "SYSTEN_VOLUME",
 }
 
 // 요청 보내기 (HTTP의 fetch처럼 사용)

@@ -12,6 +12,9 @@ import { PopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRec
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useState } from "react";
 import { ThemeRecipe } from "../../pages/home/entities/theme-recipe/type";
+import { useRouter } from "next/router";
+import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { RecipeStatus } from "@/src/shared/enums/recipe";
 
 //이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
 export function RecipeCardWrapper({
@@ -22,18 +25,26 @@ export function RecipeCardWrapper({
   trigger: React.ReactNode;
 }) {
   const { create } = useCreateRecipe();
+  const { recipeStatus } = useFetchRecipeProgress({
+    recipeId: recipe.recipeId,
+  });
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <div
-          onClick={() => {
-            if (!recipe.isViewed) {
-              setIsOpen(true);
-            }
-          }}
-        >
-          {trigger}
-        </div>
+      <div
+        onClick={() => {
+          if (!recipe.isViewed) {
+            setIsOpen(true);
+            return;
+          }
+          if (recipeStatus === RecipeStatus.SUCCESS) {
+            router.push(`/recipe/${recipe.recipeId}/detail`);
+          }
+        }}
+      >
+        {trigger}
+      </div>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">레시피 생성</DialogTitle>

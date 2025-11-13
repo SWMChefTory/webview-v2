@@ -15,7 +15,7 @@ const BUFFER_CHUNKS = 3; // 30ms 묶음
 const SEND_SIZE = CHUNK_SIZE * BUFFER_CHUNKS;
 
 // VAD 게이팅 히스테리시스
-const POS_TH = 0.4; // 켜짐 임계
+const POS_TH = 0.5; // 켜짐 임계
 const NEG_TH = 0.4; // 꺼짐 임계
 const ON_HOLD_MS = 150; // 켜짐 유지(바운스 방지)
 const OFF_HOLD_MS = 250; // 꺼짐 지연(턴 종료 안정)
@@ -101,6 +101,7 @@ export const useSimpleSpeech = ({
   useEffect(() => {
     recipeIdRef.current = recipeId;
   }, [recipeId]);
+
   useEffect(() => {
     onIntentRef.current = onIntent;
   }, [onIntent]);

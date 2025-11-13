@@ -8,7 +8,7 @@ import {
   ThumbnailReady,
 } from "@/src/entities/user_recipe/ui/thumbnail";
 import {
-  useFetchRecipeProgress,
+  useFetchRecipeProgressWithToast,
   useUpdateCategoryOfRecipe,
 } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { TitleReady, TitleSkeleton } from "@/src/entities/user_recipe/ui/title";
@@ -34,6 +34,7 @@ import { useResolveLongClick } from "@/src/shared/hooks/useClick";
 import { useState } from "react";
 import { IoFolderOpenOutline } from "react-icons/io5";
 import { useRouter } from "next/router";
+import { TimerTag } from "@/src/features/timer/ui/timerTag";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -42,10 +43,10 @@ const RecipeDetailsCardReady = ({
   userRecipe: UserRecipe;
   selectedCategoryId: string;
 }) => {
-  const { recipeStatus } = useFetchRecipeProgress(userRecipe.recipeId);
+  const { recipeStatus } = useFetchRecipeProgressWithToast(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
   const userRouter = useRouter();
-  const progress = useFetchRecipeProgress(userRecipe.recipeId);
+  const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
   const { handleTapStart } = useResolveLongClick(
     () => {
       if (progress.recipeStatus === RecipeStatus.SUCCESS) {
@@ -60,17 +61,26 @@ const RecipeDetailsCardReady = ({
     <motion.div
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
       transition={{ duration: 1 }}
-      className="relative w-full px-[10] flex flex-row items-center justify-center z-10"
+      className="relative w-full  flex flex-row items-center justify-center z-10"
       onTapStart={handleTapStart}
     >
       <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
         <ProgressDetailsCheckList recipeStatus={recipeStatus} />
       </div>
-      <ThumbnailReady
-        imgUrl={userRecipe.videoInfo.thumbnailUrl}
-        size={{ width: 160, height: 90 }}
-      />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+      <div className="relative h-[108] w-[192]">
+        <div className="absolute top-1 right-1">
+          <TimerTag
+            recipeId={userRecipe.recipeId}
+            recipeName={userRecipe.title}
+          />
+        </div>
+        <ThumbnailReady
+          imgUrl={userRecipe.videoInfo.thumbnailUrl}
+          size={{ height: 108, width: 192 }}
+        />
+      </div>
+      <div className="w-2" />
+      <div className=" flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
           tags={userRecipe.tags || []}
@@ -93,7 +103,7 @@ const RecipeDetailsCardReady = ({
 const RecipeDetailsCardSkeleton = () => {
   return (
     <div className="w-full px-[10] flex flex-row items-center">
-      <ThumbnailSkeleton size={{ width: 160, height: 90 }} />
+      <ThumbnailSkeleton size={{ height: 108, width: 192 }} />
       <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleSkeleton />
         <CategoryChip props={{ type: ChipType.SKELETON }} />
@@ -181,7 +191,7 @@ const Tag = ({ tagProps }: { tagProps: TagProps }) => {
         );
       case TagType.READY:
         return (
-          <p className="text-gray-500 text-sm whitespace-nowrap">
+          <p className="text-gray-500 text-xs whitespace-nowrap">
             {" "}
             #{tagProps.name}
           </p>

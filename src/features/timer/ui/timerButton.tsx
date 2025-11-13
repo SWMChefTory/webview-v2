@@ -11,6 +11,7 @@ import { useProgressTimer } from "../model/useProgressTimer";
 import { filterActiveTimers } from "../utils/query";
 import { useEffect, useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
+import {create} from "zustand";
 
 export function TimerButton({
   recipeId,
@@ -35,7 +36,7 @@ export function TimerButton({
     return (
       <div className="relative">
         <StaticTimerButton />
-        {/* <TimerButtonEffect /> */}
+        <TimerButtonEffect />
       </div>
     );
   }
@@ -54,6 +55,7 @@ export function TimerButton({
         <PausedTimerButton time={(curTimer[1] as PausedTimer).remainingTime} />
       )}
       {curTimer[1].state === TimerState.IDLE && <StaticTimerButton />}
+      <TimerButtonEffect />
     </div>
   );
 }
@@ -105,7 +107,22 @@ function TimerTemplate({
   );
 }
 
+export const useTimerEffectVisibilityStore = create<{
+  visible: boolean;
+  setVisible: (visible: boolean) => void;
+}>((set) => ({
+  visible: false,
+  setVisible: (visible: boolean) => {
+    set({ visible: visible });
+  },
+}));
+
 function TimerButtonEffect() {
+  const { visible } = useTimerEffectVisibilityStore();
+
+  if (!visible) {
+    return null;
+  }
   return (
     <>
       {/* 1번째 링 */}

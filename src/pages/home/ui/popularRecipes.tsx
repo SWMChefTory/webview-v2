@@ -5,12 +5,14 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { AlreadyEnrolledChip } from "../../../shared/ui/chip/chip";
+import { AlreadyEnrolledChip, CreatingStatusChip } from "../../../shared/ui/chip/chip";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import { IoChevronForwardOutline } from "react-icons/io5";
 import Link from "next/link";
+import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 
 export function PopularRecipes() {
   const { fetchNextPage, hasNextPage } = useFecthPopularRecipe(
@@ -19,10 +21,10 @@ export function PopularRecipes() {
 
   return (
     <div>
-      <div className="h-12" />
+      <div className="h-4" />
       <Link href="/popular-recipe">
         <div className="pl-4 flex items-center">
-          <div className="text-2xl font-semibold">인기 레시피</div>
+          <div className="text-xl font-semibold">인기 레시피</div>
           <IoChevronForwardOutline className="size-6" color="black" />
         </div>
       </Link>
@@ -73,12 +75,14 @@ function RecipeCardSectionReady() {
 }
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
+  const {recipeStatus} = useFetchRecipeProgress({recipeId : recipe.recipeId});
   return (
     <div className="flex flex-col">
       <div className="flex relative flex-col w-[320px]">
         <div className="h-[180] overflow-hidden rounded-md">
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
-            <AlreadyEnrolledChip isEnrolled={recipe.isViewed} />
+            <AlreadyEnrolledChip isEnrolled={recipeStatus===RecipeStatus.SUCCESS && recipe.isViewed} />
+            <CreatingStatusChip isInCreating={recipeStatus===RecipeStatus.IN_PROGRESS}/>
           </div>
           <img
             src={recipe.videoThumbnailUrl}

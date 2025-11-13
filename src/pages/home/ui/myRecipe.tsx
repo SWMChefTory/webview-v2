@@ -22,8 +22,9 @@ import Link from "next/link";
 import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
 import RecipeBook from "@/src/pages/home/ui/assets/recipe-book.png";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
-export const MyRecipesReady = () => {
+export const MyRecipes = () => {
   const { data: categories } = useFetchCategories();
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
@@ -35,26 +36,20 @@ export const MyRecipesReady = () => {
     <MyRecipesTemplate
       title={<MyRecipeTitleReady />}
       categoryList={
-        <CategoryListFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          totalElementCount={totalElements}
-          setSelectedCategory={setSelectedCategory}
-        />
+        <SSRSuspense fallback={<CategoryListSkeleton />}>
+          <CategoryListReady
+            categories={categories}
+            selectedCategory={selectedCategory}
+            totalElementCount={totalElements}
+            setSelectedCategory={setSelectedCategory}
+          />
+        </SSRSuspense>
       }
       userRecipesSection={
-        <UserRecipesSection selectedCategory={selectedCategory} />
+        <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
+          <UserRecipesSection selectedCategory={selectedCategory} />
+        </SSRSuspense>
       }
-    />
-  );
-};
-
-export const MyRecipesSkeleton = () => {
-  return (
-    <MyRecipesTemplate
-      title={<MyRecipeTitleSkeleton />}
-      categoryList={<CategoryListSkeleton />}
-      userRecipesSection={<UserRecipesSectionSkeleton />}
     />
   );
 };
@@ -69,11 +64,11 @@ const MyRecipesTemplate = ({
   userRecipesSection: React.ReactNode;
 }) => {
   return (
-    <div className="pt-8">
+    <div className="pt-2">
       {title}
       <div className="h-2" />
       <ScrollArea className="whitespace-nowrap w-[100vw]">
-        <div className="flex flex-row gap-2 pl-4 min-w-[100.5vw]">
+        <div className="flex flex-row pl-4 min-w-[100.5vw]">
           {categoryList}
         </div>
         <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
@@ -84,24 +79,11 @@ const MyRecipesTemplate = ({
   );
 };
 
-const MyRecipeTitleSkeleton = () => {
-  return (
-    <>
-      <div className="h-[44px] flex flex-row items-center pl-4 text-2xl font-semibold text-gray-500">
-        <img src={RecipeBook.src} className="size-6" />
-        <div className="pr-1" />
-        나의 레시피
-        <IoChevronForwardOutline className="size-6 text-gray-400 ml-1" />
-      </div>
-    </>
-  );
-};
-
 const MyRecipeTitleReady = () => {
   return (
     <Link href="/user/recipes" className="w-full h-full">
       <motion.div
-        className="h-[44] flex flex-row items-center pl-4 text-2xl font-semibold"
+        className="h-[32] flex flex-row items-center pl-4 text-xl font-semibold"
         whileTap={{ opacity: 0.2 }}
         transition={{ duration: 0.2 }}
       >
@@ -120,7 +102,7 @@ const CategoryListSkeleton = () => {
   );
 };
 
-const CategoryListFilter = ({
+const CategoryListReady = ({
   categories,
   selectedCategory,
   totalElementCount,

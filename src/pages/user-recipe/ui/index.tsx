@@ -15,7 +15,7 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 export function UserRecipe() {
   const router = useRouter();
   useSafeArea({
-    top: { color: "#292524", isExists: true },
+    top: { color: "#FFFFFF", isExists: true },
     bottom: { color: "#FFFFFF", isExists: true },
     left: { color: "#FFFFFF", isExists: true },
     right: { color: "#FFFFFF", isExists: false },
@@ -27,17 +27,17 @@ export function UserRecipe() {
 
   return (
     <PageMovementTemplate>
-      <div className="flex flex-col overflow-hidden bg-stone-800 h-[100vh] w-[100vw] select-none">
+      <div className="flex flex-col overflow-hidden h-[100vh] w-[100vw] select-none">
         <Header
           leftContent={
             <BackButton
               onClick={() => {
                 router.back();
               }}
-              color="text-white"
             />
           }
         />
+        <div className="pl-5 text-2xl font-bold pb-2">나의 레시피</div>
         <CategoryListSection
           selectedCategoryId={selectedCategoryId}
           setSelectedCategoryId={setSelectedCategoryId}

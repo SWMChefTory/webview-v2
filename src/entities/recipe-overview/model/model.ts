@@ -7,6 +7,7 @@ export const useFetchRecipeOverview = (id: string) => {
   const { data } = useSuspenseQuery({
     queryKey: [RECIPE_OVERVIEW_KEY, id],
     queryFn: () => fetchRecipeOverview(id),
+    staleTime: Infinity,
   });
   return { data };
 };

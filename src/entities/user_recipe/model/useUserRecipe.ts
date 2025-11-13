@@ -359,7 +359,7 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
       handleOpenToast({
         toastInfo: {
           status: RecipeCreateToastStatus.FAILED,
-          errorMessage: "test",
+          errorMessage: "",
         },
       });
       clearInterval(timerRef.current);

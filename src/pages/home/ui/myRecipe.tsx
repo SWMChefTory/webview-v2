@@ -68,7 +68,7 @@ const MyRecipesTemplate = ({
       {title}
       <div className="h-2" />
       <ScrollArea className="whitespace-nowrap w-[100vw]">
-        <div className="flex flex-row gap-2 pl-4 min-w-[100.5vw]">
+        <div className="flex flex-row pl-4 min-w-[100.5vw]">
           {categoryList}
         </div>
         <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
@@ -76,19 +76,6 @@ const MyRecipesTemplate = ({
       <div className="h-3" />
       {userRecipesSection}
     </div>
-  );
-};
-
-const MyRecipeTitleSkeleton = () => {
-  return (
-    <>
-      <div className="h-[44px] flex flex-row items-center pl-4 text-xl font-semibold text-gray-500">
-        <img src={RecipeBook.src} className="size-6" />
-        <div className="pr-1" />
-        나의 레시피
-        <IoChevronForwardOutline className="size-6 text-gray-400" />
-      </div>
-    </>
   );
 };
 

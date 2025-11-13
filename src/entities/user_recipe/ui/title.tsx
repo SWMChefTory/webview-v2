@@ -8,7 +8,7 @@ const TitleReady = ({ title }: { title: string }) => {
 
 const TitleEmpty = () => {
   return (
-    <p className="font-semibold text-sm line-clamp-2">레시피가 없어요</p>
+    <p className="font-semibold text-sm line-clamp-2 text-transparent">레시피가 없어요</p>
   );
 };
 

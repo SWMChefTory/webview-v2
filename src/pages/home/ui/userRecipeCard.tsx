@@ -47,7 +47,7 @@ export const UserRecipeCardReady = ({
   return (
     <div
       data-tour={isTutorialId() ? "recipe-card" : ""}
-      className="flex relative flex-col w-[320px]"
+      className="flex relative flex-col w-[160px]"
     >
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
@@ -91,7 +91,7 @@ export const UserRecipeCardReady = ({
 export const UserRecipeCardEmpty = () => {
   return (
     <div className="w-[160px]">
-      <ThumbnailEmpty size={{ width: 320, height: 180 }} />
+      <ThumbnailEmpty size={{ width: 160, height: 160 }} />
       <div className="w-full">
         <TitleEmpty />
         <ElapsedViewTimeEmpty />

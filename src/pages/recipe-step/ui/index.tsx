@@ -121,7 +121,7 @@ function useYouTubeIframeAPI() {
 ===================================================================================== */
 const RecipeStepPageReady = ({ id }: { id: string }) => {
   const { data } = useFetchRecipe(id);
-  const videoInfo = (data as RecipeAPIData | undefined)?.videoInfo ?? {};
+  const videoInfo = (data as RecipeAPIData | undefined)?.videoInfo ?? {}; 
   const steps = (data as RecipeAPIData | undefined)?.steps ?? [];
 
   if (!data || !videoInfo?.id || steps.length === 0) {

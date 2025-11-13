@@ -15,10 +15,10 @@ export const FloatingButton = () => {
         <SSRSuspense fallback={<FloatingButtonSkeleton />}>
           <Button
             className="relative w-full h-full rounded-full border-none 
-    bg-gradient-to-b from-orange-400 to-orange-600
-    shadow-[0_4px_10px_rgba(0,0,0,0.25)]
-    active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)]
-    transition-all duration-150"
+              bg-gradient-to-b from-orange-400 to-orange-600
+              shadow-[0_4px_10px_rgba(0,0,0,0.25)]
+              active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)]
+              transition-all duration-150"
             variant="outline"
             aria-label="Submit"
             onClick={() => {
@@ -32,7 +32,10 @@ export const FloatingButton = () => {
               open("");
             }}
           >
-            <FaPlus size={40} className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]" />
+            <FaPlus
+              size={40}
+              className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
+            />
           </Button>
         </SSRSuspense>
       </div>

@@ -12,7 +12,9 @@ import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import { Viewport } from "@radix-ui/react-toast";
 
 function PopularRecipeContent() {
-  const { fetchNextPage, hasNextPage } = useFecthPopularRecipe(VideoType.NORMAL);
+  const { fetchNextPage, hasNextPage } = useFecthPopularRecipe(
+    VideoType.NORMAL
+  );
   return (
     <div className="px-4">
       <div className="h-4" />
@@ -45,17 +47,19 @@ function PopularRecipeContent() {
 }
 
 function PopularRecipesReady() {
-  const { data: recipes, isFetchingNextPage } = useFecthPopularRecipe(VideoType.NORMAL);
+  const { data: recipes, isFetchingNextPage } = useFecthPopularRecipe(
+    VideoType.NORMAL
+  );
   return (
     <>
-    {recipes.map((recipe) => (
-    <RecipeCardWrapper
-      key={recipe.recipeId}
-      recipe={recipe}
-      trigger={<PopularRecipeCard recipe={recipe} />}
-    />
-  ))}
-  {isFetchingNextPage && <PopularRecipesSkeleton />}
+      {recipes.map((recipe) => (
+        <RecipeCardWrapper
+          key={recipe.recipeId}
+          recipe={recipe}
+          trigger={<PopularRecipeCard recipe={recipe} />}
+        />
+      ))}
+      {isFetchingNextPage && <PopularRecipesSkeleton />}
     </>
   );
 }

@@ -22,8 +22,9 @@ import Link from "next/link";
 import { UserRecipeCardReady } from "@/src/pages/home/ui/userRecipeCard";
 import RecipeBook from "@/src/pages/home/ui/assets/recipe-book.png";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
-export const MyRecipesReady = () => {
+export const MyRecipes = () => {
   const { data: categories } = useFetchCategories();
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
@@ -35,26 +36,20 @@ export const MyRecipesReady = () => {
     <MyRecipesTemplate
       title={<MyRecipeTitleReady />}
       categoryList={
-        <CategoryListFilter
-          categories={categories}
-          selectedCategory={selectedCategory}
-          totalElementCount={totalElements}
-          setSelectedCategory={setSelectedCategory}
-        />
+        <SSRSuspense fallback={<CategoryListSkeleton />}>
+          <CategoryListReady
+            categories={categories}
+            selectedCategory={selectedCategory}
+            totalElementCount={totalElements}
+            setSelectedCategory={setSelectedCategory}
+          />
+        </SSRSuspense>
       }
       userRecipesSection={
-        <UserRecipesSection selectedCategory={selectedCategory} />
+        <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
+          <UserRecipesSection selectedCategory={selectedCategory} />
+        </SSRSuspense>
       }
-    />
-  );
-};
-
-export const MyRecipesSkeleton = () => {
-  return (
-    <MyRecipesTemplate
-      title={<MyRecipeTitleSkeleton />}
-      categoryList={<CategoryListSkeleton />}
-      userRecipesSection={<UserRecipesSectionSkeleton />}
     />
   );
 };
@@ -120,7 +115,7 @@ const CategoryListSkeleton = () => {
   );
 };
 
-const CategoryListFilter = ({
+const CategoryListReady = ({
   categories,
   selectedCategory,
   totalElementCount,

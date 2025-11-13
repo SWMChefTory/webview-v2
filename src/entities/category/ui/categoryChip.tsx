@@ -99,13 +99,29 @@ function FilterChip({
 
   return (
     <motion.div
-      className={`rounded-xl ${isSelected && "bg-gray-200"} px-[12] py-[4] flex flex-row items-center whitespace-nowrap select-none gap-1`}
+      className={`rounded-xl ${
+        isSelected && "bg-gray-200"
+      } px-[12] py-[4] flex flex-row items-center whitespace-nowrap select-none gap-1`}
       whileTap={isSelected ? undefined : { scale: 0.9 }}
       transition={isSelected ? undefined : { duration: 0.2 }}
       onTapStart={handleTapStart}
     >
-      <p className={`${isSelected?"text-gray-800 font-extrabold":"text-gray-500 font-bold"} line-clamp-1`}>{name}</p>
-      <p className={`${isSelected?"text-gray-800 font-extrabold":"text-gray-500 font-bold"} text-xs flex-shrink-0`}>
+      <p
+        className={`${
+          isSelected
+            ? "text-gray-800 font-extrabold"
+            : "text-gray-500"
+        } line-clamp-1`}
+      >
+        {name}
+      </p>
+      <p
+        className={`${
+          isSelected
+            ? "text-gray-800 font-extrabold"
+            : "text-gray-500"
+        } text-xs flex-shrink-0`}
+      >
         {accessary}
       </p>
     </motion.div>

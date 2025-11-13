@@ -3,6 +3,9 @@ import { CgProfile } from "react-icons/cg";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdArrowBack, IoMdClose } from "react-icons/io";
 
+/**
+ * header는 44px 항상 공간 차지함.
+ */
 const Header = ({
   leftContent,
   centerContent,

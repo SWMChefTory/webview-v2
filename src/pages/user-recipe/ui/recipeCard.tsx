@@ -79,7 +79,7 @@ const RecipeDetailsCardReady = ({
           size={{ height: 108, width: 192 }}
         />
       </div>
-      <div className="w-1"/>
+      <div className="w-2" />
       <div className=" flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
@@ -103,7 +103,7 @@ const RecipeDetailsCardReady = ({
 const RecipeDetailsCardSkeleton = () => {
   return (
     <div className="w-full px-[10] flex flex-row items-center">
-      <ThumbnailSkeleton size={{ width: 160, height: 90 }} />
+      <ThumbnailSkeleton size={{ height: 108, width: 192 }} />
       <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
         <TitleSkeleton />
         <CategoryChip props={{ type: ChipType.SKELETON }} />
@@ -191,7 +191,7 @@ const Tag = ({ tagProps }: { tagProps: TagProps }) => {
         );
       case TagType.READY:
         return (
-          <p className="text-gray-500 text-sm whitespace-nowrap">
+          <p className="text-gray-500 text-xs whitespace-nowrap">
             {" "}
             #{tagProps.name}
           </p>

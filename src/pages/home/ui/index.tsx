@@ -1,11 +1,9 @@
 import { PopularRecipes } from "@/src/pages/home/ui/popularRecipes";
 import Header, { ProfileButton } from "@/src/shared/ui/header/header";
-import { motion, useScroll, useTransform } from "framer-motion";
 import { FloatingButton } from "@/src/pages/home/ui/floatingButton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import {
-  MyRecipesReady,
-  MyRecipesSkeleton,
+  MyRecipes,
 } from "@/src/pages/home/ui/myRecipe";
 import { useRouter } from "next/router";
 import Link from "next/link";
@@ -61,9 +59,7 @@ function HomePage() {
         </Link>
       </div>
       <CategorySection />
-      <SSRSuspense fallback={<MyRecipesSkeleton />}>
-        <MyRecipesReady />
-      </SSRSuspense>
+      <MyRecipes/>
       <PopularRecipes />
       <PopularShortsRecipes />
       <FloatingButton />

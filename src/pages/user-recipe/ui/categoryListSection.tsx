@@ -63,8 +63,8 @@ export const CategoryListSection = ({
   }, []);
 
   return (
-    <div className="px-6 pt-2 flex flex-col flex-none items-center w-full pb-[12] no-scrollbar">
-      <div className=" w-[100vw] overflow-x-auto">
+    <div className="px-6 pt-2 flex flex-col flex-none items-center w-full pb-[12]">
+      <div className=" w-[100vw] overflow-x-auto no-scrollbar">
         <SSRSuspense fallback={<CategoryListSkeleton />}>
           <CategoryListReady
             selectedCategoryId={selectedCategoryId}
@@ -133,7 +133,7 @@ const CategoryListReady = ({
           },
         }}
         isDarkMode={true}
-        key={ALL_RECIPES}
+        key={"add"}
       />
       {categoryToDelete && (
         <CategoryDeleteAlert

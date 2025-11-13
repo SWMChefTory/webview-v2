@@ -6,9 +6,15 @@ import { FormInput, FormButton } from "@/src/shared/form/components";
 import { driverObj } from "@/src/features/tutorial/tutorial";
 import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 import { ShareTutorialModal } from "./shareTutorialModal";
+import { useFetchCategories } from "@/src/entities/category/model/useCategory";
+import { HorizontalScrollArea } from "@/src/pages/home/ui/horizontalScrollArea";
+import { motion } from "motion/react";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null
+  );
   const { create } = useCreateRecipe();
   const {
     isOpen,
@@ -41,9 +47,12 @@ export function RecipeCreatingView() {
 
   const handleSubmit = async () => {
     if (isSubmittable()) {
-      create({ youtubeUrl: url});
+      create({ youtubeUrl: url, targetCategoryId: selectedCategoryId });
       setHasEverTyped(false);
-      if (useIsInTutorialStore.getState().isInTutorial && !useIsInTutorialStore.getState().isTutorialRecipeCardCreated) {
+      if (
+        useIsInTutorialStore.getState().isInTutorial &&
+        !useIsInTutorialStore.getState().isTutorialRecipeCardCreated
+      ) {
         setIsLoading(true);
         async function checkTutorialRecipeCardCreated() {
           setTimeout(() => {
@@ -66,7 +75,6 @@ export function RecipeCreatingView() {
       close();
     }
   };
-
   return (
     <>
       <ShareTutorialModal />
@@ -82,13 +90,19 @@ export function RecipeCreatingView() {
                 레시피 만들기
               </Dialog.Title>
             </div>
-
+            <CategoryChipListSection
+              selectedCategoryId={selectedCategoryId}
+              onSelect={({ selectedCategoryId }) => {
+                setSelectedCategoryId(selectedCategoryId);
+              }}
+            />
             <div className="px-4 pb-5">
               <FormInput
                 value={url}
                 onChange={handleUrlChange}
                 isError={isError()}
-                errorMessage="유튜브 링크를 입력해주세요."
+                errorMessage="해당 입력은 유튜브 링크가 아니에요"
+                placeholder="유튜브 링크를 입력해주세요"
               />
             </div>
             <div className="p-3">
@@ -103,5 +117,76 @@ export function RecipeCreatingView() {
         </Dialog.Portal>
       </Dialog.Root>
     </>
+  );
+}
+
+function CategoryChipListSection({
+  onSelect,
+  selectedCategoryId,
+}: {
+  onSelect: ({
+    selectedCategoryId,
+  }: {
+    selectedCategoryId: string | null;
+  }) => void;
+  selectedCategoryId: string | null;
+}) {
+  const { data: categories } = useFetchCategories();
+
+  function handleClick({ selectedId }: { selectedId: string }) {
+    if (selectedCategoryId === selectedId) {
+      onSelect({ selectedCategoryId: null });
+      return;
+    }
+    onSelect({ selectedCategoryId: selectedId });
+  }
+
+  return (
+    <>
+      {categories && (
+        <>
+          <HorizontalScrollArea>
+            {categories.map((category) => {
+              return (
+                <CategoryChip
+                  key={category.id}
+                  name={category.name}
+                  isSelected={category.id === selectedCategoryId}
+                  onClick={() => {
+                    handleClick({ selectedId: category.id });
+                  }}
+                />
+              );
+            })}
+          </HorizontalScrollArea>
+          <div className="h-4" />
+        </>
+      )}
+    </>
+  );
+}
+
+function CategoryChip({
+  name,
+  isSelected,
+  onClick,
+}: {
+  name: string;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <motion.div
+      className={`rounded-xl px-2 py-1 whitespace-nowrap font-semibold border ${
+        isSelected
+          ? "border-black bg-black text-white"
+          : "border-gray-300 text-gray-500"
+      }`}
+      whileTap={{ scale: 0.9 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClick}
+    >
+      {name}
+    </motion.div>
   );
 }

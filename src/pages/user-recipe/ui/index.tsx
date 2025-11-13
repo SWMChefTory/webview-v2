@@ -15,7 +15,7 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 export function UserRecipe() {
   const router = useRouter();
   useSafeArea({
-    top: { color: "#292524", isExists: true },
+    top: { color: "#FFFFFF", isExists: true },
     bottom: { color: "#FFFFFF", isExists: true },
     left: { color: "#FFFFFF", isExists: true },
     right: { color: "#FFFFFF", isExists: false },
@@ -37,6 +37,7 @@ export function UserRecipe() {
             />
           }
         />
+        <div className="pl-5 text-2xl font-bold pb-2">나의 레시피</div>
         <CategoryListSection
           selectedCategoryId={selectedCategoryId}
           setSelectedCategoryId={setSelectedCategoryId}

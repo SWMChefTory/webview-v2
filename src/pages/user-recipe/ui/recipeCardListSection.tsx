@@ -12,9 +12,12 @@ export const RecipeListSectionReady = ({
   selectedCategoryId: string | typeof ALL_RECIPES;
 }) => {
   const { data: categories } = useFetchCategories();
+  const selectedCategory =
+    selectedCategoryId === ALL_RECIPES
+      ? ALL_RECIPES
+      : categories.find((category) => category.id === selectedCategoryId);
   const { recipes, fetchNextPage } = useFetchUserRecipes(
-    categories.find((category) => category.id === selectedCategoryId) ||
-      ALL_RECIPES
+    selectedCategory || ALL_RECIPES
   );
 
   return (
@@ -27,7 +30,7 @@ export const RecipeListSectionReady = ({
           fetchNextPage();
         }
       }}
-      className="flex-1 flex flex-col w-full overflow-y-scroll px-2"
+      className="flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden px-2"
     >
       {recipes.length !== 0 ? (
         <div className="flex flex-col w-full gap-2">
@@ -40,9 +43,9 @@ export const RecipeListSectionReady = ({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col w-full h-full items-center pt-20 px-4">
-          <div className="pr-2">
-            <div className="w-44 h-44 mb-8">
+        <div className="flex flex-col w-full h-full items-center justify-center px-4">
+          <div className="pr-4">
+            <div className="w-40 h-40 mb-4">
               <img
                 src={"/empty_state.png"}
                 alt="empty inbox"
@@ -50,12 +53,24 @@ export const RecipeListSectionReady = ({
               />
             </div>
           </div>
-          <div className="text-center space-y-3">
-            <h3 className="font-bold text-xl text-gray-600">
-              카테고리에 해당하는 레시피가 없어요
-            </h3>
-            <p className="text-s text-gray-600">레시피를 생성해 보세요</p>
+          <div className="flex flex-col items-center justify-center w-full text-lg text-center">
+            <div className="flex items-center justify-center whitespace-nowrap w-[80%]">
+              {selectedCategory === ALL_RECIPES ? (
+                "현재 생성된"
+              ) : (
+                <>
+                  <div className="font-bold text-xl inline-block max-w-[80%] overflow-hidden text-ellipsis">
+                    {selectedCategory?.name}
+                  </div>
+                  <span className="shrink-0">에 해당하는</span>
+                </>
+              )}
+            </div>
+            <div>레시피가 없어요</div>
+            <div className="h-2" />
+            <p className="text-base text-gray-600">레시피를 생성해 보세요</p>
           </div>
+          <div className="pb-12" />
         </div>
       )}
     </div>
@@ -64,8 +79,8 @@ export const RecipeListSectionReady = ({
 
 export const RecipeListSectionSkeleton = () => {
   return (
-    <div className="flex-1 flex flex-col w-full rounded-t-[20] bg-white border-t border-t-stone-600 overflow-y-scroll">
-      <div className="flex flex-col w-full bg-white pt-6 rounded-t-[20] gap-4 ">
+    <div className="flex-1 flex flex-col w-full overflow-y-scroll px-2l">
+      <div className="flex flex-col w-full gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <RecipeDetailsCardSkeleton key={`skeleton-${i}`} />
         ))}

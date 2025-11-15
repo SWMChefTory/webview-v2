@@ -4,6 +4,7 @@ export const RecipeTagSchema = z.object({
   name: z.string(),
 });
 
+//success이후에만 호출해야함.
 export const RecipeOverviewSchema = z.object({
   recipeId: z.string(),
   recipeTitle: z.string(),
@@ -20,6 +21,5 @@ export const RecipeOverviewSchema = z.object({
   videoSeconds: z.number().int(),
 });
 
-// 타입 뽑아 쓰고 싶으면
 export type RecipeOverview = z.infer<typeof RecipeOverviewSchema>;
 export type RecipeTag = z.infer<typeof RecipeTagSchema>;

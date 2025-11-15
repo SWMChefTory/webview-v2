@@ -20,8 +20,11 @@ const NEG_TH = 0.4; // 꺼짐 임계
 const ON_HOLD_MS = 150; // 켜짐 유지(바운스 방지)
 const OFF_HOLD_MS = 250; // 꺼짐 지연(턴 종료 안정)
 
+const MIN_ACTIVE_MS = 120; // 최소 발화 활성(ON) 지속시간 [ms]
+const posAboveSinceRef = useRef<number>(0);
+
 // Pre-buffer 설정 (음성 앞부분 보호)
-const PRE_BUFFER_MS = 200; // 200ms 프리버퍼
+const PRE_BUFFER_MS = 500; // 500ms 프리버퍼
 const PRE_BUFFER_CHUNKS = Math.ceil(
   (PRE_BUFFER_MS * SAMPLE_RATE) / 1000 / CHUNK_SIZE
 ); // ~12.5 청크
@@ -270,51 +273,61 @@ export const useSimpleSpeech = ({
               let active = speechActiveRef.current;
               if (!active) {
                 if (probability >= POS_TH) {
-                  active = true;
-                  speechActiveRef.current = true;
-                  lastOnRef.current = now;
-
-                  // Pre-buffer부터 전송 시작 (항상)
-                  if (
-                    ws &&
-                    ws.readyState === WebSocket.OPEN &&
-                    isWSReady.current
-                  ) {
-                    for (const bufferedChunk of preBufferRef.current) {
-                      // Pre-buffer 청크들을 30ms 단위로 전송
-                      let tx: Float32Array;
-                      if (txLeftoverRef.current) {
-                        const mergedTx = new Float32Array(
-                          txLeftoverRef.current.length + bufferedChunk.length
-                        );
-                        mergedTx.set(txLeftoverRef.current);
-                        mergedTx.set(
-                          bufferedChunk,
-                          txLeftoverRef.current.length
-                        );
-                        tx = mergedTx;
-                        txLeftoverRef.current = null;
-                      } else {
-                        tx = bufferedChunk;
-                      }
-
-                      for (
-                        let off = 0;
-                        off + SEND_SIZE <= tx.length;
-                        off += SEND_SIZE
-                      ) {
-                        const slice = tx.subarray(off, off + SEND_SIZE);
-                        const payload = f32ToI16(slice).buffer;
-                        sendAudioData(ws, payload, false); // Pre-buffer는 is_final=false
-                      }
-                      const txRest = tx.length % SEND_SIZE;
-                      if (txRest)
-                        txLeftoverRef.current = tx.subarray(tx.length - txRest);
-                    }
-                    preBufferRef.current = []; // Pre-buffer 비우기
+                  if (posAboveSinceRef.current === 0) {
+                    posAboveSinceRef.current = now;
                   }
+                  if (now - posAboveSinceRef.current > MIN_ACTIVE_MS) {
+                    active = true;
+                    speechActiveRef.current = true;
+                    lastOnRef.current = now;
+                    posAboveSinceRef.current = 0;
 
-                  onVoiceStartRef.current?.();
+                    // Pre-buffer부터 전송 시작 (항상)
+                    if (
+                      ws &&
+                      ws.readyState === WebSocket.OPEN &&
+                      isWSReady.current
+                    ) {
+                      for (const bufferedChunk of preBufferRef.current) {
+                        // Pre-buffer 청크들을 30ms 단위로 전송
+                        let tx: Float32Array;
+                        if (txLeftoverRef.current) {
+                          const mergedTx = new Float32Array(
+                            txLeftoverRef.current.length + bufferedChunk.length
+                          );
+                          mergedTx.set(txLeftoverRef.current);
+                          mergedTx.set(
+                            bufferedChunk,
+                            txLeftoverRef.current.length
+                          );
+                          tx = mergedTx;
+                          txLeftoverRef.current = null;
+                        } else {
+                          tx = bufferedChunk;
+                        }
+
+                        for (
+                          let off = 0;
+                          off + SEND_SIZE <= tx.length;
+                          off += SEND_SIZE
+                        ) {
+                          const slice = tx.subarray(off, off + SEND_SIZE);
+                          const payload = f32ToI16(slice).buffer;
+                          sendAudioData(ws, payload, false); // Pre-buffer는 is_final=false
+                        }
+                        const txRest = tx.length % SEND_SIZE;
+                        if (txRest)
+                          txLeftoverRef.current = tx.subarray(
+                            tx.length - txRest
+                          );
+                      }
+                      preBufferRef.current = []; // Pre-buffer 비우기
+                    }
+
+                    onVoiceStartRef.current?.();
+                  }
+                } else {
+                  posAboveSinceRef.current = 0;
                 }
               } else {
                 if (

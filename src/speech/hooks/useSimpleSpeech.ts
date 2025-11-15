@@ -21,7 +21,6 @@ const ON_HOLD_MS = 150; // 켜짐 유지(바운스 방지)
 const OFF_HOLD_MS = 250; // 꺼짐 지연(턴 종료 안정)
 
 const MIN_ACTIVE_MS = 120; // 최소 발화 활성(ON) 지속시간 [ms]
-const posAboveSinceRef = useRef<number>(0);
 
 // Pre-buffer 설정 (음성 앞부분 보호)
 const PRE_BUFFER_MS = 500; // 500ms 프리버퍼
@@ -93,6 +92,8 @@ export const useSimpleSpeech = ({
   const speechActiveRef = useRef(false);
   const lastOnRef = useRef(0);
   const lastOffRef = useRef(0);
+
+  const posAboveSinceRef = useRef<number>(0);
 
   // 최신 값 refs
   const recipeIdRef = useRef(recipeId);
@@ -276,7 +277,7 @@ export const useSimpleSpeech = ({
                   if (posAboveSinceRef.current === 0) {
                     posAboveSinceRef.current = now;
                   }
-                  if (now - posAboveSinceRef.current > MIN_ACTIVE_MS) {
+                  if (now - posAboveSinceRef.current >= MIN_ACTIVE_MS) {
                     active = true;
                     speechActiveRef.current = true;
                     lastOnRef.current = now;

@@ -6,6 +6,7 @@ export function StepsContent({
   currentDetailStepIndex,
   onChangeStep,
   steps,
+  isLandscape,
 }: {
   currentStepIndex: number;
   currentDetailStepIndex: number;
@@ -17,19 +18,21 @@ export function StepsContent({
     stepDetailIndex: number;
   }) => void;
   steps: RecipeStep[];
+  isLandscape: boolean;
 }) {
   useEffect(() => {
-    scrollToStep(currentStepIndex);
-  }, [currentStepIndex]);
+    scrollToStep(currentStepIndex,currentDetailStepIndex);
+  }, [currentStepIndex, currentDetailStepIndex]);
   return (
     <>
-      <div className="h-8 overflow-hidden" />
+      {/* <div className="h- overflow-hidden" /> */}
       <div className="flex-1 w-full text-white h-full overflow-scroll">
         <div className="flex flex-col h-full">
           {steps.map((step, i) => {
             return (
               <Step
                 i={i}
+                isLandscape={isLandscape}
                 isSelected={i == currentStepIndex}
                 isLastChild={steps.length - 1 === i}
                 currentdetailStepIndex={currentDetailStepIndex}
@@ -45,8 +48,8 @@ export function StepsContent({
   );
 }
 
-function scrollToStep(stepIndex: number) {
-  const el = document.getElementById(`step-${stepIndex}`);
+function scrollToStep(stepIndex: number, stepDetailIndex: number) {
+  const el = document.getElementById(`stepdetail-${stepIndex}-${stepDetailIndex}`);
   el?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -57,6 +60,7 @@ function Step({
   step,
   onChangeStep,
   currentdetailStepIndex,
+  isLandscape,
 }: {
   i: number;
   isSelected: boolean;
@@ -70,6 +74,7 @@ function Step({
     stepDetailIndex: number;
   }) => void;
   currentdetailStepIndex: number;
+  isLandscape: boolean;
 }) {
   return (
     <div
@@ -79,33 +84,24 @@ function Step({
       <div className="text-gray-400 font-bold text-base">
         {i}. {step.subtitle}
       </div>
-      <div className="h-2" />
-      <div className="flex flex-col gap-1 px-2">
+      <div className={`${isLandscape ? "h-5" : "h-5"}`} />
+      <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} px-2`}>
         {step.details.map((detail, di) => {
           return (
             <div
               key={`${i}-${di}`}
+              id={`stepdetail-${i}-${di}`}
               onClick={() => {
                 onChangeStep({ stepIndex: i, stepDetailIndex: di });
               }}
             >
-              <div
-                className={`flex flex-row text-2xl gap-3 ${
-                  isSelected && currentdetailStepIndex === di
-                    ? "text-white"
-                    : "text-gray-400"
-                }`}
-              >
-                <div>{indexToLetter(di)}.</div>
-                <div
-                  className={`font-bold overflow-none ${
-                    isSelected && currentdetailStepIndex === di
-                      ? "text-white"
-                      : "text-gray-400"
-                  }`}
-                >
-                  {detail.text}
-                </div>
+              <div>
+                <Detail
+                  alphabetIndex={indexToLetter(di)}
+                  text={step.details[di].text}
+                  isSelected={isSelected && di === currentdetailStepIndex}
+                  isLandscape={isLandscape}
+                />
               </div>
               <div className="h-4" />
             </div>
@@ -115,6 +111,29 @@ function Step({
     </div>
   );
 }
+
+const Detail = ({
+  alphabetIndex,
+  text,
+  isSelected,
+  isLandscape,
+}: {
+  alphabetIndex: string;
+  text: string;
+  isSelected: boolean;
+  isLandscape: boolean;
+}) => {
+  return (
+    <div
+      className={`relative flex flex-row gap-3 ${
+        isSelected ? "text-white" : "text-gray-400"
+      } ${isLandscape ? "text-base" : "text-xl"}`}
+    >
+      <div>{alphabetIndex}.</div>
+      <div className={"font-bold overflow-none"}>{text}</div>
+    </div>
+  );
+};
 
 function indexToLetter(index: number): string {
   if (index < 0 || index > 25) {

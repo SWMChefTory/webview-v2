@@ -10,13 +10,12 @@
 // - NEW: 세로모드 스크롤 시 유튜브 고정
 
 import { useRouter } from "next/router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { popoverHandle as micButtonPopoverHandle } from "./micButtonPopover";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
 import { request, MODE } from "@/src/shared/client/native/client";
-import { useOrientation as useOrientationLock } from "@/src/pages/recipe-step/useOrientation";
 import {
   popoverHandle,
   TimerButton,
@@ -31,6 +30,7 @@ import { useSafeArea } from "../hooks/useSafeArea";
 import { StepsContent } from "./stepsContent";
 import { MicInteractionButton } from "./micButton";
 import { LoopSettingButton } from "./loopSettingButton";
+import { ProgressBar } from "./progressBar";
 
 function LoadingOverlay() {
   return (
@@ -81,9 +81,6 @@ function RecipeStepPageReady({ id }: { id: string }) {
   const { data: recipe } = useFetchRecipe(id);
   const router = useRouter();
   const orientation = useOrientation();
-  const isLandscape = orientation !== "portrait";
-  //뒤로갈 때 lock하기
-  const { handleLockOrientation } = useOrientationLock();
 
   useSafeArea({ orientation });
 
@@ -104,6 +101,8 @@ function RecipeStepPageReady({ id }: { id: string }) {
 
   const voiceActiveTimerRef = useRef<number | null>(null); //이건 뭐지
 
+  const micButtonPopover = useRef<popoverHandle | undefined>(undefined);
+
   // KWS 활성화 타이머 정리
   useEffect(() => {
     return () => {
@@ -114,33 +113,11 @@ function RecipeStepPageReady({ id }: { id: string }) {
   }, []);
 
   const videoRef = useRef<VideoRefProps | null>(null);
-  const [isVideoRefReady, setIsVideoRefReady] = useState<boolean>(false);
 
-  const {
-    steps,
-    currentIndex,
-    currentDetailIndex,
-    chageStepByTime,
-    changeStepByIndex,
-  } = useRecipeStepController({
-    recipeId: id,
-  });
-
-  const isFirstRef = useRef(false);
-  // useEffect(() => {
-  //   if (!isVideoRefReady) {
-  //     return;
-  //   }
-  //   if (!isInRepeat && !isFirstRef.current) {
-  //     const duration = videoRef.current?.getDuration();
-  //     if (!duration) {
-  //       throw new Error("duration 없는데 초기화");
-  //     }
-  //     videoRef.current?.setGroup({ start: 0, end: duration });
-  //     isFirstRef.current = true;
-  //     return;
-  //   }
-  // }, [isVideoRefReady, isInRepeat]);
+  const { steps, currentIndex, currentDetailIndex, chageStepByTime } =
+    useRecipeStepController({
+      recipeId: id,
+    });
 
   function handleChangeStepWithVideoTime({
     stepIndex,
@@ -149,17 +126,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
     stepIndex: number;
     stepDetailIndex: number;
   }) {
-    // if (isInRepeat) {
-    //   const start = steps[stepIndex].details[stepDetailIndex].start;
-    //   const end =
-    //     currentIndex + 1 < steps.length
-    //       ? steps[currentIndex + 1].details[0].start
-    //       : videoRef.current?.getDuration();
-    //   if (!end) {
-    //     throw new Error();
-    //   }
-    //   // setRepeatGroup({ start, end });
-    // }
+    console.log("!!2",steps[stepIndex].details[stepDetailIndex].start);
     videoRef.current?.seekTo({
       time: steps[stepIndex].details[stepDetailIndex].start,
     });
@@ -268,90 +235,105 @@ function RecipeStepPageReady({ id }: { id: string }) {
     },
   });
 
-  const setRepeatGroup = ({ start, end }: { start: number; end: number }) => {
-    // const duration = videoRef.current?.getDuration();
-    // if (!duration) {
-    //   return;
-    // }
-    // const firstStepDetail = steps[currentIndex].details[0];
-    // if (!firstStepDetail) {
-    //   return;
-    // }
-    // const start = firstStepDetail.start;
-    // const end =
-    //   currentIndex + 1 < steps.length
-    //     ? steps[currentIndex + 1].details[0].start
-    //     : duration;
-    // videoRef.current?.setGroup({ start, end });
+  //반복재생 함수
+  const handleRepeatInGroup = (time: number) => {
+    const start = steps[currentIndex].details[0].start;
+    const end =
+      currentIndex + 1 < steps.length
+        ? steps[currentIndex + 1].details[0].start
+        : videoRef.current?.getDuration();
+    if (!end) {
+      throw new Error();
+    }
+    if (start > time || end < time) {
+      if (end + 0.3 < time || start - 0.3 > time) {
+        chageStepByTime(time);
+        return;
+      }
+      videoRef.current?.seekTo({ time: start });
+      chageStepByTime(start);
+      return;
+    }
+    chageStepByTime(time);
   };
 
   return (
-    <div className="flex flex-col w-[100vw] h-[100vh] overflow-hidden bg-black">
+    <div
+      className={`flex ${
+        orientation === "portrait" ? "flex-col" : "flex-row"
+      } w-[100vw] h-[100vh] overflow-hidden bg-black items-center`}
+    >
       {/* {isLandscape && (
           <div className="fixed left-0 right-0 z-[1001] transition-[top] duration-200 will-change-top"></div>
         )} */}
-
-      {/* (세로모드 전용) 고정 유튜브 */}
-      {/* 통합 유튜브 플레이어 - orientation 변경 시에도 재렌더링 방지 */}
+      {orientation === "portrait" && (
+        <Header
+          leftContent={
+            <BackButton
+              onClick={() => {
+                router.back();
+              }}
+              color="text-white"
+            />
+          }
+        />
+      )}
       <Video
         videoId={recipe.videoInfo.id}
         title={recipe.videoInfo.videoTitle}
         ref={videoRef}
-        onInternallyChangeTime={chageStepByTime}
-        onRefReady={() => {
-          setIsVideoRefReady(true);
-        }}
-        // onInternallyChangeTime={handleRepeatInGroup}
+        onInternallyChangeTime={
+          isInRepeat ? handleRepeatInGroup : chageStepByTime
+        }
+        isLandscape={orientation !== "portrait"}
       />
-      <StepsContent
+      <ProgressBar
+        steps={steps}
         currentDetailStepIndex={currentDetailIndex}
         currentStepIndex={currentIndex}
-        onChangeStep={handleChangeStepWithVideoTime}
-        // onChangeStep={changeStepByIndex}
-        steps={steps}
+        isLandscape={orientation !== "portrait"}
+        onClick={handleChangeStepWithVideoTime}
       />
-      <div className="fixed flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
-        <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
-        <div className="flex justify-between bg-black pb-[30] px-[20] pointer-events-auto">
-          <TimerBottomSheet
-            trigger={
-              <TimerButton
-                recipeId={id}
-                recipeName={recipe.videoInfo.videoTitle}
-                errorPopoverRef={timerErrorPopoverRef}
-              />
-            }
-            recipeId={id}
-            recipeName={recipe.videoInfo.videoTitle}
-            isDarkMode={true}
-            isLandscape={isLandscape}
-          />
-          <LoopSettingButton
-            isRepeat={isInRepeat}
-            onClick={() => {
-              // if (isInRepeat) {
-              //   setIsInRepeat(false);
-              //   const start =
-              //     steps[currentIndex].details[currentDetailIndex].start;
-              //   const end =
-              //     currentIndex + 1 < steps.length
-              //       ? steps[currentIndex + 1].details[0].start
-              //       : videoRef.current?.getDuration();
-              //   if (!end) {
-              //     throw new Error();
-              //   }
-              //   setRepeatGroup({ start, end });
-              //   return;
-              // }
-              // setIsInRepeat(true);
-              // const duration = videoRef.current?.getDuration();
-              // if (!duration) {
-              //   throw new Error("duration 없는데 초기화");
-              // }
-              // videoRef.current?.setGroup({ start: 0, end: duration });
-            }}
-          />
-          <MicInteractionButton isActive={true} />
+      <div
+        className={`relative overflow-hidden ${
+          orientation !== "portrait" && "h-[100vh]"
+        }`}
+      >
+        <StepsContent
+          currentDetailStepIndex={currentDetailIndex}
+          currentStepIndex={currentIndex}
+          onChangeStep={handleChangeStepWithVideoTime}
+          steps={steps}
+          isLandscape={orientation !== "portrait"}
+        />
+        <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
+          {orientation === "portrait" ? (
+            <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+          ) : (
+            <></>
+          )}
+          <div className="flex justify-between bg-black pb-[30] px-[20] pointer-events-auto">
+            <TimerBottomSheet
+              trigger={
+                <TimerButton
+                  recipeId={id}
+                  recipeName={recipe.videoInfo.videoTitle}
+                  errorPopoverRef={timerErrorPopoverRef}
+                />
+              }
+              recipeId={id}
+              recipeName={recipe.videoInfo.videoTitle}
+              isDarkMode={true}
+              isLandscape={false}
+            />
+            <LoopSettingButton
+              isRepeat={isInRepeat}
+              onClick={() => {
+                setIsInRepeat((v) => !v);
+              }}
+            />
+            <MicInteractionButton isActive={true} ref={micButtonPopoverRef} />
+          </div>
         </div>
       </div>
     </div>
@@ -380,3 +362,20 @@ const RecipeStepPageSkeleton = () => {
 };
 
 export { RecipeStepPageReady, RecipeStepPageSkeleton };
+
+// const setRepeatGroup = ({ start, end }: { start: number; end: number }) => {
+// const duration = videoRef.current?.getDuration();
+// if (!duration) {
+//   return;
+// }
+// const firstStepDetail = steps[currentIndex].details[0];
+// if (!firstStepDetail) {
+//   return;
+// }
+// const start = firstStepDetail.start;
+// const end =
+//   currentIndex + 1 < steps.length
+//     ? steps[currentIndex + 1].details[0].start
+//     : duration;
+// videoRef.current?.setGroup({ start, end });
+// };

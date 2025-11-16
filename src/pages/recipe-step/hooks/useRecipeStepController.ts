@@ -74,21 +74,33 @@ export function useRecipeStepController({ recipeId }: { recipeId: string }) {
 
   const chageStepByTime = useCallback(
     (time: number) => {
-      for (let i = flatList.length - 1; i >= 0; i--) {
-        if (time < flatList[i].start) {
-          continue;
+      let left = 0;
+      let right = flatList.length - 1;
+      let result = -1;
+
+      while (left <= right) {
+        const mid = Math.floor((left + right) / 2);
+
+        if (flatList[mid].start <= time) {
+          result = mid;
+          left = mid + 1; // 더 큰 인덱스 찾기
+        } else {
+          right = mid - 1;
         }
+      }
+
+      if (result !== -1) {
+        const item = flatList[result];
         if (
-          flatList[i].stepIndex !== currentIndex ||
-          flatList[i].detailIndex !== currentDetailIndex
+          item.stepIndex !== currentIndex ||
+          item.detailIndex !== currentDetailIndex
         ) {
-          setCurrentIndex(flatList[i].stepIndex);
-          setCurrentDetailIndex(flatList[i].detailIndex);
+          setCurrentIndex(item.stepIndex);
+          setCurrentDetailIndex(item.detailIndex);
         }
-        return;
       }
     },
-    [steps, flatList]
+    [steps, flatList, currentIndex, currentDetailIndex]
   );
 
   return {

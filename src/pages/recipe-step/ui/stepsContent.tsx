@@ -21,11 +21,10 @@ export function StepsContent({
   isLandscape: boolean;
 }) {
   useEffect(() => {
-    scrollToStep(currentStepIndex,currentDetailStepIndex);
+    scrollToStep(currentStepIndex, currentDetailStepIndex);
   }, [currentStepIndex, currentDetailStepIndex]);
   return (
     <>
-      {/* <div className="h- overflow-hidden" /> */}
       <div className="flex-1 w-full text-white h-full overflow-scroll">
         <div className="flex flex-col h-full">
           {steps.map((step, i) => {
@@ -49,7 +48,7 @@ export function StepsContent({
 }
 
 function scrollToStep(stepIndex: number, stepDetailIndex: number) {
-  const el = document.getElementById(`stepdetail-${stepIndex}-${stepDetailIndex}`);
+  const el = document.getElementById(`step-${stepIndex}`);
   el?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -84,27 +83,39 @@ function Step({
       <div className="text-gray-400 font-bold text-base">
         {i}. {step.subtitle}
       </div>
-      <div className={`${isLandscape ? "h-5" : "h-5"}`} />
+      <div className={`${isLandscape ? "h-2" : "h-5"}`} />
       <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} px-2`}>
         {step.details.map((detail, di) => {
-          return (
-            <div
-              key={`${i}-${di}`}
-              id={`stepdetail-${i}-${di}`}
-              onClick={() => {
-                onChangeStep({ stepIndex: i, stepDetailIndex: di });
-              }}
-            >
-              <div>
+          return isSelected ? (
+            di >= currentdetailStepIndex && (
+              <>
                 <Detail
                   alphabetIndex={indexToLetter(di)}
                   text={step.details[di].text}
                   isSelected={isSelected && di === currentdetailStepIndex}
                   isLandscape={isLandscape}
+                  onClick={() => {
+                    onChangeStep({ stepIndex: i, stepDetailIndex: di });
+                  }}
                 />
-              </div>
-              <div className="h-4" />
-            </div>
+
+                <div className={`${isLandscape ? "h-1" : "h-4"}`} />
+              </>
+            )
+          ) : (
+            <>
+              <Detail
+                alphabetIndex={indexToLetter(di)}
+                text={step.details[di].text}
+                isSelected={isSelected && di === currentdetailStepIndex}
+                isLandscape={isLandscape}
+                onClick={() => {
+                  onChangeStep({ stepIndex: i, stepDetailIndex: di });
+                }}
+              />
+
+              <div className={`${isLandscape ? "h-1" : "h-4"}`} />
+            </>
           );
         })}
       </div>
@@ -117,17 +128,20 @@ const Detail = ({
   text,
   isSelected,
   isLandscape,
+  onClick,
 }: {
   alphabetIndex: string;
   text: string;
   isSelected: boolean;
   isLandscape: boolean;
+  onClick: () => void;
 }) => {
   return (
     <div
       className={`relative flex flex-row gap-3 ${
         isSelected ? "text-white" : "text-gray-400"
       } ${isLandscape ? "text-base" : "text-xl"}`}
+      onClick={onClick}
     >
       <div>{alphabetIndex}.</div>
       <div className={"font-bold overflow-none"}>{text}</div>

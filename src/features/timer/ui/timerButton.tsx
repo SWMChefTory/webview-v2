@@ -9,7 +9,7 @@ import { motion } from "framer-motion";
 
 import { useProgressTimer } from "../model/useProgressTimer";
 import { filterActiveTimers } from "../utils/query";
-import { useEffect, useImperativeHandle, useState } from "react";
+import { useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
 import {create} from "zustand";
 

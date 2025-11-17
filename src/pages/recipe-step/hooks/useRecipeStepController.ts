@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import { RecipeStep } from "../type/recipeSteps";
+import { checkStepIndex } from "../utils/checkStepIndex";
 
 const INTRO = "INTRO";
 
@@ -48,8 +49,7 @@ export function useRecipeStepController({ recipeId }: { recipeId: string }) {
       stepIndex: number;
       stepDetailIndex: number;
     }) => {
-      if (stepIndex < 0 && stepIndex >= steps.length) {
-        console.warn("잘못된 index 매개변수");
+      if (!checkStepIndex({ steps, stepIndex, stepDetailIndex })) {
         return;
       }
       setCurrentIndex(stepIndex);

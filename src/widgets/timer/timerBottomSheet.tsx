@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Picker from "react-mobile-picker";
-// import { Drawer } from "vaul";
+
 import {
   useHandleTimers,
   useTimers,
@@ -74,7 +74,7 @@ export function TimerBottomSheet({
           <div
             className={`${
               isLandscape
-                ? "fixed bottom-0 top-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
+                ? "fixed bottom-0 top-0 right-0 w-[36vw] z-[1002] bg-gray-200 rounded-l-[20px]"
                 : "fixed bottom-0 left-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
             }`}
             onPointerDown={() => handleOpen()}
@@ -100,8 +100,8 @@ export function TimerBottomSheet({
             <div
               className={`flex flex-col ${
                 isDarkMode ? "bg-gray-200/30" : "bg-gray-200/80"
-              } rounded-t-[20px] z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${
-                isLandscape ? "top-0" : "left-0"
+              }  z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${
+                isLandscape ? "top-0 right-0 w-[36vw] rounded-l-[20px]" : "left-0 rounded-t-[20px]"
               }`}
               onPointerDown={() => handleOpen()}
               onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
@@ -235,20 +235,6 @@ function TimerStarter({
           </button>
         </div>
       </div>
-      {/* <div className="pb-2 px-2 ">
-        <input
-          onChange={(e) => setTimerName(e.target.value)}
-          type="text"
-          value={timerName}
-          className="w-full p-4 outline-none focus:outline-none focus:ring-0 "
-          placeholder="타이머 이름을 입력해주세요."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-            }
-          }}
-          enterKeyHint="done"
-        />
-      </div> */}
       <div className="bg-white pb-4 z-10">
         <div
           ref={scrollRef}

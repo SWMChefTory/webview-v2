@@ -14,7 +14,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { popoverHandle as micButtonPopoverHandle } from "./micButtonPopover";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
-import { useSimpleSpeech } from "@/src/speech/hooks/useSimpleSpeech";
+import { useSimpleSpeech } from "@/src/pages/recipe-step/hooks/useSimpleSpeech";
 import { request, MODE } from "@/src/shared/client/native/client";
 import {
   popoverHandle,
@@ -101,8 +101,6 @@ function RecipeStepPageReady({ id }: { id: string }) {
 
   const voiceActiveTimerRef = useRef<number | null>(null); //이건 뭐지
 
-  const micButtonPopover = useRef<popoverHandle | undefined>(undefined);
-
   // KWS 활성화 타이머 정리
   useEffect(() => {
     return () => {
@@ -126,7 +124,15 @@ function RecipeStepPageReady({ id }: { id: string }) {
     stepIndex: number;
     stepDetailIndex: number;
   }) {
-    console.log("!!2",steps[stepIndex].details[stepDetailIndex].start);
+    if (stepIndex < 0 || stepIndex >= steps.length) {
+      return;
+    }
+    if (
+      stepDetailIndex < 0 ||
+      stepDetailIndex >= steps[stepIndex].details.length
+    ) {
+      return;
+    }
     videoRef.current?.seekTo({
       time: steps[stepIndex].details[stepDetailIndex].start,
     });
@@ -287,13 +293,15 @@ function RecipeStepPageReady({ id }: { id: string }) {
         }
         isLandscape={orientation !== "portrait"}
       />
-      <ProgressBar
-        steps={steps}
-        currentDetailStepIndex={currentDetailIndex}
-        currentStepIndex={currentIndex}
-        isLandscape={orientation !== "portrait"}
-        onClick={handleChangeStepWithVideoTime}
-      />
+      {
+        <ProgressBar
+          steps={steps}
+          currentDetailStepIndex={currentDetailIndex}
+          currentStepIndex={currentIndex}
+          isLandscape={orientation !== "portrait"}
+          onClick={handleChangeStepWithVideoTime}
+        />
+      }
       <div
         className={`relative overflow-hidden ${
           orientation !== "portrait" && "h-[100vh]"
@@ -310,7 +318,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           {orientation === "portrait" ? (
             <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           ) : (
-            <></>
+            <div className="h-12 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           )}
           <div className="flex justify-between bg-black pb-[30] px-[20] pointer-events-auto">
             <TimerBottomSheet
@@ -324,7 +332,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
               recipeId={id}
               recipeName={recipe.videoInfo.videoTitle}
               isDarkMode={true}
-              isLandscape={false}
+              isLandscape={orientation !== "portrait"}
             />
             <LoopSettingButton
               isRepeat={isInRepeat}
@@ -332,7 +340,10 @@ function RecipeStepPageReady({ id }: { id: string }) {
                 setIsInRepeat((v) => !v);
               }}
             />
-            <MicInteractionButton isActive={true} ref={micButtonPopoverRef} />
+            <MicInteractionButton
+              isActive={isListeningActive}
+              ref={micButtonPopoverRef}
+            />
           </div>
         </div>
       </div>
@@ -362,20 +373,3 @@ const RecipeStepPageSkeleton = () => {
 };
 
 export { RecipeStepPageReady, RecipeStepPageSkeleton };
-
-// const setRepeatGroup = ({ start, end }: { start: number; end: number }) => {
-// const duration = videoRef.current?.getDuration();
-// if (!duration) {
-//   return;
-// }
-// const firstStepDetail = steps[currentIndex].details[0];
-// if (!firstStepDetail) {
-//   return;
-// }
-// const start = firstStepDetail.start;
-// const end =
-//   currentIndex + 1 < steps.length
-//     ? steps[currentIndex + 1].details[0].start
-//     : duration;
-// videoRef.current?.setGroup({ start, end });
-// };

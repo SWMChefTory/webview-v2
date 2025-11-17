@@ -1,4 +1,3 @@
-import { useState } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { MicButtonPopover, popoverHandle } from "./micButtonPopover";
 
@@ -34,6 +33,10 @@ export const MicInteractionButton = ({
     </>
   );
 };
+
+// function VoiceGuide(){
+
+// }
 
 function MicButton({
   isActive,

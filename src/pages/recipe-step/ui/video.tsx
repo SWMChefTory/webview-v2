@@ -48,14 +48,6 @@ export const Video = ({
     };
   });
 
-  //   useEffect(() => {
-  //     if (!ref.current) return;
-
-  //     if (isYtRefReady) {
-  //       onRefReady();
-  //     }
-  //   }, [isYtRefReady, ref.current]);
-
   useEffect(() => {
     let rafId: number;
     function loop() {

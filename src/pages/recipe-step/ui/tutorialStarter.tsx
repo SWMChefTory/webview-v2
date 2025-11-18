@@ -65,7 +65,7 @@ const useTutorialStarterStore = create<TimerStarter>()(
       },
     }),
     {
-      name: "step-tutorial-store",
+      name: "create-popover-store",
       storage: createJSONStorage(() =>
         typeof window !== "undefined" ? localStorage : noopStorage
       ),

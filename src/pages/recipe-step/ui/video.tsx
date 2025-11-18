@@ -68,7 +68,6 @@ export const Video = ({
     () => ({
       width: "100%",
       height: "100%",
-      autoPlay: 1,
       playerVars: { autoplay: 0 },
       modestbranding: 1,
       rel: 0,

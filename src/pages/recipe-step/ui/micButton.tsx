@@ -1,19 +1,17 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { MicButtonPopover, popoverHandle } from "./micButtonPopover";
+import * as Popover from "@radix-ui/react-popover";
+import { IoMdClose } from "react-icons/io";
+import {
+  useTutorial,
+  useTutorialActions,
+  StepStatus,
+} from "../hooks/useTutorial";
 
-export const MicInteractionButton = ({
-  isActive,
-  ref,
-}: {
-  isActive: boolean;
-  ref: React.RefObject<undefined | popoverHandle>;
-}) => {
+export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
   return (
     <>
-      <Dialog.Root>
-        <Dialog.Trigger>
-          <MicButton isActive={isActive} ref={ref} />
-        </Dialog.Trigger>
+      <Dialog.Root open={true}>
         <Dialog.Portal>
           <Dialog.Content className="absolute inset-0 z-[1200] flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm">
             <div className="flex flex-col max-h-[90vh] w-full w-[80vw] animate-[slideUp_.3s_ease-out] overflow-hidden rounded-2xl bg-white shadow-2xl">
@@ -22,9 +20,7 @@ export const MicInteractionButton = ({
               </Dialog.Title>
               <VoiceGuide />
               <div className="w-full flex items-center justify-center">
-                <Dialog.Close className="w-full">
-                  <VoiceGuideCloseButton />
-                </Dialog.Close>
+                <VoiceGuideCloseButton onClick={onClick} />
               </div>
             </div>
           </Dialog.Content>
@@ -34,27 +30,88 @@ export const MicInteractionButton = ({
   );
 };
 
+export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
+  const { handleNextStep, terminate } = useTutorialActions();
+  const { steps, currentStepIndex, isInTutorial } = useTutorial();
+  return (
+    <Popover.Root
+      open={isInTutorial && steps[currentStepIndex].status == StepStatus.GUIDE}
+      modal={true}
+    >
+      <Popover.Trigger onClick={() => {}}>{trigger}</Popover.Trigger>
+      <Popover.Portal>
+        <Popover.Content
+          className="flex flex-col bg-white rounded-lg shadow-xl z-[2000]"
+          side="top"
+          align="start"
+          sideOffset={10}
+          alignOffset={10}
+        >
+          <Popover.Arrow className="fill-white" />
+          <div className="w-[60vw] max-w-md px-4 py-4 pb-6 z-[2000]">
+            <div className="flex justify-between item-center pb-2">
+              <div className="text-gray-500">
+                {currentStepIndex + 1}/{steps.length}
+              </div>
+              <Popover.Close onClick={terminate}>
+                <div className="p-1">
+                  <IoMdClose className="text-gray-500" size={18} />
+                </div>
+              </Popover.Close>
+            </div>
+
+            <p className="break-keep leading-relaxed font-semibold ">
+              튜토리얼을 진행해주셔서 감사해요!
+            </p>
+            <div className="h-1" />
+            <p className="break-keep leading-relaxed font-semibold ">
+              {"아래 버튼을 누르면 더 상세한 정보를 얻을 수 있어요"}
+            </p>
+            <div className="flex w-full justify-center pt-4">
+              <Popover.Close
+                asChild
+                className="px-3 py-1 bg-gray-200 rounded font-semibold"
+              >
+                <p
+                  onClick={() => {
+                    handleNextStep({ index: currentStepIndex });
+                  }}
+                >
+                  다음에 확인할게요
+                </p>
+              </Popover.Close>
+            </div>
+          </div>
+        </Popover.Content>
+      </Popover.Portal>
+    </Popover.Root>
+  );
+}
+
 // function VoiceGuide(){
 
 // }
 
-function MicButton({
+export function MicButton({
   isActive,
+  onClick,
   ref,
 }: {
   isActive: boolean;
+  onClick: () => void;
   ref: React.RefObject<undefined | popoverHandle>;
 }) {
   return (
     <button
       className={[
-        "relative flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full p-2 transition active:scale-95",
+        "relative flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full transition active:scale-95",
         isActive
           ? "bg-orange-500 shadow-[0_2px_24px_rgba(251,146,60,0.8)]"
           : "bg-orange-500 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
       ].join(" ")}
       aria-label="음성 명령 가이드"
       type="button"
+      onClick={onClick}
     >
       <MicButtonPopover ref={ref} />
       <svg
@@ -164,12 +221,13 @@ function VoiceGuide() {
   );
 }
 
-function VoiceGuideCloseButton() {
+function VoiceGuideCloseButton({ onClick }: { onClick: () => void }) {
   return (
     <div className="flex w-full items-center justify-center border-t border-gray-100 px-6 py-4">
       <button
         className="w-full rounded-md bg-orange-600 px-6 py-3 text-sm font-semibold text-white shadow "
         type="button"
+        onClick={onClick}
       >
         알겠어요!
       </button>

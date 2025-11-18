@@ -29,11 +29,6 @@ function HomePage() {
     left: { color: "#FFFFFF", isExists: true },
     right: { color: "#FFFFFF", isExists: true },
   });
-  useEffect(() => {
-    if (useIsInTutorialStore.getState().isInTutorial) {
-      startTheMagicShow();
-    }
-  }, []);
 
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden bg-white">

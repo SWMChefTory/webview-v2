@@ -28,20 +28,12 @@ import { GlobalNoBounce } from "./globalNoBounce";
 import { useOrientation } from "../hooks/useOrientation";
 import { useSafeArea } from "../hooks/useSafeArea";
 import { StepsContent } from "./stepsContent";
-import { MicInteractionButton } from "./micButton";
+import { MicButton, VoiceGuideModal, VoiceGuideMicStep } from "./micButton";
 import { LoopSettingButton } from "./loopSettingButton";
 import { ProgressBar } from "./progressBar";
-
-function LoadingOverlay() {
-  return (
-    <div className="fixed inset-0 z-[9999] flex select-none touch-none items-center justify-center bg-white/90">
-      <div className="pointer-events-none text-center">
-        <div className="mx-auto mb-3 h-8 w-8 animate-spin rounded-full border-2 border-black/10 border-t-black" />
-        <p className="text-sm text-gray-800">로딩중...</p>
-      </div>
-    </div>
-  );
-}
+import { useTutorialActions, useTutorial } from "../hooks/useTutorial";
+import { VoiceGuideTimerStep } from "./timerTutorialStep";
+import { TutorialStarter } from "./tutorialStarter";
 
 type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
 
@@ -81,6 +73,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
   const { data: recipe } = useFetchRecipe(id);
   const router = useRouter();
   const orientation = useOrientation();
+  const { start } = useTutorialActions();
 
   useSafeArea({ orientation });
 
@@ -96,8 +89,9 @@ function RecipeStepPageReady({ id }: { id: string }) {
     };
   }, []);
 
-  const [isInRepeat, setIsInRepeat] = useState(false); // 그룹 반복
+  const [isInRepeat, setIsInRepeat] = useState(true); // 그룹 반복
   const [isListeningActive, setIsListeningActive] = useState(false);
+  const [isVoiceGuideOpen, setIsVoiceGuideOpen] = useState(false);
 
   const voiceActiveTimerRef = useRef<number | null>(null); //이건 뭐지
 
@@ -117,6 +111,14 @@ function RecipeStepPageReady({ id }: { id: string }) {
       recipeId: id,
     });
 
+  const {
+    steps: tutorialStep,
+    currentStepIndex: currentTutorialStep,
+    isInTutorial,
+  } = useTutorial();
+  const { handleNextStep: handleTutorialNextStep } = useTutorialActions();
+
+  //voice로 다음단계 넘어가면 tutorial 넘어가는 옵션 넣어주기
   function handleChangeStepWithVideoTime({
     stepIndex,
     stepDetailIndex,
@@ -174,18 +176,36 @@ function RecipeStepPageReady({ id }: { id: string }) {
       const parsedIntent = parseIntent(intent?.base_intent || intent);
 
       if (parsedIntent === "NEXT") {
+        if (isInTutorial && currentTutorialStep != 2) {
+          return;
+        }
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex + 1,
           stepDetailIndex: currentDetailIndex,
         });
+        if (isInTutorial && currentTutorialStep == 2) {
+          handleTutorialNextStep({ index: 2 });
+        }
         return;
       }
       if (parsedIntent === "VIDEO PLAY") {
+        if (isInTutorial && currentTutorialStep != 0) {
+          return;
+        }
         videoRef.current?.play();
+        if (isInTutorial && currentTutorialStep == 0) {
+          handleTutorialNextStep({ index: 0 });
+        }
         return;
       }
       if (parsedIntent === "VIDEO STOP") {
+        if (isInTutorial && currentTutorialStep != 1) {
+          return;
+        }
         videoRef.current?.pause();
+        if (isInTutorial && currentTutorialStep == 1) {
+          handleTutorialNextStep({ index: 1 });
+        }
         return;
       }
       if (parsedIntent === "PREV") {
@@ -203,16 +223,21 @@ function RecipeStepPageReady({ id }: { id: string }) {
       if (parsedIntent.startsWith("STEP")) {
         const stepNum = Number(parsedIntent.split(/\s+/)[1] ?? "1");
         handleChangeStepWithVideoTime({
-          stepIndex: stepNum - 1,
+          stepIndex: stepNum,
           stepDetailIndex: 0,
         });
         return;
       }
       if (parsedIntent.startsWith("TIMER")) {
-        console.log("parsedIntentStart", parsedIntent);
+        if (isInTutorial && currentTutorialStep != 3) {
+          return;
+        }
         handleTimerIntent(parsedIntent, (error: string) => {
           timerErrorPopoverRef.current?.showErrorMessage(error);
         });
+        if (isInTutorial && currentTutorialStep == 3) {
+          handleTutorialNextStep({ index: 3 });
+        }
         return;
       }
       if (parsedIntent.startsWith("INGREDIENT")) {
@@ -269,9 +294,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
         orientation === "portrait" ? "flex-col" : "flex-row"
       } w-[100vw] h-[100vh] overflow-hidden bg-black items-center`}
     >
-      {/* {isLandscape && (
-          <div className="fixed left-0 right-0 z-[1001] transition-[top] duration-200 will-change-top"></div>
-        )} */}
+      <TutorialStarter />
       {orientation === "portrait" && (
         <Header
           leftContent={
@@ -320,30 +343,68 @@ function RecipeStepPageReady({ id }: { id: string }) {
           ) : (
             <div className="h-12 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           )}
-          <div className="flex justify-between bg-black pb-[30] px-[20] pointer-events-auto">
-            <TimerBottomSheet
-              trigger={
-                <TimerButton
-                  recipeId={id}
-                  recipeName={recipe.videoInfo.videoTitle}
-                  errorPopoverRef={timerErrorPopoverRef}
-                />
-              }
-              recipeId={id}
-              recipeName={recipe.videoInfo.videoTitle}
-              isDarkMode={true}
-              isLandscape={orientation !== "portrait"}
-            />
+          <div className="flex justify-between items-center bg-black pb-[30] px-[20] pointer-events-auto">
+            {isInTutorial ? (
+              <VoiceGuideTimerStep
+                trigger={
+                  <TimerButton
+                    recipeId={id}
+                    recipeName={recipe.videoInfo.videoTitle}
+                    errorPopoverRef={timerErrorPopoverRef}
+                  />
+                }
+              />
+            ) : (
+              <TimerBottomSheet
+                trigger={
+                  <TimerButton
+                    recipeId={id}
+                    recipeName={recipe.videoInfo.videoTitle}
+                    errorPopoverRef={timerErrorPopoverRef}
+                  />
+                }
+                recipeId={id}
+                recipeName={recipe.videoInfo.videoTitle}
+                isDarkMode={true}
+                isLandscape={orientation !== "portrait"}
+              />
+            )}
             <LoopSettingButton
               isRepeat={isInRepeat}
               onClick={() => {
                 setIsInRepeat((v) => !v);
               }}
             />
-            <MicInteractionButton
-              isActive={isListeningActive}
-              ref={micButtonPopoverRef}
-            />
+            {isInTutorial ? (
+              <VoiceGuideMicStep
+                trigger={
+                  <MicButton
+                    isActive={isListeningActive}
+                    ref={micButtonPopoverRef}
+                    onClick={() => {
+                      setIsVoiceGuideOpen(true);
+                      handleTutorialNextStep({ index: 4 });
+                    }}
+                  />
+                }
+              />
+            ) : (
+              <MicButton
+                isActive={isListeningActive}
+                ref={micButtonPopoverRef}
+                onClick={() => {
+                  setIsVoiceGuideOpen(true);
+                }}
+              />
+            )}
+
+            {isVoiceGuideOpen && (
+              <VoiceGuideModal
+                onClick={() => {
+                  setIsVoiceGuideOpen(false);
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

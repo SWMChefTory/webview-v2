@@ -28,7 +28,6 @@ export function TimerButton({
     recipeName,
   });
   const activeTimers = filterActiveTimers(timers);
-  // const earliestFinishTimer = findEarliestFinishTimer(activeTimers);
   const curTimer =
     timers.size > 0 ? Array.from(timers.entries())[0] : undefined;
 
@@ -92,7 +91,7 @@ function TimerTemplate({
 }) {
   return (
     <button
-      className=" relative h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-orange-500 text-white"
+      className="relative h-[3.75rem] w-[3.75rem] rounded-full bg-orange-500 text-white"
       type="button"
     >
       <div className="flex flex-col absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

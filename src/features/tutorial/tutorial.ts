@@ -7,7 +7,6 @@ export const driverObj = driver({
   showProgress: true,
   stagePadding: 0,
   steps: [
-    // 인트로 (선택사항)
     {
       popover: {
         title: "👋 환영합니다!",

@@ -72,13 +72,13 @@ export const UserRecipeCardEmpty = () => {
   const { open } = useRecipeCreatingViewOpenStore();
   return (
     <div>
-      <div className="flex flex-row h-[160]">
+      <div className="flex flex-row h-[90]">
         <div
           onClick={() => {
             open("");
           }}
         >
-          <ThumbnailEmpty size={{ width: 160, height: 160 }} />
+          <ThumbnailEmpty size={{ width: 160, height: 90 }} />
         </div>
         <div className="w-0.5" />
         <div className="py-2">
@@ -152,7 +152,7 @@ const Tail = ({
 export const UserRecipeCardSkeleton = () => {
   return (
     <div>
-      <ThumbnailSkeleton size={{ width: 160, height: 160 }} />
+      <ThumbnailSkeleton size={{ width: 160, height: 90 }} />
       <div className="w-full">
         <TitleSkeleton />
         <ElapsedViewTimeSkeleton />

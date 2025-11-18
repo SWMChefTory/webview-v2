@@ -35,28 +35,28 @@ export const UserRecipeCardReady = ({
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
-    <div className="flex relative flex-col w-[160px]">
+    <div className="flex flex-col w-[160px]">
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
       <div
-        className="w-[160] h-[160]"
+        className="relative w-[160] h-[90]"
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
             router.push(`/recipe/${userRecipe.recipeId}/detail`);
           }
         }}
       >
-        <div className="absolute top-0 left-0">
-          <div className="absolute top-[12] right-[12]">
-            <TimerTag
-              recipeId={userRecipe.recipeId}
-              recipeName={userRecipe.title}
-            />
-          </div>
+        <div className="absolute top-[12] right-[12] z-[10]">
+          <TimerTag
+            recipeId={userRecipe.recipeId}
+            recipeName={userRecipe.title}
+          />
+        </div>
+        <div className="absolute inset-[0]">
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
-            size={{ width: 160, height: 160 }}
+            size={{ width: 160, height: 90 }}
           />
         </div>
       </div>

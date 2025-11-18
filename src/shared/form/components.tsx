@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { IoClose } from "react-icons/io5";
-import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
+
 
 function FormInput({
   value,
@@ -15,7 +15,6 @@ function FormInput({
   errorMessage: string;
   placeholder: string;
 }) {
-  const { isInTutorial } = useIsInTutorialStore();
   return (
     <>
       <div className="relative">
@@ -26,7 +25,6 @@ function FormInput({
           onChange={(e) => {
             onChange(e.target.value);
           }}
-          disabled={isInTutorial}
           onMouseDown={(e) => {
             e.preventDefault();
             e.currentTarget.focus({ preventScroll: true });
@@ -42,7 +40,6 @@ function FormInput({
             onClick={() => {
               onChange("");
             }}
-            disabled={isInTutorial}
             type="button"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
           >
@@ -69,7 +66,6 @@ function FormButton({
   label: string;
   isLoading?: boolean;
 }) {
-  const isInTutorial = useIsInTutorialStore.getState().isInTutorial;
   return (
     <button
       onClick={onSubmit}

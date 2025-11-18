@@ -3,8 +3,6 @@ import { useRef, useState } from "react";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
-import { driverObj } from "@/src/features/tutorial/tutorial";
-import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 import { ShareTutorialModal } from "./shareTutorialModal";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import { HorizontalScrollArea } from "@/src/pages/home/ui/horizontalScrollArea";
@@ -23,8 +21,6 @@ export function RecipeCreatingView() {
     setUrl,
     close,
   } = useRecipeCreatingViewOpenStore();
-  const checkingCountRef = useRef<number>(0);
-  const [isLoading, setIsLoading] = useState(false);
 
   const isValidYoutubeUrl = (url: string) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
@@ -49,29 +45,6 @@ export function RecipeCreatingView() {
     if (isSubmittable()) {
       create({ youtubeUrl: url, targetCategoryId: selectedCategoryId });
       setHasEverTyped(false);
-      if (
-        useIsInTutorialStore.getState().isInTutorial &&
-        !useIsInTutorialStore.getState().isTutorialRecipeCardCreated
-      ) {
-        setIsLoading(true);
-        async function checkTutorialRecipeCardCreated() {
-          setTimeout(() => {
-            if (
-              useIsInTutorialStore.getState().isTutorialRecipeCardCreated &&
-              checkingCountRef.current >= 10
-            ) {
-              driverObj.moveNext();
-              close();
-              return;
-            }
-            setIsLoading(false);
-            checkingCountRef.current++;
-            checkTutorialRecipeCardCreated();
-          }, 200);
-        }
-        checkTutorialRecipeCardCreated();
-        return;
-      }
       close();
     }
   };
@@ -110,7 +83,6 @@ export function RecipeCreatingView() {
                 onSubmit={handleSubmit}
                 label="완료"
                 isSubmittable={isSubmittable()}
-                isLoading={isLoading}
               />
             </div>
           </Dialog.Content>

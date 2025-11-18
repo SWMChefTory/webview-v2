@@ -19,18 +19,24 @@ export function useHandleTimerVoiceIntent({
   recipeId: string;
   recipeName: string;
 }) {
-  const { handleStartTimer, handlePauseTimer, handleResumeTimer, handleReplayTimer } =
-    useHandleTimers({ recipeId, recipeName });
+  const {
+    handleStartTimer,
+    handlePauseTimer,
+    handleResumeTimer,
+    handleReplayTimer,
+  } = useHandleTimers({ recipeId, recipeName });
   const timers = useTimers(recipeId, recipeName);
   const activeTimers = filterActiveTimers(timers);
   const earliestFinishTimer = findEarliestFinishTimer(activeTimers);
   const { handleOpenTemporarily } = useTimerBottomSheetVisibility();
   const { setVisible, visible } = useTimerEffectVisibilityStore();
 
-  const timerEffectVisibilityRef = useRef<NodeJS.Timeout | undefined>(undefined);
+  const timerEffectVisibilityRef = useRef<NodeJS.Timeout | undefined>(
+    undefined
+  );
 
   function handleTimerEffectVisibility() {
-    if(!visible){
+    if (!visible) {
       setVisible(true);
       timerEffectVisibilityRef.current = setTimeout(() => {
         setVisible(false);
@@ -40,17 +46,20 @@ export function useHandleTimerVoiceIntent({
 
   useEffect(() => {
     return () => {
-      if(timerEffectVisibilityRef.current){
+      if (timerEffectVisibilityRef.current) {
         clearTimeout(timerEffectVisibilityRef.current);
       }
     };
   }, []);
 
-  function handleTimerIntent(parsedIntent: string, onError: (error: string) => void) {
+  function handleTimerIntent(
+    parsedIntent: string,
+    onError: (error: string) => void
+  ) {
     if (parsedIntent.startsWith("TIMER")) {
       const [_, commandRaw, secondsRaw] = parsedIntent.split(/\s+/);
       const seconds = secondsRaw ? Number(secondsRaw) : undefined;
-      if(!commandRaw){
+      if (!commandRaw) {
         return;
       }
       const command = commandRaw;
@@ -59,7 +68,7 @@ export function useHandleTimerVoiceIntent({
           if (seconds) {
             try {
               handleStartTimer({
-                timerName: "음성 타이머",
+                timerName: "",
                 duration: seconds,
               });
             } catch (error) {
@@ -81,15 +90,16 @@ export function useHandleTimerVoiceIntent({
           onError("타이머가 실행되지 않았어요");
           return;
         case "START":
-            const curTimer = timers.size > 0 ? Array.from(timers.entries())[0] : undefined;
+          const curTimer =
+            timers.size > 0 ? Array.from(timers.entries())[0] : undefined;
           if (curTimer && curTimer[1].state === TimerState.PAUSED) {
-            handleResumeTimer({id: curTimer[0]});
+            handleResumeTimer({ id: curTimer[0] });
             return;
-          }else if(curTimer && curTimer[1].state === TimerState.IDLE){
-            handleReplayTimer({id: curTimer[0]});
+          } else if (curTimer && curTimer[1].state === TimerState.IDLE) {
+            handleReplayTimer({ id: curTimer[0] });
             return;
           }
-          onError("시작할 타이머가 없어요");
+          handleOpenTemporarily({ seconds: 5 });
           return;
         default:
           handleOpenTemporarily({ seconds: 5 });

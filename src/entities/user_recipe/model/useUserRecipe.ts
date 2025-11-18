@@ -232,9 +232,17 @@ export function useCreateRecipe() {
         await updateCategory({ recipeId, targetCategoryId });
       return { recipeId, standardUrl };
     },
-    onMutate: async ({ youtubeUrl, recipeId: existingRecipeId, videoType, recipeTitle }) => {
+    onMutate: async ({
+      youtubeUrl,
+      recipeId: existingRecipeId,
+      videoType,
+      recipeTitle,
+    }) => {
       handleOpenToast({
-        toastInfo: { status: RecipeCreateToastStatus.IN_PROGRESS, recipeTitle: recipeTitle || "" },
+        toastInfo: {
+          status: RecipeCreateToastStatus.IN_PROGRESS,
+          recipeTitle: recipeTitle || "",
+        },
       });
       if (!existingRecipeId) {
         return null;
@@ -242,7 +250,10 @@ export function useCreateRecipe() {
       if (!videoType) {
         throw new Error("videoType is required");
       }
-      handleAddFakeCreating({ recipeId: existingRecipeId, recipeTitle: recipeTitle ?? "" });
+      handleAddFakeCreating({
+        recipeId: existingRecipeId,
+        recipeTitle: recipeTitle ?? "",
+      });
       return await patchIsViewedOptimistically(
         queryClient,
         existingRecipeId,
@@ -274,7 +285,11 @@ export function useCreateRecipe() {
         throw new Error("videoType is required");
       }
       if (ctx?.prevList) {
-        rollbackIsViewed(queryClient, { prevList: ctx.prevList }, _vars.videoType);
+        rollbackIsViewed(
+          queryClient,
+          { prevList: ctx.prevList },
+          _vars.videoType
+        );
       }
     },
   });
@@ -318,7 +333,7 @@ const createInProress = (
   return isInCreating;
 };
 
-export const useFetchRecipeProgress = ({recipeId}:{recipeId:string}) =>{
+export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
   const { data: progress } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
@@ -330,7 +345,7 @@ export const useFetchRecipeProgress = ({recipeId}:{recipeId:string}) =>{
   return {
     recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
   };
-}
+};
 
 export const useFetchRecipeProgressWithToast = (recipeId: string) => {
   const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
@@ -346,9 +361,7 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
   const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
-    if (
-      progress.recipeStatus === RecipeStatus.IN_PROGRESS
-    ) {
+    if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
       timerRef.current = setInterval(() => {
         refetch();
         console.log("refetch");

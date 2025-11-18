@@ -70,7 +70,7 @@ class RecipeStepDetail {
   }
 }
 
-class RecipeStep {
+export class RecipeStep {
   id!: string;
   stepOrder!: number;
   subtitle!: string;

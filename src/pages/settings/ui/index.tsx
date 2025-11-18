@@ -2,7 +2,6 @@ import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { GoChevronRight } from "react-icons/go";
 import { useRouter } from "next/router";
 import Chef from "@/src/pages/settings/assets/chef.png";
-import { MdEdit } from "react-icons/md";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { motion } from "framer-motion";
 import { fetchUserModel } from "@/src/pages/settings/entities/user/model";

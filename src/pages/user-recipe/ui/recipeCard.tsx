@@ -68,7 +68,7 @@ const RecipeDetailsCardReady = ({
         <ProgressDetailsCheckList recipeStatus={recipeStatus} />
       </div>
       <div className="relative h-[108] w-[192]">
-        <div className="absolute top-1 right-1">
+        <div className="absolute top-1 right-1 z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
             recipeName={userRecipe.title}

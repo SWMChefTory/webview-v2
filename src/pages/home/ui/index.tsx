@@ -10,14 +10,10 @@ import Link from "next/link";
 
 import { PiMagnifyingGlassBold } from "react-icons/pi";
 import { PopularShortsRecipes } from "./popularShortsRecipes";
-import { useEffect } from "react";
 import React from "react";
-
-import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
 import { CategorySection } from "./categorySection";
 
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { startTheMagicShow } from "@/src/features/tutorial/tutorial";
 import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
 

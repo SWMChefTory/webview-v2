@@ -23,9 +23,6 @@ import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 import { useRouter } from "next/router";
-import { useIsInTutorialStore } from "@/src/features/tutorial/isInTutorialStore";
-import { driverObj } from "@/src/features/tutorial/tutorial";
-import { useEffect } from "react";
 import { TimerTag } from "@/src/features/timer/ui/timerTag";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
 
@@ -37,19 +34,8 @@ export const UserRecipeCardReady = ({
   const router = useRouter();
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
-  function isTutorialId() {
-    return userRecipe.videoInfo.id === "XPmywm8Dnx4";
-  }
-  useEffect(() => {
-    if (useIsInTutorialStore.getState().isInTutorial && isTutorialId()) {
-      useIsInTutorialStore.getState().setIsTutorialRecipeCardCreated(true);
-    }
-  }, []);
   return (
-    <div
-      data-tour={isTutorialId() ? "recipe-card" : ""}
-      className="flex relative flex-col w-[160px]"
-    >
+    <div className="flex relative flex-col w-[160px]">
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
@@ -58,13 +44,6 @@ export const UserRecipeCardReady = ({
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
             router.push(`/recipe/${userRecipe.recipeId}/detail`);
-            if (
-              useIsInTutorialStore.getState().isInTutorial &&
-              isTutorialId()
-            ) {
-              driverObj.destroy();
-              useIsInTutorialStore.getState().finishTutorial();
-            }
           }
         }}
       >
@@ -90,11 +69,17 @@ export const UserRecipeCardReady = ({
 };
 
 export const UserRecipeCardEmpty = () => {
-  const {open} = useRecipeCreatingViewOpenStore();
+  const { open } = useRecipeCreatingViewOpenStore();
   return (
     <div>
       <div className="flex flex-row h-[160]">
-        <div onClick={()=>{open("");}}><ThumbnailEmpty size={{ width: 160, height: 160 }} /></div>
+        <div
+          onClick={() => {
+            open("");
+          }}
+        >
+          <ThumbnailEmpty size={{ width: 160, height: 160 }} />
+        </div>
         <div className="w-0.5" />
         <div className="py-2">
           <Tail direction={Direction.LEFT} length={10} color="#F97316" />

@@ -35,7 +35,7 @@ export const UserRecipeCardReady = ({
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
-    <div className="flex flex-col w-[160px]">
+    <div className="relative flex flex-col w-[160px]">
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>

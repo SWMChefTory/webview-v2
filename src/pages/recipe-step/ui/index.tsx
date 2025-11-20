@@ -210,7 +210,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
       if (parsedIntent === "PREV") {
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex - 1,
-          stepDetailIndex: currentDetailIndex,
+          stepDetailIndex: 0,
         });
         return;
       }

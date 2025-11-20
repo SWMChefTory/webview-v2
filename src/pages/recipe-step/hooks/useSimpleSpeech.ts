@@ -289,6 +289,8 @@ export const useSimpleSpeech = ({
                       ws.readyState === WebSocket.OPEN &&
                       isWSReady.current
                     ) {
+                      const silence = new Int16Array(SEND_SIZE); // 0으로 채워진 버퍼
+                      sendAudioData(ws, silence.buffer, false);
                       for (const bufferedChunk of preBufferRef.current) {
                         // Pre-buffer 청크들을 30ms 단위로 전송
                         let tx: Float32Array;

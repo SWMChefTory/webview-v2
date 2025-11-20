@@ -180,7 +180,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
         }
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex + 1,
-          stepDetailIndex: currentDetailIndex,
+          stepDetailIndex: 0,
         });
         if (isInTutorial && currentTutorialStep == 2) {
           handleTutorialNextStep({ index: 2 });

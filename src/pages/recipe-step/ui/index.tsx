@@ -57,7 +57,7 @@ function parseIntent(raw: string | undefined): BasicIntent {
   if (key === "PREV") return "PREV";
   if (key === "VIDEO PLAY") return "VIDEO PLAY";
   if (key === "VIDEO STOP") return "VIDEO STOP";
-  if (/^TIMESTAMP\s+\d+$/.test(key)) return key as BasicIntent;
+  if (/^TIMESTAMP\s+\d+(\.\d+)?$/.test(key)) return key as BasicIntent;
   if (/^STEP\s+\d+$/.test(key)) return key as BasicIntent;
   const timerCmd = "(SET|START|STOP|CHECK)";
   if (new RegExp(`^TIMER\\s+${timerCmd}(?:\\s+\\d+)?$`).test(key)) {
@@ -73,7 +73,6 @@ function RecipeStepPageReady({ id }: { id: string }) {
   const { data: recipe } = useFetchRecipe(id);
   const router = useRouter();
   const orientation = useOrientation();
-  const { start } = useTutorialActions();
 
   useSafeArea({ orientation });
 

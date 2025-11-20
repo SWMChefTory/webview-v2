@@ -100,7 +100,7 @@ function Step({
       <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} px-2`}>
         {step.details.map((detail, di) => {
           return isSelected ? (
-            di >= currentdetailStepIndex && (
+            di >= currentdetailStepIndex - 2 && (
               <>
                 <Detail
                   alphabetIndex={indexToLetter(di)}

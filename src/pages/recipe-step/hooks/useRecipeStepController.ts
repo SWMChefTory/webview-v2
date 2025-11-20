@@ -25,6 +25,7 @@ export function useRecipeStepController({ recipeId }: { recipeId: string }) {
           }),
       };
     });
+    console.log("!!!!!!!!!!!!!!!!",JSON.stringify(_steps));
     if (!_steps) {
       return [];
     }

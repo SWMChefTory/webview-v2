@@ -24,7 +24,7 @@ const Header = ({
   return (
     <div className={className}>
       <div
-        className={`flex fixed top-0 left-0 right-0  items-center py-2 px-2 h-[44px] z-40 ${
+        className={`flex fixed top-0 left-0 right-0 items-center py-2 px-2 h-[44px] z-40 ${
           color || "bg-transparent"
         }`}
       >
@@ -35,7 +35,7 @@ const Header = ({
           </div>
         )}
         {centerContent && (
-          <div className="flex items-center w-full pointer-events-none">
+          <div className="flex items-center w-full h-full pointer-events-none">
             <HeaderCenterItem>{centerContent}</HeaderCenterItem>
           </div>
         )}

@@ -26,6 +26,7 @@ import { RecipeCreatingView } from "@/src/widgets/recipe-creating-view/recipeCre
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
+import { ErrorBoundary } from "react-error-boundary";
 
 export default function App(props: AppProps) {
   const [queryClient] = useState(
@@ -132,7 +133,7 @@ function AppInner({ Component, pageProps }: AppProps) {
     <HydrationBoundary state={pageProps.dehydratedState}>
       <QueryErrorResetBoundary>
         {({ reset }) => (
-          <SSRErrorBoundary
+          <ErrorBoundary
             onReset={reset}
             fallbackRender={({ resetErrorBoundary }) => (
               <NetworkFallback
@@ -152,7 +153,7 @@ function AppInner({ Component, pageProps }: AppProps) {
                 setDeepLinkUrl={setRecipeDetailLinkUrl}
               />
             )}
-          </SSRErrorBoundary>
+          </ErrorBoundary>
         )}
       </QueryErrorResetBoundary>
     </HydrationBoundary>

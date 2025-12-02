@@ -8,6 +8,5 @@ import {
 export const fetchRecipeOverview = async (id: string): Promise<RecipeOverview> => {
   const response = await client.get(`/recipes/overview/${id}`);
   const data = response.data;
-  console.log("!!!!!!!!!!!!!!!!", JSON.stringify(data));
   return RecipeOverviewSchema.parse(data);
 };

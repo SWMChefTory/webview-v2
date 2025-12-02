@@ -111,7 +111,6 @@ function Step({
                     onChangeStep({ stepIndex: i, stepDetailIndex: di });
                   }}
                 />
-
                 <div className={`${isLandscape ? "h-1" : "h-4"}`} />
               </>
             )

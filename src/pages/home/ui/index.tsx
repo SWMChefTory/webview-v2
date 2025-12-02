@@ -2,11 +2,10 @@ import { PopularRecipes } from "@/src/pages/home/ui/popularRecipes";
 import Header, { ProfileButton } from "@/src/shared/ui/header/header";
 import { FloatingButton } from "@/src/pages/home/ui/floatingButton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import {
-  MyRecipes,
-} from "@/src/pages/home/ui/myRecipe";
+import { MyRecipes } from "@/src/pages/home/ui/myRecipe";
 import { useRouter } from "next/router";
 import Link from "next/link";
+
 
 import { PiMagnifyingGlassBold } from "react-icons/pi";
 import { PopularShortsRecipes } from "./popularShortsRecipes";
@@ -17,6 +16,9 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
 
+// props: {
+//   message: data.message,
+// },
 function HomePage() {
   const router = useRouter();
   useSafeArea({
@@ -28,19 +30,19 @@ function HomePage() {
 
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden bg-white">
-        <Header
-          leftContent={<Logo />}
-          rightContent={
-            <div className="flex flex-row">
-              <ProfileButton
-                onClick={() => {
-                  router.push("/user/settings");
-                }}
-              />
-            </div>
-          }
-          color="bg-white"
-        />
+      <Header
+        leftContent={<Logo />}
+        rightContent={
+          <div className="flex flex-row">
+            <ProfileButton
+              onClick={() => {
+                router.push("/user/settings");
+              }}
+            />
+          </div>
+        }
+        color="bg-white"
+      />
       <div className="pt-2 px-2">
         <Link href="/search-recipe">
           <div className="flex flex-row items-center justify-between px-4 w-full h-[36] text-gray-800 bg-gray-100 rounded-lg">
@@ -50,7 +52,7 @@ function HomePage() {
         </Link>
       </div>
       <CategorySection />
-      <MyRecipes/>
+      <MyRecipes />
       <PopularRecipes />
       <PopularShortsRecipes />
       <FloatingButton />
@@ -63,13 +65,7 @@ function HomePage() {
 }
 
 const Logo = () => {
-  return (
-    <img
-      src="/logo.png"
-      alt="logo"
-      className="h-[20] w-auto pl-2"
-    />
-  );
+  return <img src="/logo.png" alt="logo" className="h-[20] w-auto pl-2" />;
 };
 
 export default HomePage;

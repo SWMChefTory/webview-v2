@@ -12,62 +12,66 @@ import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
 import { Viewport } from "@radix-ui/react-toast";
 
 function PopularRecipeContent() {
-  const { fetchNextPage, hasNextPage } = useFecthPopularRecipe(
-    VideoType.NORMAL
-  );
   return (
     <div className="px-4">
       <div className="h-4" />
       <div className="text-2xl font-semibold">인기 레시피</div>
       <div className="h-4" />
-      <div
-        className="overflow-y-scroll h-[100vh] no-scrollbar"
-        onScroll={(event: any) => {
-          if (
-            event.target.scrollTop + event.target.clientHeight >=
-            event.target.scrollHeight + 10
-          ) {
-            if (hasNextPage) {
-              fetchNextPage();
-            }
-          }
-        }}
-      >
-        <div className="grid grid-cols-2 gap-2 min-h-[100.5vh]">
-          <SSRSuspense fallback={<PopularRecipesSkeleton />}>
-            <PopularRecipesReady />
-          </SSRSuspense>
-          <RecipeCreateToast>
-            <Viewport className="fixed right-3 top-2 z-1000 w-[300px]" />
-          </RecipeCreateToast>
-        </div>
-      </div>
+      <SSRSuspense fallback={<PopularRecipesSkeleton />}>
+        <PopularRecipesReady />
+      </SSRSuspense>
     </div>
   );
 }
 
 function PopularRecipesReady() {
-  const { data: recipes, isFetchingNextPage } = useFecthPopularRecipe(
-    VideoType.NORMAL
-  );
+  const {
+    data: recipes,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useFecthPopularRecipe(VideoType.NORMAL);
   return (
-    <>
-      {recipes.map((recipe) => (
-        <RecipeCardWrapper
-          key={recipe.recipeId}
-          recipe={recipe}
-          trigger={<PopularRecipeCard recipe={recipe} />}
-        />
-      ))}
-      {isFetchingNextPage && <PopularRecipesSkeleton />}
-    </>
+    <div
+      className="overflow-y-scroll h-[100vh] no-scrollbar"
+      onScroll={(event: any) => {
+        if (
+          event.target.scrollTop + event.target.clientHeight >=
+          event.target.scrollHeight + 10
+        ) {
+          if (hasNextPage) {
+            fetchNextPage();
+          }
+        }
+      }}
+    >
+      <div className="grid grid-cols-2 gap-2 min-h-[100.5vh]">
+        {recipes.map((recipe) => (
+          <RecipeCardWrapper
+            key={recipe.recipeId}
+            recipe={recipe}
+            trigger={<PopularRecipeCard recipe={recipe} />}
+          />
+        ))}
+        {isFetchingNextPage && <PopularRecipesSkeleton />}
+      </div>
+      <RecipeCreateToast>
+        <Viewport className="fixed right-3 top-2 z-1000 w-[300px]" />
+      </RecipeCreateToast>
+    </div>
   );
 }
 
 function PopularRecipesSkeleton() {
-  return Array.from({ length: 10 }).map((_, index) => (
-    <PopularRecipeCard key={index} />
-  ));
+  return (
+    <div className="overflow-y-scroll h-[100vh] no-scrollbar">
+      <div className="grid grid-cols-2 gap-2 min-h-[100.5vh]">
+        {Array.from({ length: 10 }).map((_, index) => (
+          <PopularRecipeCard key={index} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function PopularRecipeCard({ recipe }: { recipe?: PopularRecipe }) {

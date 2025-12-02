@@ -18,13 +18,13 @@ export const SSRErrorBoundary = ({
   onReset,
   children,
 }: SSRErrorBoundaryProps) => {
-  const [mounted, setMounted] = useState(false);
+  // const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  // useEffect(() => setMounted(true), []);
 
-  if (!mounted) {
-    return <></>;
-  }
+  // if (!mounted) {
+  //   return <></>;
+  // }
 
   return (
     <ErrorBoundary

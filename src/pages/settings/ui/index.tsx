@@ -10,6 +10,7 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
+import { ReactNode } from "react";
 
 function SettingsPage() {
   const router = useRouter();
@@ -31,8 +32,8 @@ function SettingsPage() {
         }
       />
       <div className=" px-4 flex flex-col justify-center">
-        <SSRSuspense fallback={<UserSection type="SKELETON" />}>
-          <UserSection type="READY" />
+        <SSRSuspense fallback={<UserSectionSkeleton />}>
+          <UserSectionReady />
         </SSRSuspense>
         <div className="h-[32]" />
         <div className="flex flex-col gap-1 px-2 ">
@@ -72,31 +73,50 @@ function SettingsPage() {
   );
 }
 
-const UserSection = ({ type }: { type: "READY" | "SKELETON" }) => {
+const UserSectionReady = () => {
   const { user } = fetchUserModel();
+
+  return (
+    <UserSectionTemplate
+      profileImg={
+        <img
+          src={Chef.src}
+          className="block w-full h-full object-cover object-center"
+        />
+      }
+      name={<div className="text-xl font-bold">{user.nickname}</div>}
+    />
+  );
+};
+
+const UserSectionSkeleton = () => {
+  return (
+    <UserSectionTemplate
+      profileImg={
+        <img
+          src={Chef.src}
+          className="block w-full h-full object-cover object-center"
+        />
+      }
+      name={<div className="w-[100]"><TextSkeleton fontSize="text-xl" /></div>}
+    />
+  );
+};
+
+const UserSectionTemplate = ({
+  profileImg,
+  name,
+}: {
+  profileImg: ReactNode;
+  name: ReactNode;
+}) => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="flex items-center justify-center w-[80] h-[80] bg-gray-200 rounded-full ">
-        <div className="w-[60] h-[60]">
-          {type === "READY" ? (
-            <img
-              src={Chef.src}
-              className="block w-full h-full object-cover object-center"
-            />
-          ) : (
-            <Skeleton className="w-[60] h-[60] rounded-full" />
-          )}
-        </div>
+        <div className="w-[60] h-[60]">{profileImg}</div>
       </div>
       <div className="h-1" />
-      <div className="flex flex-row items-center justify-center gap-1">
-        {type === "READY" ? (
-          <div className="text-xl font-bold">{user.nickname}</div>
-        ) : (
-          <TextSkeleton fontSize="text-lg" />
-        )}
-        {/* <MdEdit className="size-4 text-gray-500" /> */}
-      </div>
+      {name}
     </div>
   );
 };

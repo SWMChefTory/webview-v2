@@ -52,11 +52,11 @@ export function TutorialStarter() {
   );
 }
 
-type TimerStarter = {
+type TutorialStarter = {
   hasSeenTutorial: boolean;
   checkSeen: () => void;
 };
-const useTutorialStarterStore = create<TimerStarter>()(
+const useTutorialStarterStore = create<TutorialStarter>()(
   persist(
     (set, get) => ({
       hasSeenTutorial: true,

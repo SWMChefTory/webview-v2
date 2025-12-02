@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from "react";
 
 export const SSRSuspense = (props: React.ComponentProps<typeof Suspense>) => {
-  const { fallback } = props;   
+  const { fallback, children } = props;
 
   const [isMounted, setIsMounted] = useState(false);
 
@@ -9,8 +9,9 @@ export const SSRSuspense = (props: React.ComponentProps<typeof Suspense>) => {
     setIsMounted(true);
   }, []);
 
-  if (isMounted) {
-    return <Suspense {...props} />;
+  if (!isMounted) {
+    return <>{fallback}</>;
   }
-  return <>{fallback}</>;
+  
+  return <Suspense fallback={fallback}>{children}</Suspense>;
 };

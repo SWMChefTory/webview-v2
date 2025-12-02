@@ -5,7 +5,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { AlreadyEnrolledChip, CreatingStatusChip } from "../../../shared/ui/chip/chip";
+import {
+  AlreadyEnrolledChip,
+  CreatingStatusChip,
+} from "../../../shared/ui/chip/chip";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
@@ -15,10 +18,6 @@ import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUser
 import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
 
 export function PopularRecipes() {
-  const { fetchNextPage, hasNextPage } = useFecthPopularRecipe(
-    VideoType.NORMAL
-  );
-
   return (
     <div>
       <div className="h-4" />
@@ -29,39 +28,40 @@ export function PopularRecipes() {
         </div>
       </Link>
       <div className="h-3" />
-      <HorizontalScrollArea
-        onReachEnd={() => {
-          if (hasNextPage) {
-            fetchNextPage();
-          }
-        }}
-      >
-        <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
-          <SSRSuspense fallback={<RecipeCardSectionSkeleton />}>
-            <RecipeCardSectionReady />
-          </SSRSuspense>
-        </div>
-      </HorizontalScrollArea>
+      <SSRSuspense fallback={<RecipeCardSectionSkeleton />}>
+        <RecipeCardSectionReady />
+      </SSRSuspense>
     </div>
   );
 }
 
 function RecipeCardSectionSkeleton() {
   return (
-    <>
+    <HorizontalScrollArea onReachEnd={() => {}}>
       {Array.from({ length: 3 }).map((_, index) => (
         <RecipeCardSkeleton key={index} />
       ))}
-    </>
+      <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]"></div>
+    </HorizontalScrollArea>
   );
 }
 
 function RecipeCardSectionReady() {
-  const { data: recipes, isFetchingNextPage } = useFecthPopularRecipe(
-    VideoType.NORMAL
-  );
+  const {
+    data: recipes,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useFecthPopularRecipe(VideoType.NORMAL);
+
   return (
-    <>
+    <HorizontalScrollArea
+      onReachEnd={() => {
+        if (hasNextPage) {
+          fetchNextPage();
+        }
+      }}
+    >
       {recipes.map((recipe) => (
         <RecipeCardWrapper
           recipe={recipe}
@@ -70,19 +70,28 @@ function RecipeCardSectionReady() {
         />
       ))}
       {isFetchingNextPage && <RecipeCardSkeleton />}
-    </>
+      <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]"></div>
+    </HorizontalScrollArea>
   );
 }
 
 export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
-  const {recipeStatus} = useFetchRecipeProgress({recipeId : recipe.recipeId});
+  const { recipeStatus } = useFetchRecipeProgress({
+    recipeId: recipe.recipeId,
+  });
   return (
     <div className="flex flex-col">
       <div className="flex relative flex-col w-[320px]">
         <div className="h-[180] overflow-hidden rounded-md">
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
-            <AlreadyEnrolledChip isEnrolled={recipeStatus===RecipeStatus.SUCCESS && recipe.isViewed} />
-            <CreatingStatusChip isInCreating={recipeStatus===RecipeStatus.IN_PROGRESS}/>
+            <AlreadyEnrolledChip
+              isEnrolled={
+                recipeStatus === RecipeStatus.SUCCESS && recipe.isViewed
+              }
+            />
+            <CreatingStatusChip
+              isInCreating={recipeStatus === RecipeStatus.IN_PROGRESS}
+            />
           </div>
           <img
             src={recipe.videoThumbnailUrl}

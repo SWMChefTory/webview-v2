@@ -25,12 +25,9 @@ import { HorizontalScrollArea } from "./horizontalScrollArea";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 export const MyRecipes = () => {
-  const { data: categories } = useFetchCategories();
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
   >(ALL_RECIPES);
-
-  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
 
   return (
     <MyRecipesTemplate
@@ -38,9 +35,7 @@ export const MyRecipes = () => {
       categoryList={
         <SSRSuspense fallback={<CategoryListSkeleton />}>
           <CategoryListReady
-            categories={categories}
             selectedCategory={selectedCategory}
-            totalElementCount={totalElements}
             setSelectedCategory={setSelectedCategory}
           />
         </SSRSuspense>
@@ -103,16 +98,15 @@ const CategoryListSkeleton = () => {
 };
 
 const CategoryListReady = ({
-  categories,
   selectedCategory,
-  totalElementCount,
   setSelectedCategory,
 }: {
-  categories: Category[];
   selectedCategory: Category | typeof ALL_RECIPES;
-  totalElementCount: number;
   setSelectedCategory: (category: Category | typeof ALL_RECIPES) => void;
 }) => {
+  const { data: categories } = useFetchCategories();
+  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
+
   return (
     <>
       <CategoryChip
@@ -120,7 +114,7 @@ const CategoryListReady = ({
         props={{
           type: ChipType.FILTER,
           name: "전체",
-          accessary: totalElementCount ?? 0,
+          accessary: totalElements ?? 0,
           onClick: () => {
             setSelectedCategory?.(ALL_RECIPES);
           },

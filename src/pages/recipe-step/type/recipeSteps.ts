@@ -6,5 +6,5 @@ export interface RecipeStep {
 }
 export interface StepDetail {
   text: string;
-  start: number;
+  start: number; 
 }

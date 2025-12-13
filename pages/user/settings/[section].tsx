@@ -1,3 +1,3 @@
-import SettingsSectionPage from "@/src/pages/settings-sections/index";
+import SettingsSectionPage from "@/src/views/settings-sections/index";
 
 export default SettingsSectionPage;

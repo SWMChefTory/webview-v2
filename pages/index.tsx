@@ -1,4 +1,4 @@
-import HomePage from "@/src/pages/home/index";
+import HomePage from "@/src/views/home/index";
 
 export default HomePage;
 

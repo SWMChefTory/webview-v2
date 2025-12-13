@@ -1,3 +1,3 @@
-import PopularRecipePage from "@/src/pages/popular-recipe";
+import PopularRecipePage from "@/src/views/popular-recipe";
 
 export default PopularRecipePage;

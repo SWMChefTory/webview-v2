@@ -1,3 +1,3 @@
-import SettingsPage from "@/src/pages/settings/index";
+import SettingsPage from "@/src/views/settings/index";
 
 export default SettingsPage;

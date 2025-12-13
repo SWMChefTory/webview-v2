@@ -1,4 +1,4 @@
-import CategoryResultsPage from "@/src/pages/category-results/index";
+import CategoryResultsPage from "@/src/views/category-results/index";
 
 export default CategoryResultsPage;
 

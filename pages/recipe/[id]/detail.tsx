@@ -1,3 +1,3 @@
-import RecipeDetailPage from '@/src/pages/recipe-detail/index';
+import RecipeDetailPage from '@/src/views/recipe-detail/index';
 
 export default RecipeDetailPage;

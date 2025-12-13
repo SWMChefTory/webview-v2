@@ -11,7 +11,6 @@ import {
 import {
   useSuspenseInfiniteQuery,
   useQueryClient,
-  useQuery,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
@@ -230,6 +229,10 @@ export function useCreateRecipe() {
       const recipeId = await createRecipe(standardUrl);
       if (targetCategoryId)
         await updateCategory({ recipeId, targetCategoryId });
+      handleAddFakeCreating({
+        recipeId: recipeId,
+        recipeTitle: recipeTitle ?? "",
+      });
       return { recipeId, standardUrl };
     },
     onMutate: async ({
@@ -250,10 +253,6 @@ export function useCreateRecipe() {
       if (!videoType) {
         throw new Error("videoType is required");
       }
-      handleAddFakeCreating({
-        recipeId: existingRecipeId,
-        recipeTitle: recipeTitle ?? "",
-      });
       return await patchIsViewedOptimistically(
         queryClient,
         existingRecipeId,
@@ -364,7 +363,6 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
     if (progress.recipeStatus === RecipeStatus.IN_PROGRESS) {
       timerRef.current = setInterval(() => {
         refetch();
-        console.log("refetch");
       }, 1000);
       setIsInProgressBefore(true);
     }

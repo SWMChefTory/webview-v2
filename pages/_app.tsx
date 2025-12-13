@@ -2,17 +2,16 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
-import useInit from "@/src/app/init";
+import { communication } from "@/src/shared/client/native/client";
 import {
   MODE,
   onUnblockingRequest,
   request,
 } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { RecipeCreationInfoSchema } from "@/src/pages/home/entities/creating_info/recipeCreationInfo";
+import { RecipeCreationInfoSchema } from "@/src/views/home/entities/creating_info/recipeCreationInfo";
 import { Toaster } from "sonner";
 import { useRouter } from "next/router";
-import { SSRErrorBoundary } from "@/src/shared/boundary/SSRErrorBoundary";
 import { motion } from "motion/react";
 import { WiCloud } from "react-icons/wi";
 import {
@@ -26,6 +25,7 @@ import { RecipeCreatingView } from "@/src/widgets/recipe-creating-view/recipeCre
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
+import { ErrorBoundary } from "react-error-boundary";
 
 export default function App(props: AppProps) {
   const [queryClient] = useState(
@@ -132,7 +132,7 @@ function AppInner({ Component, pageProps }: AppProps) {
     <HydrationBoundary state={pageProps.dehydratedState}>
       <QueryErrorResetBoundary>
         {({ reset }) => (
-          <SSRErrorBoundary
+          <ErrorBoundary
             onReset={reset}
             fallbackRender={({ resetErrorBoundary }) => (
               <NetworkFallback
@@ -152,7 +152,7 @@ function AppInner({ Component, pageProps }: AppProps) {
                 setDeepLinkUrl={setRecipeDetailLinkUrl}
               />
             )}
-          </SSRErrorBoundary>
+          </ErrorBoundary>
         )}
       </QueryErrorResetBoundary>
     </HydrationBoundary>
@@ -258,3 +258,19 @@ function RouteDialog({
     </>
   );
 }
+
+
+const useInit = () => {
+  useEffect(() => {
+    // if (typeof window === "undefined") throw new Error("window is not defined");
+    //사파리 전용
+    window.addEventListener("message", communication);
+    //크로미움 전용
+    document.addEventListener('message' as any, communication); 
+    return () => {
+      console.log("brigdeEnd");
+      window.removeEventListener("message", communication);
+    };
+  }, []);
+};
+

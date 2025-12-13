@@ -1,11 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
 import { ShareTutorialModal } from "./shareTutorialModal";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
-import { HorizontalScrollArea } from "@/src/pages/home/ui/horizontalScrollArea";
+import { HorizontalScrollArea } from "@/src/views/home/ui/horizontalScrollArea";
 import { motion } from "motion/react";
 
 export function RecipeCreatingView() {

@@ -1,3 +1,3 @@
-import RecipeStepPage from '@/src/pages/recipe-step/index';
+import RecipeStepPage from '@/src/views/recipe-step/index';
 
 export default RecipeStepPage;

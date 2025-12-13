@@ -1,3 +1,3 @@
-import SearchRecipePage from "@/src/pages/search-recipe/index";
+import SearchRecipePage from "@/src/views/search-recipe/index";
 
 export default SearchRecipePage;

@@ -1,3 +1,3 @@
-import { UserRecipe } from "@/src/pages/user-recipe/ui/index";
+import { UserRecipe } from "@/src/views/user-recipe/ui/index";
 
 export default UserRecipe;

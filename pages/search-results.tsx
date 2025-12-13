@@ -1,4 +1,4 @@
-import SearchResultsPage from "@/src/pages/search-results/index";
+import SearchResultsPage from "@/src/views/search-results/index";
 
 export default SearchResultsPage;
 

@@ -145,3 +145,56 @@
     @apply bg-background text-foreground;
   }
 }
+
+::view-transition-group(root) {
+  animation-duration: 0.3s !important;
+  animation-timing-function: linear !important;
+  /* 중요: 그룹 자체의 움직임(위치 이동 등)은 끕니다 */
+  animation-name: none !important; 
+}
+
+/* 🚨 2. [Next] 다음 페이지 이동 (Push) */
+/* Old: 왼쪽으로 사라짐 (4s) */
+/* html[data-slide="next"]::view-transition-old(root) {
+  animation: slide-out-to-left 0.3s linear both !important;
+} */
+/* New: 오른쪽에서 들어옴 (4s) */
+/* html[data-slide="next"]::view-transition-new(root) {
+  animation: slide-in-from-right 0.3s linear both !important;
+} */
+
+html::view-transition-old(root) {
+  animation: slide-out-to-left 0.3s linear both !important;
+}
+/* New: 오른쪽에서 들어옴 (4s) */
+html::view-transition-new(root) {
+  animation: slide-in-from-right 0.3s linear both !important;
+}
+
+/* 🚨 3. [Prev] 뒤로 가기 (Pop) */
+/* Old: 오른쪽으로 사라짐 (4s) */
+html[data-slide="prev"]::view-transition-old(root) {
+  animation: slide-out-to-right 4s linear both !important;
+  z-index: 100;
+}
+/* New: 왼쪽에서 들어옴 (4s) */
+html[data-slide="prev"]::view-transition-new(root) {
+  animation: slide-in-from-left 4s linear both !important;
+}
+
+/* 🚨 4. 키프레임 정의 (변경 없음) */
+@keyframes slide-out-to-left {
+  to { transform: translateX(-30%); filter: brightness(0.5); opacity: 0; }
+}
+@keyframes slide-in-from-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes slide-out-to-right {
+  from { transform: translateX(70%); }
+  to { transform: translateX(100%); }
+}
+@keyframes slide-in-from-left {
+  from { transform: translateX(-10%); filter: brightness(0.5); opacity: 0; }
+  to { transform: translateX(0); filter: brightness(1); opacity: 1; }
+}

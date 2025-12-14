@@ -7,6 +7,7 @@ import {
   StepStatus,
 } from "../hooks/useTutorial";
 import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export function VoiceGuideTimerStep({
   trigger,
@@ -20,7 +21,7 @@ export function VoiceGuideTimerStep({
 
   // X 버튼 클릭 시 (중도 이탈)
   const handleTerminate = () => {
-    track("tutorial_handsfree_step_end", {
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_END, {
       recipe_id: recipeId,
       completed_steps: currentStepIndex,
       total_steps: steps.length,

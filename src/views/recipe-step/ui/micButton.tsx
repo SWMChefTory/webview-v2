@@ -8,6 +8,7 @@ import {
   StepStatus,
 } from "../hooks/useTutorial";
 import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
   return (
@@ -43,7 +44,7 @@ export function VoiceGuideMicStep({
 
   // X 버튼 클릭 시 (중도 이탈)
   const handleTerminate = () => {
-    track("tutorial_handsfree_step_end", {
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_END, {
       recipe_id: recipeId,
       completed_steps: currentStepIndex,
       total_steps: steps.length,
@@ -54,7 +55,7 @@ export function VoiceGuideMicStep({
 
   // 마지막 단계 완료 버튼 클릭 시
   const handleComplete = () => {
-    track("tutorial_handsfree_step_end", {
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_END, {
       recipe_id: recipeId,
       completed_steps: steps.length, // 모든 단계 완료
       total_steps: steps.length,

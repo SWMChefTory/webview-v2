@@ -7,6 +7,7 @@ import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHa
 import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export function ShareTutorialModal() {
   const { isTutorialOpen, closeTutorial, openRecipeCreatingView, videoUrl, markTutorialAsSeen } =
@@ -62,7 +63,7 @@ export function ShareTutorialModal() {
   // tutorial_share_view 이벤트: 모달이 열릴 때 트래킹
   useEffect(() => {
     if (isTutorialOpen) {
-      track("tutorial_share_view");
+      track(AMPLITUDE_EVENT.TUTORIAL_SHARE_VIEW);
     }
   }, [isTutorialOpen]);
 
@@ -71,13 +72,13 @@ export function ShareTutorialModal() {
   };
 
   const handleOpenYouTube = () => {
-    track("tutorial_share_youtube_click");
+    track(AMPLITUDE_EVENT.TUTORIAL_SHARE_YOUTUBE_CLICK);
     request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE);
     handleClose();
   };
 
   const handleDirectInput = () => {
-    track("tutorial_share_direct_click");
+    track(AMPLITUDE_EVENT.TUTORIAL_SHARE_DIRECT_CLICK);
     handleClose();
     setTimeout(() => {
       openRecipeCreatingView(videoUrl);
@@ -85,7 +86,7 @@ export function ShareTutorialModal() {
   };
 
   const handleDontShowAgain = () => {
-    track("tutorial_share_dismiss");
+    track(AMPLITUDE_EVENT.TUTORIAL_SHARE_DISMISS);
     markTutorialAsSeen();
     handleClose();
     setTimeout(() => {

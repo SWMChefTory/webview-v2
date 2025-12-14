@@ -4,6 +4,7 @@ import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 import { useTutorialActions } from "../hooks/useTutorial";
 import { useEffect, useRef } from "react";
 import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const noopStorage: StateStorage = {
   getItem: () => null,
@@ -20,7 +21,7 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
   // hasSeenTutorial이 true면 "안 본 상태"이므로 모달이 표시됨
   useEffect(() => {
     if (hasSeenTutorial && !hasTrackedViewRef.current) {
-      track("tutorial_handsfree_view", { recipe_id: recipeId });
+      track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_VIEW, { recipe_id: recipeId });
       hasTrackedViewRef.current = true;
     }
   }, [hasSeenTutorial, recipeId]);
@@ -42,7 +43,7 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
                 <div className="w-full flex justify-evenly px-5 gap-2">
                   <button
                     onClick={() => {
-                      track("tutorial_handsfree_skip", { recipe_id: recipeId });
+                      track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_SKIP, { recipe_id: recipeId });
                       checkSeen();
                     }}
                     className="flex-1 h-[20] bg-gray-500 py-6 flex items-center justify-center rounded-md font-bold text-lg"
@@ -51,7 +52,7 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
                   </button>
                   <button
                     onClick={() => {
-                      track("tutorial_handsfree_step_start", { recipe_id: recipeId });
+                      track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_START, { recipe_id: recipeId });
                       start();
                       checkSeen();
                     }}

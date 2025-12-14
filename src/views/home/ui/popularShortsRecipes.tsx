@@ -64,6 +64,7 @@ const ShortPopularRecipesSectionReady = () => {
             recipe={recipe}
             key={recipe.recipeId}
             trigger={<ShortsRecipeCardReady recipe={recipe} />}
+            source="popular_shorts"
           />
         ))}
         {isFetchingNextPage && <ShortsRecipeCardSkeleton />}

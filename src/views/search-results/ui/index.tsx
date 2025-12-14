@@ -19,6 +19,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 
 export function SearchResultsSkeleton() {
   return (
@@ -134,6 +137,11 @@ const RecipeSearchedCardReady = ({
 
   const handleCardClick = async () => {
     if (!searchResults.isViewed) {
+      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
+        source: "search_result",
+        video_type: searchResults.videoInfo.videoType || "NORMAL",
+        recipe_id: searchResults.recipeId,
+      });
       setIsOpen(true);
     } else {
       router.replace(`/recipe/${searchResults.recipeId}/detail`);
@@ -213,7 +221,19 @@ const RecipeSearchedCardReady = ({
           <DialogClose asChild>
             <Button
               onClick={async () => {
-                await create({ youtubeUrl: `https://www.youtube.com/watch?v=${searchResults.videoInfo.videoId}` });
+                track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
+                  source: "search_result",
+                  video_type: searchResults.videoInfo.videoType || "NORMAL",
+                });
+                await create({
+                  youtubeUrl: `https://www.youtube.com/watch?v=${searchResults.videoInfo.videoId}`,
+                  recipeId: searchResults.recipeId,
+                  videoType: searchResults.videoInfo.videoType as VideoType | undefined,
+                  recipeTitle: searchResults.recipeTitle,
+                  _startTime: Date.now(),
+                  _source: "search_result",
+                  _creationMethod: "card",
+                });
                 router.replace(`/recipe/${searchResults.recipeId}/detail`);
                 setIsOpen(false);
               }}

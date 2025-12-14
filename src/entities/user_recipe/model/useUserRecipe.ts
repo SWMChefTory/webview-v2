@@ -33,11 +33,21 @@ import {
   useRecipeCreateToastAction,
 } from "./useToast";
 import { VideoType } from "../../popular-recipe/type/videoType";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export const QUERY_KEY = "categoryRecipes";
 export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
 
 export const ALL_RECIPES = "allRecipes";
+
+// 에러 타입 추출 헬퍼 함수
+function getErrorType(error: Error): string {
+  const message = error.message.toLowerCase();
+  if (message.includes("network") || message.includes("fetch")) return "network";
+  if (message.includes("timeout")) return "timeout";
+  return "server";
+}
 
 export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
   recipes: UserRecipe[];
@@ -267,7 +277,27 @@ export function useCreateRecipe() {
       );
     },
     throwOnError: false,
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      const duration = variables._startTime ? Date.now() - variables._startTime : 0;
+
+      if (variables._creationMethod === "card") {
+        // 카드 경로 성공
+        track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_CARD, {
+          source: variables._source,
+          video_type: variables.videoType || "NORMAL",
+          recipe_id: data.recipeId,
+          duration_ms: duration,
+        });
+      } else if (variables._creationMethod === "url") {
+        // URL 경로 성공
+        track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_URL, {
+          entry_point: variables._entryPoint,
+          recipe_id: data.recipeId,
+          has_target_category: variables._hasTargetCategory || false,
+          duration_ms: duration,
+        });
+      }
+
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
       });
@@ -279,6 +309,27 @@ export function useCreateRecipe() {
       });
     },
     onError: (error, _vars, ctx) => {
+      const duration = _vars._startTime ? Date.now() - _vars._startTime : 0;
+      const errorType = getErrorType(error);
+
+      if (_vars._creationMethod === "card") {
+        // 카드 경로 실패
+        track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_CARD, {
+          source: _vars._source,
+          error_type: errorType,
+          error_message: error.message,
+          duration_ms: duration,
+        });
+      } else if (_vars._creationMethod === "url") {
+        // URL 경로 실패
+        track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_URL, {
+          entry_point: _vars._entryPoint,
+          error_type: errorType,
+          error_message: error.message,
+          duration_ms: duration,
+        });
+      }
+
       handleOpenToast({
         toastInfo: {
           status: RecipeCreateToastStatus.FAILED,
@@ -294,8 +345,6 @@ export function useCreateRecipe() {
           _vars.videoType
         );
       }
-
-      // TODO: 4단계에서 Amplitude 이벤트 추가
     },
   });
   return {

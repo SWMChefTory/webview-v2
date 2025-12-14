@@ -41,4 +41,36 @@ export const enum AMPLITUDE_EVENT {
 
   /** 핸즈프리 튜토리얼 종료 (완료 또는 중도 이탈) */
   TUTORIAL_HANDSFREE_STEP_END = "tutorial_handsfree_step_end",
+
+  // ─────────────────────────────────────────────────────────────
+  // 레시피 생성 - 카드 경로 (앱 내 기존 레시피 선택)
+  // ─────────────────────────────────────────────────────────────
+
+  /** 레시피 카드 클릭하여 다이얼로그 열림 */
+  RECIPE_CREATE_START_CARD = "recipe_create_start_card",
+
+  /** 다이얼로그에서 "생성" 버튼 클릭 */
+  RECIPE_CREATE_SUBMIT_CARD = "recipe_create_submit_card",
+
+  /** 카드 경로 레시피 생성 성공 */
+  RECIPE_CREATE_SUCCESS_CARD = "recipe_create_success_card",
+
+  /** 카드 경로 레시피 생성 실패 */
+  RECIPE_CREATE_FAIL_CARD = "recipe_create_fail_card",
+
+  // ─────────────────────────────────────────────────────────────
+  // 레시피 생성 - URL 경로 (직접 입력 / 외부 공유)
+  // ─────────────────────────────────────────────────────────────
+
+  /** URL 입력 모달 열림 */
+  RECIPE_CREATE_START_URL = "recipe_create_start_url",
+
+  /** 모달에서 "완료" 버튼 클릭 */
+  RECIPE_CREATE_SUBMIT_URL = "recipe_create_submit_url",
+
+  /** URL 경로 레시피 생성 성공 */
+  RECIPE_CREATE_SUCCESS_URL = "recipe_create_success_url",
+
+  /** URL 경로 레시피 생성 실패 */
+  RECIPE_CREATE_FAIL_URL = "recipe_create_fail_url",
 }

@@ -15,14 +15,24 @@ import { ThemeRecipe } from "../../views/home/entities/theme-recipe/type";
 import { useRouter } from "next/router";
 import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/shared/enums/recipe";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+
+export type RecipeCardSource =
+  | "popular_normal"
+  | "popular_shorts"
+  | "theme_chef"
+  | "theme_trend";
 
 //이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
 export function RecipeCardWrapper({
   recipe,
   trigger,
+  source,
 }: {
   recipe: PopularRecipe | ThemeRecipe;
   trigger: React.ReactNode;
+  source: RecipeCardSource;
 }) {
   const { create } = useCreateRecipe();
   const { recipeStatus } = useFetchRecipeProgress({
@@ -35,6 +45,11 @@ export function RecipeCardWrapper({
       <div
         onClick={() => {
           if (!recipe.isViewed) {
+            track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
+              source,
+              video_type: recipe.videoType,
+              recipe_id: recipe.recipeId,
+            });
             setIsOpen(true);
             return;
           }
@@ -65,12 +80,19 @@ export function RecipeCardWrapper({
             <Button
               onClick={() => {
                 if (!recipe.isViewed) {
+                  track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
+                    source,
+                    video_type: recipe.videoType,
+                  });
                   create({
                     youtubeUrl: recipe.videoUrl,
                     targetCategoryId: null,
                     recipeId: recipe.recipeId,
                     videoType: recipe.videoType,
                     recipeTitle: recipe.recipeTitle,
+                    _startTime: Date.now(),
+                    _source: source,
+                    _creationMethod: "card",
                   });
                 }
               }}

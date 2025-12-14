@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
 import { useRouter } from "next/router";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (keyword: string) => void }) => {
   const { autoCompleteData } = useInitialAutoCompleteData();
@@ -276,6 +278,11 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
 
   const handleCardClick = () => {
     if (!recipe.isViewed) {
+      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
+        source: "search_trend",
+        video_type: recipe.videoType,
+        recipe_id: recipe.recipeId,
+      });
       setIsOpen(true);
     } else {
       router.push(`/recipe/${recipe.recipeId}/detail`);
@@ -323,7 +330,19 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
           <DialogClose asChild>
             <Button
               onClick={async () => {
-                await create({ youtubeUrl: recipe.videoUrl });
+                track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
+                  source: "search_trend",
+                  video_type: recipe.videoType,
+                });
+                await create({
+                  youtubeUrl: recipe.videoUrl,
+                  recipeId: recipe.recipeId,
+                  videoType: recipe.videoType,
+                  recipeTitle: recipe.recipeTitle,
+                  _startTime: Date.now(),
+                  _source: "search_trend",
+                  _creationMethod: "card",
+                });
                 router.push(`/recipe/${recipe.recipeId}/detail`);
                 setIsOpen(false);
               }}

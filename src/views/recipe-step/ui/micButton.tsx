@@ -7,6 +7,7 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
+import { track } from "@/src/shared/analytics/amplitude";
 
 export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
   return (
@@ -30,9 +31,38 @@ export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
+export function VoiceGuideMicStep({
+  trigger,
+  recipeId,
+}: {
+  trigger: React.ReactNode;
+  recipeId: string;
+}) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
+
+  // X 버튼 클릭 시 (중도 이탈)
+  const handleTerminate = () => {
+    track("tutorial_handsfree_step_end", {
+      recipe_id: recipeId,
+      completed_steps: currentStepIndex,
+      total_steps: steps.length,
+      is_completed: false,
+    });
+    terminate();
+  };
+
+  // 마지막 단계 완료 버튼 클릭 시
+  const handleComplete = () => {
+    track("tutorial_handsfree_step_end", {
+      recipe_id: recipeId,
+      completed_steps: steps.length, // 모든 단계 완료
+      total_steps: steps.length,
+      is_completed: true,
+    });
+    handleNextStep({ index: currentStepIndex }); // 내부에서 terminate() 호출됨
+  };
+
   return (
     <Popover.Root
       open={isInTutorial && steps[currentStepIndex].status == StepStatus.GUIDE}
@@ -53,7 +83,7 @@ export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
               <div className="text-gray-500">
                 {currentStepIndex + 1}/{steps.length}
               </div>
-              <Popover.Close onClick={terminate}>
+              <Popover.Close onClick={handleTerminate}>
                 <div className="p-1">
                   <IoMdClose className="text-gray-500" size={18} />
                 </div>
@@ -72,13 +102,7 @@ export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
                 asChild
                 className="px-3 py-1 bg-gray-200 rounded font-semibold"
               >
-                <p
-                  onClick={() => {
-                    handleNextStep({ index: currentStepIndex });
-                  }}
-                >
-                  다음에 확인할게요
-                </p>
+                <p onClick={handleComplete}>다음에 확인할게요</p>
               </Popover.Close>
             </div>
           </div>

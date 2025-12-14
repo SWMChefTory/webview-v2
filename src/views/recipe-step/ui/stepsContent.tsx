@@ -8,6 +8,7 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
+import { track } from "@/src/shared/analytics/amplitude";
 
 export function StepsContent({
   currentStepIndex,
@@ -15,6 +16,7 @@ export function StepsContent({
   onChangeStep,
   steps,
   isLandscape,
+  recipeId,
 }: {
   currentStepIndex: number;
   currentDetailStepIndex: number;
@@ -27,6 +29,7 @@ export function StepsContent({
   }) => void;
   steps: RecipeStep[];
   isLandscape: boolean;
+  recipeId: string;
 }) {
   useEffect(() => {
     scrollToStep(currentStepIndex, currentDetailStepIndex);
@@ -46,6 +49,7 @@ export function StepsContent({
                 step={step}
                 onChangeStep={onChangeStep}
                 key={i}
+                recipeId={recipeId}
               />
             );
           })}
@@ -68,6 +72,7 @@ function Step({
   onChangeStep,
   currentdetailStepIndex,
   isLandscape,
+  recipeId,
 }: {
   i: number;
   isSelected: boolean;
@@ -82,6 +87,7 @@ function Step({
   }) => void;
   currentdetailStepIndex: number;
   isLandscape: boolean;
+  recipeId: string;
 }) {
   return (
     <div
@@ -95,6 +101,7 @@ function Step({
           </div>
         }
         isOpen={isSelected}
+        recipeId={recipeId}
       />
       <div className={`${isLandscape ? "h-2" : "h-5"}`} />
       <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} px-2`}>
@@ -138,12 +145,25 @@ function Step({
 function VoiceGuideStep({
   trigger,
   isOpen,
+  recipeId,
 }: {
   trigger: React.ReactNode;
   isOpen: boolean;
+  recipeId: string;
 }) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
+
+  // X 버튼 클릭 시 (중도 이탈)
+  const handleTerminate = () => {
+    track("tutorial_handsfree_step_end", {
+      recipe_id: recipeId,
+      completed_steps: currentStepIndex,
+      total_steps: steps.length,
+      is_completed: false,
+    });
+    terminate();
+  };
 
   return (
     <Popover.Root
@@ -169,7 +189,7 @@ function VoiceGuideStep({
               <div className="text-gray-500">
                 {currentStepIndex + 1}/{steps.length}
               </div>
-              <Popover.Close onClick={terminate}>
+              <Popover.Close onClick={handleTerminate}>
                 <div className="p-1">
                   <IoMdClose className="text-gray-500" size={18} />
                 </div>
@@ -194,6 +214,7 @@ function VoiceGuideStep({
               >
                 <p
                   onClick={() => {
+                    // 중간 단계 버튼: 다음 단계로 이동만 하고 종료 이벤트는 발송하지 않음
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >

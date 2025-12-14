@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { MODE, request } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { track } from "@/src/shared/analytics/amplitude";
 
 export function ShareTutorialModal() {
   const { isTutorialOpen, closeTutorial, openRecipeCreatingView, videoUrl, markTutorialAsSeen } =
@@ -58,16 +59,25 @@ export function ShareTutorialModal() {
     };
   }, []);
 
+  // tutorial_share_view 이벤트: 모달이 열릴 때 트래킹
+  useEffect(() => {
+    if (isTutorialOpen) {
+      track("tutorial_share_view");
+    }
+  }, [isTutorialOpen]);
+
   const handleClose = () => {
     closeTutorial();
   };
 
   const handleOpenYouTube = () => {
+    track("tutorial_share_youtube_click");
     request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE);
     handleClose();
   };
 
   const handleDirectInput = () => {
+    track("tutorial_share_direct_click");
     handleClose();
     setTimeout(() => {
       openRecipeCreatingView(videoUrl);
@@ -75,6 +85,7 @@ export function ShareTutorialModal() {
   };
 
   const handleDontShowAgain = () => {
+    track("tutorial_share_dismiss");
     markTutorialAsSeen();
     handleClose();
     setTimeout(() => {

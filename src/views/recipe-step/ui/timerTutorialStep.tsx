@@ -6,10 +6,29 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
+import { track } from "@/src/shared/analytics/amplitude";
 
-export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
-  const { handleNextStep,terminate } = useTutorialActions();
+export function VoiceGuideTimerStep({
+  trigger,
+  recipeId,
+}: {
+  trigger: React.ReactNode;
+  recipeId: string;
+}) {
+  const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
+
+  // X 버튼 클릭 시 (중도 이탈)
+  const handleTerminate = () => {
+    track("tutorial_handsfree_step_end", {
+      recipe_id: recipeId,
+      completed_steps: currentStepIndex,
+      total_steps: steps.length,
+      is_completed: false,
+    });
+    terminate();
+  };
+
   return (
     <Popover.Root
       open={isInTutorial && steps[currentStepIndex].status == StepStatus.TIMER}
@@ -30,7 +49,7 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
               <div className="text-gray-500">
                 {currentStepIndex + 1}/{steps.length}
               </div>
-              <Popover.Close onClick={terminate}>
+              <Popover.Close onClick={handleTerminate}>
                 <div className="p-1">
                   <IoMdClose className="text-gray-500" size={18} />
                 </div>
@@ -55,6 +74,7 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
               >
                 <p
                   onClick={() => {
+                    // 중간 단계 버튼: 다음 단계로 이동만 하고 종료 이벤트는 발송하지 않음
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >

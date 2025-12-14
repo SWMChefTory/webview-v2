@@ -74,6 +74,7 @@ export const fetchRecipesSearched = async ({
         videoTitle: recipe.recipeTitle,
         videoThumbnailUrl: recipe.videoThumbnailUrl,
         videoSeconds: recipe.videoSeconds,
+        videoType: recipe.videoType,
       },
       detailMeta: {
         description: recipe.description,

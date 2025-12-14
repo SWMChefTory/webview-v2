@@ -4,7 +4,7 @@ import {
   RecipeStatus,
   RecipeProgressDetail,
   RecipeProgressStep,
-} from "@/src/entities/user_recipe/type/type";
+} from "@/src/entities/user-recipe/type/type";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 import { UserRecipesSchema,} from "./schema";

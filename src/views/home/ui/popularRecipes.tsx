@@ -8,22 +8,24 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import {
   AlreadyEnrolledChip,
   CreatingStatusChip,
-} from "../../../shared/ui/chip/chip";
+} from "../../../shared/ui/chip/recipeCreatingStatusChip";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import { IoChevronForwardOutline } from "react-icons/io5";
 import Link from "next/link";
-import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
+import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { useHomeTranslation } from "../hooks/useHomeTranslation";
 
 export function PopularRecipes() {
+  const {t} = useHomeTranslation();
   return (
     <div>
       <div className="h-4" />
       <Link href="/popular-recipe">
         <div className="pl-4 flex items-center">
-          <div className="text-xl font-semibold">인기 레시피</div>
+          <div className="text-xl font-semibold">{t("popularRecipes")}</div>
           <IoChevronForwardOutline className="size-6" color="black" />
         </div>
       </Link>

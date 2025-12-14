@@ -12,8 +12,8 @@ export default function WriteLongTextModal({
   isVisible: boolean;
   setModalVisible: (isVisible: boolean) => void;
   label: string;
-  initialFeedback?: string; // 👈 추가
-  onSave: (feedback: string) => void; // 👈 추가
+  initialFeedback?: string; 
+  onSave: (feedback: string) => void; 
 }) {
   useEffect(() => {
     if (isVisible) {
@@ -54,12 +54,12 @@ export default function WriteLongTextModal({
             <div className="w-full h-full overflow-hidden">
               <WriteCustomerFeedbackModalContent
                 onClose={() => setModalVisible(false)}
-                onSave={(feedback) => { // 👈 수정
+                onSave={(feedback) => { 
                   onSave(feedback);
                   setModalVisible(false);
                 }}
                 label={label}
-                initialFeedback={initialFeedback} // 👈 추가
+                initialFeedback={initialFeedback} 
               />
             </div>
           </motion.div>

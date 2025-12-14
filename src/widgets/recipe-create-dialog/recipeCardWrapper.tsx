@@ -9,11 +9,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useState } from "react";
 import { ThemeRecipe } from "../../views/home/entities/theme-recipe/type";
 import { useRouter } from "next/router";
-import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/shared/enums/recipe";
 
 //이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.

@@ -1,26 +1,21 @@
 import { PopularRecipes } from "@/src/views/home/ui/popularRecipes";
 import Header, { ProfileButton } from "@/src/shared/ui/header/header";
 import { FloatingButton } from "@/src/views/home/ui/floatingButton";
-import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { MyRecipes } from "@/src/views/home/ui/myRecipe";
 import { useRouter } from "next/router";
 import Link from "next/link";
-
-
 import { PiMagnifyingGlassBold } from "react-icons/pi";
 import { PopularShortsRecipes } from "./popularShortsRecipes";
-import React from "react";
 import { CategorySection } from "./categorySection";
-
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
+import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
+import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 
-// props: {
-//   message: data.message,
-// },
 function HomePage() {
   const router = useRouter();
+  const { t } = useHomeTranslation();
+
   useSafeArea({
     top: { color: "transparent", isExists: true },
     bottom: { color: "#FFFFFF", isExists: false },
@@ -46,7 +41,7 @@ function HomePage() {
       <div className="pt-2 px-2">
         <Link href="/search-recipe">
           <div className="flex flex-row items-center justify-between px-4 w-full h-[36] text-gray-800 bg-gray-100 rounded-lg">
-            검색어를 입력해주세요.
+            {t("searchBarPlaceholder")}
             <PiMagnifyingGlassBold size={16} />
           </div>
         </Link>

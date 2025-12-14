@@ -1,0 +1,40 @@
+{
+    "title": "My Recipes",
+    "unit": {
+      "serving": "{{count}} serving",
+      "servingPlural": "{{count}} servings",
+      "minute": "{{count}} min"
+    },
+    "card": {
+      "selectCategoryPlaceholder": "Select a category"
+    },
+    "empty": {
+      "noRecipe": "No recipes created yet",
+      "noRecipeInCategory": "There are no recipes in {{category}}",
+      "suggestion": "Try creating a new recipe"
+    },
+    "category": {
+      "all": "All",
+      "add": "Add"
+    },
+    "deleteDialog": {
+      "title": "Delete this category?",
+      "description": "There are {{count}} recipe(s) in {{category}}.",
+      "sub_description": "Deleting the category does not delete the recipes.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "elapsedTime": {
+    "year": "{{count}} year ago",
+    "year_plural": "{{count}} years ago",
+    "month": "{{count}} month ago",
+    "month_plural": "{{count}} months ago",
+    "day": "{{count}} day ago",
+    "day_plural": "{{count}} days ago",
+    "hour": "{{count}} hour ago",
+    "hour_plural": "{{count}} hours ago",
+    "minute": "{{count}} minute ago",
+    "minute_plural": "{{count}} minutes ago",
+    "justNow": "Just now"
+    }
+}

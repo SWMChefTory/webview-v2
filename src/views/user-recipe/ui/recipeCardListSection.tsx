@@ -1,10 +1,11 @@
-import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { useFetchUserRecipes } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { ALL_RECIPES } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { useFetchUserRecipes } from "@/src/entities/user-recipe/model/useUserRecipe";
 import {
   RecipeDetailsCardReady,
   RecipeDetailsCardSkeleton,
 } from "@/src/views/user-recipe/ui/recipeCard";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
+import { Lang, useLangcode } from "@/src/shared/translation/useLangCode";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
@@ -19,6 +20,7 @@ export const RecipeListSectionReady = ({
   const { recipes, fetchNextPage } = useFetchUserRecipes(
     selectedCategory || ALL_RECIPES
   );
+  const lang = useLangcode();
 
   return (
     <div
@@ -56,25 +58,64 @@ export const RecipeListSectionReady = ({
           <div className="flex flex-col items-center justify-center w-full text-lg text-center">
             <div className="flex items-center justify-center whitespace-nowrap w-[80%]">
               {selectedCategory === ALL_RECIPES ? (
-                "현재 생성된"
+                formatRecipeEmptyMessage({lang})
               ) : (
                 <>
-                  <div className="font-bold text-xl inline-block max-w-[80%] overflow-hidden text-ellipsis">
-                    {selectedCategory?.name}
-                  </div>
-                  <span className="shrink-0">에 해당하는</span>
+                  <span className="shrink-0">
+                  {formatRecipeEmptyInCategoryMessage({categoryName:selectedCategory?.name || "", lang:lang})}
+                  </span>
                 </>
               )}
             </div>
-            <div>레시피가 없어요</div>
             <div className="h-2" />
-            <p className="text-base text-gray-600">레시피를 생성해 보세요</p>
+            <p className="text-base text-gray-600">{formatCreateMessage({lang})}</p>
           </div>
           <div className="pb-12" />
         </div>
       )}
     </div>
   );
+};
+
+const formatRecipeEmptyInCategoryMessage = ({
+  categoryName,
+  lang,
+}: {
+  categoryName: string;
+  lang: Lang;
+}) => {
+  switch (lang) {
+    case "en":
+      return `There are no recipes in ${categoryName}`;
+    default:
+      return `${categoryName}에 해당하는 레시피가 없어요`;
+  }
+};
+
+const formatRecipeEmptyMessage = ({
+  lang,
+}: {
+  lang: Lang;
+}) => {
+  switch (lang) {
+    case "en":
+      return `No recipes created yet`;
+    default:
+      return `생성된 레시피가 없어요`;
+  }
+};
+
+const formatCreateMessage = ({
+  lang,
+}: {
+  lang: Lang;
+}) => {
+  switch (lang) {
+    case "en":
+      return `Try creating a new recipe`;
+    default:
+      return `새로운 레시피를 생성해주세요`;
+  }
 };
 
 export const RecipeListSectionSkeleton = () => {

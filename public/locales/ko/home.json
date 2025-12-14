@@ -1,0 +1,18 @@
+{
+    "searchBarPlaceholder": "검색어를 입력해주세요.",
+    "recipeCategory": "레시피 카테고리",
+    "CHEF":"쉐프",
+    "TRENDING":"급상승",
+    "KOREAN":"한식",
+    "SNACK":"분식",
+    "CHINESE":"중식",
+    "JAPANESE":"일식",
+    "WESTERN":"양식",
+    "DESSERT":"디저트",
+    "HEALTHY":"건강식",
+    "SIMPLE":"간편식",
+    "myRecipe":"나의 레시피",
+    "popularRecipe":"인기 레시피",
+    "shortsPopularRecipe":"쇼츠 인기 레시피",
+    "createRecipe":"레시피 생성하기"
+}

@@ -1,0 +1,18 @@
+{
+    "searchBarPlaceholder": "Search recipes...",
+    "recipeCategory": "Recipe Categories",
+    "CHEF": "Chef",
+    "TRENDING": "Trending",
+    "KOREAN": "Korean",
+    "SNACK": "Snack",
+    "CHINESE": "Chinese",
+    "JAPANESE": "Japanese",
+    "WESTERN": "Western",
+    "DESSERT": "Dessert",
+    "HEALTHY": "Healthy",
+    "SIMPLE": "Simple",
+    "myRecipe": "My Recipes",
+    "popularRecipes": "Popular Recipes",
+    "shortsPopularRecipes": "Popular Shorts Recipes",
+    "createRecipe":"Create recipe"
+  }

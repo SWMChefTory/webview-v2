@@ -3,31 +3,31 @@ import {
   fetchAllRecipesSummary,
   fetchRecipeProgress,
   updateCategory,
-} from "@/src/entities/user_recipe/model/api";
+} from "@/src/entities/user-recipe/model/api";
 import {
   RecipeStatus,
   RecipeProgressDetail,
-} from "@/src/entities/user_recipe/type/type";
+} from "@/src/entities/user-recipe/type/type";
 import {
   useSuspenseInfiniteQuery,
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
 
-import { RecipeCreateStatusResponse } from "@/src/entities/user_recipe/model/api";
+import { RecipeCreateStatusResponse } from "@/src/entities/user-recipe/model/api";
 
 import { useMutation } from "@tanstack/react-query";
-import { createRecipe } from "@/src/entities/user_recipe/model/api";
+import { createRecipe } from "@/src/entities/user-recipe/model/api";
 import { useEffect, useRef, useState } from "react";
 import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
-import { PaginatedRecipes } from "@/src/entities/user_recipe/model/api";
-import { UserRecipe } from "@/src/entities/user_recipe/model/schema";
+import { PaginatedRecipes } from "@/src/entities/user-recipe/model/api";
+import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 import {
   patchIsViewedOptimistically,
   rollbackIsViewed,
 } from "../../popular-recipe/model/usePopularRecipe";
 
-import { useFakeRecipeInCreatingStore } from "@/src/entities/user_recipe/model/useFakeRecipeInCreatingStore";
+import { useFakeRecipeInCreatingStore } from "@/src/entities/user-recipe/model/useFakeRecipeInCreatingStore";
 import {
   RecipeCreateToastStatus,
   useRecipeCreateToastAction,

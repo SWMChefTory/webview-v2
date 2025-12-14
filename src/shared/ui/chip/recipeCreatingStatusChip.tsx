@@ -1,21 +1,27 @@
+import { useTranslation } from "next-i18next";
+
 function AlreadyEnrolledChip({ isEnrolled }: { isEnrolled: boolean }) {
+  const {t}=useTranslation('shared.recipe-creating-status-chip');
+
   if (!isEnrolled) {
     return null;
   }
   return (
     <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">
-      등록된 레시피예요
+      {t("regist")}
     </div>
   );
 }
 
 function CreatingStatusChip({isInCreating}:{isInCreating: boolean}){
+  const {t}=useTranslation('recipe-creating-status-chip');
+
   if(!isInCreating){
     return null;
   }
   return (
     <div className="flex px-[8] py-[4] bg-gray-800/70 z-10 rounded-md items-center justify-center text-white">
-      생성중인 레시피예요
+      {t("creating")}
     </div>
   );
 }

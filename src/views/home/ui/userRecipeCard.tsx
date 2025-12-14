@@ -2,29 +2,26 @@ import {
   ThumbnailEmpty,
   ThumbnailReady,
   ThumbnailSkeleton,
-} from "@/src/entities/user_recipe/ui/thumbnail";
+} from "@/src/entities/user-recipe/ui/thumbnail";
 import {
   TitleEmpty,
   TitleReady,
   TitleSkeleton,
-} from "@/src/entities/user_recipe/ui/title";
+} from "@/src/entities/user-recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { useFetchRecipeProgressWithToast } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useFetchRecipeProgressWithToast } from "@/src/entities/user-recipe/model/useUserRecipe";
 import {
-  getElapsedTime,
   UserRecipe,
-} from "@/src/entities/user_recipe/model/schema";
-import {
-  ElapsedViewTimeEmpty,
-  ElapsedViewTimeReady,
-  ElapsedViewTimeSkeleton,
-} from "@/src/entities/user_recipe/ui/detail";
-import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
+} from "@/src/entities/user-recipe/model/schema";
+import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
 import { Loader2 } from "lucide-react";
-import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import { useRouter } from "next/router";
 import { TimerTag } from "@/src/features/timer/ui/timerTag";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
+import TextSkeleton from "@/src/shared/ui/skeleton/text";
+import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -62,14 +59,41 @@ export const UserRecipeCardReady = ({
       </div>
       <div className="w-full">
         <TitleReady title={userRecipe.title} />
-        <ElapsedViewTimeReady details={getElapsedTime(userRecipe.viewedAt)} />
+        <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
       </div>
+    </div>
+  );
+};
+
+const ElapsedViewTimeReady = ({ viewedAt }: { viewedAt: Date }) => {
+  const lang = useLangcode();
+  const { getElapsedTime } = useElapsedTime(lang);
+  return (
+    <p className="text-sm line-clamp-1 text-gray-500">
+      {getElapsedTime(viewedAt)}
+    </p>
+  );
+};
+
+const ElapsedViewTimeEmpty = () => {
+  return (
+    <p className="text-sm line-clamp-1 text-transparent">
+      레시피를 만들어주세요
+    </p>
+  );
+};
+
+const ElapsedViewTimeSkeleton = () => {
+  return (
+    <div className="w-20">
+      <TextSkeleton fontSize="text-sm" />
     </div>
   );
 };
 
 export const UserRecipeCardEmpty = () => {
   const { open } = useRecipeCreatingViewOpenStore();
+
   return (
     <div>
       <div className="flex flex-row h-[90]">

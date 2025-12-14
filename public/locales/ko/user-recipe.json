@@ -1,0 +1,34 @@
+{
+    "title": "나의 레시피",
+    "unit": {
+      "serving": "{{count}}인분",
+      "minute": "{{count}}분"
+    },
+    "card": {
+      "selectCategoryPlaceholder": "카테고리를 선택해주세요"
+    },
+    "empty": {
+      "noRecipe":"생성된 레시피가 없어요",
+      "noRecipeInCategory": "{{category}}에 해당하는 레시피가 없어요",
+      "suggestion": "레시피를 생성해 보세요"
+    },
+    "category": {
+      "all": "전체",
+      "add": "추가"
+    },
+    "deleteDialog": {
+      "title": "정말 삭제하시겠어요?",
+      "description": "{{category}} 카테고리에 속한 레시피가 {{count}}개 있어요.",
+      "subDescription": "카테고리를 삭제하면 레시피가 사라지진 않아요.",
+      "cancel": "취소",
+      "confirm": "확인"
+    },
+    "elapsedTime":{
+        "year" : "{{count}}년 전",
+        "month" : "{{count}}달 전",
+        "day" : "{{count}}일 전",
+        "hour" : "{{count}}시간 전",
+        "minute" : "{{count}}분 전",
+        "justNow" : "방금 전"
+    }
+  }

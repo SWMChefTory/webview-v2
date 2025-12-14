@@ -6,26 +6,19 @@ import { RecipeTag } from "@/src/entities/recipe/model/useRecipe";
 import {
   ThumbnailSkeleton,
   ThumbnailReady,
-} from "@/src/entities/user_recipe/ui/thumbnail";
+} from "@/src/entities/user-recipe/ui/thumbnail";
 import {
   useFetchRecipeProgressWithToast,
   useUpdateCategoryOfRecipe,
-} from "@/src/entities/user_recipe/model/useUserRecipe";
-import { TitleReady, TitleSkeleton } from "@/src/entities/user_recipe/ui/title";
+} from "@/src/entities/user-recipe/model/useUserRecipe";
+import { TitleReady, TitleSkeleton } from "@/src/entities/user-recipe/ui/title";
 import {
   CategoryChip,
   ChipType,
 } from "@/src/entities/category/ui/categoryChip";
-import {
-  ElapsedViewTimeReady,
-  ElapsedViewTimeSkeleton,
-} from "@/src/entities/user_recipe/ui/detail";
-import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
-import { ProgressDetailsCheckList } from "@/src/entities/user_recipe/ui/progress";
-import {
-  getElapsedTime,
-  UserRecipe,
-} from "@/src/entities/user_recipe/model/schema";
+import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
+import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 import { motion } from "framer-motion";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
@@ -35,6 +28,14 @@ import { useState } from "react";
 import { IoFolderOpenOutline } from "react-icons/io5";
 import { useRouter } from "next/router";
 import { TimerTag } from "@/src/features/timer/ui/timerTag";
+import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
+import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+import {
+  formatServing,
+  formatMinute,
+} from "@/src/features/format/recipe-info/formatRecipeProperties";
+import { count } from "console";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -57,6 +58,7 @@ const RecipeDetailsCardReady = ({
       setIsCategorySelectOpen(true);
     }
   );
+
   return (
     <motion.div
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
@@ -88,7 +90,7 @@ const RecipeDetailsCardReady = ({
           servings={userRecipe.recipeDetailMeta?.servings ?? 0}
           desrciption={userRecipe.recipeDetailMeta?.description ?? ""}
         />
-        <ElapsedViewTimeReady details={getElapsedTime(userRecipe.viewedAt)} />
+        <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
         <CategorySelect
           recipeId={userRecipe.recipeId}
           isCategorySelectOpen={isCategorySelectOpen}
@@ -97,6 +99,24 @@ const RecipeDetailsCardReady = ({
         />
       </div>
     </motion.div>
+  );
+};
+
+const ElapsedViewTimeReady = ({ viewedAt }: { viewedAt: Date }) => {
+  const lang = useLangcode();
+  const { getElapsedTime } = useElapsedTime(lang);
+  return (
+    <p className="text-sm line-clamp-1 text-gray-500">
+      {getElapsedTime(viewedAt)}
+    </p>
+  );
+};
+
+const ElapsedViewTimeSkeleton = () => {
+  return (
+    <div className="w-20">
+      <TextSkeleton fontSize="text-sm" />
+    </div>
   );
 };
 
@@ -211,20 +231,21 @@ const RecipePropertiesReady = ({
   servings: number;
   desrciption: string;
 }) => {
+  const lang = useLangcode();
   return (
     <div className="flex flex-row gap-3 w-full overflow-x-hidden overflow-y-auto">
       <RecipeProperty
         props={{
           type: RecipePropertyType.READY,
           Icon: BsPeople,
-          text: `${servings}인분`,
+          text: formatServing({ count: servings, lang: lang }),
         }}
       />
       <RecipeProperty
         props={{
           type: RecipePropertyType.READY,
           Icon: FaRegClock,
-          text: `${cookTime}분`,
+          text: formatMinute({ count: cookTime, lang: lang }),
         }}
       />
     </div>
@@ -293,6 +314,7 @@ const CategorySelect = ({
 }) => {
   const { data: categories } = useFetchCategories();
   const { updateCategory } = useUpdateCategoryOfRecipe();
+  const lang = useLangcode();
 
   return (
     <DialogPrimitive.Root
@@ -316,7 +338,7 @@ const CategorySelect = ({
           </div>
 
           <div className="text-sm text-gray-500 px-2 pb-2">
-            카테고리를 선택해주세요
+            {lang=="en"?"Select a category":"카테고리를 선택해주새요."}
           </div>
           {categories?.map((category) => (
             <>

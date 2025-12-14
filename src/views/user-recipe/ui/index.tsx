@@ -1,7 +1,7 @@
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { useRouter } from "next/router";
 
-import { ALL_RECIPES } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { ALL_RECIPES } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { CategoryListSection } from "@/src/views/user-recipe/ui/categoryListSection";
 import {
   RecipeListSectionReady,
@@ -10,9 +10,12 @@ import {
 import { useState } from "react";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
+import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 
 export function UserRecipe() {
   const router = useRouter();
+  const {t} = useUserRecipeTranslation();
+
   useSafeArea({
     top: { color: "#FFFFFF", isExists: true },
     bottom: { color: "#FFFFFF", isExists: true },
@@ -35,7 +38,7 @@ export function UserRecipe() {
           />
         }
       />
-      <div className="pl-5 text-2xl font-bold pb-2">나의 레시피</div>
+      <div className="pl-5 text-2xl font-bold pb-2">{t("title")}</div>
       <CategoryListSection
         selectedCategoryId={selectedCategoryId}
         setSelectedCategoryId={setSelectedCategoryId}

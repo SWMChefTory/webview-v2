@@ -2,28 +2,89 @@ import { useState } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import WriteLongTextModal from "./writeLongTextModal";
 import { request, MODE } from "@/src/shared/client/native/client";
-import {useQueryClient} from "@tanstack/react-query";
-import {setMainAccessToken} from "@/src/shared/client/main/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useUser } from "@/src/shared/model/user";
+import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
 
-const withdrawalReasons = {
-  "1": "앱 사용법이 복잡해서",
-  "2": "필요한 기능이 부족해서",
-  "3": "다른 서비스를 이용하기 위해서",
-  "4": "요리를 하지 않게 되어서",
-  "5": "시간이 없어서 사용하지 않아서",
-  "6": "다른 요리 앱을 사용하게 되어서",
-  "7": "기타",
+// 다국어 메시지 포매터
+const formatWithdrawalMessages = (lang: Lang, nickname: string) => {
+  switch (lang) {
+    case "en":
+      return {
+        title: {
+          main: `Are you sure you want to leave, ${nickname}?`,
+          sub: "", // 영어는 한 줄로 처리하거나 비워둠
+        },
+        infoBox: {
+          title: "The following information will be deleted upon withdrawal.",
+          items: [
+            "- All saved recipes and favorites",
+            "- Created categories and cooking history",
+            "- User personal information",
+          ],
+        },
+        reasons: {
+          title: "Please tell us why you are leaving.",
+          sub: "We will provide better service when you return.",
+          items: {
+            "1": "Too complex to use",
+            "2": "Lack of necessary features",
+            "3": "Using another service",
+            "4": "No longer cooking",
+            "5": "Not using due to lack of time",
+            "6": "Using another cooking app",
+            "7": "Other",
+          } as { [key: string]: string },
+        },
+        feedbackPreview: "Your feedback",
+        button: "Delete Account",
+      };
+    default:
+      return {
+        title: {
+          main: `${nickname}님,`,
+          sub: "정말 탈퇴하시나요?",
+        },
+        infoBox: {
+          title: "ⓘ 회원탈퇴 시 다음 정보가 삭제되어요.",
+          items: [
+            "- 저장된 모든 레시피 및 즐겨찾기",
+            "- 생성한 카테고리 및 요리 기록",
+            "- 회원 개인 정보",
+          ],
+        },
+        reasons: {
+          title: "떠나시는 이유를 알려주세요.",
+          sub: "돌아오실 때 더 좋은 서비스를 제공할게요.",
+          items: {
+            "1": "앱 사용법이 복잡해서",
+            "2": "필요한 기능이 부족해서",
+            "3": "다른 서비스를 이용하기 위해서",
+            "4": "요리를 하지 않게 되어서",
+            "5": "시간이 없어서 사용하지 않아서",
+            "6": "다른 요리 앱을 사용하게 되어서",
+            "7": "기타",
+          } as { [key: string]: string },
+        },
+        feedbackPreview: "작성한 의견",
+        button: "탈퇴하기",
+      };
+  }
 };
 
 const DELETE_USER = "DELETE_USER";
 
 export default function MemberShipWithdrawalPage() {
-  const [selectedItems, setSelectedItems] = useState<{ [key: string]: string }>({});
+  const [selectedItems, setSelectedItems] = useState<{ [key: string]: string }>(
+    {}
+  );
   const { user } = useUser();
   const [feedbacks, setFeedbacks] = useState<{ [key: string]: string }>({});
 
   const queryClient = useQueryClient();
+  const lang = useLangcode();
+  const messages = formatWithdrawalMessages(lang, user?.nickname || "");
 
   const addItems = (
     key: string,
@@ -40,7 +101,7 @@ export default function MemberShipWithdrawalPage() {
     const newSelectedItems = { ...selectedItems };
     delete newSelectedItems[key];
     setSelectedItems(newSelectedItems);
-    
+
     const newFeedbacks = { ...feedbacks };
     delete newFeedbacks[key];
     setFeedbacks(newFeedbacks);
@@ -55,46 +116,55 @@ export default function MemberShipWithdrawalPage() {
       <div className="w-full max-w-2xl bg-white min-h-screen">
         <div className="w-[85%] mx-auto py-2">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{user?.nickname}님,</h1>
-            <h1 className="text-3xl font-bold text-gray-900">정말 탈퇴하시나요?</h1>
-            
+            <h1 className="text-3xl font-bold text-gray-900">
+              {messages.title.main}
+            </h1>
+            {messages.title.sub && (
+              <h1 className="text-3xl font-bold text-gray-900">
+                {messages.title.sub}
+              </h1>
+            )}
+
             <div className="h-8" />
-            
+
             <div className="bg-orange-50 p-4 rounded-lg">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                ⓘ 회원탈퇴 시 다음 정보가 삭제되어요.
+                {messages.infoBox.title}
               </h2>
               <div className="pl-2 space-y-2">
-                <p className="text-base text-gray-700">- 저장된 모든 레시피 및 즐겨찾기</p>
-                <p className="text-base text-gray-700">- 생성한 카테고리 및 요리 기록</p>
-                <p className="text-base text-gray-700">- 회원 개인 정보</p>
+                {messages.infoBox.items.map((item, index) => (
+                  <p key={index} className="text-base text-gray-700">
+                    {item}
+                  </p>
+                ))}
               </div>
             </div>
-            
+
             <div className="h-12" />
-            
-            <h1 className="text-2xl font-bold text-gray-900">떠나시는 이유를 알려주세요.</h1>
+
+            <h1 className="text-2xl font-bold text-gray-900">
+              {messages.reasons.title}
+            </h1>
             <div className="h-4" />
-            <h2 className="text-lg text-gray-500">
-              돌아오실 때 더 좋은 서비스를 제공할게요.
-            </h2>
+            <h2 className="text-lg text-gray-500">{messages.reasons.sub}</h2>
             <div className="h-6" />
 
             <RadioButtonItemGroup
-              items={withdrawalReasons}
+              items={messages.reasons.items}
               addItems={addItems}
               deleteItems={deleteItems}
               selectedItems={selectedItems}
-              feedbacks={feedbacks} // 👈 추가
-              saveFeedback={saveFeedback} // 👈 추가
+              feedbacks={feedbacks}
+              saveFeedback={saveFeedback}
+              feedbackLabel={messages.feedbackPreview} // "작성한 의견" 라벨 전달
             />
           </div>
-          
+
           <div className="h-16" />
 
           <button
             onClick={() => {
-              const withdrawalData = Object.keys(selectedItems).map(key => ({
+              const withdrawalData = Object.keys(selectedItems).map((key) => ({
                 reason: selectedItems[key],
                 feedback: feedbacks[key] || "",
               }));
@@ -106,12 +176,12 @@ export default function MemberShipWithdrawalPage() {
             className={`w-full py-4 rounded-lg font-bold text-lg transition ${
               Object.keys(selectedItems).length === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-red-500 text-white hover:bg-red-600"
+                : "bg-orange-500 text-white hover:bg-orange-600"
             }`}
           >
-            탈퇴하기
+            {messages.button}
           </button>
-          
+
           <div className="h-8" />
         </div>
       </div>
@@ -124,8 +194,9 @@ function RadioButtonItemGroup({
   addItems,
   deleteItems,
   selectedItems,
-  feedbacks, // 👈 추가
-  saveFeedback, // 👈 추가
+  feedbacks,
+  saveFeedback,
+  feedbackLabel,
 }: {
   items: { [key: string]: string };
   addItems: (
@@ -135,8 +206,9 @@ function RadioButtonItemGroup({
   ) => void;
   deleteItems: (key: string, selectedItems: { [key: string]: string }) => void;
   selectedItems: { [key: string]: string };
-  feedbacks: { [key: string]: string }; // 👈 추가
-  saveFeedback: (key: string, feedback: string) => void; // 👈 추가
+  feedbacks: { [key: string]: string };
+  saveFeedback: (key: string, feedback: string) => void;
+  feedbackLabel: string;
 }) {
   return (
     <div className="space-y-1">
@@ -148,8 +220,9 @@ function RadioButtonItemGroup({
           addItems={() => addItems(key, selectedItems, items)}
           deleteItems={() => deleteItems(key, selectedItems)}
           isChecked={selectedItems[key] ? true : false}
-          feedback={feedbacks[key]} // 👈 추가
-          saveFeedback={(feedback) => saveFeedback(key, feedback)} // 👈 추가
+          feedback={feedbacks[key]}
+          saveFeedback={(feedback) => saveFeedback(key, feedback)}
+          feedbackLabel={feedbackLabel}
         />
       ))}
     </div>
@@ -162,16 +235,18 @@ function RadioButtonItem({
   addItems,
   deleteItems,
   isChecked,
-  feedback, // 👈 추가
-  saveFeedback, // 👈 추가
+  feedback,
+  saveFeedback,
+  feedbackLabel,
 }: {
   itemKey: string;
   item: string;
   addItems: () => void;
   deleteItems: () => void;
   isChecked: boolean;
-  feedback?: string; // 👈 추가
-  saveFeedback: (feedback: string) => void; // 👈 추가
+  feedback?: string;
+  saveFeedback: (feedback: string) => void;
+  feedbackLabel: string;
 }) {
   return (
     <div className="flex flex-col border border-gray-200 rounded-lg hover:bg-gray-50 transition">
@@ -216,16 +291,15 @@ function RadioButtonItem({
         <WriteButton
           label={item}
           isDisabled={!isChecked}
-          feedback={feedback} // 👈 추가
-          saveFeedback={saveFeedback} // 👈 추가
+          feedback={feedback}
+          saveFeedback={saveFeedback}
         />
       </div>
-      
-      {/* 👇 작성한 피드백 미리보기 */}
+
       {isChecked && feedback && (
         <div className="px-3 pb-3">
           <div className="bg-gray-50 px-3 py-2 rounded border border-gray-200">
-            <p className="text-xs text-gray-500 mb-1">작성한 의견</p>
+            <p className="text-xs text-gray-500 mb-1">{feedbackLabel}</p>
             <p className="text-sm text-gray-700 line-clamp-2">{feedback}</p>
           </div>
         </div>
@@ -237,16 +311,16 @@ function RadioButtonItem({
 function WriteButton({
   isDisabled,
   label,
-  feedback, // 👈 추가
-  saveFeedback, // 👈 추가
+  feedback,
+  saveFeedback,
 }: {
   label: string;
   isDisabled: boolean;
-  feedback?: string; // 👈 추가
-  saveFeedback: (feedback: string) => void; // 👈 추가
+  feedback?: string;
+  saveFeedback: (feedback: string) => void;
 }) {
   const [isVisible, setModalVisible] = useState(false);
-  
+
   return (
     <>
       <button
@@ -259,7 +333,7 @@ function WriteButton({
         }`}
       >
         <FiEdit2 size={20} />
-        {/* 👇 피드백 작성 여부 표시 */}
+        
         {!isDisabled && feedback && (
           <span className="absolute -top-1 -right-1 w-2 h-2 bg-orange-500 rounded-full" />
         )}
@@ -268,8 +342,8 @@ function WriteButton({
         label={label}
         isVisible={isVisible}
         setModalVisible={setModalVisible}
-        initialFeedback={feedback || ""} // 👈 추가
-        onSave={saveFeedback} // 👈 추가
+        initialFeedback={feedback || ""}
+        onSave={saveFeedback}
       />
     </>
   );

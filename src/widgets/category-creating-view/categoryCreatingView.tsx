@@ -3,6 +3,29 @@ import { useRef, useState } from "react";
 import { FormInput, FormButton } from "@/src/shared/form/components";
 import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 import { useAnimate, useMotionValue } from "motion/react";
+import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+
+// 다국어 메시지 포매터 정의
+const formatCategoryCreatingMessages = (lang: Lang) => {
+  switch (lang) {
+    case "en":
+      return {
+        title: "Create Category",
+        placeholder: "Enter category name",
+        errorEmpty: "Please enter a category name",
+        errorTooLong: "Please enter 20 characters or less!",
+        submit: "Done",
+      };
+    default:
+      return {
+        title: "카테고리 생성",
+        placeholder: "추가할 카테고리 이름을 입력해주세요",
+        errorEmpty: "카테고리 이름을 채워주세요",
+        errorTooLong: "20자 이하로 입력해주세요!",
+        submit: "완료",
+      };
+  }
+};
 
 export function CategoryCreatingView({
   isOpen,
@@ -14,6 +37,10 @@ export function CategoryCreatingView({
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const { createCategory } = useCreateCategory();
   const [name, setName] = useState("");
+
+  // 1. 언어 설정 가져오기
+  const lang = useLangcode();
+  const messages = formatCategoryCreatingMessages(lang);
 
   const handleNameChange = (value: string) => {
     setName(value);
@@ -48,7 +75,7 @@ export function CategoryCreatingView({
         <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg">
           <div className="p-5">
             <Dialog.Title className="text-xl font-bold">
-              카테고리 생성
+              {messages.title}
             </Dialog.Title>
           </div>
 
@@ -57,6 +84,7 @@ export function CategoryCreatingView({
               name={name}
               onNameChange={handleNameChange}
               isError={isError()}
+              messages={messages} // 메시지 전달
             />
           </div>
 
@@ -64,7 +92,7 @@ export function CategoryCreatingView({
           <div className="p-3">
             <FormButton
               onSubmit={handleSubmit}
-              label="완료"
+              label={messages.submit}
               isSubmittable={isSubmittable({ name })}
             />
           </div>
@@ -86,10 +114,12 @@ function CategoryCreatingInputForm({
   name,
   onNameChange,
   isError,
+  messages,
 }: {
   name: string;
   onNameChange: (name: string) => void;
   isError: boolean;
+  messages: ReturnType<typeof formatCategoryCreatingMessages>;
 }) {
   const [scope, animate] = useAnimate();
 
@@ -112,7 +142,7 @@ function CategoryCreatingInputForm({
         style={{ opacity: 0 }}
         className="absolute right-[4] bottom-full bg-gray-500 text-white text-xs px-3 py-2 rounded-md shadow-md whitespace-nowrap"
       >
-        20자 이하로 입력해주세요!
+        {messages.errorTooLong}
         <div
           className="absolute left-2/3 top-full w-0 h-0 
           border-l-8 border-l-transparent   
@@ -125,8 +155,8 @@ function CategoryCreatingInputForm({
         value={name}
         onChange={handleNameChange}
         isError={isError}
-        errorMessage="카테고리 이름을 채워주세요"
-        placeholder="추가할 카테고리 이름을 입력해주세요"
+        errorMessage={messages.errorEmpty}
+        placeholder={messages.placeholder}
       />
     </div>
   );

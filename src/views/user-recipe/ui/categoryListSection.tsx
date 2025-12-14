@@ -13,7 +13,7 @@ import {
 import {
   useFetchUserRecipes,
   ALL_RECIPES,
-} from "@/src/entities/user_recipe/model/useUserRecipe";
+} from "@/src/entities/user-recipe/model/useUserRecipe";
 
 import {
   Dialog,
@@ -26,15 +26,14 @@ import {
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import {
-  MODE,
-  onUnblockingRequest,
-  request,
-} from "@/src/shared/client/native/client";
+import { onUnblockingRequest } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 import { Button } from "@/components/ui/button";
 import { CategoryCreatingView } from "@/src/widgets/category-creating-view/categoryCreatingView";
+// useUserRecipeTranslation 제거
+import { formatCategoryName } from "@/src/features/format/category/formatCategoryName";
+import { useLangcode, Lang } from "@/src/shared/translation/useLangCode"; // Lang 타입 import 추가
 
 export enum CategoryMode {
   SELECT,
@@ -93,13 +92,14 @@ const CategoryListReady = ({
     null
   );
   const [isOpen, setIsOpen] = useState(false);
+  const lang = useLangcode();
 
   return (
     <div className="flex flex-row flex-nowrap min-w-[101vw] pl-[10]">
       <CategoryChip
         props={{
           type: ChipType.FILTER,
-          name: "전체",
+          name: formatCategoryName({ lang }).all,
           accessary: totalElements,
           onClick: () => setSelectedCategoryId?.(ALL_RECIPES),
           isSelected: selectedCategoryId === ALL_RECIPES,
@@ -115,6 +115,9 @@ const CategoryListReady = ({
             accessary: category.count,
             onClick: () => setSelectedCategoryId?.(category.id),
             onClickLong: () => {
+              if(selectedCategoryId===category.id){
+                return;
+              }
               setCategoryToDelete(category);
             },
             isSelected: selectedCategoryId === category.id,
@@ -126,7 +129,7 @@ const CategoryListReady = ({
       <CategoryChip
         props={{
           type: ChipType.EDITION,
-          name: "추가",
+          name: formatCategoryName({ lang }).add,
           accessary: IoMdAdd,
           onClick: () => {
             setIsOpen(true);
@@ -156,6 +159,36 @@ const CategoryListSkeleton = () => {
   );
 };
 
+// 텍스트 포매팅 함수 정의
+const formatCategoryDeleteAlertMessages = ({
+  categoryName,
+  count,
+  lang,
+}: {
+  categoryName: string;
+  count: number;
+  lang: Lang;
+}) => {
+  switch (lang) {
+    case "en":
+      return {
+        title: "Delete this category?",
+        description: `There are ${count} recipe(s) in ${categoryName}.`,
+        subDescription: "Deleting the category does not delete the recipes.",
+        cancel: "Cancel",
+        confirm: "Confirm",
+      };
+    default:
+      return {
+        title: "정말 삭제하시겠어요?",
+        description: `${categoryName} 카테고리에 속한 레시피가 ${count}개 있어요.`,
+        subDescription: "카테고리를 삭제하면 레시피가 사라지진 않아요.",
+        cancel: "취소",
+        confirm: "확인",
+      };
+  }
+};
+
 function CategoryDeleteAlert({
   category,
   onClose,
@@ -164,6 +197,15 @@ function CategoryDeleteAlert({
   onClose: () => void;
 }) {
   const { deleteCategory, isPending } = useDeleteCategory();
+  const lang = useLangcode(); // lang 가져오기
+
+  // 포매팅된 메시지 가져오기
+  const messages = formatCategoryDeleteAlertMessages({
+    categoryName: category.name,
+    count: category.count,
+    lang,
+  });
+
   const handleCancel = () => {
     onClose();
   };
@@ -191,13 +233,10 @@ function CategoryDeleteAlert({
           onPointerDownOutside={handleCancel}
         >
           <DialogHeader>
-            <DialogTitle>정말 삭제하시겠어요?</DialogTitle>
+            <DialogTitle>{messages.title}</DialogTitle>
             <DialogDescription>
-              <div className="text-orange-500">
-                {category.name} 카테고리에 속한 레시피가 {category.count}개
-                있어요.
-              </div>
-              <div>카테고리를 삭제하면 레시피가 사라지진 않아요.</div>
+              <div className="text-orange-500">{messages.description}</div>
+              <div>{messages.subDescription}</div>
             </DialogDescription>
           </DialogHeader>
           <div className="h-4" />
@@ -208,7 +247,7 @@ function CategoryDeleteAlert({
                 variant="secondary"
                 className="flex flex-1 bg-black text-white"
               >
-                취소
+                {messages.cancel}
               </Button>
             </DialogClose>
             <DialogClose className="flex-1 flex" onClick={handleDelete}>
@@ -217,7 +256,7 @@ function CategoryDeleteAlert({
                 variant="outline"
                 className="flex flex-1 text-black"
               >
-                확인
+                {messages.confirm}
               </Button>
             </DialogClose>
           </DialogFooter>

@@ -6,6 +6,7 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import * as Popover from "@radix-ui/react-popover";
 import { create } from "zustand";
 import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
+import { useHomeTranslation } from "../hooks/useHomeTranslation";
 
 export const FloatingButton = () => {
   const { open } = useRecipeCreatingViewOpenStore();
@@ -46,20 +47,23 @@ export const FloatingButton = () => {
 
 function FloatingButtonPopover({ trigger }: { trigger: React.ReactNode }) {
   const { hasEverClicked } = usefloatingButtonStore();
+  const { t } = useHomeTranslation();
 
   return (
     <Popover.Root open={!hasEverClicked}>
       <Popover.Trigger>{trigger}</Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="flex flex-col bg-orange-500 rounded-lg shadow-xl z-[2000]"
+          className="flex flex-col bg-orange-500 rounded-lg shadow-xl z-[2000] outline-none"
           side="top"
           align="end"
           sideOffset={2}
           alignOffset={10}
         >
           <Popover.Arrow fill="#f97316" />
-          <div className="px-4 py-2 text-white font-bold">레시피 생성하기</div>
+          <div className="px-4 py-2 text-white font-bold">
+            {t("createRecipe")}
+          </div>
         </Popover.Content>
       </Popover.Portal>
     </Popover.Root>

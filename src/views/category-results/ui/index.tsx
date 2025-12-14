@@ -8,7 +8,7 @@ import {
   useFetchRecommendRecipes,
   RecommendRecipe,
 } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { useEffect, useRef, useState } from "react";

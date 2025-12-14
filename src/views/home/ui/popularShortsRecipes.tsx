@@ -7,20 +7,22 @@ import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import {
   AlreadyEnrolledChip,
   CreatingStatusChip,
-} from "../../../shared/ui/chip/chip";
+} from "../../../shared/ui/chip/recipeCreatingStatusChip";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
-import { useFetchRecipeProgress } from "@/src/entities/user_recipe/model/useUserRecipe";
-import { RecipeStatus } from "@/src/entities/user_recipe/type/type";
+import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useHomeTranslation } from "../hooks/useHomeTranslation";
 
 export function PopularShortsRecipes() {
+  const {t} = useHomeTranslation();
   return (
     <div>
       <div className="h-6" />
       <div className="pl-4 flex items-center gap-2">
-        <div className="text-xl font-semibold">쇼츠 인기 레시피</div>
+        <div className="text-xl font-semibold">{t("shortsPopularRecipes")}</div>
         <img src={Fire.src} className="size-6" />
       </div>
       <div className="h-3" />

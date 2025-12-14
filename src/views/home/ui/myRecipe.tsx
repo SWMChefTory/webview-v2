@@ -17,12 +17,15 @@ import { motion } from "motion/react";
 import {
   ALL_RECIPES,
   useFetchUserRecipes,
-} from "@/src/entities/user_recipe/model/useUserRecipe";
+} from "@/src/entities/user-recipe/model/useUserRecipe";
 import { UserRecipeCardReady } from "@/src/views/home/ui/userRecipeCard";
 import RecipeBook from "@/src/views/home/ui/assets/recipe-book.png";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useRouter } from "next/router";
+import { useHomeTranslation } from "../hooks/useHomeTranslation";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { formatCategoryName } from "@/src/features/format/category/formatCategoryName";
 
 export const MyRecipes = () => {
   const [selectedCategory, setSelectedCategory] = useState<
@@ -73,7 +76,7 @@ const MyRecipesTemplate = ({
 };
 
 const MyRecipeTitleReady = () => {
-  // const {push} = useSlideRouter();
+  const { t } = useHomeTranslation();
   const router = useRouter();
   return (
     <div className="w-full h-full">
@@ -87,7 +90,7 @@ const MyRecipeTitleReady = () => {
       >
         <img src={RecipeBook.src} className="size-6" />
         <div className="pr-1" />
-        나의 레시피
+        {t("myRecipe")}
         <IoChevronForwardOutline className="size-6" color="black" />
       </motion.div>
     </div>
@@ -109,6 +112,7 @@ const CategoryListReady = ({
 }) => {
   const { data: categories } = useFetchCategories();
   const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
+  const lang = useLangcode();
 
   return (
     <>
@@ -116,7 +120,7 @@ const CategoryListReady = ({
         key={ALL_RECIPES}
         props={{
           type: ChipType.FILTER,
-          name: "전체",
+          name: formatCategoryName({lang}).all,
           accessary: totalElements ?? 0,
           onClick: () => {
             setSelectedCategory?.(ALL_RECIPES);

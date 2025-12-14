@@ -6,16 +6,18 @@ import {
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AlreadyEnrolledChip } from "@/src/shared/ui/chip/chip";
+import { AlreadyEnrolledChip } from "@/src/shared/ui/chip/recipeCreatingStatusChip";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
-import { RecipeCreateToast } from "@/src/entities/user_recipe/ui/toast";
+import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import { Viewport } from "@radix-ui/react-toast";
+import { useTranslation } from "next-i18next";
 
 function PopularRecipeContent() {
+  const {t} = useTranslation("popular-recipe");
   return (
     <div className="px-4">
       <div className="h-4" />
-      <div className="text-2xl font-semibold">인기 레시피</div>
+      <div className="text-2xl font-semibold">{t("popularRecipes")}</div>
       <div className="h-4" />
       <SSRSuspense fallback={<PopularRecipesSkeleton />}>
         <PopularRecipesReady />

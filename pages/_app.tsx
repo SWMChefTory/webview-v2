@@ -26,8 +26,11 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-vi
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
+import {appWithTranslation} from 'next-i18next';
 
-export default function App(props: AppProps) {
+export default appWithTranslation(App);
+
+function App(props: AppProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({

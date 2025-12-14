@@ -1,12 +1,33 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
-import { useCreateRecipe } from "@/src/entities/user_recipe/model/useUserRecipe";
+import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
 import { ShareTutorialModal } from "./shareTutorialModal";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import { HorizontalScrollArea } from "@/src/views/home/ui/horizontalScrollArea";
 import { motion } from "motion/react";
+import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+
+// 다국어 메시지 포매터 정의
+const formatRecipeCreatingMessages = (lang: Lang) => {
+  switch (lang) {
+    case "en":
+      return {
+        title: "Create Recipe",
+        invalidUrl: "This input is not a valid YouTube link",
+        placeholder: "Please enter a YouTube link",
+        submit: "Done",
+      };
+    default:
+      return {
+        title: "레시피 생성하기",
+        invalidUrl: "해당 입력은 유튜브 링크가 아니에요",
+        placeholder: "유튜브 링크를 입력해주세요",
+        submit: "완료",
+      };
+  }
+};
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -21,6 +42,10 @@ export function RecipeCreatingView() {
     setUrl,
     close,
   } = useRecipeCreatingViewOpenStore();
+
+  // 1. 언어 설정 가져오기
+  const lang = useLangcode();
+  const messages = formatRecipeCreatingMessages(lang);
 
   const isValidYoutubeUrl = (url: string) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
@@ -60,7 +85,7 @@ export function RecipeCreatingView() {
           >
             <div className="p-5">
               <Dialog.Title className="text-xl font-bold">
-                레시피 만들기
+                {messages.title}
               </Dialog.Title>
             </div>
             <CategoryChipListSection
@@ -74,14 +99,14 @@ export function RecipeCreatingView() {
                 value={url}
                 onChange={handleUrlChange}
                 isError={isError()}
-                errorMessage="해당 입력은 유튜브 링크가 아니에요"
-                placeholder="유튜브 링크를 입력해주세요"
+                errorMessage={messages.invalidUrl}
+                placeholder={messages.placeholder}
               />
             </div>
             <div className="p-3">
               <FormButton
                 onSubmit={handleSubmit}
-                label="완료"
+                label={messages.submit}
                 isSubmittable={isSubmittable()}
               />
             </div>

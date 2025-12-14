@@ -229,7 +229,11 @@ const CuisineRecipeCardReady = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCardClick = () => {
-    setIsOpen(true);
+    if (!isViewed) {
+      setIsOpen(true);
+    } else {
+      router.replace(`/recipe/${recipe.recipeId}/detail`);
+    }
   };
 
   return (
@@ -330,7 +334,11 @@ const RecommendRecipeCardReady = ({
   const [isOpen, setIsOpen] = useState(false);
 
   const handleCardClick = () => {
-    setIsOpen(true);
+    if (!isViewed) {
+      setIsOpen(true);
+    } else {
+      router.replace(`/recipe/${recipe.recipeId}/detail`);
+    }
   };
 
   return (

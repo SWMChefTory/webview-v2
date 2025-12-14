@@ -75,7 +75,7 @@ export const UserRecipeCardEmpty = () => {
       <div className="flex flex-row h-[90]">
         <div
           onClick={() => {
-            open("");
+            open("", "floating_button");
           }}
         >
           <ThumbnailEmpty size={{ width: 160, height: 90 }} />

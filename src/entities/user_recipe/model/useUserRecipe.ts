@@ -223,6 +223,12 @@ export function useCreateRecipe() {
       recipeId?: string;
       videoType?: VideoType;
       recipeTitle?: string;
+      // Amplitude 추적용 필드 (4단계에서 사용)
+      _startTime?: number;
+      _source?: string;
+      _entryPoint?: string;
+      _creationMethod?: "card" | "url";
+      _hasTargetCategory?: boolean;
     }) => {
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
@@ -279,17 +285,17 @@ export function useCreateRecipe() {
           errorMessage: `url 주소 : ${_vars.youtubeUrl} 레시피 생성에 실패했어요`,
         },
       });
-      if (!_vars.videoType) {
-        console.log("videoType is not found");
-        throw new Error("videoType is required");
-      }
-      if (ctx?.prevList) {
+
+      // rollback (카드 경로 + Optimistic Update가 있을 때만)
+      if (ctx?.prevList && _vars.videoType) {
         rollbackIsViewed(
           queryClient,
           { prevList: ctx.prevList },
           _vars.videoType
         );
       }
+
+      // TODO: 4단계에서 Amplitude 이벤트 추가
     },
   });
   return {

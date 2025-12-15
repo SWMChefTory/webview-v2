@@ -28,7 +28,7 @@ export const FloatingButton = () => {
                   aria-label="Submit"
                   onClick={() => {
                     checkClicked();
-                    open("");
+                    open("", "floating_button");
                   }}
                 >
                   <FaPlus

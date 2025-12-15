@@ -22,6 +22,7 @@ const RawRecommendRecipeSchema = z.object({
   videoId: z.string(),
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
+  videoType: z.enum(["SHORTS", "NORMAL"]),
 });
 
 // 변환된 레시피 스키마
@@ -81,6 +82,7 @@ export const fetchRecommendRecipes = async ({
         videoTitle: recipe.recipeTitle,
         videoThumbnailUrl: recipe.videoThumbnailUrl,
         videoSeconds: recipe.videoSeconds,
+        videoType: recipe.videoType,
       },
       detailMeta: {
         description: recipe.description,

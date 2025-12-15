@@ -86,7 +86,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       for (const message of result.messagesConsumed) {
         if (message.type === "OPEN_CREATING_VIEW") {
           const info = RecipeCreationInfoSchema.parse(message.data);
-          open(info.videoUrl);
+          open(info.videoUrl, "external_share");
           return;
         }
         if (message.type === "ROUTE") {
@@ -113,7 +113,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.OPEN_CREATING_VIEW,
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
-        open(info.videoUrl);
+        open(info.videoUrl, "external_share");
       }
     );
     return cleanup;

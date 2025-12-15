@@ -3,8 +3,10 @@ import { Button } from "@/components/ui/button";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { MODE, request } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
 
 // 다국어 메시지 포매터 정의
@@ -89,16 +91,25 @@ export function ShareTutorialModal() {
     };
   }, []);
 
+  // tutorial_share_view 이벤트: 모달이 열릴 때 트래킹
+  useEffect(() => {
+    if (isTutorialOpen) {
+      track(AMPLITUDE_EVENT.TUTORIAL_SHARE_VIEW);
+    }
+  }, [isTutorialOpen]);
+
   const handleClose = () => {
     closeTutorial();
   };
 
   const handleOpenYouTube = () => {
+    track(AMPLITUDE_EVENT.TUTORIAL_SHARE_YOUTUBE_CLICK);
     request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE);
     handleClose();
   };
 
   const handleDirectInput = () => {
+    track(AMPLITUDE_EVENT.TUTORIAL_SHARE_DIRECT_CLICK);
     handleClose();
     setTimeout(() => {
       openRecipeCreatingView(videoUrl);
@@ -106,6 +117,7 @@ export function ShareTutorialModal() {
   };
 
   const handleDontShowAgain = () => {
+    track(AMPLITUDE_EVENT.TUTORIAL_SHARE_DISMISS);
     markTutorialAsSeen();
     handleClose();
     setTimeout(() => {

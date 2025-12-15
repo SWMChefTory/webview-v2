@@ -52,6 +52,7 @@ function PopularRecipesReady() {
           <RecipeCardWrapper
             key={recipe.recipeId}
             recipe={recipe}
+            source="popular_normal"
             trigger={<PopularRecipeCard recipe={recipe} />}
           />
         ))}

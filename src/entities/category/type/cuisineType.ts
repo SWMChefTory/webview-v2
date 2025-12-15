@@ -1,3 +1,5 @@
+import { Lang } from "@/src/shared/translation/useLangCode";
+
 // Cuisine API를 사용하는 음식 타입들
 export enum CuisineType {
   KOREAN = "KOREAN",
@@ -19,7 +21,8 @@ export enum RecommendType {
 // 모든 카테고리 타입 (UI에서 사용)
 export type CategoryType = CuisineType | RecommendType;
 
-export const CuisineTypeLabels: Record<CuisineType, string> = {
+// 한국어 라벨
+export const CuisineTypeLabelsKo: Record<CuisineType, string> = {
   [CuisineType.KOREAN]: "한식",
   [CuisineType.SNACK]: "분식",
   [CuisineType.CHINESE]: "중식",
@@ -30,9 +33,26 @@ export const CuisineTypeLabels: Record<CuisineType, string> = {
   [CuisineType.SIMPLE]: "간편식",
 };
 
-export const RecommendTypeLabels: Record<RecommendType, string> = {
+export const RecommendTypeLabelsKo: Record<RecommendType, string> = {
   [RecommendType.CHEF]: "쉐프",
   [RecommendType.TRENDING]: "급상승",
+};
+
+// 영어 라벨
+export const CuisineTypeLabelsEn: Record<CuisineType, string> = {
+  [CuisineType.KOREAN]: "Korean",
+  [CuisineType.SNACK]: "Street Food",
+  [CuisineType.CHINESE]: "Chinese",
+  [CuisineType.JAPANESE]: "Japanese",
+  [CuisineType.WESTERN]: "Western",
+  [CuisineType.DESSERT]: "Dessert",
+  [CuisineType.HEALTHY]: "Healthy",
+  [CuisineType.SIMPLE]: "Simple",
+};
+
+export const RecommendTypeLabelsEn: Record<RecommendType, string> = {
+  [RecommendType.CHEF]: "Chef",
+  [RecommendType.TRENDING]: "Trending",
 };
 
 export function isCuisineType(type: CategoryType): type is CuisineType {
@@ -57,10 +77,18 @@ export function getCategoryTypeFromString(str: string): CategoryType | null {
   return null;
 }
 
-export function getCategoryTypeLabel(type: CategoryType): string {
-  if (isCuisineType(type)) {
-    return CuisineTypeLabels[type];
+// lang 인자 추가 (기본값 'ko')
+export function getCategoryTypeLabel(type: CategoryType, lang: Lang = "ko"): string {
+  if (lang === "en") {
+    if (isCuisineType(type)) {
+      return CuisineTypeLabelsEn[type];
+    }
+    return RecommendTypeLabelsEn[type];
   }
-  return RecommendTypeLabels[type];
-}
 
+  // 기본 한국어
+  if (isCuisineType(type)) {
+    return CuisineTypeLabelsKo[type];
+  }
+  return RecommendTypeLabelsKo[type];
+}

@@ -6,13 +6,35 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+
+// 다국어 지원을 위한 텍스트 상수
+const UI_TEXT = {
+  LISTENING: {
+    ko: "음성을 듣고 있어요",
+    en: "Listening...",
+  },
+  SKIP: {
+    ko: "클릭해서 넘어갈게요",
+    en: "Click to skip",
+  },
+};
 
 export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
-  const { handleNextStep,terminate } = useTutorialActions();
+  const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
+  const lang = useLangcode(); // 언어 설정 가져오기
+
+  // 현재 스텝 데이터 안전하게 접근
+  const currentStep = steps[currentStepIndex] || {
+    when: "",
+    command: "",
+    status: null,
+  };
+
   return (
     <Popover.Root
-      open={isInTutorial && steps[currentStepIndex].status == StepStatus.TIMER}
+      open={isInTutorial && currentStep.status == StepStatus.TIMER}
       modal={true}
     >
       <Popover.Trigger>{trigger}</Popover.Trigger>
@@ -38,14 +60,27 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
             </div>
 
             <p className="break-keep leading-relaxed font-semibold ">
-              {steps[currentStepIndex].when}{" "}
-              <span className="font-extrabold whitespace-nowrap text-lg">
-                "{steps[currentStepIndex].command}"
-              </span>{" "}
-              라고 말해보세요!
+              {currentStep.when}{" "}
+              {/* 언어별 명령어 문장 구조 분기 처리 */}
+              {lang === "ko" ? (
+                <>
+                  <span className="font-extrabold whitespace-nowrap text-lg">
+                    "{currentStep.command}"
+                  </span>{" "}
+                  라고 말해보세요!
+                </>
+              ) : (
+                <>
+                  Say{" "}
+                  <span className="font-extrabold whitespace-nowrap text-lg">
+                    "{currentStep.command}"
+                  </span>
+                  !
+                </>
+              )}
             </p>
             <div className="flex w-full justify-center pt-2 pb-4 items-center gap-2 text-orange-500">
-              음성을 듣고 있어요
+              {lang === "ko" ? UI_TEXT.LISTENING.ko : UI_TEXT.LISTENING.en}
               <Spinner />
             </div>
             <div className="flex w-full justify-center">
@@ -58,7 +93,7 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >
-                  클릭해서 넘어갈게요
+                  {lang === "ko" ? UI_TEXT.SKIP.ko : UI_TEXT.SKIP.en}
                 </p>
               </Popover.Close>
             </div>

@@ -8,6 +8,19 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+
+// 다국어 텍스트 상수 정의
+const UI_TEXT = {
+  LISTENING: {
+    ko: "음성을 듣고 있어요",
+    en: "Listening...",
+  },
+  SKIP: {
+    ko: "클릭해서 넘어갈게요",
+    en: "Click to skip",
+  },
+};
 
 export function StepsContent({
   currentStepIndex,
@@ -144,13 +157,17 @@ function VoiceGuideStep({
 }) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
+  const lang = useLangcode(); // 언어 코드 가져오기
+
+  // 현재 튜토리얼 스텝 정보
+  const currentStep = steps[currentStepIndex] || { when: "", command: "" };
 
   return (
     <Popover.Root
       open={
         isInTutorial &&
         isOpen &&
-        steps[currentStepIndex].status == StepStatus.CONTENT
+        steps[currentStepIndex]?.status == StepStatus.CONTENT
       }
       modal={true}
     >
@@ -177,14 +194,27 @@ function VoiceGuideStep({
             </div>
 
             <p className="break-keep leading-relaxed font-semibold ">
-              {steps[currentStepIndex].when}{" "}
-              <span className="font-extrabold whitespace-nowrap text-lg">
-                "{steps[currentStepIndex].command}"
-              </span>{" "}
-              라고 말해보세요!
+              {currentStep.when}{" "}
+              {/* 언어별 문장 구조 처리 */}
+              {lang === "ko" ? (
+                <>
+                  <span className="font-extrabold whitespace-nowrap text-lg">
+                    "{currentStep.command}"
+                  </span>{" "}
+                  라고 말해보세요!
+                </>
+              ) : (
+                <>
+                  Say{" "}
+                  <span className="font-extrabold whitespace-nowrap text-lg">
+                    "{currentStep.command}"
+                  </span>
+                  !
+                </>
+              )}
             </p>
             <div className="flex w-full justify-center pt-2 pb-4 items-center gap-2 text-orange-500">
-              음성을 듣고 있어요
+              {lang === "ko" ? UI_TEXT.LISTENING.ko : UI_TEXT.LISTENING.en}
               <Spinner />
             </div>
             <div className="flex w-full justify-center">
@@ -197,7 +227,7 @@ function VoiceGuideStep({
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >
-                  클릭해서 넘어갈게요
+                  {lang === "ko" ? UI_TEXT.SKIP.ko : UI_TEXT.SKIP.en}
                 </p>
               </Popover.Close>
             </div>
@@ -236,7 +266,7 @@ const Detail = ({
 
 function indexToLetter(index: number): string {
   if (index < 0 || index > 25) {
-    throw new Error("0~25 범위만 지원합니다");
+    throw new Error("Only 0-25 range supported");
   }
   return String.fromCharCode("A".charCodeAt(0) + index);
 }

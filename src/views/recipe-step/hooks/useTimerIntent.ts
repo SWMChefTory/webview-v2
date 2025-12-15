@@ -11,6 +11,25 @@ import {
 import { useTimerBottomSheetVisibility } from "@/src/widgets/timer/useTimerBottomSheetStore";
 import { useTimerEffectVisibilityStore } from "@/src/features/timer/ui/timerButton";
 import { useEffect, useRef } from "react";
+import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+
+// 다국어 메시지 포매터 정의
+const formatTimerErrorMessages = (lang: Lang) => {
+  switch (lang) {
+    case "en":
+      return {
+        limitExceeded: "Only one timer can be active at a time!",
+        inputTime: "Please enter a time.",
+        notRunning: "No timer is currently running",
+      };
+    default:
+      return {
+        limitExceeded: "타이머는 하나만 실행할 수 있어요!",
+        inputTime: "시간을 입력해주세요.",
+        notRunning: "타이머가 실행되지 않았어요",
+      };
+  }
+};
 
 export function useHandleTimerVoiceIntent({
   recipeId,
@@ -30,6 +49,10 @@ export function useHandleTimerVoiceIntent({
   const earliestFinishTimer = findEarliestFinishTimer(activeTimers);
   const { handleOpenTemporarily } = useTimerBottomSheetVisibility();
   const { setVisible, visible } = useTimerEffectVisibilityStore();
+
+  // 1. 언어 설정 및 메시지 가져오기
+  const lang = useLangcode();
+  const messages = formatTimerErrorMessages(lang);
 
   const timerEffectVisibilityRef = useRef<NodeJS.Timeout | undefined>(
     undefined
@@ -73,12 +96,14 @@ export function useHandleTimerVoiceIntent({
               });
             } catch (error) {
               if (error instanceof TimerLimitExceededError) {
-                onError("타이머는 하나만 실행할 수 있어요!");
+                // 다국어 메시지 사용
+                onError(messages.limitExceeded);
               }
               return;
             }
           } else {
-            onError("시간을 입력해주세요.");
+            // 다국어 메시지 사용
+            onError(messages.inputTime);
           }
           return;
         case "STOP":
@@ -87,7 +112,8 @@ export function useHandleTimerVoiceIntent({
             handlePauseTimer({ id: earliestFinishTimer[0] });
             return;
           }
-          onError("타이머가 실행되지 않았어요");
+          // 다국어 메시지 사용
+          onError(messages.notRunning);
           return;
         case "START":
           const curTimer =

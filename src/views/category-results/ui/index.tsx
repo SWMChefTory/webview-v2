@@ -24,6 +24,67 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CategoryType, getCategoryTypeLabel, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
+import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+
+
+
+// 다국어 메시지 포매터
+const formatCategoryResultMessages = (lang: Lang) => {
+  switch (lang) {
+    case "en":
+      return {
+        empty: {
+          title: "No recipes found in this category",
+          subtitle: "Try selecting a different category",
+        },
+        header: {
+          suffix: "Recipes",
+          totalCount: (count: number) => `Total ${count} recipes`,
+        },
+        card: {
+          badge: "Already Registered",
+          serving: (count: number) => `${count} serving${count !== 1 ? 's' : ''}`,
+          minute: (count: number) => `${count} min`,
+        },
+        dialog: {
+          title: "Create Recipe",
+          description: (name: string) => (
+            <>
+              Do you want to create a recipe for <span className="text-black font-bold">{name}</span>?
+            </>
+          ),
+          cancel: "Cancel",
+          confirm: "Create",
+        }
+      };
+    default:
+      return {
+        empty: {
+          title: "해당 카테고리의 레시피가 없어요",
+          subtitle: "다른 카테고리를 선택해보세요",
+        },
+        header: {
+          suffix: "레시피",
+          totalCount: (count: number) => `총 ${count}개의 레시피`,
+        },
+        card: {
+          badge: "이미 등록했어요",
+          serving: (count: number) => `${count}인분`,
+          minute: (count: number) => `${count}분`,
+        },
+        dialog: {
+          title: "레시피 생성",
+          description: (name: string) => (
+            <>
+              <span className="text-black font-bold">{name}</span> 레시피를 생성하시겠어요?
+            </>
+          ),
+          cancel: "취소",
+          confirm: "생성",
+        }
+      };
+  }
+};
 
 export function CategoryResultsSkeleton() {
   return (
@@ -60,6 +121,11 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
   } = useFetchRecommendRecipes({ recommendType });
   
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  // 언어 설정 가져오기
+  const lang = useLangcode();
+  const messages = formatCategoryResultMessages(lang);
+  const categoryName = getCategoryTypeLabel(recommendType, lang);
 
   useEffect(() => {
     const loadMore = loadMoreRef.current;
@@ -94,8 +160,8 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
           />
         </div>
         <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">해당 카테고리의 레시피가 없어요</h3>
-          <p className="text-s text-gray-600">다른 카테고리를 선택해보세요</p>
+          <h3 className="font-bold text-xl text-gray-900">{messages.empty.title}</h3>
+          <p className="text-s text-gray-600">{messages.empty.subtitle}</p>
         </div>
       </div>
     );
@@ -106,10 +172,10 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
       {/* 카테고리 결과 헤더 */}
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{getCategoryTypeLabel(recommendType)}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">레시피</span>
+          <h1 className="text-2xl font-bold text-gray-900 truncate">{categoryName}</h1>
+          <span className="text-lg font-medium text-gray-600 shrink-0">{messages.header.suffix}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">총 {totalElements}개의 레시피</p>
+        <p className="text-sm text-gray-500 mt-2">{messages.header.totalCount(totalElements)}</p>
       </div>
 
       {/* 레시피 그리드 */}
@@ -144,6 +210,11 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
   } = useFetchCuisineRecipes({ cuisineType });
   
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  
+  // 언어 설정 가져오기
+  const lang = useLangcode();
+  const messages = formatCategoryResultMessages(lang);
+  const categoryName = getCategoryTypeLabel(cuisineType, lang);
 
   useEffect(() => {
     const loadMore = loadMoreRef.current;
@@ -178,8 +249,8 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
           />
         </div>
         <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">해당 카테고리의 레시피가 없어요</h3>
-          <p className="text-s text-gray-600">다른 카테고리를 선택해보세요</p>
+          <h3 className="font-bold text-xl text-gray-900">{messages.empty.title}</h3>
+          <p className="text-s text-gray-600">{messages.empty.subtitle}</p>
         </div>
       </div>
     );
@@ -190,10 +261,10 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
       {/* 카테고리 결과 헤더 */}
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{getCategoryTypeLabel(cuisineType)}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">레시피</span>
+          <h1 className="text-2xl font-bold text-gray-900 truncate">{categoryName}</h1>
+          <span className="text-lg font-medium text-gray-600 shrink-0">{messages.header.suffix}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">총 {totalElements}개의 레시피</p>
+        <p className="text-sm text-gray-500 mt-2">{messages.header.totalCount(totalElements)}</p>
       </div>
 
       {/* 레시피 그리드 */}
@@ -227,6 +298,10 @@ const CuisineRecipeCardReady = ({
   const { detailMeta, tags, isViewed } = recipe;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // 언어 설정 가져오기
+  const lang = useLangcode();
+  const messages = formatCategoryResultMessages(lang);
 
   const handleCardClick = () => {
     setIsOpen(true);
@@ -242,7 +317,7 @@ const CuisineRecipeCardReady = ({
           <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
           {isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              이미 등록했어요
+              {messages.card.badge}
             </div>
           )}
         </div>
@@ -257,13 +332,13 @@ const CuisineRecipeCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{detailMeta.servings}인분</span>
+                  <span className="font-medium">{messages.card.serving(detailMeta.servings)}</span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{detailMeta.cookingTime}분</span>
+                  <span className="font-medium">{messages.card.minute(detailMeta.cookingTime)}</span>
                 </div>
               )}
             </div>
@@ -288,18 +363,17 @@ const CuisineRecipeCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">레시피 생성</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{messages.dialog.title}</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
-            <span className="text-black font-bold">{recipe.recipeTitle}</span>{" "}
-            레시피를 생성하시겠어요?
+            {messages.dialog.description(recipe.recipeTitle)}
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              취소
+              {messages.dialog.cancel}
             </Button>
           </DialogClose>
           <Button
@@ -311,7 +385,7 @@ const CuisineRecipeCardReady = ({
             }}
             className="flex-1"
           >
-            생성
+            {messages.dialog.confirm}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -328,6 +402,10 @@ const RecommendRecipeCardReady = ({
   const { detailMeta, tags, isViewed } = recipe;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
+  
+  // 언어 설정 가져오기
+  const lang = useLangcode();
+  const messages = formatCategoryResultMessages(lang);
 
   const handleCardClick = () => {
     setIsOpen(true);
@@ -343,7 +421,7 @@ const RecommendRecipeCardReady = ({
           <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
           {isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              이미 등록했어요
+              {messages.card.badge}
             </div>
           )}
         </div>
@@ -358,13 +436,13 @@ const RecommendRecipeCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{detailMeta.servings}인분</span>
+                  <span className="font-medium">{messages.card.serving(detailMeta.servings)}</span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{detailMeta.cookingTime}분</span>
+                  <span className="font-medium">{messages.card.minute(detailMeta.cookingTime)}</span>
                 </div>
               )}
             </div>
@@ -389,18 +467,17 @@ const RecommendRecipeCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">레시피 생성</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{messages.dialog.title}</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
-            <span className="text-black font-bold">{recipe.recipeTitle}</span>{" "}
-            레시피를 생성하시겠어요?
+            {messages.dialog.description(recipe.recipeTitle)}
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              취소
+              {messages.dialog.cancel}
             </Button>
           </DialogClose>
           <Button
@@ -412,7 +489,7 @@ const RecommendRecipeCardReady = ({
             }}
             className="flex-1"
           >
-            생성
+            {messages.dialog.confirm}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -438,4 +515,3 @@ const RecipeCardSkeleton = () => {
     </div>
   );
 };
-

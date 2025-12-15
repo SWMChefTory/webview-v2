@@ -1,3 +1,5 @@
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+
 export const LoopSettingButton = ({
   isRepeat,
   onClick,
@@ -5,8 +7,9 @@ export const LoopSettingButton = ({
   isRepeat: boolean;
   onClick: () => void;
 }) => {
+  const lang = useLangcode();
   return (
-    <div>
+    <div className="flex flex-col justify-between items-center">
       <button
         className={[
           "relative flex h-14 w-14 items-center justify-center rounded-full p-2 transition active:scale-95 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
@@ -60,7 +63,9 @@ export const LoopSettingButton = ({
           <span className="pointer-events-none absolute inset-0 rounded-full animate-[pulse_2.4s_ease-in-out_infinite] shadow-[0_0_0_0_rgba(251,146,60,0.45)]" />
         )}
       </button>
-      <div className="text-gray-500 pt-1">구간 반복</div>
+      <div className="text-gray-500 pt-1">
+        {lang == "en" ? "step repeat" : "구간 반복"}
+      </div>
     </div>
   );
 };

@@ -4,11 +4,14 @@ import { useEffect, useState } from "react";
 import { CategoryResultsSkeleton, CategoryResultsContent } from "./ui";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { CategoryType, getCategoryTypeFromString, getCategoryTypeLabel } from "@/src/entities/category/type/cuisineType";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
 
 const CategoryResultsPage = () => {
   const router = useRouter();
   const typeParam = router.query.type as string;
   const [categoryType, setCategoryType] = useState<CategoryType | null>(null);
+  const lang = useLangcode();
+
 
   useEffect(() => {
     if (router.isReady) {
@@ -36,7 +39,7 @@ const CategoryResultsPage = () => {
           <div className="flex flex-row gap-3 w-full h-full items-center justify-start">
             <BackButton onClick={() => router.back()} />
             <h1 className="text-xl font-semibold text-gray-900 truncate">
-              {getCategoryTypeLabel(categoryType)}
+              {getCategoryTypeLabel(categoryType,lang)}
             </h1>
           </div>
         }

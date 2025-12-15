@@ -19,7 +19,6 @@ export function useSafeArea({
 }) {
   useEffect(() => {
     const isAndroid = /Android|Adr|Linux|wv/i.test(navigator.userAgent);
-    console.log("!!!!!!!!!!!!!",isAndroid);
     const bottomOsApplied = isAndroid?{color:"#FFFFFF",isExists:true}:bottom;
     request(MODE.UNBLOCKING, "SAFE_AREA", { top, bottom: bottomOsApplied , left, right });
   }, [top, bottom, left, right]);

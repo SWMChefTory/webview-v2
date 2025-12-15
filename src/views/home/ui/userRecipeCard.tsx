@@ -10,9 +10,7 @@ import {
 } from "@/src/entities/user-recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecipeProgressWithToast } from "@/src/entities/user-recipe/model/useUserRecipe";
-import {
-  UserRecipe,
-} from "@/src/entities/user-recipe/model/schema";
+import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
@@ -22,6 +20,18 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-vi
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
+
+// 텍스트 상수 정의 (유지보수 용이성)
+const TEXT = {
+  PLEASE_CREATE: {
+    ko: "레시피를 만들어주세요",
+    en: "Please create a recipe",
+  },
+  CLICK_TO_CREATE: {
+    ko: "클릭해서 레시피 생성",
+    en: "Click to create",
+  },
+};
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -76,9 +86,13 @@ const ElapsedViewTimeReady = ({ viewedAt }: { viewedAt: Date }) => {
 };
 
 const ElapsedViewTimeEmpty = () => {
+  const lang = useLangcode();
+  // 언어에 따른 텍스트 선택
+  const text = lang === "ko" ? TEXT.PLEASE_CREATE.ko : TEXT.PLEASE_CREATE.en;
+
   return (
     <p className="text-sm line-clamp-1 text-transparent">
-      레시피를 만들어주세요
+      {text}
     </p>
   );
 };
@@ -93,6 +107,9 @@ const ElapsedViewTimeSkeleton = () => {
 
 export const UserRecipeCardEmpty = () => {
   const { open } = useRecipeCreatingViewOpenStore();
+  const lang = useLangcode();
+  // 언어에 따른 텍스트 선택
+  const label = lang === "ko" ? TEXT.CLICK_TO_CREATE.ko : TEXT.CLICK_TO_CREATE.en;
 
   return (
     <div>
@@ -112,7 +129,7 @@ export const UserRecipeCardEmpty = () => {
           className="flex items-center rounded-sm px-2 h-[24] shrink-0 text-sm text-white bg-[#F97316] shadow-md
             shadow-stone-300"
         >
-          클릭해서 레시피 생성
+          {label}
         </div>
       </div>
       <div className="w-full">

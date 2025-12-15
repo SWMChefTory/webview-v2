@@ -11,6 +11,7 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
 
 function HomePage() {
   const router = useRouter();
@@ -60,6 +61,10 @@ function HomePage() {
 }
 
 const Logo = () => {
+  const lang = useLangcode();
+  if(lang=="en"){
+    return <img src="/logo-en.png" alt="logo" className="h-[20] w-auto pl-2" />;
+  }
   return <img src="/logo.png" alt="logo" className="h-[20] w-auto pl-2" />;
 };
 

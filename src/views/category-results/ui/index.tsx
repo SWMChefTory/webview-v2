@@ -313,7 +313,7 @@ const CuisineRecipeCardReady = ({
   const handleCardClick = () => {
     if (!isViewed) {
       track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-        source: "category_cuisine",
+        entry_point: "category_cuisine",
         video_type: recipe.videoInfo?.videoType || "NORMAL",
         category_type: cuisineType,
         recipe_id: recipe.recipeId,
@@ -396,7 +396,7 @@ const CuisineRecipeCardReady = ({
           <Button
             onClick={async () => {
               track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                source: "category_cuisine",
+                entry_point: "category_cuisine",
                 video_type: recipe.videoInfo?.videoType || "NORMAL",
                 category_type: cuisineType,
               });
@@ -441,7 +441,7 @@ const RecommendRecipeCardReady = ({
   const handleCardClick = () => {
     if (!isViewed) {
       track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-        source: "category_recommend",
+        entry_point: "category_recommend",
         video_type: recipe.videoInfo?.videoType || "NORMAL",
         category_type: recommendType,
         recipe_id: recipe.recipeId,
@@ -524,7 +524,7 @@ const RecommendRecipeCardReady = ({
           <Button
             onClick={async () => {
               track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                source: "category_recommend",
+                entry_point: "category_recommend",
                 video_type: recipe.videoInfo?.videoType || "NORMAL",
                 category_type: recommendType,
               });

@@ -18,7 +18,7 @@ import { RecipeStatus } from "@/src/shared/enums/recipe";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
-export type RecipeCardSource =
+export type RecipeCardEntryPoint =
   | "popular_normal"
   | "popular_shorts"
   | "theme_chef"
@@ -28,11 +28,11 @@ export type RecipeCardSource =
 export function RecipeCardWrapper({
   recipe,
   trigger,
-  source,
+  entryPoint,
 }: {
   recipe: PopularRecipe | ThemeRecipe;
   trigger: React.ReactNode;
-  source: RecipeCardSource;
+  entryPoint: RecipeCardEntryPoint;
 }) {
   const { create } = useCreateRecipe();
   const { recipeStatus } = useFetchRecipeProgress({
@@ -46,7 +46,7 @@ export function RecipeCardWrapper({
         onClick={() => {
           if (!recipe.isViewed) {
             track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-              source,
+              entry_point: entryPoint,
               video_type: recipe.videoType,
               recipe_id: recipe.recipeId,
             });
@@ -81,7 +81,7 @@ export function RecipeCardWrapper({
               onClick={() => {
                 if (!recipe.isViewed) {
                   track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                    source,
+                    entry_point: entryPoint,
                     video_type: recipe.videoType,
                   });
                   create({
@@ -90,7 +90,7 @@ export function RecipeCardWrapper({
                     recipeId: recipe.recipeId,
                     videoType: recipe.videoType,
                     recipeTitle: recipe.recipeTitle,
-                    _source: source,
+                    _source: entryPoint,
                     _creationMethod: "card",
                   });
                 }

@@ -232,7 +232,7 @@ const RecipeSearchedCardReady = ({
 
     if (!searchResults.isViewed) {
       track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-        source: "search_result",
+        entry_point: "search_result",
         video_type: searchResults.videoInfo.videoType || "NORMAL",
         recipe_id: searchResults.recipeId,
       });
@@ -315,7 +315,7 @@ const RecipeSearchedCardReady = ({
             <Button
               onClick={async () => {
                 track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                  source: "search_result",
+                  entry_point: "search_result",
                   video_type: searchResults.videoInfo.videoType || "NORMAL",
                 });
                 await create({

@@ -69,7 +69,7 @@ function RecipeCardSectionReady() {
           recipe={recipe}
           key={recipe.recipeId}
           trigger={<RecipeCardReady recipe={recipe} />}
-          source="popular_normal"
+          entryPoint="popular_normal"
         />
       ))}
       {isFetchingNextPage && <RecipeCardSkeleton />}

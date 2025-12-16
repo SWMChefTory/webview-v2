@@ -377,7 +377,7 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
   const handleCardClick = () => {
     if (!recipe.isViewed) {
       track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-        source: "search_trend",
+        entry_point: "search_trend",
         video_type: recipe.videoType,
         recipe_id: recipe.recipeId,
       });
@@ -428,7 +428,7 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
             <Button
               onClick={async () => {
                 track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                  source: "search_trend",
+                  entry_point: "search_trend",
                   video_type: recipe.videoType,
                 });
                 await create({

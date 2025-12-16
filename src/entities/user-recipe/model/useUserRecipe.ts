@@ -280,7 +280,7 @@ export function useCreateRecipe() {
       if (variables._creationMethod === "card") {
         // 카드 경로 성공
         track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_CARD, {
-          source: variables._source,
+          entry_point: variables._source,
           video_type: variables.videoType || "NORMAL",
           recipe_id: data.recipeId,
         });
@@ -309,7 +309,7 @@ export function useCreateRecipe() {
       if (_vars._creationMethod === "card") {
         // 카드 경로 실패
         track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_CARD, {
-          source: _vars._source,
+          entry_point: _vars._source,
           error_type: errorType,
           error_message: error.message,
         });

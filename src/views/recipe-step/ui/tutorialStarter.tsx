@@ -2,8 +2,10 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { create } from "zustand";
 import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 import { useTutorialActions } from "../hooks/useTutorial";
-<<<<<<< HEAD
 import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { useEffect, useRef } from "react";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 // 다국어 텍스트 상수
 const TEXT = {
@@ -24,11 +26,7 @@ const TEXT = {
     en: "Start",
   },
 };
-=======
-import { useEffect, useRef } from "react";
-import { track } from "@/src/shared/analytics/amplitude";
-import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
->>>>>>> test
+
 
 const noopStorage: StateStorage = {
   getItem: () => null,
@@ -39,9 +37,7 @@ const noopStorage: StateStorage = {
 export function TutorialStarter({ recipeId }: { recipeId: string }) {
   const { hasSeenTutorial, checkSeen } = useTutorialStarterStore();
   const { start } = useTutorialActions();
-<<<<<<< HEAD
   const lang = useLangcode(); // 언어 설정 가져오기
-=======
   const hasTrackedViewRef = useRef(false);
 
   // tutorial_handsfree_view 이벤트: 모달이 처음 표시될 때 트래킹
@@ -52,7 +48,6 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
       hasTrackedViewRef.current = true;
     }
   }, [hasSeenTutorial, recipeId]);
->>>>>>> test
 
   return (
     <>
@@ -70,16 +65,11 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
 
                 <div className="w-full flex justify-evenly px-5 gap-2">
                   <button
-<<<<<<< HEAD
-                    onClick={checkSeen}
-                    className="flex-1 h-[20] bg-gray-500 py-6 flex items-center justify-center rounded-md font-bold text-lg text-white" // text-white 추가 (가시성 확보)
-=======
                     onClick={() => {
                       track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_SKIP, { recipe_id: recipeId });
                       checkSeen();
                     }}
                     className="flex-1 h-[20] bg-gray-500 py-6 flex items-center justify-center rounded-md font-bold text-lg"
->>>>>>> test
                   >
                     {lang === "ko" ? TEXT.BTN_SKIP.ko : TEXT.BTN_SKIP.en}
                   </button>

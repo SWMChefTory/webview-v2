@@ -163,7 +163,13 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
                   <div
                     key={index}
                     className="shrink-0 snap-start flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 cursor-pointer"
-                    onClick={() => onSearchSelect?.(search)}
+                    onClick={() => {
+                      track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
+                        keyword: search,
+                        search_method: "recent",
+                      });
+                      onSearchSelect?.(search);
+                    }}
                   >
                     <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
                       {search.length > 10 ? `${search.slice(0, 10)}...` : search}
@@ -219,10 +225,16 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
             isExpanded ? (
               <div className="grid grid-cols-2 gap-2.5">
                 {autoCompleteData.autocompletes.map((item, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-transparent cursor-pointer transition-all duration-200 group"
-                    onClick={() => onSearchSelect?.(item.autocomplete)}
+                    onClick={() => {
+                      track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
+                        keyword: item.autocomplete,
+                        search_method: "popular",
+                      });
+                      onSearchSelect?.(item.autocomplete);
+                    }}
                   >
                     <span className="text-base font-bold text-orange-600 shrink-0 w-6 group-hover:text-orange-700 transition-colors">
                       {index + 1}
@@ -257,11 +269,17 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
                 )}
                 
                 {autoCompleteData.autocompletes.map((item, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex items-center gap-2.5 px-3 absolute w-full h-[60px] cursor-pointer hover:bg-orange-50 hover:border-orange-200 border border-transparent transition-all duration-200 group rounded-lg"
                     style={{ top: `${index * 60}px` }}
-                    onClick={() => onSearchSelect?.(item.autocomplete)}
+                    onClick={() => {
+                      track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
+                        keyword: item.autocomplete,
+                        search_method: "popular",
+                      });
+                      onSearchSelect?.(item.autocomplete);
+                    }}
                   >
                     <span className="text-base font-bold text-orange-600 shrink-0 w-6 group-hover:text-orange-700 transition-colors">
                       {index + 1}

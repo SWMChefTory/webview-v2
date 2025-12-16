@@ -107,16 +107,28 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
     fetchNextPage,
     isFetchingNextPage
   } = useFetchRecipesSearched({ query: keyword });
-  
+
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  
+  const hasTrackedView = useRef(false);
+
   // 1. 언어 설정 가져오기
   const lang = useLangcode();
   const messages = formatSearchResultMessages(lang);
 
+  // 검색 결과 조회 이벤트 (1회만)
+  useEffect(() => {
+    if (!hasTrackedView.current && searchResults.length > 0) {
+      track(AMPLITUDE_EVENT.SEARCH_RESULTS_VIEW, {
+        keyword,
+        result_count: totalElements,
+      });
+      hasTrackedView.current = true;
+    }
+  }, [keyword, searchResults.length, totalElements]);
+
   useEffect(() => {
     const loadMore = loadMoreRef.current;
-    
+
     if (!loadMore) return;
 
     const observer = new IntersectionObserver(
@@ -125,7 +137,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
           fetchNextPage();
         }
       },
-      { 
+      {
         threshold: 0.1,
         rootMargin: '200px'
       }
@@ -169,10 +181,12 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
       {/* 검색 결과 그리드 */}
       <div className="px-4 pb-6">
         <div className="grid grid-cols-2 gap-4">
-          {searchResults.map((recipe) => (
+          {searchResults.map((recipe, index) => (
             <RecipeSearchedCardReady
               key={recipe.recipeId}
               searchResults={recipe}
+              keyword={keyword}
+              position={index + 1}
             />
           ))}
           {isFetchingNextPage && (
@@ -190,19 +204,32 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
 
 const RecipeSearchedCardReady = ({
   searchResults,
+  keyword,
+  position,
 }: {
   searchResults: Recipe;
+  keyword: string;
+  position: number;
 }) => {
   const router = useRouter();
   const { detailMeta, tags } = searchResults;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // 언어 설정 가져오기
   const lang = useLangcode();
   const messages = formatSearchResultMessages(lang);
 
   const handleCardClick = async () => {
+    // 검색 결과 클릭 이벤트
+    track(AMPLITUDE_EVENT.SEARCH_RESULT_CLICK, {
+      keyword,
+      position,
+      recipe_id: searchResults.recipeId,
+      is_registered: searchResults.isViewed,
+      video_type: searchResults.videoInfo.videoType || "NORMAL",
+    });
+
     if (!searchResults.isViewed) {
       track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
         source: "search_result",

@@ -124,4 +124,19 @@ export const enum AMPLITUDE_EVENT {
 
   /** 계정 삭제 완료 */
   ACCOUNT_DELETE = "account_delete",
+
+  // ─────────────────────────────────────────────────────────────
+  // 검색 (Search)
+  // 검색 기능 사용 흐름 추적
+  // @see /frontend/docs/8.search/amplitude-search-implementation.md
+  // ─────────────────────────────────────────────────────────────
+
+  /** 검색 실행 (Enter, 자동완성, 최근검색어, 인기검색어 클릭) */
+  SEARCH_EXECUTED = "search_executed",
+
+  /** 검색 결과 페이지 조회 */
+  SEARCH_RESULTS_VIEW = "search_results_view",
+
+  /** 검색 결과에서 레시피 카드 클릭 */
+  SEARCH_RESULT_CLICK = "search_result_click",
 }

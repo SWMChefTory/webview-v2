@@ -9,6 +9,8 @@ import { IoMdCloseCircle } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDebounce } from "use-debounce";
 import { DefaultContentOverlay } from "./ui";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const SearchRecipePage = () => {
   const router = useRouter();
@@ -128,6 +130,10 @@ const SearchBar = memo(({
   
   const handleEnterKey = useCallback(() => {
     if (keyboardInput.trim()) {
+      track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
+        keyword: keyboardInput.trim(),
+        search_method: "direct",
+      });
       onSearchExecute();
       inputRef.current?.blur();
       setIsFocused(false);
@@ -274,6 +280,10 @@ const AutoCompleteKeywordItem = memo(({
   onClick?: (keyword: string) => void;
 }) => {
   const handleClick = useCallback(() => {
+    track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
+      keyword: text,
+      search_method: "autocomplete",
+    });
     onClick?.(text);
   }, [onClick, text]);
 

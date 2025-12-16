@@ -9,9 +9,11 @@ import { HeaderIconButtonTemplate } from "@/src/shared/ui/header/header";
 export const TimerButton = ({
   recipeId,
   recipeName,
+  onTimerClick,
 }: {
   recipeId: string;
   recipeName: string;
+  onTimerClick?: () => void;
 }) => {
   const timers = useTimers(recipeId, recipeName);
   const timerActveCount = Array.from(
@@ -19,15 +21,18 @@ export const TimerButton = ({
   ).length;
 
   return (
-    <TimerBottomSheet
-      trigger={
-        <TimerButtonDefault
-          waitingCount={timerActveCount}
-        />
-      }
-      recipeId={recipeId}
-      recipeName={recipeName}
-    />
+    // Amplitude: wrapper div로 클릭 이벤트 캡처 (이벤트 버블링)
+    <div onClick={onTimerClick}>
+      <TimerBottomSheet
+        trigger={
+          <TimerButtonDefault
+            waitingCount={timerActveCount}
+          />
+        }
+        recipeId={recipeId}
+        recipeName={recipeName}
+      />
+    </div>
   );
 };
 

@@ -9,6 +9,8 @@ import { IngredientPurchaseModal } from "./IngredientPurchaseModal";
 import { MeasurementOverlay } from "./MeasurementOverlay";
 import { TimerButton } from "./timerButton";
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeleton = () => (
@@ -45,6 +47,51 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
 
   // YouTube 플레이어 ref
   const playerRef = useRef<YT.Player | null>(null);
+
+  // Amplitude 추적용 refs
+  const pageStartTime = useRef(Date.now());
+  const tabSwitchCount = useRef(0);
+  const currentTab = useRef<"summary" | "recipe" | "ingredients">("summary");
+  const reachedCookingStart = useRef(false);
+
+  // Amplitude: View/Exit 이벤트
+  useEffect(() => {
+    // is_first_view 판단 로직 (1시간 기준)
+    const key = `recipe_${id}_last_view`;
+    const lastView = sessionStorage.getItem(key);
+    let isFirstView = true;
+
+    if (lastView) {
+      const elapsed = Date.now() - Number(lastView);
+      const ONE_HOUR = 60 * 60 * 1000;
+      isFirstView = elapsed > ONE_HOUR;
+    }
+
+    // timestamp 갱신
+    sessionStorage.setItem(key, Date.now().toString());
+
+    // View 이벤트
+    track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIEW, {
+      recipe_id: id,
+      recipe_title: videoInfo?.videoTitle || "",
+      is_first_view: isFirstView,
+      total_steps: steps.length,
+      total_ingredients: ingredients.length,
+      has_video: !!videoInfo?.id,
+    });
+
+    // Exit 이벤트 (cleanup)
+    return () => {
+      track(AMPLITUDE_EVENT.RECIPE_DETAIL_EXIT, {
+        recipe_id: id,
+        stay_duration: Math.round((Date.now() - pageStartTime.current) / 1000),
+        tab_switch_count: tabSwitchCount.current,
+        final_tab: currentTab.current,
+        reached_cooking_start: reachedCookingStart.current,
+      });
+    };
+  }, []);
+
   useSafeArea({
     top: { color: "#FFFFFF", isExists: true },
     bottom: { color: "#FFFFFF", isExists: true },
@@ -78,6 +125,66 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
     } catch {}
   };
 
+  // Amplitude: 탭 클릭 핸들러
+  const handleTabClick = (tabName: "summary" | "recipe" | "ingredients") => {
+    if (currentTab.current !== tabName) {
+      tabSwitchCount.current++;
+    }
+    currentTab.current = tabName;
+
+    track(AMPLITUDE_EVENT.RECIPE_DETAIL_TAB_CLICK, {
+      recipe_id: id,
+      tab_name: tabName,
+      time_since_view: Math.round((Date.now() - pageStartTime.current) / 1000),
+    });
+  };
+
+  // Amplitude: 스텝 클릭 핸들러 (영상 시간 이동)
+  const handleStepClick = (
+    stepOrder: number,
+    stepTitle: string,
+    videoTime: number
+  ) => {
+    track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIDEO_SEEK, {
+      recipe_id: id,
+      step_order: stepOrder,
+      step_title: stepTitle,
+      video_time: videoTime,
+    });
+  };
+
+  // Amplitude: 타이머 클릭 핸들러
+  const handleTimerClick = () => {
+    track(AMPLITUDE_EVENT.RECIPE_DETAIL_FEATURE_CLICK, {
+      recipe_id: id,
+      feature_type: "timer",
+      current_tab: currentTab.current,
+    });
+  };
+
+  // Amplitude: 계량법 클릭 핸들러
+  const handleMeasurementClick = () => {
+    track(AMPLITUDE_EVENT.RECIPE_DETAIL_FEATURE_CLICK, {
+      recipe_id: id,
+      feature_type: "measurement",
+      current_tab: currentTab.current,
+    });
+  };
+
+  // Amplitude: 요리 시작 핸들러
+  const handleCookingStart = (selectedIngredientCount: number) => {
+    reachedCookingStart.current = true;
+
+    track(AMPLITUDE_EVENT.RECIPE_DETAIL_COOKING_START, {
+      recipe_id: id,
+      time_to_start: Math.round((Date.now() - pageStartTime.current) / 1000),
+      tab_switch_count: tabSwitchCount.current,
+      ingredient_prepared_count: selectedIngredientCount,
+    });
+
+    router.push(`/recipe/${id}/step`);
+  };
+
   return (
     <div className="relative w-full h-[100dvh] overflow-hidden bg-white">
       <div ref={headerWrapRef}>
@@ -100,7 +207,11 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
             </div>
           }
           rightContent={
-            <TimerButton recipeId={id} recipeName={videoInfo?.videoTitle} />
+            <TimerButton
+              recipeId={id}
+              recipeName={videoInfo?.videoTitle}
+              onTimerClick={handleTimerClick}
+            />
           }
         />
       </div>
@@ -122,6 +233,11 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
         briefings={briefings}
         collapsedTopPx={collapsedTop}
         expandedTopPx={expandedTop} // ⬅️ 추가
+        // Amplitude 콜백
+        onTabClick={handleTabClick}
+        onStepClick={handleStepClick}
+        onMeasurementClick={handleMeasurementClick}
+        onCookingStart={handleCookingStart}
       />
     </div>
   );
@@ -277,6 +393,11 @@ export const RecipeBottomSheet = ({
   briefings = [],
   collapsedTopPx,
   expandedTopPx,
+  // Amplitude 콜백
+  onTabClick,
+  onStepClick,
+  onMeasurementClick,
+  onCookingStart,
 }: {
   steps: RecipeStep[];
   ingredients: Ingredient[];
@@ -287,6 +408,11 @@ export const RecipeBottomSheet = ({
   briefings?: RecipeBriefing[];
   collapsedTopPx: number;
   expandedTopPx: number;
+  // Amplitude 콜백 타입
+  onTabClick?: (tabName: "summary" | "recipe" | "ingredients") => void;
+  onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number) => void;
+  onMeasurementClick?: () => void;
+  onCookingStart?: (selectedIngredientCount: number) => void;
 }) => {
   const [activeTab, setActiveTab] = useState<
     "summary" | "recipe" | "ingredients"
@@ -429,6 +555,8 @@ export const RecipeBottomSheet = ({
                     if (tab === "recipe") {
                       setExpanded(new Set(steps.map((_, idx) => idx)));
                     }
+                    // Amplitude: 탭 클릭 추적
+                    onTabClick?.(tab);
                   }}
                 >
                   {messages.tabs[tab]}
@@ -599,6 +727,8 @@ export const RecipeBottomSheet = ({
                           onClick={() => {
                             onTimeClick(d.start);
                             setTopPx(minCollapseTop);
+                            // Amplitude: 스텝 클릭 추적
+                            onStepClick?.(step.stepOrder, step.subtitle, d.start);
                           }}
                         >
                           <div className="flex items-start gap-3">
@@ -648,7 +778,11 @@ export const RecipeBottomSheet = ({
                 </div>
                 <button
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm"
-                  onClick={() => setMeasurementOpen(true)}
+                  onClick={() => {
+                    setMeasurementOpen(true);
+                    // Amplitude: 계량법 클릭 추적
+                    onMeasurementClick?.();
+                  }}
                 >
                   <span>{messages.ingredients.measure}</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -806,7 +940,14 @@ export const RecipeBottomSheet = ({
             <div className="flex">
               <button
                 className="flex-1 px-4 py-3 rounded-md font-bold bg-orange-500 text-white active:scale-[0.98] transition"
-                onClick={() => handleRouteToStep()}
+                onClick={() => {
+                  // Amplitude: 요리 시작 추적 (있으면 콜백 사용, 없으면 기존 라우팅)
+                  if (onCookingStart) {
+                    onCookingStart(selected.size);
+                  } else {
+                    handleRouteToStep();
+                  }
+                }}
               >
                 {messages.ingredients.start}
               </button>

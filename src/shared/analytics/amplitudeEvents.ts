@@ -73,4 +73,28 @@ export const enum AMPLITUDE_EVENT {
 
   /** URL 경로 레시피 생성 실패 */
   RECIPE_CREATE_FAIL_URL = "recipe_create_fail_url",
+
+  // ─────────────────────────────────────────────────────────────
+  // 레시피 상세 페이지 (Recipe Detail)
+  // 레시피 상세 정보 조회 및 요리 시작까지의 사용자 여정 추적
+  // @see /frontend/docs/2.recipe_detail/amplitude-recipe-detail-implementation.md
+  // ─────────────────────────────────────────────────────────────
+
+  /** 레시피 상세 페이지 진입 */
+  RECIPE_DETAIL_VIEW = "recipe_detail_view",
+
+  /** 레시피 상세 페이지 이탈 */
+  RECIPE_DETAIL_EXIT = "recipe_detail_exit",
+
+  /** 탭 클릭 (요약/레시피/재료) */
+  RECIPE_DETAIL_TAB_CLICK = "recipe_detail_tab_click",
+
+  /** 스텝 클릭으로 영상 시간 이동 */
+  RECIPE_DETAIL_VIDEO_SEEK = "recipe_detail_video_seek",
+
+  /** 부가 기능 클릭 (타이머/계량법) */
+  RECIPE_DETAIL_FEATURE_CLICK = "recipe_detail_feature_click",
+
+  /** 요리 시작 버튼 클릭 */
+  RECIPE_DETAIL_COOKING_START = "recipe_detail_cooking_start",
 }

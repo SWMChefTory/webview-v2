@@ -25,6 +25,9 @@ import {
 } from "@/components/ui/dialog";
 import { CategoryType, getCategoryTypeLabel, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 
 
@@ -185,6 +188,7 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
             <RecommendRecipeCardReady
               key={recipe.recipeId}
               recipe={recipe}
+              recommendType={recommendType}
             />
           ))}
           {isFetchingNextPage && (
@@ -274,6 +278,7 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
             <CuisineRecipeCardReady
               key={recipe.recipeId}
               recipe={recipe}
+              cuisineType={cuisineType}
             />
           ))}
           {isFetchingNextPage && (
@@ -291,8 +296,10 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
 
 const CuisineRecipeCardReady = ({
   recipe,
+  cuisineType,
 }: {
   recipe: CuisineRecipe;
+  cuisineType: CuisineType;
 }) => {
   const router = useRouter();
   const { detailMeta, tags, isViewed } = recipe;
@@ -304,7 +311,17 @@ const CuisineRecipeCardReady = ({
   const messages = formatCategoryResultMessages(lang);
 
   const handleCardClick = () => {
-    setIsOpen(true);
+    if (!isViewed) {
+      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
+        source: "category_cuisine",
+        video_type: recipe.videoInfo?.videoType || "NORMAL",
+        category_type: cuisineType,
+        recipe_id: recipe.recipeId,
+      });
+      setIsOpen(true);
+    } else {
+      router.replace(`/recipe/${recipe.recipeId}/detail`);
+    }
   };
 
   return (
@@ -378,8 +395,21 @@ const CuisineRecipeCardReady = ({
           </DialogClose>
           <Button
             onClick={async () => {
+              track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
+                source: "category_cuisine",
+                video_type: recipe.videoInfo?.videoType || "NORMAL",
+                category_type: cuisineType,
+              });
               const videoId = recipe.videoInfo?.videoId || "";
-              await create({ youtubeUrl: `https://www.youtube.com/watch?v=${videoId}` });
+              await create({
+                youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+                recipeId: recipe.recipeId,
+                videoType: recipe.videoInfo?.videoType as VideoType | undefined,
+                recipeTitle: recipe.recipeTitle,
+                _startTime: Date.now(),
+                _source: "category_cuisine",
+                _creationMethod: "card",
+              });
               setIsOpen(false);
               router.replace(`/recipe/${recipe.recipeId}/detail`);
             }}
@@ -395,8 +425,10 @@ const CuisineRecipeCardReady = ({
 
 const RecommendRecipeCardReady = ({
   recipe,
+  recommendType,
 }: {
   recipe: RecommendRecipe;
+  recommendType: RecommendType;
 }) => {
   const router = useRouter();
   const { detailMeta, tags, isViewed } = recipe;
@@ -408,7 +440,17 @@ const RecommendRecipeCardReady = ({
   const messages = formatCategoryResultMessages(lang);
 
   const handleCardClick = () => {
-    setIsOpen(true);
+    if (!isViewed) {
+      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
+        source: "category_recommend",
+        video_type: recipe.videoInfo?.videoType || "NORMAL",
+        category_type: recommendType,
+        recipe_id: recipe.recipeId,
+      });
+      setIsOpen(true);
+    } else {
+      router.replace(`/recipe/${recipe.recipeId}/detail`);
+    }
   };
 
   return (
@@ -482,8 +524,21 @@ const RecommendRecipeCardReady = ({
           </DialogClose>
           <Button
             onClick={async () => {
+              track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
+                source: "category_recommend",
+                video_type: recipe.videoInfo?.videoType || "NORMAL",
+                category_type: recommendType,
+              });
               const videoId = recipe.videoInfo?.videoId || "";
-              await create({ youtubeUrl: `https://www.youtube.com/watch?v=${videoId}` });
+              await create({
+                youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+                recipeId: recipe.recipeId,
+                videoType: recipe.videoInfo?.videoType as VideoType | undefined,
+                recipeTitle: recipe.recipeTitle,
+                _startTime: Date.now(),
+                _source: "category_recommend",
+                _creationMethod: "card",
+              });
               setIsOpen(false);
               router.replace(`/recipe/${recipe.recipeId}/detail`);
             }}

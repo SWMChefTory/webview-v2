@@ -6,6 +6,8 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
 
 // 다국어 지원을 위한 텍스트 상수
@@ -20,10 +22,27 @@ const UI_TEXT = {
   },
 };
 
-export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
+export function VoiceGuideTimerStep({
+  trigger,
+  recipeId,
+}: {
+  trigger: React.ReactNode;
+  recipeId: string;
+}) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
   const lang = useLangcode(); // 언어 설정 가져오기
+
+  // X 버튼 클릭 시 (중도 이탈)
+  const handleTerminate = () => {
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_END, {
+      recipe_id: recipeId,
+      completed_steps: currentStepIndex,
+      total_steps: steps.length,
+      is_completed: false,
+    });
+    terminate();
+  };
 
   // 현재 스텝 데이터 안전하게 접근
   const currentStep = steps[currentStepIndex] || {
@@ -52,7 +71,7 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
               <div className="text-gray-500">
                 {currentStepIndex + 1}/{steps.length}
               </div>
-              <Popover.Close onClick={terminate}>
+              <Popover.Close onClick={handleTerminate}>
                 <div className="p-1">
                   <IoMdClose className="text-gray-500" size={18} />
                 </div>
@@ -60,8 +79,7 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
             </div>
 
             <p className="break-keep leading-relaxed font-semibold ">
-              {currentStep.when}{" "}
-              {/* 언어별 명령어 문장 구조 분기 처리 */}
+              {currentStep.when} {/* 언어별 명령어 문장 구조 분기 처리 */}
               {lang === "ko" ? (
                 <>
                   <span className="font-extrabold whitespace-nowrap text-lg">
@@ -90,6 +108,7 @@ export function VoiceGuideTimerStep({ trigger }: { trigger: React.ReactNode }) {
               >
                 <p
                   onClick={() => {
+                    // 중간 단계 버튼: 다음 단계로 이동만 하고 종료 이벤트는 발송하지 않음
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >

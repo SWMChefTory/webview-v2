@@ -294,7 +294,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
         orientation === "portrait" ? "flex-col" : "flex-row"
       } w-[100vw] h-[100vh] overflow-hidden bg-black items-center`}
     >
-      <TutorialStarter />
+      <TutorialStarter recipeId={id} />
       {orientation === "portrait" && (
         <Header
           leftContent={
@@ -336,6 +336,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           onChangeStep={handleChangeStepWithVideoTime}
           steps={steps}
           isLandscape={orientation !== "portrait"}
+          recipeId={id}
         />
         <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
           {orientation === "portrait" ? (
@@ -353,6 +354,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
                     errorPopoverRef={timerErrorPopoverRef}
                   />
                 }
+                recipeId={id}
               />
             ) : (
               <TimerBottomSheet
@@ -387,6 +389,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
                     }}
                   />
                 }
+                recipeId={id}
               />
             ) : (
               <MicButton

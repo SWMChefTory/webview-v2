@@ -94,6 +94,7 @@ function ChefRecommendRecipeCardSectionReady() {
         <RecipeCardWrapper
           recipe={recipe}
           key={recipe.recipeId}
+          source="theme_chef"
           trigger={
             <div key={recipe.recipeId}>
               <ThumbnailReady
@@ -119,6 +120,7 @@ export function TrendRecipeCardSectionReady() {
         <RecipeCardWrapper
           recipe={recipe}
           key={recipe.recipeId}
+          source="theme_trend"
           trigger={
             <div key={recipe.recipeId}>
               <ThumbnailReady

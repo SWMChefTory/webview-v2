@@ -6,6 +6,7 @@ const VideoInfoSchema = z.object({
   videoSeconds: z.number(),
   // videoLastPlaySeconds: z.number(),
   videoTitle: z.string(),
+  videoType: z.enum(["SHORTS", "NORMAL"]).optional(),
 });
 
 export { VideoInfoSchema };

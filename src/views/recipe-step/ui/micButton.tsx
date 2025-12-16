@@ -8,6 +8,8 @@ import {
   StepStatus,
 } from "../hooks/useTutorial";
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 // 다국어 메시지 포매터 정의
 const formatVoiceGuideMessages = (lang: Lang) => {
@@ -145,11 +147,40 @@ export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
   );
 };
 
-export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
+export function VoiceGuideMicStep({
+  trigger,
+  recipeId,
+}: {
+  trigger: React.ReactNode;
+  recipeId: string;
+}) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
+
   const lang = useLangcode();
   const messages = formatVoiceGuideMessages(lang);
+
+  // X 버튼 클릭 시 (중도 이탈)
+  const handleTerminate = () => {
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_END, {
+      recipe_id: recipeId,
+      completed_steps: currentStepIndex,
+      total_steps: steps.length,
+      is_completed: false,
+    });
+    terminate();
+  };
+
+  // 마지막 단계 완료 버튼 클릭 시
+  const handleComplete = () => {
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_STEP_END, {
+      recipe_id: recipeId,
+      completed_steps: steps.length, // 모든 단계 완료
+      total_steps: steps.length,
+      is_completed: true,
+    });
+    handleNextStep({ index: currentStepIndex }); // 내부에서 terminate() 호출됨
+  };
 
   return (
     <Popover.Root
@@ -171,7 +202,7 @@ export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
               <div className="text-gray-500">
                 {currentStepIndex + 1}/{steps.length}
               </div>
-              <Popover.Close onClick={terminate}>
+              <Popover.Close onClick={handleTerminate}>
                 <div className="p-1">
                   <IoMdClose className="text-gray-500" size={18} />
                 </div>
@@ -190,13 +221,7 @@ export function VoiceGuideMicStep({ trigger }: { trigger: React.ReactNode }) {
                 asChild
                 className="px-3 py-1 bg-gray-200 rounded font-semibold"
               >
-                <p
-                  onClick={() => {
-                    handleNextStep({ index: currentStepIndex });
-                  }}
-                >
-                  {messages.tutorial.checkLater}
-                </p>
+                <p onClick={handleComplete}>{messages.tutorial.checkLater}</p>
               </Popover.Close>
             </div>
           </div>

@@ -1,12 +1,18 @@
 import * as Dialog from "@radix-ui/react-dialog";
-import { useState } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
+
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
 import { ShareTutorialModal } from "./shareTutorialModal";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import { HorizontalScrollArea } from "@/src/views/home/ui/horizontalScrollArea";
 import { motion } from "motion/react";
+
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
 
 // 다국어 메시지 포매터 정의
@@ -29,6 +35,8 @@ const formatRecipeCreatingMessages = (lang: Lang) => {
   }
 };
 
+
+
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
@@ -38,6 +46,7 @@ export function RecipeCreatingView() {
   const {
     isOpen,
     videoUrl: url,
+    entryPoint,
     setIsOpen,
     setUrl,
     close,
@@ -46,6 +55,25 @@ export function RecipeCreatingView() {
   // 1. 언어 설정 가져오기
   const lang = useLangcode();
   const messages = formatRecipeCreatingMessages(lang);
+  const startTimeRef = useRef<number | null>(null);
+  const hasTrackedStartRef = useRef(false);
+
+  // recipe_create_start_url 이벤트 (모달이 열릴 때 한 번만 발생)
+  useEffect(() => {
+    if (isOpen && entryPoint && !hasTrackedStartRef.current) {
+      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_URL, {
+        entry_point: entryPoint,
+        has_prefilled_url: url.trim().length > 0,
+      });
+      startTimeRef.current = Date.now();
+      hasTrackedStartRef.current = true;
+    }
+
+    // 모달이 닫히면 추적 플래그 리셋
+    if (!isOpen) {
+      hasTrackedStartRef.current = false;
+    }
+  }, [isOpen, entryPoint, url]);
 
   const isValidYoutubeUrl = (url: string) => {
     const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
@@ -68,7 +96,21 @@ export function RecipeCreatingView() {
 
   const handleSubmit = async () => {
     if (isSubmittable()) {
-      create({ youtubeUrl: url, targetCategoryId: selectedCategoryId });
+      // recipe_create_submit_url 이벤트
+      track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_URL, {
+        entry_point: entryPoint || "floating_button",
+        has_target_category: !!selectedCategoryId,
+        target_category_id: selectedCategoryId || undefined,
+      });
+
+      create({
+        youtubeUrl: url,
+        targetCategoryId: selectedCategoryId,
+        _startTime: startTimeRef.current || Date.now(),
+        _entryPoint: entryPoint || "floating_button",
+        _creationMethod: "url",
+        _hasTargetCategory: !!selectedCategoryId,
+      });
       setHasEverTyped(false);
       close();
     }

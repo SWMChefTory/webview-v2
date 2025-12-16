@@ -64,6 +64,9 @@ export const fetchCuisineRecipes = async ({
       data: [],
     };
   }
+
+
+  console.log(JSON.stringify(response.data));
   
   // API 응답 데이터 파싱
   const rawRecipes = z.array(RawCuisineRecipeSchema).parse(response.data.cuisineRecipes || []);

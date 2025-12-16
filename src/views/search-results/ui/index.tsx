@@ -296,7 +296,6 @@ const RecipeSearchedCardReady = ({
                   recipeId: searchResults.recipeId,
                   videoType: searchResults.videoInfo.videoType as VideoType | undefined,
                   recipeTitle: searchResults.recipeTitle,
-                  _startTime: Date.now(),
                   _source: "search_result",
                   _creationMethod: "card",
                 });

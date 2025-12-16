@@ -406,7 +406,6 @@ const CuisineRecipeCardReady = ({
                 recipeId: recipe.recipeId,
                 videoType: recipe.videoInfo?.videoType as VideoType | undefined,
                 recipeTitle: recipe.recipeTitle,
-                _startTime: Date.now(),
                 _source: "category_cuisine",
                 _creationMethod: "card",
               });
@@ -535,7 +534,6 @@ const RecommendRecipeCardReady = ({
                 recipeId: recipe.recipeId,
                 videoType: recipe.videoInfo?.videoType as VideoType | undefined,
                 recipeTitle: recipe.recipeTitle,
-                _startTime: Date.now(),
                 _source: "category_recommend",
                 _creationMethod: "card",
               });

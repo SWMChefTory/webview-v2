@@ -234,7 +234,6 @@ export function useCreateRecipe() {
       videoType?: VideoType;
       recipeTitle?: string;
       // Amplitude 추적용 필드 (4단계에서 사용)
-      _startTime?: number;
       _source?: string;
       _entryPoint?: string;
       _creationMethod?: "card" | "url";
@@ -278,15 +277,12 @@ export function useCreateRecipe() {
     },
     throwOnError: false,
     onSuccess: (data, variables) => {
-      const duration = variables._startTime ? Date.now() - variables._startTime : 0;
-
       if (variables._creationMethod === "card") {
         // 카드 경로 성공
         track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_CARD, {
           source: variables._source,
           video_type: variables.videoType || "NORMAL",
           recipe_id: data.recipeId,
-          duration_ms: duration,
         });
       } else if (variables._creationMethod === "url") {
         // URL 경로 성공
@@ -294,7 +290,6 @@ export function useCreateRecipe() {
           entry_point: variables._entryPoint,
           recipe_id: data.recipeId,
           has_target_category: variables._hasTargetCategory || false,
-          duration_ms: duration,
         });
       }
 
@@ -309,7 +304,6 @@ export function useCreateRecipe() {
       });
     },
     onError: (error, _vars, ctx) => {
-      const duration = _vars._startTime ? Date.now() - _vars._startTime : 0;
       const errorType = getErrorType(error);
 
       if (_vars._creationMethod === "card") {
@@ -318,7 +312,6 @@ export function useCreateRecipe() {
           source: _vars._source,
           error_type: errorType,
           error_message: error.message,
-          duration_ms: duration,
         });
       } else if (_vars._creationMethod === "url") {
         // URL 경로 실패
@@ -326,7 +319,6 @@ export function useCreateRecipe() {
           entry_point: _vars._entryPoint,
           error_type: errorType,
           error_message: error.message,
-          duration_ms: duration,
         });
       }
 

@@ -55,7 +55,6 @@ export function RecipeCreatingView() {
   // 1. 언어 설정 가져오기
   const lang = useLangcode();
   const messages = formatRecipeCreatingMessages(lang);
-  const startTimeRef = useRef<number | null>(null);
   const hasTrackedStartRef = useRef(false);
 
   // recipe_create_start_url 이벤트 (모달이 열릴 때 한 번만 발생)
@@ -65,7 +64,6 @@ export function RecipeCreatingView() {
         entry_point: entryPoint,
         has_prefilled_url: url.trim().length > 0,
       });
-      startTimeRef.current = Date.now();
       hasTrackedStartRef.current = true;
     }
 
@@ -106,7 +104,6 @@ export function RecipeCreatingView() {
       create({
         youtubeUrl: url,
         targetCategoryId: selectedCategoryId,
-        _startTime: startTimeRef.current || Date.now(),
         _entryPoint: entryPoint || "floating_button",
         _creationMethod: "url",
         _hasTargetCategory: !!selectedCategoryId,

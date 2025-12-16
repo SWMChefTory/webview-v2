@@ -90,7 +90,6 @@ export function RecipeCardWrapper({
                     recipeId: recipe.recipeId,
                     videoType: recipe.videoType,
                     recipeTitle: recipe.recipeTitle,
-                    _startTime: Date.now(),
                     _source: source,
                     _creationMethod: "card",
                   });

@@ -418,7 +418,6 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
                   recipeId: recipe.recipeId,
                   videoType: recipe.videoType,
                   recipeTitle: recipe.recipeTitle,
-                  _startTime: Date.now(),
                   _source: "search_trend",
                   _creationMethod: "card",
                 });

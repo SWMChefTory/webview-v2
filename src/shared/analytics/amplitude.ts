@@ -9,7 +9,7 @@ import { MODE, request } from "@/src/shared/client/native/client";
  * @see amplitudeEvents.ts - AMPLITUDE_EVENT enum 정의
  */
 
-export type AmplitudeEventProperties = Record<string, string | number | boolean | undefined>;
+export type AmplitudeEventProperties = Record<string, string | number | boolean | string[] | undefined>;
 
 /**
  * Amplitude 이벤트를 전송합니다.

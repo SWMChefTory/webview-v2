@@ -232,7 +232,8 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
         tags={tags}
         briefings={briefings}
         collapsedTopPx={collapsedTop}
-        expandedTopPx={expandedTop} // ⬅️ 추가
+        expandedTopPx={expandedTop}
+        recipeId={id}
         // Amplitude 콜백
         onTabClick={handleTabClick}
         onStepClick={handleStepClick}
@@ -393,6 +394,7 @@ export const RecipeBottomSheet = ({
   briefings = [],
   collapsedTopPx,
   expandedTopPx,
+  recipeId,
   // Amplitude 콜백
   onTabClick,
   onStepClick,
@@ -408,6 +410,7 @@ export const RecipeBottomSheet = ({
   briefings?: RecipeBriefing[];
   collapsedTopPx: number;
   expandedTopPx: number;
+  recipeId: string;
   // Amplitude 콜백 타입
   onTabClick?: (tabName: "summary" | "recipe" | "ingredients") => void;
   onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number) => void;
@@ -967,6 +970,7 @@ export const RecipeBottomSheet = ({
         open={purchaseModalOpen}
         onOpenChange={setPurchaseModalOpen}
         ingredients={ingredients}
+        recipeId={recipeId}
       />
     </>
   );

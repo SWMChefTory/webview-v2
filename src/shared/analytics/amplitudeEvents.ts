@@ -97,4 +97,19 @@ export const enum AMPLITUDE_EVENT {
 
   /** 요리 시작 버튼 클릭 */
   RECIPE_DETAIL_COOKING_START = "recipe_detail_cooking_start",
+
+  // ─────────────────────────────────────────────────────────────
+  // 쿠팡 (Coupang)
+  // 쿠팡 파트너스 모달에서의 사용자 행동 추적 (매출 직결)
+  // @see /frontend/docs/3.coupang/amplitude-coupang-implementation.md
+  // ─────────────────────────────────────────────────────────────
+
+  /** 쿠팡 모달 열림 (재료 구매 배너 클릭) */
+  COUPANG_MODAL_OPEN = "coupang_modal_open",
+
+  /** 쿠팡 상품 클릭 (쿠팡앱 이동) */
+  COUPANG_PRODUCT_CLICK = "coupang_product_click",
+
+  /** 쿠팡 모달 닫힘 (집계 이벤트) */
+  COUPANG_MODAL_CLOSE = "coupang_modal_close",
 }

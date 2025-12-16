@@ -1,5 +1,7 @@
 import client from "@/src/shared/client/main/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 interface CoupangProduct {
   keyword: string;
@@ -29,6 +31,7 @@ interface IngredientPurchaseModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   ingredients: Ingredient[];
+  recipeId: string;
 }
 
 const FALLBACK_IMAGE_SVG =
@@ -38,9 +41,77 @@ export const IngredientPurchaseModal = ({
   open,
   onOpenChange,
   ingredients,
+  recipeId,
 }: IngredientPurchaseModalProps) => {
   const [products, setProducts] = useState<IngredientProduct[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Amplitude 추적용 ref
+  const modalOpenTime = useRef<number>(0);
+  const clickedProducts = useRef<string[]>([]);
+  const hasTrackedClose = useRef<boolean>(false);
+  const productsDisplayedRef = useRef<number>(0);
+
+  // products 변경 시 ref 동기화 (클로저 이슈 해결)
+  useEffect(() => {
+    productsDisplayedRef.current = products.length;
+  }, [products]);
+
+  // 모달 닫힘 추적 함수
+  const trackModalClose = () => {
+    if (hasTrackedClose.current) return;
+    hasTrackedClose.current = true;
+
+    track(AMPLITUDE_EVENT.COUPANG_MODAL_CLOSE, {
+      recipe_id: recipeId,
+      products_displayed: productsDisplayedRef.current,
+      products_clicked: clickedProducts.current.length,
+      clicked_products: clickedProducts.current,
+      duration_seconds: Math.round((Date.now() - modalOpenTime.current) / 1000),
+    });
+  };
+
+  // 모달 열림/닫힘 시 이벤트 처리
+  useEffect(() => {
+    if (open) {
+      modalOpenTime.current = Date.now();
+      clickedProducts.current = [];
+      hasTrackedClose.current = false;
+      productsDisplayedRef.current = 0;
+
+      track(AMPLITUDE_EVENT.COUPANG_MODAL_OPEN, {
+        recipe_id: recipeId,
+        ingredient_count: ingredients.length,
+      });
+    }
+
+    return () => {
+      if (open && !hasTrackedClose.current) {
+        trackModalClose();
+      }
+    };
+  }, [open, recipeId, ingredients.length]);
+
+  // 상품 클릭 핸들러
+  const handleProductClick = (product: IngredientProduct, index: number) => {
+    clickedProducts.current.push(product.id);
+
+    track(AMPLITUDE_EVENT.COUPANG_PRODUCT_CLICK, {
+      recipe_id: recipeId,
+      ingredient_name: product.name,
+      product_id: product.id,
+      product_name: product.description,
+      price: product.price,
+      is_rocket: product.isRocket ?? false,
+      position: index,
+    });
+  };
+
+  // 모달 닫힘 핸들러
+  const handleClose = () => {
+    trackModalClose();
+    onOpenChange(false);
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -141,7 +212,7 @@ export const IngredientPurchaseModal = ({
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 z-[1000] animate-in fade-in duration-200"
-        onClick={() => onOpenChange(false)}
+        onClick={handleClose}
       />
 
       {/* Modal */}
@@ -151,7 +222,7 @@ export const IngredientPurchaseModal = ({
           <div className="relative px-5 pt-6 pb-4 border-b border-gray-100">
             <button
               className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
-              onClick={() => onOpenChange(false)}
+              onClick={handleClose}
             >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -198,13 +269,14 @@ export const IngredientPurchaseModal = ({
               </div>
             ) : (
               <div className="space-y-3">
-                {products.map((product) => (
+                {products.map((product, index) => (
                   <a
                     key={product.id}
                     href={product.purchaseUrl}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
                     className="flex gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-shadow active:scale-[0.98]"
+                    onClick={() => handleProductClick(product, index)}
                   >
                     {/* Product Image */}
                     <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 relative">

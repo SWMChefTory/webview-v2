@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiEdit2 } from "react-icons/fi";
 import WriteLongTextModal from "./writeLongTextModal";
 import { request, MODE } from "@/src/shared/client/native/client";
@@ -6,6 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useUser } from "@/src/shared/model/user";
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 // 다국어 메시지 포매터
 const formatWithdrawalMessages = (lang: Lang, nickname: string) => {
@@ -75,6 +77,17 @@ const formatWithdrawalMessages = (lang: Lang, nickname: string) => {
 
 const DELETE_USER = "DELETE_USER";
 
+// 탈퇴 사유 키 → Amplitude 값 매핑
+const WITHDRAWAL_REASON_MAP: { [key: string]: string } = {
+  "1": "complex_to_use",
+  "2": "lack_features",
+  "3": "use_other_service",
+  "4": "no_more_cooking",
+  "5": "no_time",
+  "6": "use_other_app",
+  "7": "other",
+};
+
 export default function MemberShipWithdrawalPage() {
   const [selectedItems, setSelectedItems] = useState<{ [key: string]: string }>(
     {}
@@ -85,6 +98,11 @@ export default function MemberShipWithdrawalPage() {
   const queryClient = useQueryClient();
   const lang = useLangcode();
   const messages = formatWithdrawalMessages(lang, user?.nickname || "");
+
+  // 페이지 진입 추적
+  useEffect(() => {
+    track(AMPLITUDE_EVENT.WITHDRAWAL_START);
+  }, []);
 
   const addItems = (
     key: string,
@@ -164,7 +182,18 @@ export default function MemberShipWithdrawalPage() {
 
           <button
             onClick={() => {
-              const withdrawalData = Object.keys(selectedItems).map((key) => ({
+              const selectedKeys = Object.keys(selectedItems);
+
+              // Amplitude 이벤트 전송
+              track(AMPLITUDE_EVENT.ACCOUNT_DELETE, {
+                reasons: selectedKeys.map((key) => WITHDRAWAL_REASON_MAP[key]),
+                feedback_count: Object.values(feedbacks).filter(
+                  (f) => f.trim().length > 0
+                ).length,
+              });
+
+              // 기존 탈퇴 로직
+              const withdrawalData = selectedKeys.map((key) => ({
                 reason: selectedItems[key],
                 feedback: feedbacks[key] || "",
               }));

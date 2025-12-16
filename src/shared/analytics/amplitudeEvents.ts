@@ -112,4 +112,16 @@ export const enum AMPLITUDE_EVENT {
 
   /** 쿠팡 모달 닫힘 (집계 이벤트) */
   COUPANG_MODAL_CLOSE = "coupang_modal_close",
+
+  // ─────────────────────────────────────────────────────────────
+  // 설정/계정 (Settings/Account)
+  // 회원탈퇴 흐름 추적
+  // @see /frontend/docs/15.settings/amplitude-settings-implementation.md
+  // ─────────────────────────────────────────────────────────────
+
+  /** 회원탈퇴 페이지 진입 */
+  WITHDRAWAL_START = "withdrawal_start",
+
+  /** 계정 삭제 완료 */
+  ACCOUNT_DELETE = "account_delete",
 }

@@ -34,39 +34,32 @@ export type RecipeCreateToastState =
   | RecipeInProgressState
   | RecipeSuccessState;
 
+type Timer = ReturnType<typeof setTimeout>;
+
 const toastStartTimeStore = create<{
   startTime: Date | null;
   setStartTime: (startTime: Date | null) => void;
 }>((set) => ({
   startTime: null,
-  setStartTime: (startTime: Date | null) => {
-    set({ startTime: startTime });
-  },
+  setStartTime: (startTime) => set({ startTime }),
 }));
 
 const useRecipeCreateToastStore = create<{
   toastInfo: RecipeCreateToastState | undefined;
-  closeTimer: NodeJS.Timeout | undefined;
-  setCloseTimer: ({ timer }: { timer: NodeJS.Timeout | undefined }) => void;
-  setToastInfo: ({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState | undefined;
-  }) => void;
+  openTimer: Timer | undefined;
+  closeTimer: Timer | undefined;
+
+  setOpenTimer: (timer: Timer | undefined) => void;
+  setCloseTimer: (timer: Timer | undefined) => void;
+  setToastInfo: (toastInfo: RecipeCreateToastState | undefined) => void;
 }>((set) => ({
   toastInfo: undefined,
+  openTimer: undefined,
   closeTimer: undefined,
-  hasAppeared: false,
-  setCloseTimer: ({ timer }: { timer: NodeJS.Timeout | undefined }) => {
-    set({ closeTimer: timer });
-  },
-  setToastInfo: ({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState | undefined;
-  }) => {
-    set({ toastInfo: toastInfo });
-  },
+
+  setOpenTimer: (timer) => set({ openTimer: timer }),
+  setCloseTimer: (timer) => set({ closeTimer: timer }),
+  setToastInfo: (toastInfo) => set({ toastInfo }),
 }));
 
 export const useRecipeCreateToastInfo = () => {
@@ -75,42 +68,51 @@ export const useRecipeCreateToastInfo = () => {
   return { toastInfo, startTime };
 };
 
-//토스트 열기 혹은 닫기 관리 커스텀 훅
 export const useRecipeCreateToastAction = () => {
-  const { setToastInfo, closeTimer, setCloseTimer } =
-    useRecipeCreateToastStore();
+  const {
+    setToastInfo,
+    openTimer,
+    closeTimer,
+    setOpenTimer,
+    setCloseTimer,
+  } = useRecipeCreateToastStore();
+
+  function clearTimers() {
+    if (openTimer) clearTimeout(openTimer);
+    if (closeTimer) clearTimeout(closeTimer);
+    setOpenTimer(undefined);
+    setCloseTimer(undefined);
+  }
 
   function close() {
-    setToastInfo({ toastInfo: undefined });
-    clearTimeout(closeTimer);
-    setCloseTimer({ timer: undefined });
+    clearTimers();
+    setToastInfo(undefined);
     toastStartTimeStore.setState({ startTime: null });
   }
 
-  function scheduleNextOpen({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState;
-  }) {
-    setTimeout(() => {
-      setToastInfo({ toastInfo });
+  function scheduleNextOpen(toastInfo: RecipeCreateToastState) {
+    clearTimers();
+
+    const ot = setTimeout(() => {
+      setToastInfo(toastInfo);
       toastStartTimeStore.setState({ startTime: new Date() });
-      setCloseTimer({
-        timer: setTimeout(() => {
-          setToastInfo({ toastInfo: undefined });
-        }, 2000),
-      });
+
+      const ct = setTimeout(() => {
+        setToastInfo(undefined);
+        setCloseTimer(undefined);
+      }, 2000);
+
+      setCloseTimer(ct);
+      setOpenTimer(undefined);
     }, 200);
+
+    setOpenTimer(ot);
   }
 
-  function handleOpenToast({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState;
-  }) {
+  function handleOpenToast(toastInfo: RecipeCreateToastState) {
     close();
-    scheduleNextOpen({ toastInfo });
+    scheduleNextOpen(toastInfo);
   }
 
-  return { handleOpenToast: handleOpenToast, close };
+  return { handleOpenToast, close };
 };

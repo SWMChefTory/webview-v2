@@ -27,6 +27,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
 import {appWithTranslation} from 'next-i18next';
+import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
 
 export default appWithTranslation(App);
 
@@ -47,6 +48,7 @@ function App(props: AppProps) {
   );
 
   useInit();
+  useAmplitude();
 
   return (
     <QueryClientProvider client={queryClient}>

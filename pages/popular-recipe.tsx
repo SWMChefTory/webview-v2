@@ -1,5 +1,6 @@
 import PopularRecipePage from "@/src/views/popular-recipe";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import nextI18NextConfig from '@/next-i18next.config';
 
 export default PopularRecipePage;
 
@@ -11,7 +12,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
         "popular-recipe",
         "shared.recipe-creating-status-chip",
         "common"
-      ])),
+      ], nextI18NextConfig)),
     },
   };
 }

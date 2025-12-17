@@ -1,5 +1,6 @@
 import { UserRecipe } from "@/src/views/user-recipe/ui/index";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
+import nextI18NextConfig from '@/next-i18next.config';
 
 export default UserRecipe;
 
@@ -9,7 +10,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
     props: {
       ...(await serverSideTranslations(locale, [
         "user-recipe","common"
-      ])),
+      ], nextI18NextConfig)),
     },
   };
 }

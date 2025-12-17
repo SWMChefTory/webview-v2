@@ -1,6 +1,7 @@
 import SettingsSectionPage from "@/src/views/settings-sections/index";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { GetStaticPaths, GetStaticProps } from "next";
+import nextI18NextConfig from '@/next-i18next.config';
 
 export default SettingsSectionPage;
 
@@ -15,7 +16,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale ?? "ko", ["common"])),
+      ...(await serverSideTranslations(locale ?? "ko", ["common"], nextI18NextConfig)),
     },
   };
 };

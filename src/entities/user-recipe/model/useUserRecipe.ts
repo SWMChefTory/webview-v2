@@ -373,14 +373,20 @@ const createInProress = (
   realProgress: RecipeProgressStatus,
   isInFakeProgress: boolean
 ) => {
-  const isInCreating = isInFakeProgress
-    ? RecipeStatus.IN_PROGRESS
-    : realProgress.recipeStatus;
-  return isInCreating;
+  const real = realProgress.recipeStatus;
+
+  // ✅ 종료 상태는 fake가 있어도 그대로 반환 (여기 중요)
+  if (real === RecipeStatus.SUCCESS || real === RecipeStatus.FAILED) {
+    return real;
+  }
+
+  // ✅ real이 아직 종료가 아닐 때만 fake로 진행중 표시 가능
+  return isInFakeProgress ? RecipeStatus.IN_PROGRESS : real;
 };
 
 export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
+
   const { data: progress } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),

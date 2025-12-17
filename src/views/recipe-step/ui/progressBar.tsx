@@ -7,6 +7,7 @@ export function ProgressBar({
   currentDetailStepIndex,
   onClick,
   isLandscape,
+  onTrackTouchNavigation,
 }: {
   steps: RecipeStep[];
   currentStepIndex: number;
@@ -19,6 +20,7 @@ export function ProgressBar({
     stepDetailIndex: number;
   }) => void;
   isLandscape: boolean;
+  onTrackTouchNavigation?: () => void;
 }) {
   if(isLandscape){
     return null;
@@ -44,6 +46,7 @@ export function ProgressBar({
             return (
               <Step
                 onClick={({ stepDetailIndex }: { stepDetailIndex: number }) => {
+                  onTrackTouchNavigation?.();
                   onClick({ stepIndex, stepDetailIndex });
                 }}
                 detailCount={steps[stepIndex].details.length}

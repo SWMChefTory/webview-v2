@@ -54,12 +54,14 @@ export function TimerBottomSheet({
   recipeName,
   isDarkMode = false,
   isLandscape = false,
+  onTriggerClick,
 }: {
   trigger?: React.ReactNode;
   recipeId: string;
   recipeName: string;
   isDarkMode?: boolean;
   isLandscape?: boolean;
+  onTriggerClick?: () => void;
 }) {
   const { open, endAt, handleOpenTemporarily, handleClose, handleOpen } =
     useTimerBottomSheetVisibility();
@@ -101,6 +103,7 @@ export function TimerBottomSheet({
         onClick={() => {
           // handleFlip();
           handleOpenTemporarily({ seconds: 5 });
+          onTriggerClick?.();
         }}
       >
         {trigger}

@@ -35,6 +35,7 @@ import { useTutorialActions, useTutorial } from "../hooks/useTutorial";
 import { VoiceGuideTimerStep } from "./timerTutorialStep";
 import { TutorialStarter } from "./tutorialStarter";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { useCookingModeAnalytics } from "../hooks/useCookingModeAnalytics";
 
 type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
 
@@ -75,6 +76,9 @@ function RecipeStepPageReady({ id }: { id: string }) {
   const router = useRouter();
   const orientation = useOrientation();
 
+  // === Analytics 훅 ===
+  const analytics = useCookingModeAnalytics();
+
   useSafeArea({ orientation });
 
   // 뒤로 갈 때 safe area 원상복귀 뒤로가기 눌러도 backpress caching땨뮨애 전애 있던 패이지에서 useEffect실행 안될 수 도 있음. pageshow 혹은 visibilitychange 이벤트 사용해서 처리
@@ -110,6 +114,45 @@ function RecipeStepPageReady({ id }: { id: string }) {
     useRecipeStepController({
       recipeId: id,
     });
+
+  // === Analytics: start/end 추적용 refs ===
+  const currentIndexRef = useRef(currentIndex);
+  const hasTrackedStartRef = useRef(false);
+
+  // currentIndex 동기화
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
+
+  // === Analytics: start/end 이벤트 ===
+  useEffect(() => {
+    // StrictMode 중복 방지
+    if (hasTrackedStartRef.current) return;
+    if (steps.length === 0) return;
+
+    hasTrackedStartRef.current = true;
+    analytics.trackStart({
+      recipeId: id,
+      totalSteps: steps.length,
+    });
+
+    return () => {
+      analytics.trackEnd({
+        recipeId: id,
+        totalSteps: steps.length,
+        exitStep: currentIndexRef.current,
+      });
+    };
+  }, [id, steps.length, analytics]);
+
+  // === Analytics: step visit 기록 ===
+  const prevStepRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (prevStepRef.current !== currentIndex) {
+      analytics.recordStepVisit(currentIndex);
+      prevStepRef.current = currentIndex;
+    }
+  }, [currentIndex, analytics]);
 
   const {
     steps: tutorialStep,
@@ -179,6 +222,13 @@ function RecipeStepPageReady({ id }: { id: string }) {
         if (isInTutorial && currentTutorialStep != 2) {
           return;
         }
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "navigation",
+          commandDetail: "NEXT",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex + 1,
           stepDetailIndex: 0,
@@ -192,6 +242,13 @@ function RecipeStepPageReady({ id }: { id: string }) {
         if (isInTutorial && currentTutorialStep != 0) {
           return;
         }
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "video_control",
+          commandDetail: "VIDEO_PLAY",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         videoRef.current?.play();
         if (isInTutorial && currentTutorialStep == 0) {
           handleTutorialNextStep({ index: 0 });
@@ -202,6 +259,13 @@ function RecipeStepPageReady({ id }: { id: string }) {
         if (isInTutorial && currentTutorialStep != 1) {
           return;
         }
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "video_control",
+          commandDetail: "VIDEO_STOP",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         videoRef.current?.pause();
         if (isInTutorial && currentTutorialStep == 1) {
           handleTutorialNextStep({ index: 1 });
@@ -209,6 +273,13 @@ function RecipeStepPageReady({ id }: { id: string }) {
         return;
       }
       if (parsedIntent === "PREV") {
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "navigation",
+          commandDetail: "PREV",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex - 1,
           stepDetailIndex: 0,
@@ -217,11 +288,25 @@ function RecipeStepPageReady({ id }: { id: string }) {
       }
       if (parsedIntent.startsWith("TIMESTAMP")) {
         const sec = Number(parsedIntent.split(/\s+/)[1] ?? "0");
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "video_control",
+          commandDetail: "TIMESTAMP",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         videoRef.current?.seekTo({ time: Math.max(0, sec) });
         return;
       }
       if (parsedIntent.startsWith("STEP")) {
         const stepNum = Number(parsedIntent.split(/\s+/)[1] ?? "1");
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "navigation",
+          commandDetail: "STEP",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         handleChangeStepWithVideoTime({
           stepIndex: stepNum,
           stepDetailIndex: 0,
@@ -232,6 +317,15 @@ function RecipeStepPageReady({ id }: { id: string }) {
         if (isInTutorial && currentTutorialStep != 3) {
           return;
         }
+        // TIMER SET 30, TIMER START, TIMER STOP, TIMER CHECK 형태
+        const timerAction = parsedIntent.split(/\s+/)[1] ?? "SET";
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "timer",
+          commandDetail: `TIMER_${timerAction}`,
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         handleTimerIntent(parsedIntent, (error: string) => {
           timerErrorPopoverRef.current?.showErrorMessage(error);
         });
@@ -245,6 +339,13 @@ function RecipeStepPageReady({ id }: { id: string }) {
         if (ingredient.length <= 1) {
           return;
         }
+        analytics.trackCommand({
+          recipeId: id,
+          commandType: "info",
+          commandDetail: "INGREDIENT",
+          triggerMethod: "voice",
+          currentStep: currentIndex,
+        });
         const [_, ingredientName, ingredientAmount, _ingredientUnit] =
           ingredient;
         if (ingredientAmount === "0") {
@@ -323,6 +424,15 @@ function RecipeStepPageReady({ id }: { id: string }) {
           currentStepIndex={currentIndex}
           isLandscape={orientation !== "portrait"}
           onClick={handleChangeStepWithVideoTime}
+          onTrackTouchNavigation={() => {
+            analytics.trackCommand({
+              recipeId: id,
+              commandType: "navigation",
+              commandDetail: "STEP",
+              triggerMethod: "touch",
+              currentStep: currentIndex,
+            });
+          }}
         />
       }
       <div
@@ -337,6 +447,15 @@ function RecipeStepPageReady({ id }: { id: string }) {
           steps={steps}
           isLandscape={orientation !== "portrait"}
           recipeId={id}
+          onTrackTouchNavigation={() => {
+            analytics.trackCommand({
+              recipeId: id,
+              commandType: "navigation",
+              commandDetail: "STEP",
+              triggerMethod: "touch",
+              currentStep: currentIndex,
+            });
+          }}
         />
         <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
           {orientation === "portrait" ? (
@@ -369,12 +488,14 @@ function RecipeStepPageReady({ id }: { id: string }) {
                 recipeName={recipe.videoInfo.videoTitle}
                 isDarkMode={true}
                 isLandscape={orientation !== "portrait"}
+                onTriggerClick={() => analytics.recordTimerButtonTouch()}
               />
             )}
             <LoopSettingButton
               isRepeat={isInRepeat}
               onClick={() => {
                 setIsInRepeat((v) => !v);
+                analytics.recordLoopToggle();
               }}
             />
             {isInTutorial ? (
@@ -386,6 +507,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
                     onClick={() => {
                       setIsVoiceGuideOpen(true);
                       handleTutorialNextStep({ index: 4 });
+                      analytics.recordMicButtonTouch();
                     }}
                   />
                 }
@@ -397,6 +519,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
                 ref={micButtonPopoverRef}
                 onClick={() => {
                   setIsVoiceGuideOpen(true);
+                  analytics.recordMicButtonTouch();
                 }}
               />
             )}

@@ -139,4 +139,19 @@ export const enum AMPLITUDE_EVENT {
 
   /** 검색 결과에서 레시피 카드 클릭 */
   SEARCH_RESULT_CLICK = "search_result_click",
+
+  // ─────────────────────────────────────────────────────────────
+  // 요리 모드 (Cooking Mode / Hands-free Mode)
+  // 요리 모드에서의 사용자 행동 추적 (음성/터치 명령, 세션 분석)
+  // @see /frontend/docs/4.cooking_mode/amplitude-cooking-mode-events.md
+  // ─────────────────────────────────────────────────────────────
+
+  /** 요리 모드 진입 */
+  COOKING_MODE_START = "cooking_mode_start",
+
+  /** 요리 모드 명령 실행 (음성/터치) */
+  COOKING_MODE_COMMAND = "cooking_mode_command",
+
+  /** 요리 모드 종료 (세션 집계) */
+  COOKING_MODE_END = "cooking_mode_end",
 }

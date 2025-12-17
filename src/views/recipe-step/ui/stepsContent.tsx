@@ -31,6 +31,7 @@ export function StepsContent({
   steps,
   isLandscape,
   recipeId,
+  onTrackTouchNavigation,
 }: {
   currentStepIndex: number;
   currentDetailStepIndex: number;
@@ -44,6 +45,7 @@ export function StepsContent({
   steps: RecipeStep[];
   isLandscape: boolean;
   recipeId: string;
+  onTrackTouchNavigation?: () => void;
 }) {
   useEffect(() => {
     scrollToStep(currentStepIndex, currentDetailStepIndex);
@@ -64,6 +66,7 @@ export function StepsContent({
                 onChangeStep={onChangeStep}
                 key={i}
                 recipeId={recipeId}
+                onTrackTouchNavigation={onTrackTouchNavigation}
               />
             );
           })}
@@ -87,6 +90,7 @@ function Step({
   currentdetailStepIndex,
   isLandscape,
   recipeId,
+  onTrackTouchNavigation,
 }: {
   i: number;
   isSelected: boolean;
@@ -102,6 +106,7 @@ function Step({
   currentdetailStepIndex: number;
   isLandscape: boolean;
   recipeId: string;
+  onTrackTouchNavigation?: () => void;
 }) {
   return (
     <div
@@ -129,6 +134,7 @@ function Step({
                   isSelected={isSelected && di === currentdetailStepIndex}
                   isLandscape={isLandscape}
                   onClick={() => {
+                    onTrackTouchNavigation?.();
                     onChangeStep({ stepIndex: i, stepDetailIndex: di });
                   }}
                 />
@@ -143,6 +149,7 @@ function Step({
                 isSelected={isSelected && di === currentdetailStepIndex}
                 isLandscape={isLandscape}
                 onClick={() => {
+                  onTrackTouchNavigation?.();
                   onChangeStep({ stepIndex: i, stepDetailIndex: di });
                 }}
               />

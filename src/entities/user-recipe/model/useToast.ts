@@ -34,38 +34,44 @@ export type RecipeCreateToastState =
   | RecipeInProgressState
   | RecipeSuccessState;
 
+type Timer = ReturnType<typeof setTimeout>;
+
 const toastStartTimeStore = create<{
   startTime: Date | null;
   setStartTime: (startTime: Date | null) => void;
 }>((set) => ({
   startTime: null,
-  setStartTime: (startTime: Date | null) => {
-    set({ startTime: startTime });
-  },
+  setStartTime: (startTime) => set({ startTime }),
 }));
 
 const useRecipeCreateToastStore = create<{
   toastInfo: RecipeCreateToastState | undefined;
-  closeTimer: NodeJS.Timeout | undefined;
-  setCloseTimer: ({ timer }: { timer: NodeJS.Timeout | undefined }) => void;
-  setToastInfo: ({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState | undefined;
-  }) => void;
-}>((set) => ({
+
+  // ✅ open(200ms)도 관리해야 “옛날 SUCCESS” 같은 유령 호출 막힘
+  openTimer: Timer | undefined;
+  closeTimer: Timer | undefined;
+
+  // ✅ stale timeout 무시용 버전
+  seq: number;
+
+  setToastInfo: (toastInfo: RecipeCreateToastState | undefined) => void;
+  setOpenTimer: (timer: Timer | undefined) => void;
+  setCloseTimer: (timer: Timer | undefined) => void;
+  bumpSeq: () => number;
+}>((set, get) => ({
   toastInfo: undefined,
+  openTimer: undefined,
   closeTimer: undefined,
-  hasAppeared: false,
-  setCloseTimer: ({ timer }: { timer: NodeJS.Timeout | undefined }) => {
-    set({ closeTimer: timer });
-  },
-  setToastInfo: ({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState | undefined;
-  }) => {
-    set({ toastInfo: toastInfo });
+  seq: 0,
+
+  setToastInfo: (toastInfo) => set({ toastInfo }),
+  setOpenTimer: (timer) => set({ openTimer: timer }),
+  setCloseTimer: (timer) => set({ closeTimer: timer }),
+
+  bumpSeq: () => {
+    const next = get().seq + 1;
+    set({ seq: next });
+    return next;
   },
 }));
 
@@ -75,42 +81,55 @@ export const useRecipeCreateToastInfo = () => {
   return { toastInfo, startTime };
 };
 
-//토스트 열기 혹은 닫기 관리 커스텀 훅
 export const useRecipeCreateToastAction = () => {
-  const { setToastInfo, closeTimer, setCloseTimer } =
-    useRecipeCreateToastStore();
+  const {
+    setToastInfo,
+    openTimer,
+    closeTimer,
+    setOpenTimer,
+    setCloseTimer,
+    bumpSeq,
+  } = useRecipeCreateToastStore();
 
   function close() {
-    setToastInfo({ toastInfo: undefined });
-    clearTimeout(closeTimer);
-    setCloseTimer({ timer: undefined });
+    setToastInfo(undefined);
+
+    if (openTimer) clearTimeout(openTimer);
+    if (closeTimer) clearTimeout(closeTimer);
+
+    setOpenTimer(undefined);
+    setCloseTimer(undefined);
+
     toastStartTimeStore.setState({ startTime: null });
+
+    // ✅ 기존에 걸려있던 콜백이 실행돼도 무시되도록
+    bumpSeq();
   }
 
-  function scheduleNextOpen({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState;
-  }) {
-    setTimeout(() => {
-      setToastInfo({ toastInfo });
+  function scheduleNextOpen(toastInfo: RecipeCreateToastState) {
+    const mySeq = bumpSeq();
+
+    const ot = setTimeout(() => {
+      if (useRecipeCreateToastStore.getState().seq !== mySeq) return;
+
+      setToastInfo(toastInfo);
       toastStartTimeStore.setState({ startTime: new Date() });
-      setCloseTimer({
-        timer: setTimeout(() => {
-          setToastInfo({ toastInfo: undefined });
-        }, 2000),
-      });
+
+      const ct = setTimeout(() => {
+        if (useRecipeCreateToastStore.getState().seq !== mySeq) return;
+        setToastInfo(undefined);
+      }, 2000);
+
+      setCloseTimer(ct);
     }, 200);
+
+    setOpenTimer(ot);
   }
 
-  function handleOpenToast({
-    toastInfo,
-  }: {
-    toastInfo: RecipeCreateToastState;
-  }) {
+  function handleOpenToast({ toastInfo }: { toastInfo: RecipeCreateToastState }) {
     close();
-    scheduleNextOpen({ toastInfo });
+    scheduleNextOpen(toastInfo);
   }
 
-  return { handleOpenToast: handleOpenToast, close };
+  return { handleOpenToast, close };
 };

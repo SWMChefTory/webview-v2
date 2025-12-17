@@ -4,6 +4,7 @@ export type Lang = "ko"|"en";
 
 export const useLangcode = () => {
   const {i18n} = useTranslation();
-  const lang = (i18n.language.startsWith("ko") ? "ko" : "en") as Lang;
+  const language = i18n?.language ?? "ko";
+  const lang = (language.startsWith("ko") ? "ko" : "en") as Lang;
   return lang;
 };

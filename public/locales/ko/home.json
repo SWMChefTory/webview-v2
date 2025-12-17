@@ -12,7 +12,7 @@
     "HEALTHY":"건강식",
     "SIMPLE":"간편식",
     "myRecipe":"나의 레시피",
-    "popularRecipe":"인기 레시피",
-    "shortsPopularRecipe":"쇼츠 인기 레시피",
+    "popularRecipes":"인기 레시피",
+    "shortsPopularRecipes":"쇼츠 인기 레시피",
     "createRecipe":"레시피 생성하기"
 }

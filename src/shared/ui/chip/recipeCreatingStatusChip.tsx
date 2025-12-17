@@ -14,7 +14,7 @@ function AlreadyEnrolledChip({ isEnrolled }: { isEnrolled: boolean }) {
 }
 
 function CreatingStatusChip({isInCreating}:{isInCreating: boolean}){
-  const {t}=useTranslation('recipe-creating-status-chip');
+  const {t}=useTranslation('shared.recipe-creating-status-chip');
 
   if(!isInCreating){
     return null;

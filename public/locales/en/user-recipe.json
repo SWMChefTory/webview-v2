@@ -20,7 +20,7 @@
     "deleteDialog": {
       "title": "Delete this category?",
       "description": "There are {{count}} recipe(s) in {{category}}.",
-      "sub_description": "Deleting the category does not delete the recipes.",
+      "subDescription": "Deleting the category does not delete the recipes.",
       "cancel": "Cancel",
       "confirm": "Confirm"
     },

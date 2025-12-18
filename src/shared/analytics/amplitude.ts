@@ -1,4 +1,5 @@
 import * as amplitude from "@amplitude/analytics-browser";
+import { sessionReplayPlugin } from "@amplitude/plugin-session-replay-browser";
 
 /**
  * Amplitude Analytics for WebView
@@ -38,8 +39,12 @@ export const initAmplitude = (userId: string): void => {
     },
   });
 
+  // Session Replay 플러그인 추가 (sampleRate: 1 = 100% 녹화)
+  amplitude.add(sessionReplayPlugin({ sampleRate: 1 }));
+
   isInitialized = true;
   console.log("[Amplitude] WebView initialized with userId:", userId);
+  console.log("[Amplitude] Session Replay enabled");
 };
 
 /**

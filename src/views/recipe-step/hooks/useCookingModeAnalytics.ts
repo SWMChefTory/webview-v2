@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
@@ -24,7 +24,8 @@ interface CommandBreakdown {
 interface AnalyticsState {
   sessionStartTime: number;
   visitedStepsSet: Set<number>;
-  visitedStepsCount: number;
+  visitedDetailsSet: Set<string>; // "stepIndex-detailIndex" 형태
+  visitedDetailsCount: number;
   voiceCommandCount: number;
   touchCommandCount: number;
   commandBreakdown: CommandBreakdown;
@@ -36,7 +37,11 @@ interface AnalyticsState {
 /** 훅 반환 타입 */
 export interface CookingModeAnalytics {
   /** 세션 시작 (start 이벤트 발송) */
-  trackStart: (params: { recipeId: string; totalSteps: number }) => void;
+  trackStart: (params: {
+    recipeId: string;
+    totalSteps: number;
+    totalDetails: number;
+  }) => void;
 
   /** 명령 실행 (command 이벤트 발송 + 내부 카운터 증가) */
   trackCommand: (params: {
@@ -45,10 +50,14 @@ export interface CookingModeAnalytics {
     commandDetail: string;
     triggerMethod: TriggerMethod;
     currentStep: number;
+    currentDetail: number;
   }) => void;
 
   /** 단계 방문 기록 (이벤트 발송 X, 내부 상태만) */
   recordStepVisit: (stepIndex: number) => void;
+
+  /** Detail 방문 기록 (이벤트 발송 X, 내부 상태만) */
+  recordDetailVisit: (stepIndex: number, detailIndex: number) => void;
 
   /** 반복재생 토글 기록 (이벤트 발송 X, 내부 카운터만) */
   recordLoopToggle: () => void;
@@ -63,7 +72,7 @@ export interface CookingModeAnalytics {
   trackEnd: (params: {
     recipeId: string;
     totalSteps: number;
-    exitStep: number;
+    totalDetails: number;
   }) => void;
 }
 
@@ -76,7 +85,8 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
   const stateRef = useRef<AnalyticsState>({
     sessionStartTime: 0,
     visitedStepsSet: new Set(),
-    visitedStepsCount: 0,
+    visitedDetailsSet: new Set(),
+    visitedDetailsCount: 0,
     voiceCommandCount: 0,
     touchCommandCount: 0,
     commandBreakdown: {
@@ -95,7 +105,8 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
     stateRef.current = {
       sessionStartTime: Date.now(),
       visitedStepsSet: new Set(),
-      visitedStepsCount: 0,
+      visitedDetailsSet: new Set(),
+      visitedDetailsCount: 0,
       voiceCommandCount: 0,
       touchCommandCount: 0,
       commandBreakdown: {
@@ -111,7 +122,15 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
   }, []);
 
   const trackStart = useCallback(
-    ({ recipeId, totalSteps }: { recipeId: string; totalSteps: number }) => {
+    ({
+      recipeId,
+      totalSteps,
+      totalDetails,
+    }: {
+      recipeId: string;
+      totalSteps: number;
+      totalDetails: number;
+    }) => {
       // 상태 초기화
       resetState();
 
@@ -119,6 +138,7 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
       track(AMPLITUDE_EVENT.COOKING_MODE_START, {
         recipe_id: recipeId,
         total_steps: totalSteps,
+        total_details: totalDetails,
       });
     },
     [resetState]
@@ -131,12 +151,14 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
       commandDetail,
       triggerMethod,
       currentStep,
+      currentDetail,
     }: {
       recipeId: string;
       commandType: CommandType;
       commandDetail: string;
       triggerMethod: TriggerMethod;
       currentStep: number;
+      currentDetail: number;
     }) => {
       const state = stateRef.current;
 
@@ -155,16 +177,25 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
         command_detail: commandDetail,
         trigger_method: triggerMethod,
         current_step: currentStep,
+        current_detail: currentDetail,
       });
     },
     []
   );
 
   const recordStepVisit = useCallback((stepIndex: number) => {
-    const state = stateRef.current;
-    state.visitedStepsSet.add(stepIndex);
-    state.visitedStepsCount++;
+    stateRef.current.visitedStepsSet.add(stepIndex);
   }, []);
+
+  const recordDetailVisit = useCallback(
+    (stepIndex: number, detailIndex: number) => {
+      const state = stateRef.current;
+      const key = `${stepIndex}-${detailIndex}`;
+      state.visitedDetailsSet.add(key);
+      state.visitedDetailsCount++;
+    },
+    []
+  );
 
   const recordLoopToggle = useCallback(() => {
     stateRef.current.loopToggleCount++;
@@ -182,29 +213,44 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
     ({
       recipeId,
       totalSteps,
-      exitStep,
+      totalDetails,
     }: {
       recipeId: string;
       totalSteps: number;
-      exitStep: number;
+      totalDetails: number;
     }) => {
       const state = stateRef.current;
       const durationSeconds = Math.round(
         (Date.now() - state.sessionStartTime) / 1000
       );
+
+      // Step 관련 계산
       const uniqueSteps = state.visitedStepsSet.size;
-      const completionRate =
+      const stepCompletionRate =
         totalSteps > 0 ? Math.round((uniqueSteps / totalSteps) * 100) : 0;
+
+      // Detail 관련 계산
+      const uniqueDetails = state.visitedDetailsSet.size;
+      const detailCompletionRate =
+        totalDetails > 0 ? Math.round((uniqueDetails / totalDetails) * 100) : 0;
 
       // 참고: command_breakdown은 Amplitude SDK 타입 제약으로 평탄화하여 전송
       track(AMPLITUDE_EVENT.COOKING_MODE_END, {
         recipe_id: recipeId,
-        total_steps: totalSteps,
         duration_seconds: durationSeconds,
-        exit_step: exitStep,
-        visited_steps_total: state.visitedStepsCount,
+
+        // Step 관련
+        total_steps: totalSteps,
         visited_steps_unique: uniqueSteps,
-        step_completion_rate: completionRate,
+        step_completion_rate: stepCompletionRate,
+
+        // Detail 관련
+        total_details: totalDetails,
+        visited_details_total: state.visitedDetailsCount,
+        visited_details_unique: uniqueDetails,
+        detail_completion_rate: detailCompletionRate,
+
+        // Command 관련
         command_count: state.voiceCommandCount + state.touchCommandCount,
         voice_command_count: state.voiceCommandCount,
         touch_command_count: state.touchCommandCount,
@@ -212,6 +258,8 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
         command_breakdown_video_control: state.commandBreakdown.video_control,
         command_breakdown_timer: state.commandBreakdown.timer,
         command_breakdown_info: state.commandBreakdown.info,
+
+        // 기타
         loop_toggle_count: state.loopToggleCount,
         timer_button_touch_count: state.timerButtonTouchCount,
         mic_button_touch_count: state.micButtonTouchCount,
@@ -220,13 +268,27 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
     []
   );
 
-  return {
-    trackStart,
-    trackCommand,
-    recordStepVisit,
-    recordLoopToggle,
-    recordTimerButtonTouch,
-    recordMicButtonTouch,
-    trackEnd,
-  };
+  // 매 렌더링마다 새 객체 생성 방지 → useEffect 의존성 안정화
+  return useMemo(
+    () => ({
+      trackStart,
+      trackCommand,
+      recordStepVisit,
+      recordDetailVisit,
+      recordLoopToggle,
+      recordTimerButtonTouch,
+      recordMicButtonTouch,
+      trackEnd,
+    }),
+    [
+      trackStart,
+      trackCommand,
+      recordStepVisit,
+      recordDetailVisit,
+      recordLoopToggle,
+      recordTimerButtonTouch,
+      recordMicButtonTouch,
+      trackEnd,
+    ]
+  );
 }

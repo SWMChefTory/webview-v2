@@ -71,11 +71,16 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
     sessionStorage.setItem(key, Date.now().toString());
 
     // View 이벤트
+    const totalDetails = steps.reduce(
+      (sum, step) => sum + (step.details?.length ?? 0),
+      0
+    );
     track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIEW, {
       recipe_id: id,
       recipe_title: videoInfo?.videoTitle || "",
       is_first_view: isFirstView,
       total_steps: steps.length,
+      total_details: totalDetails,
       total_ingredients: ingredients.length,
       has_video: !!videoInfo?.id,
     });
@@ -143,13 +148,15 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
   const handleStepClick = (
     stepOrder: number,
     stepTitle: string,
-    videoTime: number
+    videoTime: number,
+    detailIndex: number
   ) => {
     track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIDEO_SEEK, {
       recipe_id: id,
       step_order: stepOrder,
       step_title: stepTitle,
       video_time: videoTime,
+      detail_index: detailIndex,
     });
   };
 
@@ -173,6 +180,8 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
 
   // Amplitude: 요리 시작 핸들러
   const handleCookingStart = (selectedIngredientCount: number) => {
+    // 더블 클릭/탭 방지: 이미 요리 시작을 눌렀으면 중복 실행 방지
+    if (reachedCookingStart.current) return;
     reachedCookingStart.current = true;
 
     track(AMPLITUDE_EVENT.RECIPE_DETAIL_COOKING_START, {
@@ -413,7 +422,7 @@ export const RecipeBottomSheet = ({
   recipeId: string;
   // Amplitude 콜백 타입
   onTabClick?: (tabName: "summary" | "recipe" | "ingredients") => void;
-  onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number) => void;
+  onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number, detailIndex: number) => void;
   onMeasurementClick?: () => void;
   onCookingStart?: (selectedIngredientCount: number) => void;
 }) => {
@@ -731,7 +740,7 @@ export const RecipeBottomSheet = ({
                             onTimeClick(d.start);
                             setTopPx(minCollapseTop);
                             // Amplitude: 스텝 클릭 추적
-                            onStepClick?.(step.stepOrder, step.subtitle, d.start);
+                            onStepClick?.(step.stepOrder, step.subtitle, d.start, di);
                           }}
                         >
                           <div className="flex items-start gap-3">

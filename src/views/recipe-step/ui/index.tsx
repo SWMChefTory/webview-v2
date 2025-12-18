@@ -117,12 +117,17 @@ function RecipeStepPageReady({ id }: { id: string }) {
 
   // === Analytics: start/end 추적용 refs ===
   const currentIndexRef = useRef(currentIndex);
+  const currentDetailIndexRef = useRef(currentDetailIndex);
   const hasTrackedStartRef = useRef(false);
 
-  // currentIndex 동기화
+  // currentIndex, currentDetailIndex 동기화
   useEffect(() => {
     currentIndexRef.current = currentIndex;
   }, [currentIndex]);
+
+  useEffect(() => {
+    currentDetailIndexRef.current = currentDetailIndex;
+  }, [currentDetailIndex]);
 
   // === Analytics: start/end 이벤트 ===
   useEffect(() => {
@@ -130,29 +135,49 @@ function RecipeStepPageReady({ id }: { id: string }) {
     if (hasTrackedStartRef.current) return;
     if (steps.length === 0) return;
 
+    // totalDetails 계산 (클로저로 cleanup에서도 사용)
+    const totalDetails = steps.reduce(
+      (sum, step) => sum + step.details.length,
+      0
+    );
+
     hasTrackedStartRef.current = true;
     analytics.trackStart({
       recipeId: id,
       totalSteps: steps.length,
+      totalDetails,
     });
 
     return () => {
       analytics.trackEnd({
         recipeId: id,
         totalSteps: steps.length,
+        totalDetails,
         exitStep: currentIndexRef.current,
+        exitDetail: currentDetailIndexRef.current,
       });
     };
-  }, [id, steps.length, analytics]);
+  }, [id, steps, analytics]);
 
-  // === Analytics: step visit 기록 ===
+  // === Analytics: step/detail visit 기록 ===
   const prevStepRef = useRef<number | null>(null);
+  const prevDetailRef = useRef<number | null>(null);
   useEffect(() => {
-    if (prevStepRef.current !== currentIndex) {
-      analytics.recordStepVisit(currentIndex);
+    const stepChanged = prevStepRef.current !== currentIndex;
+    const detailChanged = prevDetailRef.current !== currentDetailIndex;
+
+    if (stepChanged || detailChanged) {
+      // Step이 변경되면 Step 방문 기록
+      if (stepChanged) {
+        analytics.recordStepVisit(currentIndex);
+      }
+      // Detail 방문은 항상 기록
+      analytics.recordDetailVisit(currentIndex, currentDetailIndex);
+
       prevStepRef.current = currentIndex;
+      prevDetailRef.current = currentDetailIndex;
     }
-  }, [currentIndex, analytics]);
+  }, [currentIndex, currentDetailIndex, analytics]);
 
   const {
     steps: tutorialStep,
@@ -228,6 +253,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "NEXT",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex + 1,
@@ -248,6 +274,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "VIDEO_PLAY",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         videoRef.current?.play();
         if (isInTutorial && currentTutorialStep == 0) {
@@ -265,6 +292,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "VIDEO_STOP",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         videoRef.current?.pause();
         if (isInTutorial && currentTutorialStep == 1) {
@@ -279,6 +307,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "PREV",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         handleChangeStepWithVideoTime({
           stepIndex: currentIndex - 1,
@@ -294,6 +323,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "TIMESTAMP",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         videoRef.current?.seekTo({ time: Math.max(0, sec) });
         return;
@@ -306,6 +336,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "STEP",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         handleChangeStepWithVideoTime({
           stepIndex: stepNum,
@@ -325,6 +356,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: `TIMER_${timerAction}`,
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         handleTimerIntent(parsedIntent, (error: string) => {
           timerErrorPopoverRef.current?.showErrorMessage(error);
@@ -345,6 +377,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
           commandDetail: "INGREDIENT",
           triggerMethod: "voice",
           currentStep: currentIndex,
+          currentDetail: currentDetailIndex,
         });
         const [_, ingredientName, ingredientAmount, _ingredientUnit] =
           ingredient;
@@ -431,6 +464,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
               commandDetail: "STEP",
               triggerMethod: "touch",
               currentStep: currentIndex,
+              currentDetail: currentDetailIndex,
             });
           }}
         />
@@ -454,6 +488,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
               commandDetail: "STEP",
               triggerMethod: "touch",
               currentStep: currentIndex,
+              currentDetail: currentDetailIndex,
             });
           }}
         />

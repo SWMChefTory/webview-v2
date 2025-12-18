@@ -1,4 +1,4 @@
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useMemo } from "react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
@@ -24,7 +24,6 @@ interface CommandBreakdown {
 interface AnalyticsState {
   sessionStartTime: number;
   visitedStepsSet: Set<number>;
-  visitedStepsCount: number;
   visitedDetailsSet: Set<string>; // "stepIndex-detailIndex" 형태
   visitedDetailsCount: number;
   voiceCommandCount: number;
@@ -74,8 +73,6 @@ export interface CookingModeAnalytics {
     recipeId: string;
     totalSteps: number;
     totalDetails: number;
-    exitStep: number;
-    exitDetail: number;
   }) => void;
 }
 
@@ -88,7 +85,6 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
   const stateRef = useRef<AnalyticsState>({
     sessionStartTime: 0,
     visitedStepsSet: new Set(),
-    visitedStepsCount: 0,
     visitedDetailsSet: new Set(),
     visitedDetailsCount: 0,
     voiceCommandCount: 0,
@@ -109,7 +105,6 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
     stateRef.current = {
       sessionStartTime: Date.now(),
       visitedStepsSet: new Set(),
-      visitedStepsCount: 0,
       visitedDetailsSet: new Set(),
       visitedDetailsCount: 0,
       voiceCommandCount: 0,
@@ -189,9 +184,7 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
   );
 
   const recordStepVisit = useCallback((stepIndex: number) => {
-    const state = stateRef.current;
-    state.visitedStepsSet.add(stepIndex);
-    state.visitedStepsCount++;
+    stateRef.current.visitedStepsSet.add(stepIndex);
   }, []);
 
   const recordDetailVisit = useCallback(
@@ -221,14 +214,10 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
       recipeId,
       totalSteps,
       totalDetails,
-      exitStep,
-      exitDetail,
     }: {
       recipeId: string;
       totalSteps: number;
       totalDetails: number;
-      exitStep: number;
-      exitDetail: number;
     }) => {
       const state = stateRef.current;
       const durationSeconds = Math.round(
@@ -252,14 +241,11 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
 
         // Step 관련
         total_steps: totalSteps,
-        exit_step: exitStep,
-        visited_steps_total: state.visitedStepsCount,
         visited_steps_unique: uniqueSteps,
         step_completion_rate: stepCompletionRate,
 
         // Detail 관련
         total_details: totalDetails,
-        exit_detail: exitDetail,
         visited_details_total: state.visitedDetailsCount,
         visited_details_unique: uniqueDetails,
         detail_completion_rate: detailCompletionRate,
@@ -282,14 +268,27 @@ export function useCookingModeAnalytics(): CookingModeAnalytics {
     []
   );
 
-  return {
-    trackStart,
-    trackCommand,
-    recordStepVisit,
-    recordDetailVisit,
-    recordLoopToggle,
-    recordTimerButtonTouch,
-    recordMicButtonTouch,
-    trackEnd,
-  };
+  // 매 렌더링마다 새 객체 생성 방지 → useEffect 의존성 안정화
+  return useMemo(
+    () => ({
+      trackStart,
+      trackCommand,
+      recordStepVisit,
+      recordDetailVisit,
+      recordLoopToggle,
+      recordTimerButtonTouch,
+      recordMicButtonTouch,
+      trackEnd,
+    }),
+    [
+      trackStart,
+      trackCommand,
+      recordStepVisit,
+      recordDetailVisit,
+      recordLoopToggle,
+      recordTimerButtonTouch,
+      recordMicButtonTouch,
+      trackEnd,
+    ]
+  );
 }

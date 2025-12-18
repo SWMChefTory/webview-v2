@@ -180,6 +180,8 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
 
   // Amplitude: 요리 시작 핸들러
   const handleCookingStart = (selectedIngredientCount: number) => {
+    // 더블 클릭/탭 방지: 이미 요리 시작을 눌렀으면 중복 실행 방지
+    if (reachedCookingStart.current) return;
     reachedCookingStart.current = true;
 
     track(AMPLITUDE_EVENT.RECIPE_DETAIL_COOKING_START, {

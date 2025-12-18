@@ -115,19 +115,8 @@ function RecipeStepPageReady({ id }: { id: string }) {
       recipeId: id,
     });
 
-  // === Analytics: start/end 추적용 refs ===
-  const currentIndexRef = useRef(currentIndex);
-  const currentDetailIndexRef = useRef(currentDetailIndex);
+  // === Analytics: start/end 추적용 ref ===
   const hasTrackedStartRef = useRef(false);
-
-  // currentIndex, currentDetailIndex 동기화
-  useEffect(() => {
-    currentIndexRef.current = currentIndex;
-  }, [currentIndex]);
-
-  useEffect(() => {
-    currentDetailIndexRef.current = currentDetailIndex;
-  }, [currentDetailIndex]);
 
   // === Analytics: start/end 이벤트 ===
   useEffect(() => {
@@ -153,8 +142,6 @@ function RecipeStepPageReady({ id }: { id: string }) {
         recipeId: id,
         totalSteps: steps.length,
         totalDetails,
-        exitStep: currentIndexRef.current,
-        exitDetail: currentDetailIndexRef.current,
       });
     };
   }, [id, steps, analytics]);

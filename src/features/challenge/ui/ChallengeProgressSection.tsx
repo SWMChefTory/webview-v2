@@ -3,17 +3,21 @@ import {
   PROGRESS_MESSAGES,
   COMPLETION_SUB_MESSAGE,
 } from "../model/messages";
+import { calculateDday } from "../lib/formatDate";
 
 interface ChallengeProgressSectionProps {
   completedCount: number;
   totalCount: number;
+  endDate: string;
 }
 
 export function ChallengeProgressSection({
   completedCount,
   totalCount,
+  endDate,
 }: ChallengeProgressSectionProps) {
   const isCompleted = completedCount >= totalCount;
+  const isEnded = calculateDday(endDate) === "종료";
 
   return (
     <div
@@ -35,16 +39,24 @@ export function ChallengeProgressSection({
 
       {/* 상태별 메시지 */}
       <div className="text-center">
-        <p
-          className={`text-lg font-semibold ${
-            isCompleted ? "text-green-600" : "text-gray-800"
-          }`}
-        >
-          {isCompleted && "🎉 "}
-          {PROGRESS_MESSAGES[completedCount] ?? PROGRESS_MESSAGES[0]}
-        </p>
-        {isCompleted && (
-          <p className="text-sm text-gray-500 mt-1.5">{COMPLETION_SUB_MESSAGE}</p>
+        {isEnded ? (
+          <p className="text-lg font-semibold text-gray-500">
+            챌린지가 종료되었습니다
+          </p>
+        ) : (
+          <>
+            <p
+              className={`text-lg font-semibold ${
+                isCompleted ? "text-green-600" : "text-gray-800"
+              }`}
+            >
+              {isCompleted && "🎉 "}
+              {PROGRESS_MESSAGES[completedCount] ?? PROGRESS_MESSAGES[0]}
+            </p>
+            {isCompleted && (
+              <p className="text-sm text-gray-500 mt-1.5">{COMPLETION_SUB_MESSAGE}</p>
+            )}
+          </>
         )}
       </div>
     </div>

@@ -68,3 +68,4 @@ export { ChallengeErrorFallback } from "./ui/ChallengeErrorFallback";
 export { NonParticipantView } from "./ui/NonParticipantView";
 export { ChallengeBanner } from "./ui/ChallengeBanner";
 export { ChallengeGuideLink } from "./ui/ChallengeGuideSheet";
+export { ChallengeBottomBar } from "./ui/ChallengeBottomBar";

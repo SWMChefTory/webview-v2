@@ -9,12 +9,11 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import {
   ChallengePeriod,
   ChallengeProgressSection,
-  KakaoLinkButton,
   ChallengeRecipeCard,
   ChallengeRecipeCardSkeleton,
   NonParticipantView,
   ChallengeErrorFallback,
-  ChallengeGuideLink,
+  ChallengeBottomBar,
   useChallengeInfo,
   useChallengeRecipes,
 } from "@/src/features/challenge";
@@ -72,27 +71,27 @@ function ChallengePageReady() {
 
   // 참여자
   return (
-    <div>
-      {/* 기간 표시 */}
-      <ChallengePeriod startDate={data.startDate} endDate={data.endDate} />
+    <>
+      <div className="pb-28">
+        {/* 기간 표시 */}
+        <ChallengePeriod startDate={data.startDate} endDate={data.endDate} />
 
-      {/* 진행 상황 */}
-      <ChallengeProgressSection
-        completedCount={data.completedCount}
-        totalCount={data.totalCount}
-      />
+        {/* 진행 상황 */}
+        <ChallengeProgressSection
+          completedCount={data.completedCount}
+          totalCount={data.totalCount}
+          endDate={data.endDate}
+        />
 
-      {/* 카카오 버튼 */}
-      <KakaoLinkButton url={data.kakaoOpenChatUrl} />
+        {/* 레시피 목록 */}
+        <SSRSuspense fallback={<ChallengeRecipeListSkeleton />}>
+          <ChallengeRecipeList />
+        </SSRSuspense>
+      </div>
 
-      {/* 챌린지 안내 링크 */}
-      <ChallengeGuideLink />
-
-      {/* 레시피 목록 */}
-      <SSRSuspense fallback={<ChallengeRecipeListSkeleton />}>
-        <ChallengeRecipeList />
-      </SSRSuspense>
-    </div>
+      {/* 하단 고정 바 */}
+      <ChallengeBottomBar kakaoUrl={data.kakaoOpenChatUrl} endDate={data.endDate} />
+    </>
   );
 }
 

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FaCheck, FaChevronRight } from "react-icons/fa";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { BANNER_MESSAGES } from "../model/messages";
@@ -40,30 +41,39 @@ function ChallengeBannerContent({ data }: { data: ChallengeInfo }) {
       <Link href="/challenge">
         <div
           className={`
-            p-4 rounded-xl shadow-sm
+            p-4 rounded-2xl shadow-sm transition-all duration-200 active:scale-[0.99]
             ${
               isCompleted
-                ? "bg-gradient-to-r from-green-100 to-emerald-100"
-                : "bg-gradient-to-r from-orange-100 to-amber-100"
+                ? "bg-linear-to-r from-green-100 to-emerald-50"
+                : "bg-linear-to-r from-orange-100 to-amber-50"
             }
           `}
         >
-          <div className="flex justify-between items-start">
-            <div>
+          <div className="flex justify-between items-center">
+            <div className="flex-1">
               <h3 className="font-bold text-gray-800">{data.challengeName}</h3>
-              <div className="flex items-center gap-2 mt-2">
-                {/* 미니 진행 박스 */}
+              <div className="flex items-center gap-2.5 mt-2">
+                {/* 미니 진행 박스 - 체크 표시 */}
                 <div className="flex gap-1">
-                  {Array.from({ length: data.totalCount }, (_, i) => (
-                    <div
-                      key={i}
-                      className={`w-4 h-4 rounded ${
-                        i < data.completedCount ? "bg-orange-500" : "bg-gray-300"
-                      }`}
-                    />
-                  ))}
+                  {Array.from({ length: data.totalCount }, (_, i) => {
+                    const isDone = i < data.completedCount;
+                    return (
+                      <div
+                        key={i}
+                        className={`w-5 h-5 rounded-md flex items-center justify-center ${
+                          isDone
+                            ? isCompleted
+                              ? "bg-green-500"
+                              : "bg-orange-500"
+                            : "bg-gray-200"
+                        }`}
+                      >
+                        {isDone && <FaCheck className="text-white text-[10px]" />}
+                      </div>
+                    );
+                  })}
                 </div>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-gray-600 font-medium">
                   {isCompleted
                     ? BANNER_MESSAGES.completed
                     : BANNER_MESSAGES.inProgress(
@@ -73,9 +83,14 @@ function ChallengeBannerContent({ data }: { data: ChallengeInfo }) {
                 </span>
               </div>
             </div>
-            <span className="text-orange-600 text-sm font-medium">
-              레시피 확인하기 →
-            </span>
+            <div
+              className={`flex items-center gap-1 text-sm font-semibold ${
+                isCompleted ? "text-green-600" : "text-orange-600"
+              }`}
+            >
+              <span className="hidden sm:inline">레시피 보기</span>
+              <FaChevronRight size={12} />
+            </div>
           </div>
         </div>
       </Link>
@@ -87,7 +102,7 @@ function ChallengeBannerContent({ data }: { data: ChallengeInfo }) {
 function ChallengeBannerSkeleton() {
   return (
     <div className="px-4 py-2">
-      <Skeleton className="w-full h-[80px] rounded-xl" />
+      <Skeleton className="w-full h-20 rounded-2xl" />
     </div>
   );
 }

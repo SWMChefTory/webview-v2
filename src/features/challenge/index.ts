@@ -35,7 +35,7 @@ export {
 // ============================================
 // Utils
 // ============================================
-export { formatChallengeDate, formatChallengePeriod } from "./lib/formatDate";
+export { formatChallengeDate, formatChallengePeriod, calculateDday } from "./lib/formatDate";
 
 // ============================================
 // Hooks

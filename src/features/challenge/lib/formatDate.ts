@@ -20,3 +20,23 @@ export function formatChallengePeriod(
 ): string {
   return `${formatChallengeDate(startDate)} ~ ${formatChallengeDate(endDate)}`;
 }
+
+/**
+ * 남은 일수 계산 (D-day)
+ * @param endDate - 종료일 "2024-12-22" 형식
+ * @returns D-day 문자열 ("D-3", "D-Day", "종료")
+ */
+export function calculateDday(endDate: string): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const end = new Date(endDate);
+  end.setHours(0, 0, 0, 0);
+
+  const diffTime = end.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return "종료";
+  if (diffDays === 0) return "D-Day";
+  return `D-${diffDays}`;
+}

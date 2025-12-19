@@ -16,6 +16,10 @@ import {
   ChallengeBottomBar,
   useChallengeInfo,
   useChallengeRecipes,
+  CHALLENGE_CONSTANTS,
+  CHALLENGE_TYPE_LABELS,
+  type ChallengeRecipe,
+  type ChallengeType,
 } from "@/src/features/challenge";
 
 // ============================================
@@ -38,7 +42,11 @@ function ChallengePage() {
         leftContent={
           <div className="flex flex-row gap-3 items-center">
             <BackButton onClick={() => router.back()} />
-            <h1 className="text-xl font-semibold">집밥 챌린지</h1>
+            <SSRSuspense
+              fallback={<h1 className="text-xl font-semibold">집밥 챌린지</h1>}
+            >
+              <ChallengeTitle />
+            </SSRSuspense>
           </div>
         }
       />
@@ -55,6 +63,23 @@ function ChallengePage() {
       </div>
     </div>
   );
+}
+
+// ============================================
+// 타이틀 컴포넌트 (타입별 동적 표시)
+// ============================================
+
+function ChallengeTitle() {
+  const { data } = useChallengeInfo();
+
+  // 비참여자는 기본 타이틀
+  if (!data.isParticipant) {
+    return <h1 className="text-xl font-semibold">집밥 챌린지</h1>;
+  }
+
+  // 참여자는 타입별 타이틀
+  const title = `${CHALLENGE_TYPE_LABELS[data.challengeType]} 집밥 챌린지`;
+  return <h1 className="text-xl font-semibold">{title}</h1>;
 }
 
 // ============================================
@@ -76,38 +101,84 @@ function ChallengePageReady() {
         {/* 기간 표시 */}
         <ChallengePeriod startDate={data.startDate} endDate={data.endDate} />
 
-        {/* 진행 상황 */}
-        <ChallengeProgressSection
-          completedCount={data.completedCount}
-          totalCount={data.totalCount}
-          endDate={data.endDate}
-        />
-
-        {/* 레시피 목록 */}
-        <SSRSuspense fallback={<ChallengeRecipeListSkeleton />}>
-          <ChallengeRecipeList />
+        {/* 진행 상황 + 레시피 목록 (challengeId 의존) */}
+        <SSRSuspense fallback={<ChallengeContentSkeleton />}>
+          <ChallengeContent
+            challengeId={data.challengeId}
+            endDate={data.endDate}
+          />
         </SSRSuspense>
       </div>
 
       {/* 하단 고정 바 */}
-      <ChallengeBottomBar kakaoUrl={data.kakaoOpenChatUrl} endDate={data.endDate} />
+      <ChallengeBottomBar
+        kakaoUrl={CHALLENGE_CONSTANTS.kakaoOpenChatUrl}
+        endDate={data.endDate}
+      />
     </>
   );
 }
 
 // ============================================
-// 레시피 목록 섹션 (훅 사용)
+// 챌린지 콘텐츠 (진행 상황 + 레시피 목록)
 // ============================================
 
-function ChallengeRecipeList() {
+function ChallengeContent({
+  challengeId,
+  endDate,
+}: {
+  challengeId: string;
+  endDate: string;
+}) {
   const {
-    data: recipes,
+    recipes,
+    completeRecipes,
     totalElements,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useChallengeRecipes();
+  } = useChallengeRecipes(challengeId);
 
+  // 완료 개수 = completeRecipes 배열 길이
+  const completedCount = completeRecipes.length;
+
+  return (
+    <>
+      <ChallengeProgressSection
+        completedCount={completedCount}
+        totalCount={CHALLENGE_CONSTANTS.totalCount}
+        endDate={endDate}
+      />
+      <ChallengeRecipeList
+        recipes={recipes}
+        totalElements={totalElements}
+        hasNextPage={hasNextPage}
+        fetchNextPage={fetchNextPage}
+        isFetchingNextPage={isFetchingNextPage}
+      />
+    </>
+  );
+}
+
+// ============================================
+// 레시피 목록 섹션
+// ============================================
+
+interface ChallengeRecipeListProps {
+  recipes: ChallengeRecipe[];
+  totalElements: number;
+  hasNextPage: boolean;
+  fetchNextPage: () => void;
+  isFetchingNextPage: boolean;
+}
+
+function ChallengeRecipeList({
+  recipes,
+  totalElements,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
+}: ChallengeRecipeListProps) {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // IntersectionObserver로 무한 스크롤
@@ -174,17 +245,28 @@ function ChallengePageSkeleton() {
   );
 }
 
-function ChallengeRecipeListSkeleton() {
+function ChallengeContentSkeleton() {
   return (
-    <div className="px-4 pb-6">
-      <Skeleton className="w-40 h-6 mb-4" />
-      <div className="grid grid-cols-2 gap-4">
-        <ChallengeRecipeCardSkeleton />
-        <ChallengeRecipeCardSkeleton />
-        <ChallengeRecipeCardSkeleton />
-        <ChallengeRecipeCardSkeleton />
+    <>
+      {/* Progress Section Skeleton */}
+      <div className="mx-4 my-3 px-4 py-4 bg-gray-50 rounded-xl">
+        <div className="flex justify-center gap-4">
+          <Skeleton className="w-16 h-16 rounded-lg" />
+          <Skeleton className="w-16 h-16 rounded-lg" />
+          <Skeleton className="w-16 h-16 rounded-lg" />
+        </div>
       </div>
-    </div>
+      {/* Recipe List Skeleton */}
+      <div className="px-4 pb-6">
+        <Skeleton className="w-40 h-6 mb-4" />
+        <div className="grid grid-cols-2 gap-4">
+          <ChallengeRecipeCardSkeleton />
+          <ChallengeRecipeCardSkeleton />
+          <ChallengeRecipeCardSkeleton />
+          <ChallengeRecipeCardSkeleton />
+        </div>
+      </div>
+    </>
   );
 }
 

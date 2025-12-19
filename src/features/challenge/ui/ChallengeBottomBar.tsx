@@ -69,7 +69,7 @@ export function ChallengeBottomBar({ kakaoUrl, endDate }: ChallengeBottomBarProp
           >
             <RiKakaoTalkFill size={20} className="text-black/85" />
             <span className="text-black/85 font-semibold text-sm">
-              카카오톡에서 인증하기
+              인증하고 선물받기
             </span>
             <FiExternalLink size={12} className="text-black/60" />
           </button>

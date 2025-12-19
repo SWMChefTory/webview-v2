@@ -1,18 +1,18 @@
 import client from "@/src/shared/client/main/client";
-import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
-import {
-  ChallengeData,
-  ChallengeDataSchema,
-  ChallengeRecipe,
-  PaginatedChallengeRecipes,
-  PaginatedChallengeRecipesSchema,
-} from "../model/schema";
-import { MOCK_PARTICIPANT } from "../model/mockData";
-import {
-  fetchAllRecipesSummary,
-  type PaginatedRecipes,
-} from "@/src/entities/user-recipe/model/api";
+import { fetchAllRecipesSummary } from "@/src/entities/user-recipe/model/api";
 import type { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import {
+  ParticipantSchema,
+  NonParticipantSchema,
+  ChallengeRecipesResponseSchema,
+  type ChallengeData,
+  type ChallengeRecipe,
+  type ChallengeRecipesResponse,
+} from "../model/schema";
+import {
+  MOCK_PARTICIPANT,
+  MOCK_COMPLETE_RECIPES,
+} from "../model/mockData";
 
 // ============================================
 // Mock 모드 설정
@@ -32,9 +32,22 @@ export async function fetchChallengeInfo(): Promise<ChallengeData> {
     return MOCK_PARTICIPANT;
   }
 
-  // TODO: 실제 API 엔드포인트 확정 후 수정
-  const response = await client.get("/challenges/my");
-  return parseWithErrLog(ChallengeDataSchema, response.data);
+  try {
+    const response = await client.get("/api/v1/recipes/challenge");
+    const data = response.data;
+
+    // snake_case → camelCase 변환 + Zod 검증
+    return ParticipantSchema.parse({
+      isParticipant: true,
+      challengeId: data.challenge_id,
+      challengeType: data.type,
+      startDate: data.start_at,
+      endDate: data.end_at,
+    });
+  } catch {
+    // 챌린지 없음 = 비참여자
+    return NonParticipantSchema.parse({ isParticipant: false });
+  }
 }
 
 // ============================================
@@ -42,19 +55,72 @@ export async function fetchChallengeInfo(): Promise<ChallengeData> {
 // ============================================
 
 export async function fetchChallengeRecipes({
+  challengeId,
   page,
 }: {
+  challengeId: string;
   page: number;
-}): Promise<PaginatedChallengeRecipes> {
+}): Promise<ChallengeRecipesResponse> {
   if (USE_MOCK) {
     // Mock 모드: 나의 레시피 API를 호출하여 테스트 데이터로 활용
+    await simulateNetworkDelay();
     const myRecipes = await fetchAllRecipesSummary({ page });
-    return convertToChallengeRecipes(myRecipes);
+    return {
+      completeRecipes: MOCK_COMPLETE_RECIPES,
+      challengeRecipes: myRecipes.data.map(convertUserRecipeToChallengeRecipe),
+      currentPage: myRecipes.currentPage,
+      totalPages: myRecipes.totalPages,
+      totalElements: myRecipes.totalElements,
+      hasNext: myRecipes.hasNext,
+    };
   }
 
-  // TODO: 실제 API 엔드포인트 확정 후 수정
-  const response = await client.get(`/challenges/recipes?page=${page}`);
-  return parseWithErrLog(PaginatedChallengeRecipesSchema, response.data);
+  // 실제 API 호출 (에러 시 상위로 전파 - ErrorBoundary에서 처리)
+  const response = await client.get(
+    `/api/v1/recipes/challenge/${challengeId}?page=${page}`
+  );
+
+  // snake_case → camelCase 변환 + Zod 검증
+  return ChallengeRecipesResponseSchema.parse({
+    completeRecipes: response.data.complete_recipes.map(
+      (r: { recipe_id: string }) => ({
+        recipeId: r.recipe_id,
+      })
+    ),
+    challengeRecipes: response.data.challenge_recipes.map(
+      (r: {
+        recipe_id: string;
+        recipe_title: string;
+        tags?: { name: string }[];
+        description?: string;
+        servings?: number;
+        cooking_time?: number;
+        video_id: string;
+        video_url?: string;
+        video_type?: string;
+        video_thumbnail_url: string;
+        video_seconds?: number;
+        is_viewed?: boolean;
+      }) => ({
+        recipeId: r.recipe_id,
+        recipeTitle: r.recipe_title,
+        tags: r.tags,
+        description: r.description,
+        servings: r.servings,
+        cookingTime: r.cooking_time,
+        videoId: r.video_id,
+        videoUrl: r.video_url,
+        videoType: r.video_type,
+        videoThumbnailUrl: r.video_thumbnail_url,
+        videoSeconds: r.video_seconds,
+        isViewed: r.is_viewed,
+      })
+    ),
+    currentPage: response.data.current_page,
+    totalPages: response.data.total_pages,
+    totalElements: response.data.total_elements,
+    hasNext: response.data.has_next,
+  });
 }
 
 // ============================================
@@ -85,20 +151,5 @@ function convertUserRecipeToChallengeRecipe(
     servings: recipe.recipeDetailMeta?.servings,
     cookingTime: recipe.recipeDetailMeta?.cookingTime,
     tags: recipe.tags,
-  };
-}
-
-/**
- * PaginatedRecipes → PaginatedChallengeRecipes 변환
- */
-function convertToChallengeRecipes(
-  paginatedRecipes: PaginatedRecipes
-): PaginatedChallengeRecipes {
-  return {
-    currentPage: paginatedRecipes.currentPage,
-    hasNext: paginatedRecipes.hasNext,
-    totalElements: paginatedRecipes.totalElements,
-    totalPages: paginatedRecipes.totalPages,
-    data: paginatedRecipes.data.map(convertUserRecipeToChallengeRecipe),
   };
 }

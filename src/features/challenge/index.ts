@@ -2,25 +2,28 @@
 // Types & Constants
 // ============================================
 export type { ChallengeType } from "./model/types";
-export { CHALLENGE_TYPE_LABELS, CHALLENGE_SIGNUP_FORM_URL } from "./model/types";
+export { CHALLENGE_TYPES, CHALLENGE_TYPE_LABELS, CHALLENGE_SIGNUP_FORM_URL } from "./model/types";
+export { CHALLENGE_CONSTANTS } from "./model/constants";
 
 // ============================================
 // Schema & Types
 // ============================================
 export type {
-  ChallengeInfo,
+  Participant,
   ChallengeData,
   NonParticipant,
   ChallengeRecipe,
-  PaginatedChallengeRecipes,
+  CompleteRecipe,
+  ChallengeRecipesResponse,
 } from "./model/schema";
 
 export {
-  ChallengeInfoSchema,
+  ParticipantSchema,
   ChallengeDataSchema,
   NonParticipantSchema,
   ChallengeRecipeSchema,
-  PaginatedChallengeRecipesSchema,
+  CompleteRecipeSchema,
+  ChallengeRecipesResponseSchema,
 } from "./model/schema";
 
 // ============================================
@@ -49,8 +52,7 @@ export { useChallengeRecipes } from "./model/useChallengeRecipes";
 export {
   MOCK_PARTICIPANT,
   MOCK_NON_PARTICIPANT,
-  MOCK_CHALLENGE_RECIPES,
-  MOCK_PAGINATED_RECIPES,
+  MOCK_COMPLETE_RECIPES,
 } from "./model/mockData";
 
 // ============================================
@@ -59,7 +61,6 @@ export {
 export { ChallengeProgressBox } from "./ui/ChallengeProgressBox";
 export { ChallengeProgressSection } from "./ui/ChallengeProgressSection";
 export { ChallengePeriod } from "./ui/ChallengePeriod";
-export { KakaoLinkButton } from "./ui/KakaoLinkButton";
 export {
   ChallengeRecipeCard,
   ChallengeRecipeCardSkeleton,
@@ -67,5 +68,4 @@ export {
 export { ChallengeErrorFallback } from "./ui/ChallengeErrorFallback";
 export { NonParticipantView } from "./ui/NonParticipantView";
 export { ChallengeBanner } from "./ui/ChallengeBanner";
-export { ChallengeGuideLink } from "./ui/ChallengeGuideSheet";
 export { ChallengeBottomBar } from "./ui/ChallengeBottomBar";

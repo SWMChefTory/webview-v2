@@ -15,8 +15,8 @@ export const MOCK_PARTICIPANT: ChallengeInfo = {
   challengeName: "자취생 집밥 챌린지",
   completedCount: 2,
   totalCount: 3,
-  startDate: "2024-12-16",
-  endDate: "2024-12-22",
+  startDate: "2025-12-19",
+  endDate: "2025-12-26",
   kakaoOpenChatUrl: "https://open.kakao.com/xxx",
 };
 

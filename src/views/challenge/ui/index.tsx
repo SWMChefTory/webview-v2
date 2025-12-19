@@ -14,6 +14,7 @@ import {
   ChallengeRecipeCardSkeleton,
   NonParticipantView,
   ChallengeErrorFallback,
+  ChallengeGuideLink,
   useChallengeInfo,
   useChallengeRecipes,
 } from "@/src/features/challenge";
@@ -84,6 +85,9 @@ function ChallengePageReady() {
       {/* 카카오 버튼 */}
       <KakaoLinkButton url={data.kakaoOpenChatUrl} />
 
+      {/* 챌린지 안내 링크 */}
+      <ChallengeGuideLink />
+
       {/* 레시피 목록 */}
       <SSRSuspense fallback={<ChallengeRecipeListSkeleton />}>
         <ChallengeRecipeList />
@@ -128,7 +132,7 @@ function ChallengeRecipeList() {
   return (
     <div className="px-4 pb-6">
       <div className="flex items-baseline gap-2 mb-4">
-        <h2 className="text-lg font-bold">이번 주 추천 레시피</h2>
+        <h2 className="text-lg font-bold">챌린지 레시피</h2>
         <span className="text-sm text-gray-500">총 {totalElements}개</span>
       </div>
 

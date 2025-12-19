@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { FaCheck, FaChevronRight } from "react-icons/fa";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -49,8 +50,9 @@ function ChallengeBannerContent({ data }: { data: ChallengeInfo }) {
             }
           `}
         >
-          <div className="flex justify-between items-center">
-            <div className="flex-1">
+          <div className="flex items-center gap-3">
+            {/* 왼쪽: 챌린지 정보 */}
+            <div className="flex-1 min-w-0">
               <h3 className="font-bold text-gray-800">{data.challengeName}</h3>
               <div className="flex items-center gap-2.5 mt-2">
                 {/* 미니 진행 박스 - 체크 표시 */}
@@ -83,13 +85,20 @@ function ChallengeBannerContent({ data }: { data: ChallengeInfo }) {
                 </span>
               </div>
             </div>
-            <div
-              className={`flex items-center gap-1 text-sm font-semibold ${
-                isCompleted ? "text-green-600" : "text-orange-600"
-              }`}
-            >
-              <span className="hidden sm:inline">레시피 보기</span>
-              <FaChevronRight size={12} />
+
+            {/* 오른쪽: 캐릭터 + 화살표 */}
+            <div className="flex items-center gap-2 shrink-0">
+              <Image
+                src="/images/challenge/challeng-banner-tory.png"
+                alt="토리 캐릭터"
+                width={56}
+                height={56}
+                className="object-contain"
+              />
+              <FaChevronRight
+                size={14}
+                className={isCompleted ? "text-green-600" : "text-orange-500"}
+              />
             </div>
           </div>
         </div>

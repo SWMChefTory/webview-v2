@@ -3,13 +3,16 @@ import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 import {
   ChallengeData,
   ChallengeDataSchema,
+  ChallengeRecipe,
   PaginatedChallengeRecipes,
   PaginatedChallengeRecipesSchema,
 } from "../model/schema";
+import { MOCK_PARTICIPANT } from "../model/mockData";
 import {
-  MOCK_PARTICIPANT,
-  MOCK_PAGINATED_RECIPES,
-} from "../model/mockData";
+  fetchAllRecipesSummary,
+  type PaginatedRecipes,
+} from "@/src/entities/user-recipe/model/api";
+import type { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 
 // ============================================
 // Mock 모드 설정
@@ -44,8 +47,9 @@ export async function fetchChallengeRecipes({
   page: number;
 }): Promise<PaginatedChallengeRecipes> {
   if (USE_MOCK) {
-    await simulateNetworkDelay();
-    return MOCK_PAGINATED_RECIPES;
+    // Mock 모드: 나의 레시피 API를 호출하여 테스트 데이터로 활용
+    const myRecipes = await fetchAllRecipesSummary({ page });
+    return convertToChallengeRecipes(myRecipes);
   }
 
   // TODO: 실제 API 엔드포인트 확정 후 수정
@@ -63,4 +67,38 @@ export async function fetchChallengeRecipes({
  */
 function simulateNetworkDelay(ms: number = 500): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * UserRecipe → ChallengeRecipe 변환
+ * Mock 모드에서 나의 레시피 데이터를 챌린지 형식으로 변환
+ */
+function convertUserRecipeToChallengeRecipe(
+  recipe: UserRecipe
+): ChallengeRecipe {
+  return {
+    recipeId: recipe.recipeId,
+    recipeTitle: recipe.title,
+    videoThumbnailUrl: recipe.videoInfo.thumbnailUrl,
+    videoId: recipe.videoInfo.id,
+    videoSeconds: recipe.videoInfo.seconds,
+    servings: recipe.recipeDetailMeta?.servings,
+    cookingTime: recipe.recipeDetailMeta?.cookingTime,
+    tags: recipe.tags,
+  };
+}
+
+/**
+ * PaginatedRecipes → PaginatedChallengeRecipes 변환
+ */
+function convertToChallengeRecipes(
+  paginatedRecipes: PaginatedRecipes
+): PaginatedChallengeRecipes {
+  return {
+    currentPage: paginatedRecipes.currentPage,
+    hasNext: paginatedRecipes.hasNext,
+    totalElements: paginatedRecipes.totalElements,
+    totalPages: paginatedRecipes.totalPages,
+    data: paginatedRecipes.data.map(convertUserRecipeToChallengeRecipe),
+  };
 }

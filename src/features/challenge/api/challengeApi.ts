@@ -33,7 +33,7 @@ export async function fetchChallengeInfo(): Promise<ChallengeData> {
   }
 
   try {
-    const response = await client.get("/api/v1/recipes/challenge");
+    const response = await client.get("/recipes/challenge");
     const data = response.data;
 
     // snake_case → camelCase 변환 + Zod 검증

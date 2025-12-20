@@ -1,5 +1,9 @@
 import { FaCalendarAlt } from "react-icons/fa";
-import { formatChallengePeriod, calculateDday } from "../lib/formatDate";
+import {
+  formatChallengePeriod,
+  getChallengeStatus,
+  getStatusBadgeText,
+} from "../lib/formatDate";
 
 interface ChallengePeriodProps {
   startDate: string;
@@ -7,9 +11,23 @@ interface ChallengePeriodProps {
 }
 
 export function ChallengePeriod({ startDate, endDate }: ChallengePeriodProps) {
-  const dday = calculateDday(endDate);
-  const isEnded = dday === "종료";
-  const isDday = dday === "D-Day";
+  const status = getChallengeStatus(startDate, endDate);
+  const badgeText = getStatusBadgeText(startDate, endDate);
+
+  // 뱃지 스타일 결정
+  const getBadgeStyle = () => {
+    switch (status) {
+      case "BEFORE":
+        // 시작 전: 파란색 계열 (기대감)
+        return "bg-blue-100 text-blue-600";
+      case "ONGOING":
+        // 진행 중: 주황색 계열
+        return "bg-orange-100 text-orange-600";
+      case "ENDED":
+        // 종료: 회색
+        return "bg-gray-200 text-gray-500";
+    }
+  };
 
   return (
     <div className="mx-4 my-3 px-4 py-3 bg-gray-50 rounded-xl">
@@ -21,15 +39,9 @@ export function ChallengePeriod({ startDate, endDate }: ChallengePeriodProps) {
           </span>
         </div>
         <span
-          className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-            isEnded
-              ? "bg-gray-200 text-gray-500"
-              : isDday
-                ? "bg-red-100 text-red-600"
-                : "bg-orange-100 text-orange-600"
-          }`}
+          className={`px-2 py-0.5 rounded-full text-xs font-bold ${getBadgeStyle()}`}
         >
-          {dday}
+          {badgeText}
         </span>
       </div>
     </div>

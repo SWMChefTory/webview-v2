@@ -3,7 +3,7 @@
 // ============================================
 export type { ChallengeType } from "./model/types";
 export { CHALLENGE_TYPES, CHALLENGE_TYPE_LABELS, CHALLENGE_SIGNUP_FORM_URL } from "./model/types";
-export { CHALLENGE_CONSTANTS } from "./model/constants";
+export { CHALLENGE_CONSTANTS, KAKAO_OPEN_CHAT_URLS } from "./model/constants";
 
 // ============================================
 // Schema & Types

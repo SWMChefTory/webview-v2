@@ -19,7 +19,6 @@ import {
   CHALLENGE_CONSTANTS,
   CHALLENGE_TYPE_LABELS,
   type ChallengeRecipe,
-  type ChallengeType,
 } from "@/src/features/challenge";
 
 // ============================================
@@ -105,6 +104,7 @@ function ChallengePageReady() {
         <SSRSuspense fallback={<ChallengeContentSkeleton />}>
           <ChallengeContent
             challengeId={data.challengeId}
+            startDate={data.startDate}
             endDate={data.endDate}
           />
         </SSRSuspense>
@@ -112,7 +112,8 @@ function ChallengePageReady() {
 
       {/* 하단 고정 바 */}
       <ChallengeBottomBar
-        kakaoUrl={CHALLENGE_CONSTANTS.kakaoOpenChatUrl}
+        challengeType={data.challengeType}
+        startDate={data.startDate}
         endDate={data.endDate}
       />
     </>
@@ -125,9 +126,11 @@ function ChallengePageReady() {
 
 function ChallengeContent({
   challengeId,
+  startDate,
   endDate,
 }: {
   challengeId: string;
+  startDate: string;
   endDate: string;
 }) {
   const {
@@ -147,6 +150,7 @@ function ChallengeContent({
       <ChallengeProgressSection
         completedCount={completedCount}
         totalCount={CHALLENGE_CONSTANTS.totalCount}
+        startDate={startDate}
         endDate={endDate}
       />
       <ChallengeRecipeList

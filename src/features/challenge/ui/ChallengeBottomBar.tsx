@@ -10,16 +10,25 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { calculateDday } from "../lib/formatDate";
+import { getChallengeStatus, calculateDaysUntilStart } from "../lib/formatDate";
+import { BEFORE_START_MESSAGES } from "../model/messages";
+import { KAKAO_OPEN_CHAT_URLS } from "../model/constants";
+import type { ChallengeType } from "../model/types";
 
 interface ChallengeBottomBarProps {
-  kakaoUrl: string;
+  challengeType: ChallengeType;
+  startDate: string;
   endDate: string;
 }
 
-export function ChallengeBottomBar({ kakaoUrl, endDate }: ChallengeBottomBarProps) {
+export function ChallengeBottomBar({ challengeType, startDate, endDate }: ChallengeBottomBarProps) {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const isEnded = calculateDday(endDate) === "종료";
+  const status = getChallengeStatus(startDate, endDate);
+  const isBefore = status === "BEFORE";
+  const isEnded = status === "ENDED";
+
+  // 챌린지 타입에 맞는 카카오 오픈채팅 URL
+  const kakaoUrl = KAKAO_OPEN_CHAT_URLS[challengeType];
 
   const handleButtonClick = () => {
     if (typeof window !== "undefined" && window.ReactNativeWebView) {
@@ -39,7 +48,21 @@ export function ChallengeBottomBar({ kakaoUrl, endDate }: ChallengeBottomBarProp
         }}
       >
         {/* 메인 버튼 */}
-        {isEnded ? (
+        {isBefore ? (
+          // 시작 전: 비활성 상태 버튼 (파란색 계열)
+          <div
+            className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2.5
+              bg-blue-100 border border-blue-200"
+          >
+            <span className="text-blue-500 font-semibold text-sm">
+              {calculateDaysUntilStart(startDate)}
+            </span>
+            <span className="text-blue-400 font-medium text-sm">
+              {BEFORE_START_MESSAGES.button(startDate)}
+            </span>
+          </div>
+        ) : isEnded ? (
+          // 종료: 다음 챌린지 참여 유도 버튼
           <button
             onClick={handleButtonClick}
             className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2.5
@@ -56,6 +79,7 @@ export function ChallengeBottomBar({ kakaoUrl, endDate }: ChallengeBottomBarProp
             <FiExternalLink size={12} className="text-white/70" />
           </button>
         ) : (
+          // 진행 중: 카카오톡 인증 버튼
           <button
             onClick={handleButtonClick}
             className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2.5

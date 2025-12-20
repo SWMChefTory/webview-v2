@@ -123,7 +123,14 @@ const UserSectionReady = () => {
           className="block w-full h-full object-cover object-center"
         />
       }
-      name={<div className="text-xl font-bold">{user.nickname}</div>}
+      name={
+        <div className="text-xl font-bold">
+          {user.nickname}
+          <span className="text-gray-400 font-normal text-base ml-1">
+            #{user.tag}
+          </span>
+        </div>
+      }
     />
   );
 };

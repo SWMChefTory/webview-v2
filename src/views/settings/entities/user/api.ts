@@ -9,6 +9,7 @@ export enum Gender {
 const userSchema = z.object({
     gender: z.enum(Gender).nullable().optional(),
     nickname: z.string(),
+    providerSub: z.string(),
     dateOfBirth: z.string().nullable().optional(),
     marketingAgreedAt: z.string().nullable(),
     termsOfUseAgreedAt: z.string(),

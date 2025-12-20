@@ -12,6 +12,7 @@ import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { ChallengeBanner } from "@/src/features/challenge";
 
 function HomePage() {
   const router = useRouter();
@@ -47,6 +48,7 @@ function HomePage() {
           </div>
         </Link>
       </div>
+      <ChallengeBanner />
       <CategorySection />
       <MyRecipes />
       <PopularRecipes />

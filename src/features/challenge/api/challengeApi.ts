@@ -39,10 +39,10 @@ export async function fetchChallengeInfo(): Promise<ChallengeData> {
     // snake_case → camelCase 변환 + Zod 검증
     return ParticipantSchema.parse({
       isParticipant: true,
-      challengeId: data.challenge_id,
+      challengeId: data.challengeId,
       challengeType: data.type,
-      startDate: data.start_at,
-      endDate: data.end_at,
+      startDate: data.startAt,
+      endDate: data.endAt,
     });
   } catch {
     // 챌린지 없음 = 비참여자
@@ -55,9 +55,9 @@ export async function fetchChallengeInfo(): Promise<ChallengeData> {
 // ============================================
 
 export async function fetchChallengeRecipes({
-  challengeId,
-  page,
-}: {
+                                              challengeId,
+                                              page,
+                                            }: {
   challengeId: string;
   page: number;
 }): Promise<ChallengeRecipesResponse> {
@@ -77,49 +77,49 @@ export async function fetchChallengeRecipes({
 
   // 실제 API 호출 (에러 시 상위로 전파 - ErrorBoundary에서 처리)
   const response = await client.get(
-    `/api/v1/recipes/challenge/${challengeId}?page=${page}`
+      `/recipes/challenge/${challengeId}?page=${page}`
   );
 
   // snake_case → camelCase 변환 + Zod 검증
   return ChallengeRecipesResponseSchema.parse({
-    completeRecipes: response.data.complete_recipes.map(
-      (r: { recipe_id: string }) => ({
-        recipeId: r.recipe_id,
-      })
+    completeRecipes: response.data.completeRecipes.map(
+        (r: { recipeId: string }) => ({
+          recipeId: r.recipeId,
+        })
     ),
-    challengeRecipes: response.data.challenge_recipes.map(
-      (r: {
-        recipe_id: string;
-        recipe_title: string;
-        tags?: { name: string }[];
-        description?: string;
-        servings?: number;
-        cooking_time?: number;
-        video_id: string;
-        video_url?: string;
-        video_type?: string;
-        video_thumbnail_url: string;
-        video_seconds?: number;
-        is_viewed?: boolean;
-      }) => ({
-        recipeId: r.recipe_id,
-        recipeTitle: r.recipe_title,
-        tags: r.tags,
-        description: r.description,
-        servings: r.servings,
-        cookingTime: r.cooking_time,
-        videoId: r.video_id,
-        videoUrl: r.video_url,
-        videoType: r.video_type,
-        videoThumbnailUrl: r.video_thumbnail_url,
-        videoSeconds: r.video_seconds,
-        isViewed: r.is_viewed,
-      })
+    challengeRecipes: response.data.challengeRecipes.map(
+        (r: {
+          recipeId: string;
+          recipeTitle: string;
+          tags?: { name: string }[];
+          description?: string;
+          servings?: number;
+          cookingTime?: number;
+          videoId: string;
+          videoUrl?: string;
+          videoType?: string;
+          videoThumbnailUrl: string;
+          videoSeconds?: number;
+          isViewed?: boolean;
+        }) => ({
+          recipeId: r.recipeId,
+          recipeTitle: r.recipeTitle,
+          tags: r.tags,
+          description: r.description,
+          servings: r.servings,
+          cookingTime: r.cookingTime,
+          videoId: r.videoId,
+          videoUrl: r.videoUrl,
+          videoType: r.videoType,
+          videoThumbnailUrl: r.videoThumbnailUrl,
+          videoSeconds: r.videoSeconds,
+          isViewed: r.isViewed,
+        })
     ),
-    currentPage: response.data.current_page,
-    totalPages: response.data.total_pages,
-    totalElements: response.data.total_elements,
-    hasNext: response.data.has_next,
+    currentPage: response.data.currentPage,
+    totalPages: response.data.totalPages,
+    totalElements: response.data.totalElements,
+    hasNext: response.data.hasNext,
   });
 }
 
@@ -140,7 +140,7 @@ function simulateNetworkDelay(ms: number = 500): Promise<void> {
  * Mock 모드에서 나의 레시피 데이터를 챌린지 형식으로 변환
  */
 function convertUserRecipeToChallengeRecipe(
-  recipe: UserRecipe
+    recipe: UserRecipe
 ): ChallengeRecipe {
   return {
     recipeId: recipe.recipeId,

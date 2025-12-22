@@ -19,7 +19,7 @@ export const CHALLENGE_CONSTANTS = {
 
 export const KAKAO_OPEN_CHAT_URLS: Record<ChallengeType, string> = {
   /** 자취생(1인가구) 챌린지 오픈채팅 */
-  SINGLE: "https://open.kakao.com/o/gdXsMo7h",
+  SINGLE: "https://open.kakao.com/o/sXzywB7h",
   /** 주부 챌린지 오픈채팅 */
-  HOUSEWIFE: "https://open.kakao.com/o/gVvIMo7h",
+  HOUSEWIFE: "https://open.kakao.com/o/sXzywB7h",
 };

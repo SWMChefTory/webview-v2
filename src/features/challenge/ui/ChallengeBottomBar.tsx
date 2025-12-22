@@ -31,11 +31,17 @@ export function ChallengeBottomBar({ challengeType, startDate, endDate }: Challe
   const kakaoUrl = KAKAO_OPEN_CHAT_URLS[challengeType];
 
   const handleButtonClick = () => {
-    if (typeof window !== "undefined" && window.ReactNativeWebView) {
-      request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", { url: kakaoUrl });
-    } else {
-      window.open(kakaoUrl, "_blank");
+    // 웹뷰 내에서 직접 열기 (현재 사용)
+    if (typeof window !== "undefined") {
+      window.location.href = kakaoUrl;
     }
+
+    // [보류] 네이티브 앱 배포 후 아래 코드로 복원
+    // if (typeof window !== "undefined" && window.ReactNativeWebView) {
+    //   request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", { url: kakaoUrl });
+    // } else {
+    //   window.open(kakaoUrl, "_blank");
+    // }
   };
 
   return (

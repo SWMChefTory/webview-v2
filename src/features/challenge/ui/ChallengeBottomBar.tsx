@@ -4,6 +4,8 @@ import { FiExternalLink } from "react-icons/fi";
 import { FaChevronRight, FaCheck } from "react-icons/fa";
 import { BsGift } from "react-icons/bs";
 import { MODE, request } from "@/src/shared/client/native/client";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import {
   Sheet,
   SheetContent,
@@ -31,6 +33,9 @@ export function ChallengeBottomBar({ challengeType, startDate, endDate }: Challe
   const kakaoUrl = KAKAO_OPEN_CHAT_URLS[challengeType];
 
   const handleButtonClick = () => {
+    // Amplitude 트래킹
+    track(AMPLITUDE_EVENT.CHALLENGE_VERIFY_CLICK);
+
     // 웹뷰 내에서 직접 열기 (현재 사용)
     if (typeof window !== "undefined") {
       window.location.href = kakaoUrl;
@@ -107,7 +112,10 @@ export function ChallengeBottomBar({ challengeType, startDate, endDate }: Challe
 
         {/* 챌린지 안내 링크 */}
         <button
-          onClick={() => setIsGuideOpen(true)}
+          onClick={() => {
+            track(AMPLITUDE_EVENT.CHALLENGE_GUIDE_CLICK);
+            setIsGuideOpen(true);
+          }}
           className="flex items-center justify-center gap-1 w-full py-2.5 text-xs text-gray-500
             transition-colors active:text-gray-700"
         >

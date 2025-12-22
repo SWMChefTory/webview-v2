@@ -54,6 +54,8 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
       _source: "challenge",
       _creationMethod: "card",
     });
+    // 나의 레시피 등록 후 바로 상세 페이지로 이동
+    router.push(`/recipe/${recipe.recipeId}/detail`);
   };
 
   return (

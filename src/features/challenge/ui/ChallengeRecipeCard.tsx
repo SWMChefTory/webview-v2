@@ -3,6 +3,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import type { ChallengeRecipe } from "../model/schema";
 
 interface ChallengeRecipeCardProps {
@@ -13,6 +15,9 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
+    track(AMPLITUDE_EVENT.CHALLENGE_RECIPE_CLICK, {
+      recipe_id: recipe.recipeId,
+    });
     router.push(`/recipe/${recipe.recipeId}/detail`);
   };
 

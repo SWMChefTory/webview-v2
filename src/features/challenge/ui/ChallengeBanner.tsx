@@ -1,17 +1,19 @@
-import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { FaCheck, FaChevronRight } from "react-icons/fa";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { SSRErrorBoundary } from "@/src/shared/boundary/SSRErrorBoundary";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { BANNER_MESSAGES } from "../model/messages";
 import { useChallengeInfo } from "../model/useChallengeInfo";
 import { useChallengeRecipes } from "../model/useChallengeRecipes";
 import { CHALLENGE_CONSTANTS } from "../model/constants";
+import type { ChallengeType } from "../model/types";
 import {
   getChallengeStatus,
   calculateDaysUntilStart,
-  type ChallengeStatus,
 } from "../lib/formatDate";
 
 // 외부 export
@@ -40,6 +42,7 @@ function ChallengeBannerReady() {
       <SSRSuspense fallback={<ChallengeBannerSkeleton />}>
         <ChallengeBannerWithRecipes
           challengeId={data.challengeId}
+          challengeType={data.challengeType}
           startDate={data.startDate}
           endDate={data.endDate}
         />
@@ -51,10 +54,12 @@ function ChallengeBannerReady() {
 // 레시피 데이터 로드 컴포넌트
 function ChallengeBannerWithRecipes({
   challengeId,
+  challengeType,
   startDate,
   endDate,
 }: {
   challengeId: string;
+  challengeType: ChallengeType;
   startDate: string;
   endDate: string;
 }) {
@@ -65,6 +70,8 @@ function ChallengeBannerWithRecipes({
 
   return (
     <ChallengeBannerContent
+      challengeId={challengeId}
+      challengeType={challengeType}
       challengeName={challengeName}
       completedCount={completedCount}
       totalCount={totalCount}
@@ -76,6 +83,8 @@ function ChallengeBannerWithRecipes({
 
 // 배너 내부 컨텐츠
 interface ChallengeBannerContentProps {
+  challengeId: string;
+  challengeType: ChallengeType;
   challengeName: string;
   completedCount: number;
   totalCount: number;
@@ -84,15 +93,29 @@ interface ChallengeBannerContentProps {
 }
 
 function ChallengeBannerContent({
+  challengeId,
+  challengeType,
   challengeName,
   completedCount,
   totalCount,
   startDate,
   endDate,
 }: ChallengeBannerContentProps) {
+  const router = useRouter();
   const status = getChallengeStatus(startDate, endDate);
   const isCompleted = completedCount >= totalCount;
   const isBefore = status === "BEFORE";
+
+  // 배너 클릭 핸들러
+  const handleClick = () => {
+    track(AMPLITUDE_EVENT.CHALLENGE_BANNER_CLICK, {
+      challenge_id: challengeId,
+      challenge_type: challengeType,
+      status,
+      completed_count: completedCount,
+    });
+    router.push("/challenge");
+  };
 
   // 오버레이 스타일 결정
   const getOverlayStyle = () => {
@@ -137,15 +160,15 @@ function ChallengeBannerContent({
 
   return (
     <div className="px-4 py-2">
-      <Link href="/challenge">
-        <div
-          className="relative overflow-hidden rounded-2xl shadow-sm transition-all duration-200 active:scale-[0.99]"
-          style={{
-            backgroundImage: "url('/images/challenge/challenge-banner.png')",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        >
+      <div
+        onClick={handleClick}
+        className="relative overflow-hidden rounded-2xl shadow-sm transition-all duration-200 active:scale-[0.99] cursor-pointer"
+        style={{
+          backgroundImage: "url('/images/challenge/challenge-banner.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
           {/* 그라데이션 오버레이 (왼쪽 텍스트 가독성 확보) */}
           <div className={`absolute inset-0 ${getOverlayStyle()}`} />
           {/* 콘텐츠 */}
@@ -199,8 +222,7 @@ function ChallengeBannerContent({
             </div>
           </div>
         </div>
-      </Link>
-    </div>
+      </div>
   );
 }
 

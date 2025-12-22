@@ -154,4 +154,21 @@ export const enum AMPLITUDE_EVENT {
 
   /** 요리 모드 종료 (세션 집계) */
   COOKING_MODE_END = "cooking_mode_end",
+
+  // ─────────────────────────────────────────────────────────────
+  // 챌린지 (Challenge)
+  // 집밥 챌린지 참여 및 인증 흐름 추적
+  // ─────────────────────────────────────────────────────────────
+
+  /** 홈 배너 클릭 → 챌린지 페이지 진입 */
+  CHALLENGE_BANNER_CLICK = "challenge_banner_click",
+
+  /** 인증하기 버튼 클릭 (카카오 오픈채팅 이동) */
+  CHALLENGE_VERIFY_CLICK = "challenge_verify_click",
+
+  /** 챌린지 안내보기 클릭 */
+  CHALLENGE_GUIDE_CLICK = "challenge_guide_click",
+
+  /** 챌린지 레시피 카드 클릭 */
+  CHALLENGE_RECIPE_CLICK = "challenge_recipe_click",
 }

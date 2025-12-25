@@ -1,0 +1,17 @@
+{
+  "title": "Recipe Categories",
+  "cuisine": {
+    "KOREAN": "Korean",
+    "SNACK": "Street Food",
+    "CHINESE": "Chinese",
+    "JAPANESE": "Japanese",
+    "WESTERN": "Western",
+    "DESSERT": "Dessert",
+    "HEALTHY": "Healthy",
+    "SIMPLE": "Simple"
+  },
+  "recommend": {
+    "CHEF": "Chef",
+    "TRENDING": "Trending"
+  }
+}

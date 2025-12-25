@@ -23,8 +23,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CategoryType, getCategoryTypeLabel, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
+import { CategoryType, isCuisineType, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
 import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
@@ -128,7 +129,8 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
   // 언어 설정 가져오기
   const lang = useLangcode();
   const messages = formatCategoryResultMessages(lang);
-  const categoryName = getCategoryTypeLabel(recommendType, lang);
+  const { t: categoryT } = useCategoryTranslation();
+  const categoryName = categoryT(`recommend.${recommendType}`);
 
   useEffect(() => {
     const loadMore = loadMoreRef.current;
@@ -218,7 +220,8 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
   // 언어 설정 가져오기
   const lang = useLangcode();
   const messages = formatCategoryResultMessages(lang);
-  const categoryName = getCategoryTypeLabel(cuisineType, lang);
+  const { t: categoryT } = useCategoryTranslation();
+  const categoryName = categoryT(`cuisine.${cuisineType}`);
 
   useEffect(() => {
     const loadMore = loadMoreRef.current;

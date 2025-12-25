@@ -11,7 +11,9 @@
     "empty": {
       "noRecipe": "No recipes created yet",
       "noRecipeInCategory": "There are no recipes in {{category}}",
-      "suggestion": "Try creating a new recipe"
+      "suggestion": "Try creating a new recipe",
+      "pleaseCreate": "Please create a recipe",
+      "clickToCreate": "Click to create"
     },
     "category": {
       "all": "All",
@@ -36,5 +38,21 @@
     "minute": "{{count}} minute ago",
     "minute_plural": "{{count}} minutes ago",
     "justNow": "Just now"
+    },
+    "toast": {
+        "prepare": {
+            "title": "Preparing to create recipe",
+            "urlLabel": "URL: {{url}}"
+        },
+        "failed": {
+            "title": "Failed to create recipe"
+        },
+        "inProgress": {
+            "title": "Recipe creation started"
+        },
+        "success": {
+            "title": "Recipe created successfully",
+            "moveButton": "View"
+        }
     }
 }

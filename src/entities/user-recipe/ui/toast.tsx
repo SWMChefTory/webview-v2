@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useFetchRecipeOverview } from "../../recipe-overview/model/model";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useUserRecipeTranslation } from "@/src/views/user-recipe/hooks/useUserRecipeTranslation";
 
 type ViewportEl = ReactElement<React.ComponentProps<typeof Toast.Viewport>>;
 
@@ -16,6 +17,7 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
   const { toastInfo, startTime } = useRecipeCreateToastInfo();
   const { close } = useRecipeCreateToastAction();
   const router = useRouter();
+  const { t } = useUserRecipeTranslation();
   if (!toastInfo) {
     return null;
   }
@@ -24,17 +26,17 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
     switch (toastInfo.status) {
       case RecipeCreateToastStatus.PREPARE:
         return {
-          title: "레시피 생성 준비중이에요",
-          description: `url 주소 : ${toastInfo.url}`,
+          title: t("toast.prepare.title"),
+          description: t("toast.prepare.urlLabel", { url: toastInfo.url }),
         };
       case RecipeCreateToastStatus.FAILED:
         return {
-          title: <div className="text-red-300">레시피 생성에 실패했어요</div>,
+          title: <div className="text-red-300">{t("toast.failed.title")}</div>,
           description: `${toastInfo.errorMessage}`,
         };
       case RecipeCreateToastStatus.IN_PROGRESS:
         return {
-          title: "레시피 생성을 시작했어요",
+          title: t("toast.inProgress.title"),
           description: `${toastInfo.recipeTitle}`,
         };
       case RecipeCreateToastStatus.SUCCESS:
@@ -46,7 +48,7 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
                 close();
               }}
             >
-              <div>레시피 생성이 완료되었어요</div>
+              <div>{t("toast.success.title")}</div>
               <div
                 className="text-orange-500 border rounded-md px-2 py-1 text-sm font-bold cursor-pointer"
                 onClick={(e) => {
@@ -54,7 +56,7 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
                   router.push(`/recipe/${toastInfo.recipeId}/detail`);
                 }}
               >
-                이동
+                {t("toast.success.moveButton")}
               </div>
             </div>
           ),

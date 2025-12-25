@@ -1,0 +1,13 @@
+{
+  "loading": "로딩중",
+  "tutorial": {
+    "title": "음성으로 요리해볼까요?",
+    "description": "손을 대지 않고 요리하는 방법을 알려드려요 (30초 소요)",
+    "btnSkip": "괜찮아요",
+    "btnStart": "볼게요"
+  },
+  "voice": {
+    "listening": "음성을 듣고 있어요",
+    "skip": "클릭해서 넘어갈게요"
+  }
+}

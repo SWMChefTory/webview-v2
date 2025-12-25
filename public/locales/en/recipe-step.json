@@ -1,0 +1,13 @@
+{
+  "loading": "Loading...",
+  "tutorial": {
+    "title": "Shall we cook with voice?",
+    "description": "Learn how to cook hands-free (takes 30s)",
+    "btnSkip": "No thanks",
+    "btnStart": "Start"
+  },
+  "voice": {
+    "listening": "Listening...",
+    "skip": "Click to skip"
+  }
+}

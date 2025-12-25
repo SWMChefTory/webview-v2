@@ -6,6 +6,7 @@ import {
   getCategoryTypeLabel,
 } from "@/src/entities/category/type/cuisineType";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 
 interface CategoryItem {
   type: CategoryType;
@@ -69,6 +70,7 @@ const categories: CategoryItem[] = [
 export const CategorySection = () => {
   const router = useRouter();
   const lang = useLangcode();
+  const { t } = useHomeTranslation();
 
   const handleCategoryClick = (category: CategoryItem) => {
     router.push({
@@ -81,7 +83,7 @@ export const CategorySection = () => {
     <div className="w-full pt-4 pb-4 bg-white">
       <div className="px-4 mb-2">
         <h2 className="text-xl font-semibold text-gray-900">
-          {lang == "ko" ? "요리 카테고리" : "Recipe category"}
+          {t("recipeCategory")}
         </h2>
       </div>
       {/* 5열 2행 그리드 */}

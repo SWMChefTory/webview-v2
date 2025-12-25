@@ -11,7 +11,9 @@
     "empty": {
       "noRecipe":"생성된 레시피가 없어요",
       "noRecipeInCategory": "{{category}}에 해당하는 레시피가 없어요",
-      "suggestion": "레시피를 생성해 보세요"
+      "suggestion": "레시피를 생성해 보세요",
+      "pleaseCreate": "레시피를 만들어주세요",
+      "clickToCreate": "클릭해서 레시피 생성"
     },
     "category": {
       "all": "전체",
@@ -36,5 +38,21 @@
         "minute" : "{{count}}분 전",
         "minute_plural" : "{{count}}분 전",
         "justNow" : "방금 전"
+    },
+    "toast": {
+        "prepare": {
+            "title": "레시피 생성 준비중이에요",
+            "urlLabel": "url 주소 : {{url}}"
+        },
+        "failed": {
+            "title": "레시피 생성에 실패했어요"
+        },
+        "inProgress": {
+            "title": "레시피 생성을 시작했어요"
+        },
+        "success": {
+            "title": "레시피 생성이 완료되었어요",
+            "moveButton": "이동"
+        }
     }
   }

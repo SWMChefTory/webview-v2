@@ -1,0 +1,17 @@
+{
+  "autoClose": "{{seconds}}초 후에 자동으로 종료돼요.",
+  "close": "닫기",
+  "reset": "재설정",
+  "title": "타이머",
+  "start": "시작",
+  "units": {
+    "hour": "시간",
+    "minute": "분",
+    "second": "초"
+  },
+  "error": {
+    "limitExceeded": "타이머는 하나만 실행할 수 있어요!",
+    "inputTime": "시간을 입력해주세요.",
+    "notRunning": "타이머가 실행되지 않았어요"
+  }
+}

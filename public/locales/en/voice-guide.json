@@ -46,5 +46,8 @@
       "Speaking loudly and clearly improves recognition.",
       "Continuous commands may not be recognized."
     ]
+  },
+  "accessibility": {
+    "buttonLabel": "Voice Command Guide"
   }
 }

@@ -9,7 +9,7 @@ import {
 } from "../hooks/useTutorial";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { useVoiceGuideTranslation } from "@/src/entities/voice-guide/hooks/useVoiceGuideTranslation";
+import { useVoiceGuideTranslation } from "../hooks/useVoiceGuideTranslation";
 
 export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
   const { t } = useVoiceGuideTranslation();
@@ -129,6 +129,8 @@ export function MicButton({
   onClick: () => void;
   ref: React.RefObject<undefined | popoverHandle>;
 }) {
+  const { t } = useVoiceGuideTranslation();
+
   return (
     <button
       className={[
@@ -137,7 +139,7 @@ export function MicButton({
           ? "bg-orange-500 shadow-[0_2px_24px_rgba(251,146,60,0.8)]"
           : "bg-orange-500 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
       ].join(" ")}
-      aria-label="음성 명령 가이드"
+      aria-label={t("accessibility.buttonLabel")}
       type="button"
       onClick={onClick}
     >

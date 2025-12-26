@@ -1,0 +1,21 @@
+{
+  "empty": {
+    "title": "검색어에 해당하는 레시피가 없어요",
+    "subtitle": "다른 검색어로 시도해보세요"
+  },
+  "header": {
+    "suffix": "에 대한 검색결과",
+    "totalCount": "총 {{count}}개의 레시피"
+  },
+  "card": {
+    "badge": "이미 등록했어요",
+    "serving": "{{count}}인분",
+    "minute": "{{count}}분"
+  },
+  "dialog": {
+    "title": "레시피 생성",
+    "description": "<bold>{{name}}</bold> 레시피를 생성하시겠어요?",
+    "cancel": "취소",
+    "confirm": "생성"
+  }
+}

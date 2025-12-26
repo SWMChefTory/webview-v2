@@ -31,9 +31,9 @@ import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHa
 import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 import { Button } from "@/components/ui/button";
 import { CategoryCreatingView } from "@/src/widgets/category-creating-view/categoryCreatingView";
-// useUserRecipeTranslation 제거
 import { formatCategoryName } from "@/src/features/format/category/formatCategoryName";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode"; // Lang 타입 import 추가
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { useCategoryCreatingTranslation } from "../hooks/useCategoryCreatingTranslation";
 
 export enum CategoryMode {
   SELECT,
@@ -159,36 +159,6 @@ const CategoryListSkeleton = () => {
   );
 };
 
-// 텍스트 포매팅 함수 정의
-const formatCategoryDeleteAlertMessages = ({
-  categoryName,
-  count,
-  lang,
-}: {
-  categoryName: string;
-  count: number;
-  lang: Lang;
-}) => {
-  switch (lang) {
-    case "en":
-      return {
-        title: "Delete this category?",
-        description: `There are ${count} recipe(s) in ${categoryName}.`,
-        subDescription: "Deleting the category does not delete the recipes.",
-        cancel: "Cancel",
-        confirm: "Confirm",
-      };
-    default:
-      return {
-        title: "정말 삭제하시겠어요?",
-        description: `${categoryName} 카테고리에 속한 레시피가 ${count}개 있어요.`,
-        subDescription: "카테고리를 삭제하면 레시피가 사라지진 않아요.",
-        cancel: "취소",
-        confirm: "확인",
-      };
-  }
-};
-
 function CategoryDeleteAlert({
   category,
   onClose,
@@ -197,14 +167,7 @@ function CategoryDeleteAlert({
   onClose: () => void;
 }) {
   const { deleteCategory, isPending } = useDeleteCategory();
-  const lang = useLangcode(); // lang 가져오기
-
-  // 포매팅된 메시지 가져오기
-  const messages = formatCategoryDeleteAlertMessages({
-    categoryName: category.name,
-    count: category.count,
-    lang,
-  });
+  const { t } = useCategoryCreatingTranslation();
 
   const handleCancel = () => {
     onClose();
@@ -233,10 +196,15 @@ function CategoryDeleteAlert({
           onPointerDownOutside={handleCancel}
         >
           <DialogHeader>
-            <DialogTitle>{messages.title}</DialogTitle>
+            <DialogTitle>{t("deleteAlert.title")}</DialogTitle>
             <DialogDescription>
-              <div className="text-orange-500">{messages.description}</div>
-              <div>{messages.subDescription}</div>
+              <div className="text-orange-500">
+                {t("deleteAlert.description", {
+                  categoryName: category.name,
+                  count: category.count
+                })}
+              </div>
+              <div>{t("deleteAlert.subDescription")}</div>
             </DialogDescription>
           </DialogHeader>
           <div className="h-4" />
@@ -247,7 +215,7 @@ function CategoryDeleteAlert({
                 variant="secondary"
                 className="flex flex-1 bg-black text-white"
               >
-                {messages.cancel}
+                {t("deleteAlert.cancel")}
               </Button>
             </DialogClose>
             <DialogClose className="flex-1 flex" onClick={handleDelete}>
@@ -256,7 +224,7 @@ function CategoryDeleteAlert({
                 variant="outline"
                 className="flex flex-1 text-black"
               >
-                {messages.confirm}
+                {t("deleteAlert.confirm")}
               </Button>
             </DialogClose>
           </DialogFooter>

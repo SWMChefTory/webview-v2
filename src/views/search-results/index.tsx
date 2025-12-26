@@ -9,21 +9,7 @@ import { FaMagnifyingGlass } from "react-icons/fa6";
 import { IoMdCloseCircle } from "react-icons/io";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDebounce } from "use-debounce";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
-
-// 다국어 메시지 포매터
-const formatSearchMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        placeholder: "Search for recipes",
-      };
-    default:
-      return {
-        placeholder: "검색어를 입력해주세요.",
-      };
-  }
-};
+import { useSearchResultsTranslation } from "./hooks/useSearchResultsTranslation";
 
 const SearchResultsPage = () => {
   const router = useRouter();
@@ -128,11 +114,8 @@ const SearchBar = memo(({
   const { autoCompleteData, isLoading } = useFetchAutoCompleteData(debouncedSearchKeyword.trim());
   const inputRef = useRef<HTMLInputElement>(null);
   const prevAutocompletesRef = useRef<AutoComplete[]>([]);
-  
-  // 1. 언어 설정 및 메시지 가져오기
-  const lang = useLangcode();
-  const messages = formatSearchMessages(lang);
-  
+  const { t } = useSearchResultsTranslation();
+
   // initialKeyword 변경 시 keyboardInput 동기화
   useEffect(() => {
     setKeyboardInput(initialKeyword);
@@ -204,7 +187,7 @@ const SearchBar = memo(({
           ref={inputRef}
           className="w-full text-lg outline-none z-10"
           type="text"
-          placeholder={messages.placeholder} // 다국어 메시지 적용
+          placeholder={t("placeholder")}
           value={keyboardInput}
           onChange={(e) => setKeyboardInput(e.target.value)}
           onFocus={handleFocus}

@@ -1,0 +1,16 @@
+{
+  "form": {
+    "title": "Create Category",
+    "placeholder": "Enter category name",
+    "errorEmpty": "Please enter a category name",
+    "errorTooLong": "Please enter 20 characters or less!",
+    "submit": "Done"
+  },
+  "deleteAlert": {
+    "title": "Delete this category?",
+    "description": "There are {{count}} recipe(s) in {{categoryName}}.",
+    "subDescription": "Deleting the category does not delete the recipes.",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  }
+}

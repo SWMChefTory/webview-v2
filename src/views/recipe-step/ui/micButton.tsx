@@ -7,121 +7,12 @@ import {
   useTutorialActions,
   StepStatus,
 } from "../hooks/useTutorial";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-
-// 다국어 메시지 포매터 정의
-const formatVoiceGuideMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        modal: {
-          title: "Voice Command Guide",
-          button: "Got it!",
-        },
-        tutorial: {
-          thankYou: "Thanks for completing the tutorial!",
-          detailInfo: "Tap the button below for more details.",
-          checkLater: "Check later",
-        },
-        commands: [
-          {
-            command: '"Next Step"',
-            description: "Go to the next cooking step",
-            icon: "➡️",
-          },
-          {
-            command: '"Previous Step"',
-            description: "Go back to the previous cooking step",
-            icon: "⬅️",
-          },
-          {
-            command: '"Go to step 3"',
-            description: "Jump directly to a specific step",
-            icon: "🔢",
-          },
-          {
-            command: '"Go to chopping onions"',
-            description: "Jump to a specific scene by description",
-            icon: "🎯",
-          },
-          {
-            command: '"Start/Stop 3 min timer"',
-            description: "Start or stop a cooking timer",
-            icon: "⏰",
-          },
-          {
-            command: '"Pause/Play video"',
-            description: "Pause or play the video",
-            icon: "⏯️",
-          },
-        ],
-        tip: {
-          title: "TIP",
-          items: [
-            "Speaking loudly and clearly improves recognition.",
-            "Continuous commands may not be recognized.",
-          ],
-        },
-      };
-    default:
-      return {
-        modal: {
-          title: "음성명령 가이드",
-          button: "알겠어요!",
-        },
-        tutorial: {
-          thankYou: "튜토리얼을 진행해주셔서 감사해요!",
-          detailInfo: "아래 버튼을 누르면 더 상세한 정보를 얻을 수 있어요",
-          checkLater: "다음에 확인할게요",
-        },
-        commands: [
-          {
-            command: '"다음 단계"',
-            description: "다음 요리 단계로 이동합니다",
-            icon: "➡️",
-          },
-          {
-            command: '"이전 단계"',
-            description: "이전 요리 단계로 돌아갑니다",
-            icon: "⬅️",
-          },
-          {
-            command: '"세 번째 단계로 가줘"',
-            description: "특정 단계로 바로 이동합니다",
-            icon: "🔢",
-          },
-          {
-            command: '"양파 써는 장면으로 가줘"',
-            description: "원하는 장면으로 바로 이동합니다",
-            icon: "🎯",
-          },
-          {
-            command: '"타이머 3분 시작/정지"',
-            description: "요리 타이머를 시작/정지합니다",
-            icon: "⏰",
-          },
-          {
-            command: '"동영상 정지/재생"',
-            description: "동영상을 정지/재생합니다",
-            icon: "⏯️",
-          },
-        ],
-        tip: {
-          title: "TIP",
-          items: [
-            "큰 목소리로 또박또박 말하면 인식률이 높아져요",
-            "연속으로 음성 명령을 내리면 인식하지 못할 수 있어요",
-          ],
-        },
-      };
-  }
-};
+import { useVoiceGuideTranslation } from "@/src/entities/voice-guide/hooks/useVoiceGuideTranslation";
 
 export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
-  const lang = useLangcode();
-  const messages = formatVoiceGuideMessages(lang);
+  const { t } = useVoiceGuideTranslation();
 
   return (
     <>
@@ -130,13 +21,13 @@ export const VoiceGuideModal = ({ onClick }: { onClick: () => void }) => {
           <Dialog.Content className="absolute inset-0 z-[1200] flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm">
             <div className="flex flex-col max-h-[90vh] w-full w-[80vw] animate-[slideUp_.3s_ease-out] overflow-hidden rounded-2xl bg-white shadow-2xl">
               <Dialog.Title className="text-2xl pt-6 pb-2 font-bold pl-8">
-                {messages.modal.title}
+                {t("modal.title")}
               </Dialog.Title>
-              <VoiceGuide messages={messages} />
+              <VoiceGuide />
               <div className="w-full flex items-center justify-center">
                 <VoiceGuideCloseButton
                   onClick={onClick}
-                  label={messages.modal.button}
+                  label={t("modal.button")}
                 />
               </div>
             </div>
@@ -156,9 +47,7 @@ export function VoiceGuideMicStep({
 }) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
-
-  const lang = useLangcode();
-  const messages = formatVoiceGuideMessages(lang);
+  const { t } = useVoiceGuideTranslation();
 
   // X 버튼 클릭 시 (중도 이탈)
   const handleTerminate = () => {
@@ -210,18 +99,18 @@ export function VoiceGuideMicStep({
             </div>
 
             <p className="break-keep leading-relaxed font-semibold ">
-              {messages.tutorial.thankYou}
+              {t("tutorial.thankYou")}
             </p>
             <div className="h-1" />
             <p className="break-keep leading-relaxed font-semibold ">
-              {messages.tutorial.detailInfo}
+              {t("tutorial.detailInfo")}
             </p>
             <div className="flex w-full justify-center pt-4">
               <Popover.Close
                 asChild
                 className="px-3 py-1 bg-gray-200 rounded font-semibold"
               >
-                <p onClick={handleComplete}>{messages.tutorial.checkLater}</p>
+                <p onClick={handleComplete}>{t("tutorial.checkLater")}</p>
               </Popover.Close>
             </div>
           </div>
@@ -294,16 +183,22 @@ export function MicButton({
   );
 }
 
-function VoiceGuide({
-  messages,
-}: {
-  messages: ReturnType<typeof formatVoiceGuideMessages>;
-}) {
+function VoiceGuide() {
+  const { t } = useVoiceGuideTranslation();
+
+  const commands = t("commands", { returnObjects: true }) as Array<{
+    command: string;
+    description: string;
+    icon: string;
+  }>;
+
+  const tipItems = t("tip.items", { returnObjects: true }) as string[];
+
   return (
     <div className="max-h-[calc(90vh-150px)] overflow-y-auto px-6 py-5">
       {/* Voice Commands List */}
       <div className="mb-6 space-y-3">
-        {messages.commands.map((command, index) => (
+        {commands.map((command, index) => (
           <div
             key={index}
             className="flex items-start gap-3 rounded-xl bg-gray-50 p-4 transition hover:bg-gray-100"
@@ -322,10 +217,10 @@ function VoiceGuide({
       {/* TIP Section */}
       <div className="rounded-xl border border-orange-100 bg-orange-50 p-4">
         <h3 className="mb-2 text-sm font-bold text-orange-700">
-          {messages.tip.title}
+          {t("tip.title")}
         </h3>
         <ul className="list-disc space-y-1 pl-5 text-sm text-orange-800 break-keep">
-          {messages.tip.items.map((item, index) => (
+          {tipItems.map((item, index) => (
             <li key={index}>{item}</li>
           ))}
         </ul>

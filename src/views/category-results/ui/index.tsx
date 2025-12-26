@@ -24,71 +24,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CategoryType, isCuisineType, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-
-
-
-// 다국어 메시지 포매터
-const formatCategoryResultMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        empty: {
-          title: "No recipes found in this category",
-          subtitle: "Try selecting a different category",
-        },
-        header: {
-          suffix: "Recipes",
-          totalCount: (count: number) => `Total ${count} recipes`,
-        },
-        card: {
-          badge: "Already Registered",
-          serving: (count: number) => `${count} serving${count !== 1 ? 's' : ''}`,
-          minute: (count: number) => `${count} min`,
-        },
-        dialog: {
-          title: "Create Recipe",
-          description: (name: string) => (
-            <>
-              Do you want to create a recipe for <span className="text-black font-bold">{name}</span>?
-            </>
-          ),
-          cancel: "Cancel",
-          confirm: "Create",
-        }
-      };
-    default:
-      return {
-        empty: {
-          title: "해당 카테고리의 레시피가 없어요",
-          subtitle: "다른 카테고리를 선택해보세요",
-        },
-        header: {
-          suffix: "레시피",
-          totalCount: (count: number) => `총 ${count}개의 레시피`,
-        },
-        card: {
-          badge: "이미 등록했어요",
-          serving: (count: number) => `${count}인분`,
-          minute: (count: number) => `${count}분`,
-        },
-        dialog: {
-          title: "레시피 생성",
-          description: (name: string) => (
-            <>
-              <span className="text-black font-bold">{name}</span> 레시피를 생성하시겠어요?
-            </>
-          ),
-          cancel: "취소",
-          confirm: "생성",
-        }
-      };
-  }
-};
+import { Trans } from "next-i18next";
+import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
 
 export function CategoryResultsSkeleton() {
   return (
@@ -125,10 +66,8 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
   } = useFetchRecommendRecipes({ recommendType });
   
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  
-  // 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatCategoryResultMessages(lang);
+
+  const { t } = useCategoryResultsTranslation();
   const { t: categoryT } = useCategoryTranslation();
   const categoryName = categoryT(`recommend.${recommendType}`);
 
@@ -165,8 +104,8 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
           />
         </div>
         <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">{messages.empty.title}</h3>
-          <p className="text-s text-gray-600">{messages.empty.subtitle}</p>
+          <h3 className="font-bold text-xl text-gray-900">{t("empty.title")}</h3>
+          <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
         </div>
       </div>
     );
@@ -178,9 +117,9 @@ function RecommendCategoryContent({ recommendType }: { recommendType: RecommendT
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
           <h1 className="text-2xl font-bold text-gray-900 truncate">{categoryName}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">{messages.header.suffix}</span>
+          <span className="text-lg font-medium text-gray-600 shrink-0">{t("header.suffix")}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">{messages.header.totalCount(totalElements)}</p>
+        <p className="text-sm text-gray-500 mt-2">{t("header.totalCount", { count: totalElements })}</p>
       </div>
 
       {/* 레시피 그리드 */}
@@ -216,10 +155,8 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
   } = useFetchCuisineRecipes({ cuisineType });
   
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  
-  // 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatCategoryResultMessages(lang);
+
+  const { t } = useCategoryResultsTranslation();
   const { t: categoryT } = useCategoryTranslation();
   const categoryName = categoryT(`cuisine.${cuisineType}`);
 
@@ -256,8 +193,8 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
           />
         </div>
         <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">{messages.empty.title}</h3>
-          <p className="text-s text-gray-600">{messages.empty.subtitle}</p>
+          <h3 className="font-bold text-xl text-gray-900">{t("empty.title")}</h3>
+          <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
         </div>
       </div>
     );
@@ -269,9 +206,9 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
           <h1 className="text-2xl font-bold text-gray-900 truncate">{categoryName}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">{messages.header.suffix}</span>
+          <span className="text-lg font-medium text-gray-600 shrink-0">{t("header.suffix")}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">{messages.header.totalCount(totalElements)}</p>
+        <p className="text-sm text-gray-500 mt-2">{t("header.totalCount", { count: totalElements })}</p>
       </div>
 
       {/* 레시피 그리드 */}
@@ -308,10 +245,7 @@ const CuisineRecipeCardReady = ({
   const { detailMeta, tags, isViewed } = recipe;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
-  
-  // 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatCategoryResultMessages(lang);
+  const { t } = useCategoryResultsTranslation();
 
   const handleCardClick = () => {
     if (!isViewed) {
@@ -329,7 +263,7 @@ const CuisineRecipeCardReady = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <article 
+      <article
         className="w-full group cursor-pointer"
         onClick={handleCardClick}
       >
@@ -337,7 +271,7 @@ const CuisineRecipeCardReady = ({
           <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
           {isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              {messages.card.badge}
+              {t("card.badge")}
             </div>
           )}
         </div>
@@ -352,13 +286,13 @@ const CuisineRecipeCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{messages.card.serving(detailMeta.servings)}</span>
+                  <span className="font-medium">{t("card.serving", { count: detailMeta.servings })}</span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{messages.card.minute(detailMeta.cookingTime)}</span>
+                  <span className="font-medium">{t("card.minute", { count: detailMeta.cookingTime })}</span>
                 </div>
               )}
             </div>
@@ -383,17 +317,21 @@ const CuisineRecipeCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{messages.dialog.title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
-            {messages.dialog.description(recipe.recipeTitle)}
+            <Trans
+              i18nKey="category-results:dialog.description"
+              values={{ name: recipe.recipeTitle }}
+              components={{ bold: <span className="text-black font-bold" /> }}
+            />
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              {messages.dialog.cancel}
+              {t("dialog.cancel")}
             </Button>
           </DialogClose>
           <Button
@@ -417,7 +355,7 @@ const CuisineRecipeCardReady = ({
             }}
             className="flex-1"
           >
-            {messages.dialog.confirm}
+            {t("dialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -436,10 +374,7 @@ const RecommendRecipeCardReady = ({
   const { detailMeta, tags, isViewed } = recipe;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
-  
-  // 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatCategoryResultMessages(lang);
+  const { t } = useCategoryResultsTranslation();
 
   const handleCardClick = () => {
     if (!isViewed) {
@@ -457,7 +392,7 @@ const RecommendRecipeCardReady = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <article 
+      <article
         className="w-full group cursor-pointer"
         onClick={handleCardClick}
       >
@@ -465,7 +400,7 @@ const RecommendRecipeCardReady = ({
           <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
           {isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              {messages.card.badge}
+              {t("card.badge")}
             </div>
           )}
         </div>
@@ -480,13 +415,13 @@ const RecommendRecipeCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{messages.card.serving(detailMeta.servings)}</span>
+                  <span className="font-medium">{t("card.serving", { count: detailMeta.servings })}</span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{messages.card.minute(detailMeta.cookingTime)}</span>
+                  <span className="font-medium">{t("card.minute", { count: detailMeta.cookingTime })}</span>
                 </div>
               )}
             </div>
@@ -511,17 +446,21 @@ const RecommendRecipeCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{messages.dialog.title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
-            {messages.dialog.description(recipe.recipeTitle)}
+            <Trans
+              i18nKey="category-results:dialog.description"
+              values={{ name: recipe.recipeTitle }}
+              components={{ bold: <span className="text-black font-bold" /> }}
+            />
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              {messages.dialog.cancel}
+              {t("dialog.cancel")}
             </Button>
           </DialogClose>
           <Button
@@ -545,7 +484,7 @@ const RecommendRecipeCardReady = ({
             }}
             className="flex-1"
           >
-            {messages.dialog.confirm}
+            {t("dialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

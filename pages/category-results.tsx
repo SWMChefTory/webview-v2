@@ -8,7 +8,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
     return {
       //props를 넘기면 useTranslation에서 가져올 수 있음.
       props: {
-        ...(await serverSideTranslations(locale, ["home","shared.recipe-creating-status-chip","category","common"], nextI18NextConfig)),
+        ...(await serverSideTranslations(locale, ["home","shared.recipe-creating-status-chip","category","common","category-results"], nextI18NextConfig)),
       },
     };
   }

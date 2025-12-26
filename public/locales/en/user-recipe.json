@@ -10,7 +10,7 @@
     },
     "empty": {
       "noRecipe": "No recipes created yet",
-      "noRecipeInCategory": "There are no recipes in {{category}}",
+      "noRecipeInCategory": "There are no recipes in {{categoryName}}",
       "suggestion": "Try creating a new recipe",
       "pleaseCreate": "Please create a recipe",
       "clickToCreate": "Click to create"

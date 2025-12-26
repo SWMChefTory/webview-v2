@@ -10,7 +10,7 @@
     },
     "empty": {
       "noRecipe":"생성된 레시피가 없어요",
-      "noRecipeInCategory": "{{category}}에 해당하는 레시피가 없어요",
+      "noRecipeInCategory": "{{categoryName}}에 해당하는 레시피가 없어요",
       "suggestion": "레시피를 생성해 보세요",
       "pleaseCreate": "레시피를 만들어주세요",
       "clickToCreate": "클릭해서 레시피 생성"

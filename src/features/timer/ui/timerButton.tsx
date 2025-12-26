@@ -12,6 +12,7 @@ import { filterActiveTimers } from "../utils/query";
 import { useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
 import {create} from "zustand";
+import { useTimerTranslation } from "@/src/entities/timer/hooks/useTimerTranslation";
 
 export function TimerButton({
   recipeId,
@@ -166,10 +167,11 @@ function TimerButtonEffect() {
 }
 
 function StaticTimerButton() {
+  const { t } = useTimerTranslation();
   return (
     <button
       className="flex h-[3.75rem] w-[3.75rem] items-center justify-center rounded-full bg-orange-500 p-2 "
-      aria-label="타이머"
+      aria-label={t("button.ariaLabel")}
       type="button"
     >
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none">

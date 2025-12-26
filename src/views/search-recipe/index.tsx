@@ -11,6 +11,7 @@ import { useDebounce } from "use-debounce";
 import { DefaultContentOverlay } from "./ui";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { useTranslation } from "next-i18next";
 
 const SearchRecipePage = () => {
   const router = useRouter();
@@ -80,6 +81,7 @@ const SearchBar = memo(({
   onSearchSelect: (keyword: string) => void;
   onSearchStateChange: (isSearching: boolean) => void;
 }) => {
+  const { t } = useTranslation("search-overlay");
   const [isFocused, setIsFocused] = useState(true);
   const [keyboardInput, setKeyboardInput] = useState("");
   const [debouncedSearchKeyword] = useDebounce(keyboardInput, 300);
@@ -157,7 +159,7 @@ const SearchBar = memo(({
           ref={inputRef}
           className="w-full text-lg outline-none z-10"
           type="text"
-          placeholder="검색어를 입력해주세요."
+          placeholder={t("input.placeholder")}
           value={keyboardInput}
           onChange={(e) => setKeyboardInput(e.target.value)}
           onFocus={handleFocus}

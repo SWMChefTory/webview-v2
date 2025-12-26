@@ -1,1 +1,24 @@
-{"code":"en"}
+{
+  "code": "en",
+  "recipeCreating": {
+    "form": {
+      "title": "Create Recipe",
+      "placeholder": "Please enter a YouTube link",
+      "invalidUrl": "This input is not a valid YouTube link",
+      "submit": "Done"
+    },
+    "tutorial": {
+      "title": "Create Recipe",
+      "description": "Here's how to create a recipe from YouTube",
+      "videoFallback": "Your browser does not support the video tag.",
+      "instruction": "Follow the video above to find\nthe Share button in the YouTube app",
+      "goCreate": "Start Creating",
+      "directInput": "Enter URL",
+      "dontShowAgain": "Don't show again"
+    },
+    "accessibility": {
+      "close": "Close",
+      "loading": "Loading"
+    }
+  }
+}

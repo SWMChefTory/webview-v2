@@ -1,0 +1,84 @@
+{
+  "error": {
+    "title": "레시피를 불러올 수 없어요",
+    "description": "요리 영상이 아니거나 차단된 영상일 수 있어요. 다른 영상을 시도해 보세요.",
+    "retry": "다시 시도",
+    "back": "뒤로가기",
+    "home": "홈으로"
+  },
+  "tabs": {
+    "summary": "요약",
+    "recipe": "레시피",
+    "ingredients": "재료"
+  },
+  "summary": {
+    "aiWarning": "이 레시피 정보는 AI로 생성되었으며 부정확할 수 있습니다. 조리 전 확인해주세요.",
+    "timeHour": "{{hours}}시간",
+    "timeHourMinute": "{{hours}}시간 {{minutes}}분 이내",
+    "timeMinute": "{{minutes}}분 이내",
+    "servings": "{{count}}인분 기준",
+    "reviews": "실제 사용자 후기",
+    "reviewSource": "유튜브 댓글을 참고해서 만들었어요."
+  },
+  "ingredients": {
+    "prepared": "준비 {{count}}개 / {{total}}개",
+    "all": "전체 {{count}}개",
+    "measure": "계량법",
+    "purchase": "영상 속 재료 바로 구매하기",
+    "videoRef": "(영상 참고)",
+    "tooltip": "준비한 재료는 터치",
+    "deselectAll": "전체 해제",
+    "selectAll": "전체 선택",
+    "ready": "준비 완료",
+    "start": "요리 시작"
+  },
+  "measurement": {
+    "title": "계량법",
+    "units": {
+      "tbsp": "1큰술 (1Tbsp)",
+      "tsp": "1작은술 (1tsp)",
+      "cup": "1컵 (1cup)"
+    },
+    "tabs": {
+      "dry": "가루류",
+      "liquid": "액체류",
+      "jang": "장류"
+    },
+    "dry": {
+      "tbsp": {
+        "label": "1큰술",
+        "measuring": "계량스푼",
+        "spoon": "1숟가락 소복이"
+      },
+      "tsp": {
+        "label": "1작은술",
+        "measuring": "계량스푼",
+        "spoon": "½ 숟가락"
+      }
+    },
+    "liquid": {
+      "tbsp": {
+        "label": "1큰술",
+        "measuring": "계량스푼",
+        "spoon": "1+½ 숟가락"
+      },
+      "tsp": {
+        "label": "1작은술",
+        "measuring": "계량스푼",
+        "spoon": "⅔ 숟가락"
+      }
+    },
+    "jang": {
+      "tbsp": {
+        "label": "1큰술",
+        "measuring": "계량스푼",
+        "spoon": "1숟가락 소복이"
+      },
+      "tsp": {
+        "label": "1작은술",
+        "measuring": "계량스푼",
+        "spoon": "½ 숟가락"
+      }
+    }
+  }
+}

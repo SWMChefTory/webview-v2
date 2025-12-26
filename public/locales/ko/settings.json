@@ -1,0 +1,13 @@
+{
+  "section": {
+    "terms": {
+      "title": "약관 및 동의 항목",
+      "privacy_policy": "개인정보 처리방침",
+      "service_terms": "서비스 이용약관"
+    }
+  },
+  "button": {
+    "logout": "로그아웃",
+    "withdrawal": "회원탈퇴"
+  }
+}

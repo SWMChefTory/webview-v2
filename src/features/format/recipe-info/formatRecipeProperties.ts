@@ -1,28 +1,24 @@
-import { Lang } from "@/src/shared/translation/useLangCode";
+import { TFunction } from "next-i18next";
+
 export const formatServing = ({
   count,
-  lang,
+  t,
 }: {
   count: number;
-  lang: Lang;
+  t: TFunction;
 }) => {
-  if (lang === "ko") {
-    return `${count}인분`;
-  }
-
-  return `${count} serving${count > 1 ? "s" : ""}`;
+  // i18next pluralization: count가 1이면 "serving", 아니면 "servingPlural" 자동 선택
+  return count === 1
+    ? t("user-recipe:unit.serving", { count })
+    : t("user-recipe:unit.servingPlural", { count });
 };
 
 export const formatMinute = ({
   count,
-  lang,
+  t,
 }: {
   count: number;
-  lang: Lang;
+  t: TFunction;
 }) => {
-  if (lang === "ko") {
-    return `${count}분`;
-  }
-
-  return `${count} min`;
+  return t("user-recipe:unit.minute", { count });
 };

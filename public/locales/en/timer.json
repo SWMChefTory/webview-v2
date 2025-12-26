@@ -1,0 +1,20 @@
+{
+  "autoClose": "Automatically closes in {{seconds}}s.",
+  "close": "Close",
+  "reset": "Reset",
+  "title": "Timer",
+  "start": "Start",
+  "button": {
+    "ariaLabel": "Timer"
+  },
+  "units": {
+    "hour": "Hour",
+    "minute": "Min",
+    "second": "Sec"
+  },
+  "error": {
+    "limitExceeded": "Only one timer can be active at a time!",
+    "inputTime": "Please enter a time.",
+    "notRunning": "No timer is currently running"
+  }
+}

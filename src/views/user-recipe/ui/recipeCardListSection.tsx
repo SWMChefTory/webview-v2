@@ -5,7 +5,7 @@ import {
   RecipeDetailsCardSkeleton,
 } from "@/src/views/user-recipe/ui/recipeCard";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
-import { Lang, useLangcode } from "@/src/shared/translation/useLangCode";
+import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
@@ -20,7 +20,7 @@ export const RecipeListSectionReady = ({
   const { recipes, fetchNextPage } = useFetchUserRecipes(
     selectedCategory || ALL_RECIPES
   );
-  const lang = useLangcode();
+  const { t } = useUserRecipeTranslation();
 
   return (
     <div
@@ -58,64 +58,23 @@ export const RecipeListSectionReady = ({
           <div className="flex flex-col items-center justify-center w-full text-lg text-center">
             <div className="flex items-center justify-center whitespace-nowrap w-[80%]">
               {selectedCategory === ALL_RECIPES ? (
-                formatRecipeEmptyMessage({lang})
+                t("empty.noRecipe")
               ) : (
                 <>
                   <span className="shrink-0">
-                  {formatRecipeEmptyInCategoryMessage({categoryName:selectedCategory?.name || "", lang:lang})}
+                  {t("empty.noRecipeInCategory", { categoryName: selectedCategory?.name || "" })}
                   </span>
                 </>
               )}
             </div>
             <div className="h-2" />
-            <p className="text-base text-gray-600">{formatCreateMessage({lang})}</p>
+            <p className="text-base text-gray-600">{t("empty.suggestion")}</p>
           </div>
           <div className="pb-12" />
         </div>
       )}
     </div>
   );
-};
-
-const formatRecipeEmptyInCategoryMessage = ({
-  categoryName,
-  lang,
-}: {
-  categoryName: string;
-  lang: Lang;
-}) => {
-  switch (lang) {
-    case "en":
-      return `There are no recipes in ${categoryName}`;
-    default:
-      return `${categoryName}에 해당하는 레시피가 없어요`;
-  }
-};
-
-const formatRecipeEmptyMessage = ({
-  lang,
-}: {
-  lang: Lang;
-}) => {
-  switch (lang) {
-    case "en":
-      return `No recipes created yet`;
-    default:
-      return `생성된 레시피가 없어요`;
-  }
-};
-
-const formatCreateMessage = ({
-  lang,
-}: {
-  lang: Lang;
-}) => {
-  switch (lang) {
-    case "en":
-      return `Try creating a new recipe`;
-    default:
-      return `새로운 레시피를 생성해주세요`;
-  }
 };
 
 export const RecipeListSectionSkeleton = () => {

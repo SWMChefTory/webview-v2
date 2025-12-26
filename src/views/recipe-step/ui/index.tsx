@@ -34,8 +34,8 @@ import { ProgressBar } from "./progressBar";
 import { useTutorialActions, useTutorial } from "../hooks/useTutorial";
 import { VoiceGuideTimerStep } from "./timerTutorialStep";
 import { TutorialStarter } from "./tutorialStarter";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { useCookingModeAnalytics } from "../hooks/useCookingModeAnalytics";
+import { useRecipeStepTranslation } from "../hooks/useRecipeStepTranslation";
 
 type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
 
@@ -562,7 +562,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
 
 const RecipeStepPageSkeleton = () => {
   const router = useRouter();
-  const lang = useLangcode();
+  const { t } = useRecipeStepTranslation();
   return (
     <>
       <GlobalNoBounce />
@@ -572,7 +572,7 @@ const RecipeStepPageSkeleton = () => {
             leftContent={<BackButton onClick={() => router.back()} />}
             centerContent={
               <div className="max-w-[calc(100vw-144px)] overflow-hidden text-ellipsis whitespace-nowrap text-center text-xl font-semibold">
-                {lang==="ko"?"로딩중":"Loading..."}
+                {t("loading")}
               </div>
             }
           />

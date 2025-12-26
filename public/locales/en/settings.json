@@ -1,0 +1,13 @@
+{
+  "section": {
+    "terms": {
+      "title": "Terms and Agreements",
+      "privacy_policy": "Privacy Policy",
+      "service_terms": "Terms of Service"
+    }
+  },
+  "button": {
+    "logout": "Log Out",
+    "withdrawal": "Delete Account"
+  }
+}

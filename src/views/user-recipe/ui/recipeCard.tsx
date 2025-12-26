@@ -35,7 +35,7 @@ import {
   formatServing,
   formatMinute,
 } from "@/src/features/format/recipe-info/formatRecipeProperties";
-import { count } from "console";
+import { useTranslation } from "next-i18next";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -231,21 +231,21 @@ const RecipePropertiesReady = ({
   servings: number;
   desrciption: string;
 }) => {
-  const lang = useLangcode();
+  const { t } = useUserRecipeTranslation();
   return (
     <div className="flex flex-row gap-3 w-full overflow-x-hidden overflow-y-auto">
       <RecipeProperty
         props={{
           type: RecipePropertyType.READY,
           Icon: BsPeople,
-          text: formatServing({ count: servings, lang: lang }),
+          text: formatServing({ count: servings, t }),
         }}
       />
       <RecipeProperty
         props={{
           type: RecipePropertyType.READY,
           Icon: FaRegClock,
-          text: formatMinute({ count: cookTime, lang: lang }),
+          text: formatMinute({ count: cookTime, t }),
         }}
       />
     </div>
@@ -314,7 +314,8 @@ const CategorySelect = ({
 }) => {
   const { data: categories } = useFetchCategories();
   const { updateCategory } = useUpdateCategoryOfRecipe();
-  const lang = useLangcode();
+  const { t } = useUserRecipeTranslation();
+  const { t: tCommon } = useTranslation("common");
 
   return (
     <DialogPrimitive.Root
@@ -329,7 +330,7 @@ const CategorySelect = ({
             <DialogPrimitive.Close asChild>
               <motion.div
                 className="rounded-full p-1"
-                aria-label="Close"
+                aria-label={tCommon("accessibility.close")}
                 whileTap={{ scale: 0.8, backgroundColor: "#E8E8E8" }}
               >
                 <IoMdClose />
@@ -338,7 +339,7 @@ const CategorySelect = ({
           </div>
 
           <div className="text-sm text-gray-500 px-2 pb-2">
-            {lang=="en"?"Select a category":"카테고리를 선택해주새요."}
+            {t("card.selectCategoryPlaceholder")}
           </div>
           {categories?.map((category) => (
             <>

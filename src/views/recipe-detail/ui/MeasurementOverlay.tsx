@@ -1,6 +1,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
+import { TFunction } from "i18next";
 
 type MeasurementCategory = "dry" | "liquid" | "jang";
 
@@ -14,86 +16,92 @@ interface MeasurementGroup {
   images: ImageItem[];
 }
 
-const measurementData: Record<MeasurementCategory, MeasurementGroup[]> = {
+const getMeasurementData = (t: TFunction): Record<MeasurementCategory, MeasurementGroup[]> => ({
   dry: [
     {
-      categoryLabel: "1큰술",
+      categoryLabel: t("measurement.dry.tbsp.label"),
       images: [
         {
           src: "/images/measurement/dry/tbsp/measuring.png",
-          caption: "계량스푼",
+          caption: t("measurement.dry.tbsp.measuring"),
         },
         {
           src: "/images/measurement/dry/tbsp/spoon.png",
-          caption: "1숟가락 소복이",
+          caption: t("measurement.dry.tbsp.spoon"),
         },
       ],
     },
     {
-      categoryLabel: "1작은술",
+      categoryLabel: t("measurement.dry.tsp.label"),
       images: [
         {
           src: "/images/measurement/dry/tsp/measuring.png",
-          caption: "계량스푼",
+          caption: t("measurement.dry.tsp.measuring"),
         },
-        { src: "/images/measurement/dry/tsp/spoon.png", caption: "½ 숟가락" },
+        {
+          src: "/images/measurement/dry/tsp/spoon.png",
+          caption: t("measurement.dry.tsp.spoon")
+        },
       ],
     },
   ],
   liquid: [
     {
-      categoryLabel: "1큰술",
+      categoryLabel: t("measurement.liquid.tbsp.label"),
       images: [
         {
           src: "/images/measurement/liquid/tbsp/measuring.png",
-          caption: "계량스푼",
+          caption: t("measurement.liquid.tbsp.measuring"),
         },
         {
           src: "/images/measurement/liquid/tbsp/spoon.png",
-          caption: "1+½ 숟가락",
+          caption: t("measurement.liquid.tbsp.spoon"),
         },
       ],
     },
     {
-      categoryLabel: "1작은술",
+      categoryLabel: t("measurement.liquid.tsp.label"),
       images: [
         {
           src: "/images/measurement/liquid/tsp/measuring.png",
-          caption: "계량스푼",
+          caption: t("measurement.liquid.tsp.measuring"),
         },
         {
           src: "/images/measurement/liquid/tsp/spoon.png",
-          caption: "⅔ 숟가락",
+          caption: t("measurement.liquid.tsp.spoon"),
         },
       ],
     },
   ],
   jang: [
     {
-      categoryLabel: "1큰술",
+      categoryLabel: t("measurement.jang.tbsp.label"),
       images: [
         {
           src: "/images/measurement/jang/tbsp/measuring.png",
-          caption: "계량스푼",
+          caption: t("measurement.jang.tbsp.measuring"),
         },
         {
           src: "/images/measurement/jang/tbsp/spoon.png",
-          caption: "1숟가락 소복이",
+          caption: t("measurement.jang.tbsp.spoon"),
         },
       ],
     },
     {
-      categoryLabel: "1작은술",
+      categoryLabel: t("measurement.jang.tsp.label"),
       images: [
         {
           src: "/images/measurement/jang/tsp/measuring.png",
-          caption: "계량스푼",
+          caption: t("measurement.jang.tsp.measuring"),
         },
-        { src: "/images/measurement/jang/tsp/spoon.png", caption: "½ 숟가락" },
+        {
+          src: "/images/measurement/jang/tsp/spoon.png",
+          caption: t("measurement.jang.tsp.spoon")
+        },
       ],
     },
   ],
-};
+});
 
 interface MeasurementOverlayProps {
   open: boolean;
@@ -106,6 +114,8 @@ export const MeasurementOverlay = ({
 }: MeasurementOverlayProps) => {
   const [activeCategory, setActiveCategory] =
     useState<MeasurementCategory>("dry");
+  const { t } = useRecipeDetailTranslation();
+  const measurementData = getMeasurementData(t);
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -116,7 +126,7 @@ export const MeasurementOverlay = ({
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
             <div className="w-10" />
             <Dialog.Title className="text-lg font-bold text-neutral-900">
-              계량법
+              {t("measurement.title")}
             </Dialog.Title>
             <Dialog.Close className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors">
               <X className="w-6 h-6 text-gray-600" />
@@ -129,7 +139,7 @@ export const MeasurementOverlay = ({
             <div className="flex flex-col gap-0 mb-8 bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
               <div className="grid grid-cols-[1fr_auto_1fr] items-center py-3 border-b border-gray-100 last:border-b-0">
                 <span className="text-base font-normal text-neutral-900">
-                  1큰술 (1Tbsp)
+                  {t("measurement.units.tbsp")}
                 </span>
                 <span className="text-center w-10 text-gray-500">=</span>
                 <span className="text-right text-[17px] font-bold text-orange-500">
@@ -138,7 +148,7 @@ export const MeasurementOverlay = ({
               </div>
               <div className="grid grid-cols-[1fr_auto_1fr] items-center py-3 border-b border-gray-100 last:border-b-0">
                 <span className="text-base font-normal text-neutral-900">
-                  1작은술 (1tsp)
+                  {t("measurement.units.tsp")}
                 </span>
                 <span className="text-center w-10 text-gray-500">=</span>
                 <span className="text-right text-[17px] font-bold text-orange-500">
@@ -147,7 +157,7 @@ export const MeasurementOverlay = ({
               </div>
               <div className="grid grid-cols-[1fr_auto_1fr] items-center py-3">
                 <span className="text-base font-normal text-neutral-900">
-                  1컵 (1cup)
+                  {t("measurement.units.cup")}
                 </span>
                 <span className="text-center w-10 text-gray-500">=</span>
                 <span className="text-right text-[17px] font-bold text-orange-500">
@@ -160,10 +170,10 @@ export const MeasurementOverlay = ({
             <div className="w-full flex border-b border-gray-200 mb-6">
               {(
                 [
-                  { key: "dry", label: "가루류" },
-                  { key: "liquid", label: "액체류" },
-                  { key: "jang", label: "장류" },
-                ] as const
+                  { key: "dry" as const },
+                  { key: "liquid" as const },
+                  { key: "jang" as const },
+                ]
               ).map((tab) => (
                 <button
                   key={tab.key}
@@ -174,7 +184,7 @@ export const MeasurementOverlay = ({
                   }`}
                   onClick={() => setActiveCategory(tab.key)}
                 >
-                  {tab.label}
+                  {t(`measurement.tabs.${tab.key}`)}
                   {activeCategory === tab.key && (
                     <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-neutral-900" />
                   )}

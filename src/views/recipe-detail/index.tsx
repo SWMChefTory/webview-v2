@@ -10,31 +10,7 @@ import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { ShieldAlert, Home, RefreshCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
-
-// 다국어 메시지 포매터
-const formatRecipeDetailMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        title: "Unable to load recipe",
-        description:
-          "This video might not be a cooking video or access could be restricted. Please try another video.",
-        retry: "Retry",
-        back: "Back",
-        home: "Home",
-      };
-    default:
-      return {
-        title: "레시피를 불러올 수 없어요",
-        description:
-          "요리 영상이 아니거나 차단된 영상일 수 있어요. 다른 영상을 시도해 보세요.",
-        retry: "다시 시도",
-        back: "뒤로가기",
-        home: "홈으로",
-      };
-  }
-};
+import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
 
 const RecipeDetailPage = () => {
   const router = useRouter();
@@ -107,9 +83,7 @@ export function SectionFallback({
   recipeId,
 }: SectionFallbackProps) {
   const router = useRouter();
-  // 1. 언어 설정 및 메시지 가져오기
-  const lang = useLangcode();
-  const messages = formatRecipeDetailMessages(lang);
+  const { t } = useRecipeDetailTranslation();
 
   return (
     <div className="flex min-h-[60vh] items-center justify-center px-6 py-12">
@@ -126,10 +100,10 @@ export function SectionFallback({
 
         {/* 타이틀/설명 */}
         <h2 className="mb-2 text-center text-xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
-          {messages.title}
+          {t("error.title")}
         </h2>
         <p className="mb-6 text-center text-sm text-gray-600 dark:text-gray-300">
-          {messages.description}
+          {t("error.description")}
         </p>
 
         {/* 액션 */}
@@ -140,7 +114,7 @@ export function SectionFallback({
             className="flex w-full items-center justify-center gap-2 rounded-full bg-orange-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 active:scale-[0.99]"
           >
             <RefreshCw className="h-4 w-4" />
-            {messages.retry}
+            {t("error.retry")}
           </button>
 
           {/* 뒤로가기 / 홈으로 */}
@@ -150,7 +124,7 @@ export function SectionFallback({
               className="flex items-center justify-center gap-2 rounded-full border border-gray-300/70 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50 dark:border-white/15 dark:bg-white/10 dark:text-gray-100 dark:hover:bg-white/15"
             >
               <ArrowLeft className="h-4 w-4" />
-              {messages.back}
+              {t("error.back")}
             </button>
 
             <Link
@@ -158,7 +132,7 @@ export function SectionFallback({
               className="flex items-center justify-center gap-2 rounded-full border border-gray-300/70 bg-white px-4 py-2.5 text-sm font-medium text-gray-800 transition hover:bg-gray-50 dark:border-white/15 dark:bg-white/10 dark:text-gray-100 dark:hover:bg-white/15"
             >
               <Home className="h-4 w-4" />
-              {messages.home}
+              {t("error.home")}
             </Link>
           </div>
         </div>

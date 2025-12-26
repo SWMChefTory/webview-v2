@@ -10,7 +10,7 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { ReactNode } from "react";
-import { useSettingsTranslation } from "@/src/entities/settings/hooks/useSettingsTranslation";
+import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 
 function SettingsPage() {
   const router = useRouter();

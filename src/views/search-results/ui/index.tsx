@@ -23,7 +23,7 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { Trans } from "next-i18next";
-import { useSearchResultsTranslation } from "@/src/entities/search-results/hooks/useSearchResultsTranslation";
+import { useSearchResultsTranslation } from "../hooks/useSearchResultsTranslation";
 
 export function SearchResultsSkeleton() {
   return (

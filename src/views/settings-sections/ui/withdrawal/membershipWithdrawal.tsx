@@ -5,75 +5,9 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useUser } from "@/src/shared/model/user";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-
-// 다국어 메시지 포매터
-const formatWithdrawalMessages = (lang: Lang, nickname: string) => {
-  switch (lang) {
-    case "en":
-      return {
-        title: {
-          main: `Are you sure you want to leave, ${nickname}?`,
-          sub: "", // 영어는 한 줄로 처리하거나 비워둠
-        },
-        infoBox: {
-          title: "The following information will be deleted upon withdrawal.",
-          items: [
-            "- All saved recipes and favorites",
-            "- Created categories and cooking history",
-            "- User personal information",
-          ],
-        },
-        reasons: {
-          title: "Please tell us why you are leaving.",
-          sub: "We will provide better service when you return.",
-          items: {
-            "1": "Too complex to use",
-            "2": "Lack of necessary features",
-            "3": "Using another service",
-            "4": "No longer cooking",
-            "5": "Not using due to lack of time",
-            "6": "Using another cooking app",
-            "7": "Other",
-          } as { [key: string]: string },
-        },
-        feedbackPreview: "Your feedback",
-        button: "Delete Account",
-      };
-    default:
-      return {
-        title: {
-          main: `${nickname}님,`,
-          sub: "정말 탈퇴하시나요?",
-        },
-        infoBox: {
-          title: "ⓘ 회원탈퇴 시 다음 정보가 삭제되어요.",
-          items: [
-            "- 저장된 모든 레시피 및 즐겨찾기",
-            "- 생성한 카테고리 및 요리 기록",
-            "- 회원 개인 정보",
-          ],
-        },
-        reasons: {
-          title: "떠나시는 이유를 알려주세요.",
-          sub: "돌아오실 때 더 좋은 서비스를 제공할게요.",
-          items: {
-            "1": "앱 사용법이 복잡해서",
-            "2": "필요한 기능이 부족해서",
-            "3": "다른 서비스를 이용하기 위해서",
-            "4": "요리를 하지 않게 되어서",
-            "5": "시간이 없어서 사용하지 않아서",
-            "6": "다른 요리 앱을 사용하게 되어서",
-            "7": "기타",
-          } as { [key: string]: string },
-        },
-        feedbackPreview: "작성한 의견",
-        button: "탈퇴하기",
-      };
-  }
-};
+import { useWithdrawalTranslation } from "../../hooks/useWithdrawalTranslation";
 
 const DELETE_USER = "DELETE_USER";
 
@@ -94,10 +28,8 @@ export default function MemberShipWithdrawalPage() {
   );
   const { user } = useUser();
   const [feedbacks, setFeedbacks] = useState<{ [key: string]: string }>({});
-
+  const { t } = useWithdrawalTranslation();
   const queryClient = useQueryClient();
-  const lang = useLangcode();
-  const messages = formatWithdrawalMessages(lang, user?.nickname || "");
 
   // 페이지 진입 추적
   useEffect(() => {
@@ -129,17 +61,27 @@ export default function MemberShipWithdrawalPage() {
     setFeedbacks({ ...feedbacks, [key]: feedback });
   };
 
+  const titleMain = t("main.title.main", { nickname: user?.nickname || "" });
+  const titleSub = t("main.title.sub");
+  const infoBoxTitle = t("main.infoBox.title");
+  const infoBoxItems = t("main.infoBox.items", { returnObjects: true }) as string[];
+  const reasonsTitle = t("main.reasons.title");
+  const reasonsSub = t("main.reasons.sub");
+  const reasonsItems = t("main.reasons.items", { returnObjects: true }) as { [key: string]: string };
+  const feedbackPreview = t("main.feedbackPreview");
+  const buttonText = t("main.button");
+
   return (
     <div className="flex flex-col items-center w-full min-h-screen">
       <div className="w-full max-w-2xl bg-white min-h-screen">
         <div className="w-[85%] mx-auto py-2">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
-              {messages.title.main}
+              {titleMain}
             </h1>
-            {messages.title.sub && (
+            {titleSub && (
               <h1 className="text-3xl font-bold text-gray-900">
-                {messages.title.sub}
+                {titleSub}
               </h1>
             )}
 
@@ -147,10 +89,10 @@ export default function MemberShipWithdrawalPage() {
 
             <div className="bg-orange-50 p-4 rounded-lg">
               <h2 className="text-lg font-semibold text-gray-900 mb-3">
-                {messages.infoBox.title}
+                {infoBoxTitle}
               </h2>
               <div className="pl-2 space-y-2">
-                {messages.infoBox.items.map((item, index) => (
+                {infoBoxItems.map((item, index) => (
                   <p key={index} className="text-base text-gray-700">
                     {item}
                   </p>
@@ -161,20 +103,20 @@ export default function MemberShipWithdrawalPage() {
             <div className="h-12" />
 
             <h1 className="text-2xl font-bold text-gray-900">
-              {messages.reasons.title}
+              {reasonsTitle}
             </h1>
             <div className="h-4" />
-            <h2 className="text-lg text-gray-500">{messages.reasons.sub}</h2>
+            <h2 className="text-lg text-gray-500">{reasonsSub}</h2>
             <div className="h-6" />
 
             <RadioButtonItemGroup
-              items={messages.reasons.items}
+              items={reasonsItems}
               addItems={addItems}
               deleteItems={deleteItems}
               selectedItems={selectedItems}
               feedbacks={feedbacks}
               saveFeedback={saveFeedback}
-              feedbackLabel={messages.feedbackPreview} // "작성한 의견" 라벨 전달
+              feedbackLabel={feedbackPreview}
             />
           </div>
 
@@ -208,7 +150,7 @@ export default function MemberShipWithdrawalPage() {
                 : "bg-orange-500 text-white hover:bg-orange-600"
             }`}
           >
-            {messages.button}
+            {buttonText}
           </button>
 
           <div className="h-8" />

@@ -4,6 +4,9 @@
   "reset": "Reset",
   "title": "Timer",
   "start": "Start",
+  "button": {
+    "ariaLabel": "Timer"
+  },
   "units": {
     "hour": "Hour",
     "minute": "Min",

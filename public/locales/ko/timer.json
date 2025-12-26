@@ -4,6 +4,9 @@
   "reset": "재설정",
   "title": "타이머",
   "start": "시작",
+  "button": {
+    "ariaLabel": "타이머"
+  },
   "units": {
     "hour": "시간",
     "minute": "분",

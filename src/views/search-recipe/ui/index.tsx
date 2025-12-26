@@ -22,80 +22,11 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useRouter } from "next/router";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
+import { Trans } from "next-i18next";
+import { useSearchOverlayTranslation } from "@/src/entities/search-overlay/hooks/useSearchOverlayTranslation";
 
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-
-// 다국어 메시지 포매터
-const formatSearchOverlayMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        recent: {
-          title: "Recent Searches",
-          deleting: "Deleting...",
-          deleteAll: "Delete All",
-          empty: "No recent searches",
-        },
-        trendingSearch: {
-          title: "Trending Searches",
-          count: (num: number) => `${num}`,
-          collapse: "Collapse",
-          expand: "Expand",
-          empty: "No trending searches",
-        },
-        trendingRecipe: {
-          title: "Trending Recipes",
-          subtitle: "Check out the latest trending recipes",
-          empty: "No trending recipes found",
-          badge: "Already Registered",
-        },
-        dialog: {
-          title: "Create Recipe",
-          description: (name: string) => (
-            <>
-              Do you want to create a recipe for <span className="text-black font-bold">{name}</span>?
-            </>
-          ),
-          cancel: "Cancel",
-          confirm: "Create",
-        }
-      };
-    default:
-      return {
-        recent: {
-          title: "최근 검색어",
-          deleting: "삭제 중...",
-          deleteAll: "전체 삭제",
-          empty: "최근 검색어가 없습니다",
-        },
-        trendingSearch: {
-          title: "인기 검색어",
-          count: (num: number) => `${num}개`,
-          collapse: "접기",
-          expand: "펼쳐서 보기",
-          empty: "인기 검색어가 없습니다",
-        },
-        trendingRecipe: {
-          title: "급상승 레시피",
-          subtitle: "최근 급상승 레시피를 모아봤어요",
-          empty: "급상승 레시피가 없습니다",
-          badge: "이미 등록했어요",
-        },
-        dialog: {
-          title: "레시피 생성",
-          description: (name: string) => (
-            <>
-              <span className="text-black font-bold">{name}</span> 레시피를 생성하시겠어요?
-            </>
-          ),
-          cancel: "취소",
-          confirm: "생성",
-        }
-      };
-  }
-};
 
 export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (keyword: string) => void }) => {
   const { autoCompleteData } = useInitialAutoCompleteData();
@@ -104,10 +35,7 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
   const deleteAllSearchHistoriesMutation = useDeleteAllSearchHistories();
   const [isExpanded, setIsExpanded] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  
-  // 1. 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatSearchOverlayMessages(lang);
+  const { t } = useSearchOverlayTranslation();
   
   useEffect(() => {
     if (!isExpanded && scrollContainerRef.current && autoCompleteData.autocompletes.length > 0) {
@@ -137,14 +65,14 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
         {/* 최근 검색어 섹션 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">{messages.recent.title}</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t("recent.title")}</h2>
             {searchHistories.histories.length > 0 && (
               <button
                 className="text-xs font-medium text-gray-500"
                 onClick={() => deleteAllSearchHistoriesMutation.mutate()}
                 disabled={deleteAllSearchHistoriesMutation.isPending}
               >
-                {deleteAllSearchHistoriesMutation.isPending ? messages.recent.deleting : messages.recent.deleteAll}
+                {deleteAllSearchHistoriesMutation.isPending ? t("recent.deleting") : t("recent.deleteAll")}
               </button>
             )}
           </div>
@@ -191,7 +119,7 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
           ) : (
             <div className="min-h-[40px] flex items-center justify-center">
               <p className="text-sm text-gray-500 text-center">
-                {messages.recent.empty}
+                {t("recent.empty")}
               </p>
             </div>
           )}
@@ -201,18 +129,18 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
         <section className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-gray-900">{messages.trendingSearch.title}</h2>
+              <h2 className="text-xl font-bold text-gray-900">{t("trendingSearch.title")}</h2>
               {!isExpanded && autoCompleteData.autocompletes.length > 0 && (
                 <span className="text-sm font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  {messages.trendingSearch.count(autoCompleteData.autocompletes.length)}
+                  {t("trendingSearch.count", { num: autoCompleteData.autocompletes.length })}
                 </span>
               )}
             </div>
-            <button 
+            <button
               className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors group"
               onClick={() => setIsExpanded(!isExpanded)}
             >
-              <span>{isExpanded ? messages.trendingSearch.collapse : messages.trendingSearch.expand}</span>
+              <span>{isExpanded ? t("trendingSearch.collapse") : t("trendingSearch.expand")}</span>
               <div className={`transform transition-transform duration-200 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-500 group-hover:text-gray-700">
                   <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -290,17 +218,17 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
               </div>
             )
           ) : (
-            <p className="text-sm text-gray-500 py-6">{messages.trendingSearch.empty}</p>
+            <p className="text-sm text-gray-500 py-6">{t("trendingSearch.empty")}</p>
           )}
         </section>
 
         {/* 트렌드 레시피 섹션 */}
         <section className="space-y-4">
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-bold text-gray-900">{messages.trendingRecipe.title}</h2>
+            <h2 className="text-xl font-bold text-gray-900">{t("trendingRecipe.title")}</h2>
             <img src={Trend.src} className="size-5" alt="trend" />
           </div>
-          <p className="text-sm text-gray-500">{messages.trendingRecipe.subtitle}</p>
+          <p className="text-sm text-gray-500">{t("trendingRecipe.subtitle")}</p>
           <div className="grid grid-cols-2 gap-4">
             <SSRSuspense fallback={<TrendRecipeGridSkeleton />}>
               <TrendRecipeGrid />
@@ -315,8 +243,7 @@ export const DefaultContentOverlay = ({ onSearchSelect }: { onSearchSelect?: (ke
 const TrendRecipeGrid = () => {
   const { data: recipes, hasNextPage, fetchNextPage, isFetchingNextPage } = useFetchTrendingRecipes();
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  const lang = useLangcode();
-  const messages = formatSearchOverlayMessages(lang);
+  const { t } = useSearchOverlayTranslation();
 
   useEffect(() => {
     const element = loadMoreRef.current;
@@ -341,7 +268,7 @@ const TrendRecipeGrid = () => {
   if (recipes.length === 0) {
     return (
       <div className="col-span-2">
-        <p className="text-sm text-gray-500 py-6">{messages.trendingRecipe.empty}</p>
+        <p className="text-sm text-gray-500 py-6">{t("trendingRecipe.empty")}</p>
       </div>
     );
   }
@@ -371,8 +298,7 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
   const { create } = useCreateRecipe();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-  const lang = useLangcode();
-  const messages = formatSearchOverlayMessages(lang);
+  const { t } = useSearchOverlayTranslation();
 
   const handleCardClick = () => {
     if (!recipe.isViewed) {
@@ -401,7 +327,7 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
           />
           {recipe.isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              {messages.trendingRecipe.badge}
+              {t("trendingRecipe.badge")}
             </div>
           )}
         </div>
@@ -411,17 +337,21 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
       </div>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{messages.dialog.title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
-            {messages.dialog.description(recipe.recipeTitle)}
+            <Trans
+              i18nKey="search-overlay:dialog.description"
+              values={{ name: recipe.recipeTitle }}
+              components={{ bold: <span className="text-black font-bold" /> }}
+            />
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              {messages.dialog.cancel}
+              {t("dialog.cancel")}
             </Button>
           </DialogClose>
           <DialogClose asChild>
@@ -444,7 +374,7 @@ const TrendRecipeCardWrapper = ({ recipe }: { recipe: ThemeRecipe }) => {
               }}
               className="flex-1"
             >
-              {messages.dialog.confirm}
+              {t("dialog.confirm")}
             </Button>
           </DialogClose>
         </DialogFooter>

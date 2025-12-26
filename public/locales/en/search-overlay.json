@@ -1,0 +1,27 @@
+{
+  "recent": {
+    "title": "Recent Searches",
+    "deleting": "Deleting...",
+    "deleteAll": "Delete All",
+    "empty": "No recent searches"
+  },
+  "trendingSearch": {
+    "title": "Trending Searches",
+    "count": "{{num}}",
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "empty": "No trending searches"
+  },
+  "trendingRecipe": {
+    "title": "Trending Recipes",
+    "subtitle": "Check out the latest trending recipes",
+    "empty": "No trending recipes found",
+    "badge": "Already Registered"
+  },
+  "dialog": {
+    "title": "Create Recipe",
+    "description": "Do you want to create a recipe for <bold>{{name}}</bold>?",
+    "cancel": "Cancel",
+    "confirm": "Create"
+  }
+}

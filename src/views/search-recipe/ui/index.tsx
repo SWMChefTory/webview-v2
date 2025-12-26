@@ -23,7 +23,7 @@ import {
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useRouter } from "next/router";
 import { Trans } from "next-i18next";
-import { useSearchOverlayTranslation } from "@/src/entities/search-overlay/hooks/useSearchOverlayTranslation";
+import { useSearchOverlayTranslation } from "../hooks/useSearchOverlayTranslation";
 
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";

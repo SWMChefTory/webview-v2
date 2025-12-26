@@ -23,5 +23,8 @@
     "description": "Do you want to create a recipe for <bold>{{name}}</bold>?",
     "cancel": "Cancel",
     "confirm": "Create"
+  },
+  "input": {
+    "placeholder": "Enter a keyword"
   }
 }

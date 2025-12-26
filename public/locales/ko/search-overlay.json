@@ -23,5 +23,8 @@
     "description": "<bold>{{name}}</bold> 레시피를 생성하시겠어요?",
     "cancel": "취소",
     "confirm": "생성"
+  },
+  "input": {
+    "placeholder": "검색어를 입력해주세요."
   }
 }

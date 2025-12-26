@@ -13,29 +13,7 @@ import { motion } from "motion/react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
-
-// 다국어 메시지 포매터 정의
-const formatRecipeCreatingMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        title: "Create Recipe",
-        invalidUrl: "This input is not a valid YouTube link",
-        placeholder: "Please enter a YouTube link",
-        submit: "Done",
-      };
-    default:
-      return {
-        title: "레시피 생성하기",
-        invalidUrl: "해당 입력은 유튜브 링크가 아니에요",
-        placeholder: "유튜브 링크를 입력해주세요",
-        submit: "완료",
-      };
-  }
-};
-
-
+import { useTranslation } from "next-i18next";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -52,9 +30,7 @@ export function RecipeCreatingView() {
     close,
   } = useRecipeCreatingViewOpenStore();
 
-  // 1. 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatRecipeCreatingMessages(lang);
+  const { t } = useTranslation("common");
   const hasTrackedStartRef = useRef(false);
 
   // recipe_create_start_url 이벤트 (모달이 열릴 때 한 번만 발생)
@@ -124,7 +100,7 @@ export function RecipeCreatingView() {
           >
             <div className="p-5">
               <Dialog.Title className="text-xl font-bold">
-                {messages.title}
+                {t("recipeCreating.form.title")}
               </Dialog.Title>
             </div>
             <CategoryChipListSection
@@ -138,14 +114,14 @@ export function RecipeCreatingView() {
                 value={url}
                 onChange={handleUrlChange}
                 isError={isError()}
-                errorMessage={messages.invalidUrl}
-                placeholder={messages.placeholder}
+                errorMessage={t("recipeCreating.form.invalidUrl")}
+                placeholder={t("recipeCreating.form.placeholder")}
               />
             </div>
             <div className="p-3">
               <FormButton
                 onSubmit={handleSubmit}
-                label={messages.submit}
+                label={t("recipeCreating.form.submit")}
                 isSubmittable={isSubmittable()}
               />
             </div>

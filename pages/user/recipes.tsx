@@ -9,7 +9,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
     //props를 넘기면 useTranslation에서 가져올 수 있음.
     props: {
       ...(await serverSideTranslations(locale, [
-        "user-recipe","common"
+        "user-recipe","common","category-creating"
       ], nextI18NextConfig)),
     },
   };

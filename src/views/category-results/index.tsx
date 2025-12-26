@@ -3,14 +3,21 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { CategoryResultsSkeleton, CategoryResultsContent } from "./ui";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { CategoryType, getCategoryTypeFromString, getCategoryTypeLabel } from "@/src/entities/category/type/cuisineType";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { CategoryType, getCategoryTypeFromString, isCuisineType } from "@/src/entities/category/type/cuisineType";
+import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 
 const CategoryResultsPage = () => {
   const router = useRouter();
   const typeParam = router.query.type as string;
   const [categoryType, setCategoryType] = useState<CategoryType | null>(null);
-  const lang = useLangcode();
+  const { t: categoryT } = useCategoryTranslation();
+
+  const getCategoryLabel = (type: CategoryType) => {
+    if (isCuisineType(type)) {
+      return categoryT(`cuisine.${type}`);
+    }
+    return categoryT(`recommend.${type}`);
+  };
 
 
   useEffect(() => {
@@ -39,7 +46,7 @@ const CategoryResultsPage = () => {
           <div className="flex flex-row gap-3 w-full h-full items-center justify-start">
             <BackButton onClick={() => router.back()} />
             <h1 className="text-xl font-semibold text-gray-900 truncate">
-              {getCategoryTypeLabel(categoryType,lang)}
+              {getCategoryLabel(categoryType)}
             </h1>
           </div>
         }

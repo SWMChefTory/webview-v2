@@ -10,46 +10,11 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { ReactNode } from "react";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
-
-// 다국어 메시지 포매터 정의
-const formatSettingsMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        section: {
-          terms: {
-            title: "Terms and Agreements",
-            privacy_policy: "Privacy Policy",
-            service_terms: "Terms of Service",
-          },
-        },
-        button: {
-          logout: "Log Out",
-          withdrawal: "Delete Account",
-        },
-      };
-    default:
-      return {
-        section: {
-          terms: {
-            title: "약관 및 동의 항목",
-            privacy_policy: "개인정보 처리방침",
-            service_terms: "서비스 이용약관",
-          },
-        },
-        button: {
-          logout: "로그아웃",
-          withdrawal: "회원탈퇴",
-        },
-      };
-  }
-};
+import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 
 function SettingsPage() {
   const router = useRouter();
-  const lang = useLangcode(); // 1. 언어 설정 가져오기
-  const messages = formatSettingsMessages(lang); // 2. 메시지 가져오기
+  const { t } = useSettingsTranslation();
 
   useSafeArea({
     top: { color: "#FFFFFF", isExists: true },
@@ -75,7 +40,7 @@ function SettingsPage() {
         <div className="h-[32]" />
         <div className="flex flex-col gap-1 px-2 ">
           <div className="text-gray-500 pb-2">
-            {messages.section.terms.title}
+            {t("section.terms.title")}
           </div>
           <div className="flex flex-col gap-2 px-2">
             <div className="flex flex-row justify-between items-center">
@@ -84,7 +49,7 @@ function SettingsPage() {
                 onClick={() => router.push("/user/settings/privacy-policy")}
               >
                 {" "}
-                {messages.section.terms.privacy_policy}{" "}
+                {t("section.terms.privacy_policy")}{" "}
               </div>
               <GoChevronRight className="size-4 text-gray-500" />
             </div>
@@ -96,7 +61,7 @@ function SettingsPage() {
                 }
               >
                 {" "}
-                {messages.section.terms.service_terms}{" "}
+                {t("section.terms.service_terms")}{" "}
               </div>
               <GoChevronRight className="size-4 text-gray-500" />
             </div>
@@ -174,8 +139,7 @@ const UserSectionTemplate = ({
 const LOGOUT = "LOGOUT";
 
 function LogoutButton() {
-  const lang = useLangcode();
-  const messages = formatSettingsMessages(lang);
+  const { t } = useSettingsTranslation();
 
   return (
     <motion.div
@@ -186,15 +150,14 @@ function LogoutButton() {
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
       className="text-gray-500 rounded-md"
     >
-      {messages.button.logout}
+      {t("button.logout")}
     </motion.div>
   );
 }
 
 function WithdrawalButton() {
   const router = useRouter();
-  const lang = useLangcode();
-  const messages = formatSettingsMessages(lang);
+  const { t } = useSettingsTranslation();
 
   return (
     <motion.div
@@ -204,7 +167,7 @@ function WithdrawalButton() {
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
       className="text-red-500 rounded-md"
     >
-      {messages.button.withdrawal}
+      {t("button.withdrawal")}
     </motion.div>
   );
 }

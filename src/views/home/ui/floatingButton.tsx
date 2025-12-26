@@ -11,6 +11,8 @@ import { useHomeTranslation } from "../hooks/useHomeTranslation";
 export const FloatingButton = () => {
   const { open } = useRecipeCreatingViewOpenStore();
   const { checkClicked } = usefloatingButtonStore();
+  const { t } = useHomeTranslation();
+
   return (
     <div className="fixed z-[100] bottom-[20] right-[20] pb-safe">
       <div className="h-[60] w-[60]">
@@ -19,13 +21,13 @@ export const FloatingButton = () => {
             trigger={
               <div className="h-[60] w-[60]">
                 <Button
-                  className="relative w-full h-full rounded-full border-none 
+                  className="relative w-full h-full rounded-full border-none
               bg-gradient-to-b from-orange-400 to-orange-600
               shadow-[0_4px_10px_rgba(0,0,0,0.25)]
               active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)]
               transition-all duration-150"
                   variant="outline"
-                  aria-label="Submit"
+                  aria-label={t("accessibility.floatingButton")}
                   onClick={() => {
                     checkClicked();
                     open("", "floating_button");

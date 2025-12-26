@@ -1,1 +1,24 @@
-{"code":"ko"}
+{
+  "code": "ko",
+  "recipeCreating": {
+    "form": {
+      "title": "레시피 생성하기",
+      "placeholder": "유튜브 링크를 입력해주세요",
+      "invalidUrl": "해당 입력은 유튜브 링크가 아니에요",
+      "submit": "완료"
+    },
+    "tutorial": {
+      "title": "레시피 생성하기",
+      "description": "유튜브에서 레시피 영상을 생성하는 방법을 알려드릴게요",
+      "videoFallback": "브라우저가 비디오 태그를 지원하지 않습니다.",
+      "instruction": "위 영상을 따라 유튜브 앱에서\n공유 버튼을 찾아보세요",
+      "goCreate": "생성하러 가기",
+      "directInput": "직접 입력하기",
+      "dontShowAgain": "다시 보지 않기"
+    },
+    "accessibility": {
+      "close": "닫기",
+      "loading": "로딩 중"
+    }
+  }
+}

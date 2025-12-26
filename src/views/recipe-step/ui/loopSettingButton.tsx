@@ -1,4 +1,4 @@
-import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { useRecipeStepTranslation } from "../hooks/useRecipeStepTranslation";
 
 export const LoopSettingButton = ({
   isRepeat,
@@ -7,7 +7,7 @@ export const LoopSettingButton = ({
   isRepeat: boolean;
   onClick: () => void;
 }) => {
-  const lang = useLangcode();
+  const { t } = useRecipeStepTranslation();
   return (
     <div className="flex flex-col justify-between items-center">
       <button
@@ -20,10 +20,10 @@ export const LoopSettingButton = ({
         onClick={(e) => {
           onClick();
         }}
-        aria-label={`그룹 반복 ${isRepeat ? "끄기" : "켜기"}`}
+        aria-label={isRepeat ? t("loop.ariaOn") : t("loop.ariaOff")}
         aria-pressed={isRepeat}
         type="button"
-        title={isRepeat ? "그룹 반복 끄기" : "그룹 반복 켜기"}
+        title={isRepeat ? t("loop.ariaOn") : t("loop.ariaOff")}
       >
         <svg
           width="28"
@@ -64,7 +64,7 @@ export const LoopSettingButton = ({
         )}
       </button>
       <div className="text-gray-500 pt-1">
-        {lang == "en" ? "step repeat" : "구간 반복"}
+        {t("loop.label")}
       </div>
     </div>
   );

@@ -24,8 +24,7 @@ import { HorizontalScrollArea } from "./horizontalScrollArea";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useRouter } from "next/router";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { formatCategoryName } from "@/src/features/format/category/formatCategoryName";
+import { useTranslation } from "next-i18next";
 
 export const MyRecipes = () => {
   const [selectedCategory, setSelectedCategory] = useState<
@@ -112,7 +111,7 @@ const CategoryListReady = ({
 }) => {
   const { data: categories } = useFetchCategories();
   const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
-  const lang = useLangcode();
+  const { t } = useTranslation("user-recipe");
 
   return (
     <>
@@ -120,7 +119,7 @@ const CategoryListReady = ({
         key={ALL_RECIPES}
         props={{
           type: ChipType.FILTER,
-          name: formatCategoryName({lang}).all,
+          name: t("category.all"),
           accessary: totalElements ?? 0,
           onClick: () => {
             setSelectedCategory?.(ALL_RECIPES);

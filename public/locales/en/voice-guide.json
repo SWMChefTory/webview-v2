@@ -1,0 +1,53 @@
+{
+  "modal": {
+    "title": "Voice Command Guide",
+    "button": "Got it!"
+  },
+  "tutorial": {
+    "thankYou": "Thanks for completing the tutorial!",
+    "detailInfo": "Tap the button below for more details.",
+    "checkLater": "Check later"
+  },
+  "commands": [
+    {
+      "command": "\"Next Step\"",
+      "description": "Go to the next cooking step",
+      "icon": "➡️"
+    },
+    {
+      "command": "\"Previous Step\"",
+      "description": "Go back to the previous cooking step",
+      "icon": "⬅️"
+    },
+    {
+      "command": "\"Go to step 3\"",
+      "description": "Jump directly to a specific step",
+      "icon": "🔢"
+    },
+    {
+      "command": "\"Go to chopping onions\"",
+      "description": "Jump to a specific scene by description",
+      "icon": "🎯"
+    },
+    {
+      "command": "\"Start/Stop 3 min timer\"",
+      "description": "Start or stop a cooking timer",
+      "icon": "⏰"
+    },
+    {
+      "command": "\"Pause/Play video\"",
+      "description": "Pause or play the video",
+      "icon": "⏯️"
+    }
+  ],
+  "tip": {
+    "title": "TIP",
+    "items": [
+      "Speaking loudly and clearly improves recognition.",
+      "Continuous commands may not be recognized."
+    ]
+  },
+  "accessibility": {
+    "buttonLabel": "Voice Command Guide"
+  }
+}

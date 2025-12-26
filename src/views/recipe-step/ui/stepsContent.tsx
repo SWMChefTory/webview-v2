@@ -9,20 +9,9 @@ import {
   StepStatus,
 } from "../hooks/useTutorial";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
-
-// 다국어 텍스트 상수 정의
-const UI_TEXT = {
-  LISTENING: {
-    ko: "음성을 듣고 있어요",
-    en: "Listening...",
-  },
-  SKIP: {
-    ko: "클릭해서 넘어갈게요",
-    en: "Click to skip",
-  },
-};
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { useRecipeStepTranslation } from "../hooks/useRecipeStepTranslation";
 
 export function StepsContent({
   currentStepIndex,
@@ -174,7 +163,8 @@ function VoiceGuideStep({
 }) {
   const { handleNextStep, terminate } = useTutorialActions();
   const { steps, currentStepIndex, isInTutorial } = useTutorial();
-  const lang = useLangcode(); // 언어 코드 가져오기
+  const lang = useLangcode(); // 언어 코드 가져오기 (복잡한 문장 구조용)
+  const { t } = useRecipeStepTranslation();
 
   // 현재 튜토리얼 스텝 정보
   const currentStep = steps[currentStepIndex] || { when: "", command: "" };
@@ -242,7 +232,7 @@ function VoiceGuideStep({
               )}
             </p>
             <div className="flex w-full justify-center pt-2 pb-4 items-center gap-2 text-orange-500">
-              {lang === "ko" ? UI_TEXT.LISTENING.ko : UI_TEXT.LISTENING.en}
+              {t("voice.listening")}
               <Spinner />
             </div>
             <div className="flex w-full justify-center">
@@ -256,7 +246,7 @@ function VoiceGuideStep({
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >
-                  {lang === "ko" ? UI_TEXT.SKIP.ko : UI_TEXT.SKIP.en}
+                  {t("voice.skip")}
                 </p>
               </Popover.Close>
             </div>

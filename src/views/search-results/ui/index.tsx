@@ -22,65 +22,8 @@ import {
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
-
-// 다국어 메시지 포매터
-const formatSearchResultMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        empty: {
-          title: "No recipes found for your search",
-          subtitle: "Try a different keyword",
-        },
-        header: {
-          suffix: "Search Results",
-          totalCount: (count: number) => `Total ${count} recipes`,
-        },
-        card: {
-          badge: "Already Registered",
-          serving: (count: number) => `${count} serving${count !== 1 ? 's' : ''}`,
-          minute: (count: number) => `${count} min`,
-        },
-        dialog: {
-          title: "Create Recipe",
-          description: (name: string) => (
-            <>
-              Do you want to create a recipe for <span className="text-black font-bold">{name}</span>?
-            </>
-          ),
-          cancel: "Cancel",
-          confirm: "Create",
-        }
-      };
-    default:
-      return {
-        empty: {
-          title: "검색어에 해당하는 레시피가 없어요",
-          subtitle: "다른 검색어로 시도해보세요",
-        },
-        header: {
-          suffix: "에 대한 검색결과",
-          totalCount: (count: number) => `총 ${count}개의 레시피`,
-        },
-        card: {
-          badge: "이미 등록했어요",
-          serving: (count: number) => `${count}인분`,
-          minute: (count: number) => `${count}분`,
-        },
-        dialog: {
-          title: "레시피 생성",
-          description: (name: string) => (
-            <>
-              <span className="text-black font-bold">{name}</span> 레시피를 생성하시겠어요?
-            </>
-          ),
-          cancel: "취소",
-          confirm: "생성",
-        }
-      };
-  }
-};
+import { Trans } from "next-i18next";
+import { useSearchResultsTranslation } from "../hooks/useSearchResultsTranslation";
 
 export function SearchResultsSkeleton() {
   return (
@@ -110,10 +53,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const hasTrackedView = useRef(false);
-
-  // 1. 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatSearchResultMessages(lang);
+  const { t } = useSearchResultsTranslation();
 
   // 검색 결과 조회 이벤트 (1회만)
   useEffect(() => {
@@ -159,8 +99,8 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
             />
           </div>
           <div className="text-center space-y-3">
-            <h3 className="font-bold text-xl text-gray-900">{messages.empty.title}</h3>
-            <p className="text-s text-gray-600">{messages.empty.subtitle}</p>
+            <h3 className="font-bold text-xl text-gray-900">{t("empty.title")}</h3>
+            <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
           </div>
         </div>
     );
@@ -173,9 +113,9 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
           <h1 className="text-2xl font-bold text-gray-900 truncate">{keyword}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">{messages.header.suffix}</span>
+          <span className="text-lg font-medium text-gray-600 shrink-0">{t("header.suffix")}</span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">{messages.header.totalCount(totalElements)}</p>
+        <p className="text-sm text-gray-500 mt-2">{t("header.totalCount", { count: totalElements })}</p>
       </div>
 
       {/* 검색 결과 그리드 */}
@@ -215,10 +155,7 @@ const RecipeSearchedCardReady = ({
   const { detailMeta, tags } = searchResults;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
-
-  // 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatSearchResultMessages(lang);
+  const { t } = useSearchResultsTranslation();
 
   const handleCardClick = async () => {
     // 검색 결과 클릭 이벤트
@@ -252,7 +189,7 @@ const RecipeSearchedCardReady = ({
           <ThumbnailReady imgUrl={searchResults.videoInfo.videoThumbnailUrl} />
           {searchResults.isViewed && (
             <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              {messages.card.badge}
+              {t("card.badge")}
             </div>
           )}
         </div>
@@ -267,13 +204,13 @@ const RecipeSearchedCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{messages.card.serving(detailMeta.servings)}</span>
+                  <span className="font-medium">{t("card.serving", { count: detailMeta.servings })}</span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{messages.card.minute(detailMeta.cookingTime)}</span>
+                  <span className="font-medium">{t("card.minute", { count: detailMeta.cookingTime })}</span>
                 </div>
               )}
             </div>
@@ -298,17 +235,21 @@ const RecipeSearchedCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{messages.dialog.title}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
-            {messages.dialog.description(searchResults.recipeTitle)}
+            <Trans
+              i18nKey="search-results:dialog.description"
+              values={{ name: searchResults.recipeTitle }}
+              components={{ bold: <span className="text-black font-bold" /> }}
+            />
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              {messages.dialog.cancel}
+              {t("dialog.cancel")}
             </Button>
           </DialogClose>
           <DialogClose asChild>
@@ -331,7 +272,7 @@ const RecipeSearchedCardReady = ({
               }}
               className="flex-1"
             >
-              {messages.dialog.confirm}
+              {t("dialog.confirm")}
             </Button>
           </DialogClose>
         </DialogFooter>

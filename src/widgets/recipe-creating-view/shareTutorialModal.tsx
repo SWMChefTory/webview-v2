@@ -7,34 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { useLangcode, Lang } from "@/src/shared/translation/useLangCode";
-
-// 다국어 메시지 포매터 정의
-const formatShareTutorialMessages = (lang: Lang) => {
-  switch (lang) {
-    case "en":
-      return {
-        title: "Create Recipe",
-        description: "Here's how to create a recipe from YouTube",
-        videoFallback: "Your browser does not support the video tag.",
-        // 줄바꿈을 \n으로 처리 (whitespace-pre-line 사용 예정)
-        instruction: "Follow the video above to find\nthe Share button in the YouTube app",
-        goCreate: "Start Creating",
-        directInput: "Enter URL",
-        dontShowAgain: "Don't show again",
-      };
-    default:
-      return {
-        title: "레시피 생성하기",
-        description: "유튜브에서 레시피 영상을 생성하는 방법을 알려드릴게요",
-        videoFallback: "브라우저가 비디오 태그를 지원하지 않습니다.",
-        instruction: "위 영상을 따라 유튜브 앱에서\n공유 버튼을 찾아보세요",
-        goCreate: "생성하러 가기",
-        directInput: "직접 입력하기",
-        dontShowAgain: "다시 보지 않기",
-      };
-  }
-};
+import { useTranslation } from "next-i18next";
 
 export function ShareTutorialModal() {
   const { isTutorialOpen, closeTutorial, openRecipeCreatingView, videoUrl, markTutorialAsSeen } =
@@ -45,9 +18,7 @@ export function ShareTutorialModal() {
   const startYRef = useRef(0);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
 
-  // 1. 언어 설정 가져오기
-  const lang = useLangcode();
-  const messages = formatShareTutorialMessages(lang);
+  const { t } = useTranslation("common");
 
   const { guideVideoSrc, deviceType, deviceStyles } = useMemo(() => {
     if (typeof window === "undefined") {
@@ -191,17 +162,17 @@ export function ShareTutorialModal() {
 
           <div className="px-6 pt-1 pb-2 border-b border-gray-100 flex-shrink-0 relative">
             <Dialog.Title className="text-xl font-bold mb-1 text-gray-900 pr-8">
-              {messages.title}
+              {t("recipeCreating.tutorial.title")}
             </Dialog.Title>
             <Dialog.Description className="text-xs text-gray-600">
-              {messages.description}
+              {t("recipeCreating.tutorial.description")}
             </Dialog.Description>
             
             <Dialog.Close asChild>
               <button
                 onClick={handleClose}
                 className="absolute top-2 right-6 p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                aria-label="닫기"
+                aria-label={t("recipeCreating.accessibility.close")}
               >
                 <X className="w-5 h-5 text-gray-500" />
               </button>
@@ -230,7 +201,7 @@ export function ShareTutorialModal() {
                           playsInline
                           className="absolute inset-0 w-full h-full object-contain"
                         >
-                          {messages.videoFallback}
+                          {t("recipeCreating.tutorial.videoFallback")}
                         </video>
                       </div>
 
@@ -249,7 +220,7 @@ export function ShareTutorialModal() {
               <div className="text-center space-y-2">
                 {/* 줄바꿈 처리를 위해 whitespace-pre-line 추가 */}
                 <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
-                  {messages.instruction}
+                  {t("recipeCreating.tutorial.instruction")}
                 </p>
               </div>
             </div>
@@ -260,21 +231,21 @@ export function ShareTutorialModal() {
               onClick={handleOpenYouTube}
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200"
             >
-              {messages.goCreate}
+              {t("recipeCreating.tutorial.goCreate")}
             </Button>
             <Button
               onClick={handleDirectInput}
               variant="outline"
               className="w-full border-2 border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200"
             >
-              {messages.directInput}
+              {t("recipeCreating.tutorial.directInput")}
             </Button>
-            
+
             <button
               onClick={handleDontShowAgain}
               className="w-full text-xs text-gray-400 text-center py-1 hover:text-gray-600 active:text-gray-700 transition-colors font-medium"
             >
-              {messages.dontShowAgain}
+              {t("recipeCreating.tutorial.dontShowAgain")}
             </button>
           </div>
         </Dialog.Content>

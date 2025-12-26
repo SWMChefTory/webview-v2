@@ -1,0 +1,16 @@
+{
+  "form": {
+    "title": "카테고리 생성",
+    "placeholder": "추가할 카테고리 이름을 입력해주세요",
+    "errorEmpty": "카테고리 이름을 채워주세요",
+    "errorTooLong": "20자 이하로 입력해주세요!",
+    "submit": "완료"
+  },
+  "deleteAlert": {
+    "title": "정말 삭제하시겠어요?",
+    "description": "{{categoryName}} 카테고리에 속한 레시피가 {{count}}개 있어요.",
+    "subDescription": "카테고리를 삭제하면 레시피가 사라지진 않아요.",
+    "cancel": "취소",
+    "confirm": "확인"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "main": {
+    "title": {
+      "main": "Are you sure you want to leave, {{nickname}}?",
+      "sub": ""
+    },
+    "infoBox": {
+      "title": "The following information will be deleted upon withdrawal.",
+      "items": [
+        "- All saved recipes and favorites",
+        "- Created categories and cooking history",
+        "- User personal information"
+      ]
+    },
+    "reasons": {
+      "title": "Please tell us why you are leaving.",
+      "sub": "We will provide better service when you return.",
+      "items": {
+        "1": "Too complex to use",
+        "2": "Lack of necessary features",
+        "3": "Using another service",
+        "4": "No longer cooking",
+        "5": "Not using due to lack of time",
+        "6": "Using another cooking app",
+        "7": "Other"
+      }
+    },
+    "feedbackPreview": "Your feedback",
+    "button": "Delete Account"
+  },
+  "modal": {
+    "title": "Write Detailed Feedback",
+    "reasonLabel": "Selected Reason",
+    "label": "Please provide detailed feedback",
+    "placeholder": "Your feedback helps us improve our service...",
+    "optional": "Optional",
+    "count": "{{current}} / {{max}}",
+    "tip": {
+      "title": "💡 Writing Tips",
+      "items": [
+        "• Specific feedback is more helpful",
+        "• Let us know what was uncomfortable or needs improvement",
+        "• Your feedback will be anonymous"
+      ]
+    },
+    "cancel": "Cancel",
+    "save": "Save"
+  }
+}

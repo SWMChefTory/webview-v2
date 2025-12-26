@@ -31,9 +31,8 @@ import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHa
 import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 import { Button } from "@/components/ui/button";
 import { CategoryCreatingView } from "@/src/widgets/category-creating-view/categoryCreatingView";
-import { formatCategoryName } from "@/src/features/format/category/formatCategoryName";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { useCategoryCreatingTranslation } from "../hooks/useCategoryCreatingTranslation";
+import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 
 export enum CategoryMode {
   SELECT,
@@ -92,14 +91,14 @@ const CategoryListReady = ({
     null
   );
   const [isOpen, setIsOpen] = useState(false);
-  const lang = useLangcode();
+  const { t } = useUserRecipeTranslation();
 
   return (
     <div className="flex flex-row flex-nowrap min-w-[101vw] pl-[10]">
       <CategoryChip
         props={{
           type: ChipType.FILTER,
-          name: formatCategoryName({ lang }).all,
+          name: t("category.all"),
           accessary: totalElements,
           onClick: () => setSelectedCategoryId?.(ALL_RECIPES),
           isSelected: selectedCategoryId === ALL_RECIPES,
@@ -129,7 +128,7 @@ const CategoryListReady = ({
       <CategoryChip
         props={{
           type: ChipType.EDITION,
-          name: formatCategoryName({ lang }).add,
+          name: t("category.add"),
           accessary: IoMdAdd,
           onClick: () => {
             setIsOpen(true);

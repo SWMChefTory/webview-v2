@@ -9,5 +9,10 @@
   "voice": {
     "listening": "음성을 듣고 있어요",
     "skip": "클릭해서 넘어갈게요"
+  },
+  "loop": {
+    "label": "구간 반복",
+    "ariaOn": "그룹 반복 끄기",
+    "ariaOff": "그룹 반복 켜기"
   }
 }

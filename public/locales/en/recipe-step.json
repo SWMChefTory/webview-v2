@@ -9,5 +9,10 @@
   "voice": {
     "listening": "Listening...",
     "skip": "Click to skip"
+  },
+  "loop": {
+    "label": "step repeat",
+    "ariaOn": "Turn off group repeat",
+    "ariaOff": "Turn on group repeat"
   }
 }

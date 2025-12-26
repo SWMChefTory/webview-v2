@@ -54,5 +54,15 @@
             "title": "Recipe created successfully",
             "moveButton": "View"
         }
+    },
+    "progress": {
+        "creating": "Creating Recipe",
+        "failed": "Failed to create recipe"
+    },
+    "dialog": {
+        "title": "Create Recipe",
+        "description": "Would you like to create this recipe?",
+        "cancel": "Cancel",
+        "create": "Create"
     }
 }

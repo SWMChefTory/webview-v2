@@ -17,6 +17,7 @@ import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUser
 import { RecipeStatus } from "@/src/shared/enums/recipe";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { useTranslation } from "next-i18next";
 
 export type RecipeCardEntryPoint =
   | "popular_normal"
@@ -34,6 +35,7 @@ export function RecipeCardWrapper({
   trigger: React.ReactNode;
   entryPoint: RecipeCardEntryPoint;
 }) {
+  const { t } = useTranslation("user-recipe");
   const { create } = useCreateRecipe();
   const { recipeStatus } = useFetchRecipeProgress({
     recipeId: recipe.recipeId,
@@ -62,18 +64,20 @@ export function RecipeCardWrapper({
       </div>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">레시피 생성</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {t("dialog.title")}
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
             <span className="text-black font-bold">{recipe.recipeTitle}</span>{" "}
-            레시피를 생성하시겠어요?
+            {t("dialog.description")}
           </div>
         </DialogDescription>
         <DialogFooter className="flex flex-row justify-center gap-2">
           <DialogClose asChild>
             <Button variant="outline" className="flex-1">
-              취소
+              {t("dialog.cancel")}
             </Button>
           </DialogClose>
           <DialogClose asChild>
@@ -97,7 +101,7 @@ export function RecipeCardWrapper({
               }}
               className="flex-1"
             >
-              생성
+              {t("dialog.create")}
             </Button>
           </DialogClose>
         </DialogFooter>

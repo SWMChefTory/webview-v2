@@ -54,5 +54,15 @@
             "title": "레시피 생성이 완료되었어요",
             "moveButton": "이동"
         }
+    },
+    "progress": {
+        "creating": "레시피 생성중",
+        "failed": "레시피를 만드는데 실패했어요"
+    },
+    "dialog": {
+        "title": "레시피 생성",
+        "description": "레시피를 생성하시겠어요?",
+        "cancel": "취소",
+        "create": "생성"
     }
   }

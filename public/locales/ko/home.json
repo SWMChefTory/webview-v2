@@ -14,5 +14,8 @@
     "myRecipe":"나의 레시피",
     "popularRecipes":"인기 레시피",
     "shortsPopularRecipes":"쇼츠 인기 레시피",
-    "createRecipe":"레시피 생성하기"
+    "createRecipe":"레시피 생성하기",
+    "accessibility": {
+      "floatingButton": "레시피 추가"
+    }
 }

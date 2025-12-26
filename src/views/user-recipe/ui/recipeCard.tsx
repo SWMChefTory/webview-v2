@@ -35,6 +35,7 @@ import {
   formatServing,
   formatMinute,
 } from "@/src/features/format/recipe-info/formatRecipeProperties";
+import { useTranslation } from "next-i18next";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -314,6 +315,7 @@ const CategorySelect = ({
   const { data: categories } = useFetchCategories();
   const { updateCategory } = useUpdateCategoryOfRecipe();
   const { t } = useUserRecipeTranslation();
+  const { t: tCommon } = useTranslation("common");
 
   return (
     <DialogPrimitive.Root
@@ -328,7 +330,7 @@ const CategorySelect = ({
             <DialogPrimitive.Close asChild>
               <motion.div
                 className="rounded-full p-1"
-                aria-label="Close"
+                aria-label={tCommon("accessibility.close")}
                 whileTap={{ scale: 0.8, backgroundColor: "#E8E8E8" }}
               >
                 <IoMdClose />

@@ -17,7 +17,8 @@
       "dontShowAgain": "Don't show again"
     },
     "accessibility": {
-      "close": "Close"
+      "close": "Close",
+      "loading": "Loading"
     }
   }
 }

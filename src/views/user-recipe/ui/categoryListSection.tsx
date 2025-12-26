@@ -33,6 +33,7 @@ import { Button } from "@/components/ui/button";
 import { CategoryCreatingView } from "@/src/widgets/category-creating-view/categoryCreatingView";
 import { useCategoryCreatingTranslation } from "../hooks/useCategoryCreatingTranslation";
 import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
+import { useTranslation } from "next-i18next";
 
 export enum CategoryMode {
   SELECT,
@@ -167,6 +168,7 @@ function CategoryDeleteAlert({
 }) {
   const { deleteCategory, isPending } = useDeleteCategory();
   const { t } = useCategoryCreatingTranslation();
+  const { t: tCommon } = useTranslation("common");
 
   const handleCancel = () => {
     onClose();
@@ -179,7 +181,7 @@ function CategoryDeleteAlert({
     return (
       <Loader2
         className="h-5 w-5 animate-spin text-gray-600"
-        aria-label="Loading"
+        aria-label={tCommon("accessibility.loading")}
       />
     );
   }

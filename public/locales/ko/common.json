@@ -17,7 +17,8 @@
       "dontShowAgain": "다시 보지 않기"
     },
     "accessibility": {
-      "close": "닫기"
+      "close": "닫기",
+      "loading": "로딩 중"
     }
   }
 }

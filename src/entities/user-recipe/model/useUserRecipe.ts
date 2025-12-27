@@ -138,7 +138,7 @@ const isValidYouTubeUrl = (url: string): boolean => {
   return youtubePatterns.some((pattern) => pattern.test(url.trim()));
 };
 
-const extractYouTubeVideoId = (url: string): string | null => {
+export const extractYouTubeVideoId = (url: string): string | null => {
   const patterns = [
     /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/,
     /youtube\.com\/shorts\/([^"&?\/\s]{11})/,

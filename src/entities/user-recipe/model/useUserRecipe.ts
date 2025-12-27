@@ -238,6 +238,8 @@ export function useCreateRecipe() {
       _entryPoint?: string;
       _creationMethod?: "card" | "url";
       _hasTargetCategory?: boolean;
+      _videoUrl?: string;
+      _videoId?: string;
     }) => {
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
@@ -290,6 +292,8 @@ export function useCreateRecipe() {
           entry_point: variables._entryPoint,
           recipe_id: data.recipeId,
           has_target_category: variables._hasTargetCategory || false,
+          video_url: variables._videoUrl,
+          video_id: variables._videoId,
         });
       }
 
@@ -319,6 +323,8 @@ export function useCreateRecipe() {
           entry_point: _vars._entryPoint,
           error_type: errorType,
           error_message: error.message,
+          video_url: _vars._videoUrl,
+          video_id: _vars._videoId,
         });
       }
 

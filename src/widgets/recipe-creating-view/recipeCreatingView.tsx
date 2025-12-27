@@ -1,7 +1,7 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
 import { useState, useEffect, useRef } from "react";
-import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { useCreateRecipe, extractYouTubeVideoId } from "@/src/entities/user-recipe/model/useUserRecipe";
 
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
@@ -70,11 +70,16 @@ export function RecipeCreatingView() {
 
   const handleSubmit = async () => {
     if (isSubmittable()) {
+      // Video ID 추출
+      const videoId = extractYouTubeVideoId(url);
+
       // recipe_create_submit_url 이벤트
       track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_URL, {
         entry_point: entryPoint || "floating_button",
         has_target_category: !!selectedCategoryId,
         target_category_id: selectedCategoryId || undefined,
+        video_url: url.trim(),
+        video_id: videoId || undefined,
       });
 
       create({
@@ -83,6 +88,8 @@ export function RecipeCreatingView() {
         _entryPoint: entryPoint || "floating_button",
         _creationMethod: "url",
         _hasTargetCategory: !!selectedCategoryId,
+        _videoUrl: url.trim(),
+        _videoId: videoId || undefined,
       });
       setHasEverTyped(false);
       close();

@@ -11,12 +11,13 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { useLangcode, Lang} from "@/src/shared/translation/useLangCode";
 import { ChallengeBanner } from "@/src/features/challenge";
 
 function HomePage() {
   const router = useRouter();
   const { t } = useHomeTranslation();
+  const lang = useLangcode();
 
   useSafeArea({
     top: { color: "transparent", isExists: true },
@@ -40,14 +41,14 @@ function HomePage() {
         }
         color="bg-white"
       />
-      <div className="pt-2 px-2">
+      {lang == "ko" && <div className="pt-2 px-2">
         <Link href="/search-recipe">
           <div className="flex flex-row items-center justify-between px-4 w-full h-[36] text-gray-800 bg-gray-100 rounded-lg">
             {t("searchBarPlaceholder")}
             <PiMagnifyingGlassBold size={16} />
           </div>
         </Link>
-      </div>
+      </div>}
       <ChallengeBanner />
       <CategorySection />
       <MyRecipes />

@@ -737,7 +737,7 @@ export const RecipeBottomSheet = ({
                     </span>
                   )}
                 </div>
-                <button
+                {lang == "ko" && <button
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm"
                   onClick={() => {
                     setMeasurementOpen(true);
@@ -753,11 +753,11 @@ export const RecipeBottomSheet = ({
                       strokeWidth="2"
                     />
                   </svg>
-                </button>
+                </button> }
               </div>
 
               {/* 재료 구매 배너 */}
-              <div
+              {lang == "ko" && <div
                 className="relative overflow-hidden rounded-md border border-gray-200 bg-gradient-to-r from-orange-50 to-white cursor-pointer hover:shadow-md transition-shadow"
                 onClick={() => setPurchaseModalOpen(true)}
               >
@@ -789,7 +789,7 @@ export const RecipeBottomSheet = ({
                     />
                   </svg>
                 </div>
-              </div>
+              </div>}
 
               <div className="grid grid-cols-3 gap-2">
                 {ingredients.map((ing, i) => {

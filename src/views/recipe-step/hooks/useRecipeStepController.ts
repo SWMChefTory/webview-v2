@@ -2,11 +2,13 @@ import { useState, useMemo, useCallback } from "react";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import { RecipeStep } from "../type/recipeSteps";
 import { checkStepIndex } from "../utils/checkStepIndex";
+import { useRecipeStepTranslation } from "./useRecipeStepTranslation";
 
 const INTRO = "INTRO";
 
 export function useRecipeStepController({ recipeId }: { recipeId: string }) {
   const { data: recipe } = useFetchRecipe(recipeId);
+  const { t } = useRecipeStepTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [currentDetailIndex, setCurrentDetailIndex] = useState(0);
 
@@ -32,14 +34,14 @@ export function useRecipeStepController({ recipeId }: { recipeId: string }) {
       {
         id: INTRO,
         stepOrder: -1,
-        subtitle: "인트로",
-        details: [{ start: 0, text: "인트로" }],
+        subtitle: t("intro"),
+        details: [{ start: 0, text: t("intro") }],
       },
       ..._steps,
     ].sort((e1, e2) => {
       return e1.stepOrder - e2.stepOrder;
     });
-  }, [recipeId]);
+  }, [recipeId, t]);
 
   const changeStepByIndex = useCallback(
     ({

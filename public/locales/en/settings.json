@@ -9,5 +9,9 @@
   "button": {
     "logout": "Log Out",
     "withdrawal": "Delete Account"
+  },
+  "berry": {
+    "balance": "{{count}} berries to go!",
+    "recharge": "Recharge"
   }
 }

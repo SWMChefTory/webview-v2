@@ -13,7 +13,6 @@ import { ReactNode } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import Image from "next/image";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
@@ -84,7 +83,9 @@ function SettingsPage() {
 }
 
 const BalanceRemainedReadySection = () => {
-  const lang = useLangcode();
+  const { t } = useSettingsTranslation();
+  const { data } = useFetchBalance();
+
   return (
     <div className="px-4">
       <div
@@ -104,20 +105,11 @@ const BalanceRemainedReadySection = () => {
             className="object-contain"
           />
           <p className="font-bold">
-            {lang == "en" ? (
-              <span>
-                <Balance /> berries to go!
-              </span>
-            ) : (
-              <span>
-                내 베리
-                <Balance />개
-              </span>
-            )}
+            {t("berry.balance", { count: data.balance })}
           </p>
         </div>
         <p className="text-sm text-gray-500">
-          {lang === "en" ? "Recharge" : "충전하기"}
+          {t("berry.recharge")}
         </p>
       </div>
     </div>

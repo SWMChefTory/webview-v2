@@ -16,7 +16,6 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useTranslation } from "next-i18next";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
 
 export type RecipeCardEntryPoint =
   | "popular_normal"
@@ -56,7 +55,6 @@ export function RecipeCardWrapper({
   const { data: balance } = useFetchBalance();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const lang = useLangcode();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -134,17 +132,17 @@ const CreateButton = ({
   onCreate: () => void;
   onRecharge: () => void;
 }) => {
-  const lang = useLangcode();
+  const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
       <Button onClick={onRecharge} className="flex-1 text-lg py-5 ">
-        {lang === "en" ? `I will recharge` : `충전할게요`}
+        {t("recipeCreating.berry.buttonRecharge")}
       </Button>
     );
   }
   return (
     <Button onClick={onCreate} className="flex-1 text-lg py-5 ">
-      {lang === "en" ? `I will create` : `생성할게요`}
+      {t("recipeCreating.berry.buttonCreate")}
     </Button>
   );
 };
@@ -156,25 +154,21 @@ const CreatingDescription = ({
   creditCost: number;
   balance: number;
 }) => {
-  const lang = useLangcode();
+  const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
       <div className="font-bold px-4 flex flex-col items-center">
-        베리가 부족합니다. 충전하시겠어요?
+        {t("recipeCreating.berry.insufficientMessage")}
       </div>
     );
   }
   return (
     <div className="font-bold px-4 flex flex-col items-center">
       <p className="text-lg text-gray-500">
-        {lang === "en"
-          ? `Would you like to create a recipe with ${creditCost} berries?`
-          : `베리 ${creditCost}개로 레시피를 생성하시겠어요?`}
+        {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
       </p>
       <p className="text-sm text-gray-500 font-normal">
-        {lang === "en"
-          ? `Current berries: ${balance}`
-          : `현재 베리 ${balance}개`}
+        {t("recipeCreating.berry.currentBalance", { balance })}
       </p>
     </div>
   );

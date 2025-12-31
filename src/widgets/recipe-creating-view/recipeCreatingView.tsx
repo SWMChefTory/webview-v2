@@ -20,7 +20,6 @@ import { useTranslation } from "next-i18next";
 
 import Image from "next/image";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 export function RecipeCreatingView() {
@@ -40,8 +39,6 @@ export function RecipeCreatingView() {
 
   const { t } = useTranslation("common");
   const hasTrackedStartRef = useRef(false);
-
-  const lang = useLangcode();
 
   // recipe_create_start_url 이벤트 (모달이 열릴 때 한 번만 발생)
   useEffect(() => {
@@ -136,11 +133,7 @@ export function RecipeCreatingView() {
             <div className="p-3">
               <FormButton
                 onSubmit={handleSubmit}
-                label={(() => {
-                  return lang == "en"
-                    ? "Create with 1 berry"
-                    : "베리 1개로 생성하기";
-                })()}
+                label={t("recipeCreating.berry.createWithOne")}
                 isSubmittable={isSubmittable()}
               />
             </div>

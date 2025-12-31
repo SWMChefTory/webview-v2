@@ -1,7 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
 import { useState, useEffect, useRef } from "react";
-import { useCreateRecipe, extractYouTubeVideoId } from "@/src/entities/user-recipe/model/useUserRecipe";
+import {
+  useCreateRecipe,
+  extractYouTubeVideoId,
+} from "@/src/entities/user-recipe/model/useUserRecipe";
 
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
@@ -14,6 +17,10 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { useTranslation } from "next-i18next";
+
+import Image from "next/image";
+import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -32,6 +39,10 @@ export function RecipeCreatingView() {
 
   const { t } = useTranslation("common");
   const hasTrackedStartRef = useRef(false);
+
+  const { data: balance } = useFetchBalance();
+
+  const lang = useLangcode();
 
   // recipe_create_start_url 이벤트 (모달이 열릴 때 한 번만 발생)
   useEffect(() => {
@@ -106,8 +117,18 @@ export function RecipeCreatingView() {
             className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
           >
             <div className="p-5">
-              <Dialog.Title className="text-xl font-bold">
-                {t("recipeCreating.form.title")}
+              <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+                <p>{t("recipeCreating.form.title")}</p>
+                <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+                  <Image
+                    src="/images/berry/berry.png"
+                    alt="berry"
+                    width={22}
+                    height={22}
+                    className="object-contain"
+                  />
+                  {balance.balance}
+                </p>
               </Dialog.Title>
             </div>
             <CategoryChipListSection
@@ -128,7 +149,11 @@ export function RecipeCreatingView() {
             <div className="p-3">
               <FormButton
                 onSubmit={handleSubmit}
-                label={t("recipeCreating.form.submit")}
+                label={(() => {
+                  return lang == "en"
+                    ? "Create with 1 berry"
+                    : "베리 1개로 생성하기";
+                })()}
                 isSubmittable={isSubmittable()}
               />
             </div>

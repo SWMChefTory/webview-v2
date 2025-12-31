@@ -96,7 +96,7 @@ function RecommendCategoryContent({
       }}
       categoryName={categoryName}
       isFetchingNextPage={isFetchingNextPage}
-      isRecommendType={false}
+      isRecommendType={true}
     />
   );
 }

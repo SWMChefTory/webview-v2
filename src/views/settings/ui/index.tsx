@@ -43,7 +43,7 @@ function SettingsPage() {
           <UserSectionReady />
         </SSRSuspense>
         <div className="h-[16]" />
-        <BalanceRemainedReadySection />
+        <BalanceSection />
         <div className="h-[24]" />
         <div className="flex flex-col gap-1 px-2 ">
           <div className="text-gray-500 pb-2">{t("section.terms.title")}</div>
@@ -82,6 +82,31 @@ function SettingsPage() {
   );
 }
 
+const BalanceRemainedSkeleton = () => {
+  const { t } = useSettingsTranslation();
+  return (
+    <div className="px-4">
+      <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-red-50 justify-between">
+        <div className="flex flex-row gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={20}
+            height={20}
+            className="object-contain"
+          />
+          <p className="font-bold">
+            {t("berry.balance", { count: 0 })}
+          </p>
+        </div>
+        <p className="text-sm text-gray-500">
+          {t("berry.recharge")}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const BalanceRemainedReadySection = () => {
   const { t } = useSettingsTranslation();
   const { data } = useFetchBalance();
@@ -116,23 +141,12 @@ const BalanceRemainedReadySection = () => {
   );
 };
 
-const Balance = () => {
+const BalanceSection = () => {
   return (
-    <span className="text-red-600 leading-none tabular-nums">
-      <SSRSuspense fallback={<BalanceRemainedSkeleton />}>
-        <BalanceRemainedReady />
-      </SSRSuspense>
-    </span>
+    <SSRSuspense fallback={<BalanceRemainedSkeleton />}>
+      <BalanceRemainedReadySection />
+    </SSRSuspense>
   );
-};
-
-const BalanceRemainedReady = () => {
-  const { data } = useFetchBalance();
-  return <>{data.balance}</>;
-};
-
-const BalanceRemainedSkeleton = () => {
-  return <>0</>;
 };
 
 const UserSectionReady = () => {

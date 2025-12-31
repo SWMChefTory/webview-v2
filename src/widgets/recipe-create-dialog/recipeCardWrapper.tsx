@@ -16,6 +16,7 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useTranslation } from "next-i18next";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 export type RecipeCardEntryPoint =
   | "popular_normal"
@@ -27,18 +28,7 @@ export type RecipeCardEntryPoint =
   | "category_recommend"
   | "category_cuisine";
 
-//이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
-export function RecipeCardWrapper({
-  recipeId,
-  recipeCreditCost,
-  recipeTitle,
-  recipeIsViewed,
-  recipeVideoType,
-  recipeVideoUrl,
-  trigger,
-  entryPoint,
-}: {
-  // recipe: PopularSummaryRecipeDto | ThemeRecipe;
+type RecipeCardWrapperProps = {
   recipeId: string;
   recipeCreditCost: number;
   recipeTitle: string;
@@ -47,7 +37,22 @@ export function RecipeCardWrapper({
   recipeVideoUrl: string;
   trigger: React.ReactNode;
   entryPoint: RecipeCardEntryPoint;
-}) {
+};
+
+function RecipeCardWrapperSkeleton({ trigger }: { trigger: React.ReactNode }) {
+  return <>{trigger}</>;
+}
+
+function RecipeCardWrapperReady({
+  recipeId,
+  recipeCreditCost,
+  recipeTitle,
+  recipeIsViewed,
+  recipeVideoType,
+  recipeVideoUrl,
+  trigger,
+  entryPoint,
+}: RecipeCardWrapperProps) {
   const { create } = useCreateRecipe();
   const { recipeStatus } = useFetchRecipeProgress({
     recipeId,
@@ -118,6 +123,15 @@ export function RecipeCardWrapper({
         </DialogClose>
       </DialogContent>
     </Dialog>
+  );
+}
+
+//이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
+export function RecipeCardWrapper(props: RecipeCardWrapperProps) {
+  return (
+    <SSRSuspense fallback={<RecipeCardWrapperSkeleton trigger={props.trigger} />}>
+      <RecipeCardWrapperReady {...props} />
+    </SSRSuspense>
   );
 }
 

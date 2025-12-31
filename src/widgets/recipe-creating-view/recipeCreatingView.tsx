@@ -113,7 +113,7 @@ export function RecipeCreatingView() {
             className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
           >
             <div className="p-5">
-              <Title/>
+              <Title />
             </div>
             <CategoryChipListSection
               selectedCategoryId={selectedCategoryId}
@@ -144,7 +144,26 @@ export function RecipeCreatingView() {
   );
 }
 
-const Title = () => {
+const TitleSkeleton = () => {
+  const { t } = useTranslation("common");
+  return (
+    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+      <p>{t("recipeCreating.form.title")}</p>
+      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={22}
+          height={22}
+          className="object-contain"
+        />
+        0
+      </p>
+    </Dialog.Title>
+  );
+};
+
+const TitleReady = () => {
   const { data: balance } = useFetchBalance();
   const { t } = useTranslation("common");
   return (
@@ -158,9 +177,17 @@ const Title = () => {
           height={22}
           className="object-contain"
         />
-        <SSRSuspense fallback={<>0</>}>{balance.balance}</SSRSuspense>
+        {balance.balance}
       </p>
     </Dialog.Title>
+  );
+};
+
+const Title = () => {
+  return (
+    <SSRSuspense fallback={<TitleSkeleton />}>
+      <TitleReady />
+    </SSRSuspense>
   );
 };
 

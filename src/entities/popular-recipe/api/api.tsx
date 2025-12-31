@@ -13,7 +13,11 @@ const PopularSummaryRecipeResponseSchema = z.object({
   count: z.number(),
   isViewed: z.boolean(),
   videoType: z.enum(VideoType),
+  creditCost: z.number(),
 });
+
+export type PopularSummaryRecipeDto =
+  z.infer<typeof PopularSummaryRecipeResponseSchema>;
 
 const PopularSummaryRecipePagenatedResponse = createPaginatedSchema(
   PopularSummaryRecipeResponseSchema.array()

@@ -11,6 +11,10 @@ import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { ReactNode } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
+import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
+import Image from "next/image";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 function SettingsPage() {
   const router = useRouter();
@@ -22,6 +26,7 @@ function SettingsPage() {
     left: { color: "#FFFFFF", isExists: true },
     right: { color: "#FFFFFF", isExists: false },
   });
+
   return (
     <div>
       <Header
@@ -37,11 +42,11 @@ function SettingsPage() {
         <SSRSuspense fallback={<UserSectionSkeleton />}>
           <UserSectionReady />
         </SSRSuspense>
-        <div className="h-[32]" />
+        <div className="h-[16]" />
+        <BalanceSection />
+        <div className="h-[24]" />
         <div className="flex flex-col gap-1 px-2 ">
-          <div className="text-gray-500 pb-2">
-            {t("section.terms.title")}
-          </div>
+          <div className="text-gray-500 pb-2">{t("section.terms.title")}</div>
           <div className="flex flex-col gap-2 px-2">
             <div className="flex flex-row justify-between items-center">
               <div
@@ -76,6 +81,78 @@ function SettingsPage() {
     </div>
   );
 }
+
+const BalanceRemainedSkeleton = () => {
+  const { t } = useSettingsTranslation();
+  return (
+    <div className="px-4">
+      <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-red-50 justify-between">
+        <div className="flex flex-row gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={20}
+            height={20}
+            className="object-contain"
+          />
+          <p className="font-bold">
+            {t("berry.balance", { count: 0 })}
+          </p>
+        </div>
+        <p className="text-sm text-red-500 font-semibold">
+          {t("berry.recharge")}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const BalanceRemainedReadySection = () => {
+  const { t } = useSettingsTranslation();
+  const { data } = useFetchBalance();
+
+  return (
+    <div className="px-4">
+      <motion.div
+        className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-red-50 justify-between cursor-pointer"
+        onClick={() => {
+          track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
+            source: "settings",
+          });
+        }}
+        whileTap={{ scale: 0.98, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+        transition={{ duration: 0.2 }}
+      >
+        <div className="flex flex-row gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={20}
+            height={20}
+            className="object-contain"
+          />
+          <p className="font-bold">
+            {t("berry.balance", { count: data.balance })}
+          </p>
+        </div>
+        <div className="flex items-center gap-1">
+          <p className="text-sm text-red-500 font-semibold">
+            {t("berry.recharge")}
+          </p>
+          <GoChevronRight className="size-4 text-red-500" />
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const BalanceSection = () => {
+  return (
+    <SSRSuspense fallback={<BalanceRemainedSkeleton />}>
+      <BalanceRemainedReadySection />
+    </SSRSuspense>
+  );
+};
 
 const UserSectionReady = () => {
   const { user } = fetchUserModel();

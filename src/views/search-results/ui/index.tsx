@@ -7,7 +7,7 @@ import {
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +24,8 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { Trans } from "next-i18next";
 import { useSearchResultsTranslation } from "../hooks/useSearchResultsTranslation";
+
+import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
 
 export function SearchResultsSkeleton() {
   return (
@@ -48,7 +50,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
     totalElements,
     hasNextPage,
     fetchNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useFetchRecipesSearched({ query: keyword });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
       },
       {
         threshold: 0.1,
-        rootMargin: '200px'
+        rootMargin: "200px",
       }
     );
 
@@ -90,43 +92,69 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
 
   if (searchResults.length === 0) {
     return (
-        <div className="flex flex-col w-full h-full items-center pt-54 px-4">
-          <div className="w-44 h-44 mb-8">
-            <img
-                src={"/empty_state.png"}
-                alt="empty inbox"
-                className="block w-full h-full object-contain"
-            />
-          </div>
-          <div className="text-center space-y-3">
-            <h3 className="font-bold text-xl text-gray-900">{t("empty.title")}</h3>
-            <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
-          </div>
+      <div className="flex flex-col w-full h-full items-center pt-54 px-4">
+        <div className="w-44 h-44 mb-8">
+          <img
+            src={"/empty_state.png"}
+            alt="empty inbox"
+            className="block w-full h-full object-contain"
+          />
         </div>
+        <div className="text-center space-y-3">
+          <h3 className="font-bold text-xl text-gray-900">
+            {t("empty.title")}
+          </h3>
+          <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
+        </div>
+      </div>
     );
   }
-
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       {/* 검색 결과 헤더 */}
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{keyword}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">{t("header.suffix")}</span>
+          <h1 className="text-2xl font-bold text-gray-900 truncate">
+            {keyword}
+          </h1>
+          <span className="text-lg font-medium text-gray-600 shrink-0">
+            {t("header.suffix")}
+          </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">{t("header.totalCount", { count: totalElements })}</p>
+        <p className="text-sm text-gray-500 mt-2">
+          {t("header.totalCount", { count: totalElements })}
+        </p>
       </div>
 
       {/* 검색 결과 그리드 */}
       <div className="px-4 pb-6">
         <div className="grid grid-cols-2 gap-4">
           {searchResults.map((recipe, index) => (
-            <RecipeSearchedCardReady
+            <SearchedRecipeCard
               key={recipe.recipeId}
-              searchResults={recipe}
-              keyword={keyword}
-              position={index + 1}
+              recipeTitle={recipe.recipeTitle}
+              servings={recipe.detailMeta.servings}
+              cookingTime={recipe.detailMeta.cookingTime}
+              tags={recipe.tags}
+              description={recipe.detailMeta.description}
+              thumbnail={
+                <RecipeThumbnail
+                  recipeId={recipe.recipeId}
+                  recipeTitle={recipe.recipeTitle}
+                  recipeCreditCost={recipe.creditCost}
+                  recipeIsViewed={recipe.isViewed}
+                  recipeVideoType={
+                    recipe.videoInfo.videoType == "SHORTS"
+                      ? VideoType.SHORTS
+                      : VideoType.NORMAL
+                  }
+                  recipeVideoUrl={recipe.videoUrl}
+                  keyword={keyword}
+                  position={index + 1}
+                  recipeVideoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                />
+              }
             />
           ))}
           {isFetchingNextPage && (
@@ -141,6 +169,122 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
     </div>
   );
 }
+
+const RecipeThumbnail = ({
+  recipeId,
+  recipeTitle,
+  recipeCreditCost,
+  recipeIsViewed,
+  recipeVideoType,
+  recipeVideoUrl,
+  recipeVideoThumbnailUrl,
+  keyword,
+  position,
+}: {
+  recipeId: string;
+  recipeTitle: string;
+  recipeCreditCost: number;
+  recipeIsViewed: boolean;
+  recipeVideoType: VideoType;
+  recipeVideoUrl: string;
+  recipeVideoThumbnailUrl: string;
+  keyword: string;
+  position: number;
+}) => {
+  const { t } = useSearchResultsTranslation();
+  return (
+    <RecipeCardWrapper
+      recipeId={recipeId}
+      recipeTitle={recipeTitle}
+      recipeCreditCost={recipeCreditCost}
+      recipeIsViewed={recipeIsViewed}
+      recipeVideoType={recipeVideoType}
+      recipeVideoUrl={recipeVideoUrl}
+      trigger={
+        <div
+          onClick={() => {
+            track(AMPLITUDE_EVENT.SEARCH_RESULT_CLICK, {
+              keyword,
+              position,
+              recipe_id: recipeId,
+              is_registered: recipeIsViewed,
+              video_type: recipeVideoType || "NORMAL",
+            });
+          }}
+          className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200"
+        >
+          <ThumbnailReady imgUrl={recipeVideoThumbnailUrl} />
+          {recipeIsViewed && (
+            <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
+              {t("card.badge")}
+            </div>
+          )}
+        </div>
+      }
+      entryPoint="search_result"
+    />
+  );
+};
+
+const SearchedRecipeCard = ({
+  recipeTitle,
+  thumbnail,
+  servings,
+  cookingTime,
+  tags,
+  description,
+}: {
+  recipeTitle: string;
+  thumbnail: React.ReactNode;
+  servings: number;
+  cookingTime: number;
+  tags: { name: string }[];
+  description: string;
+}) => {
+  const { t } = useSearchResultsTranslation();
+
+  return (
+    <article className="w-full group cursor-pointer">
+      <div className="mt-3 space-y-2.5">
+        <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
+          {recipeTitle}
+        </h3>
+        {thumbnail}
+        <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-1.5">
+            <BsPeople size={14} className="shrink-0" />
+            <span className="font-medium">
+              {t("card.serving", { count: servings })}
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <FaRegClock size={14} className="shrink-0" />
+            <span className="font-medium">
+              {t("card.minute", { count: cookingTime })}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex gap-2 overflow-hidden">
+          <div className="flex gap-2 line-clamp-1">
+            {tags.slice(0, 3).map((tag, index) => (
+              <span
+                key={index}
+                className="text-xs font-semibold text-orange-600 whitespace-nowrap"
+              >
+                #{tag.name}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
+          {description}
+        </p>
+      </div>
+    </article>
+  );
+};
 
 const RecipeSearchedCardReady = ({
   searchResults,
@@ -164,7 +308,7 @@ const RecipeSearchedCardReady = ({
       position,
       recipe_id: searchResults.recipeId,
       is_registered: searchResults.isViewed,
-      video_type: searchResults.videoInfo.videoType || "NORMAL",
+      video_type: searchResults.videoInfo.videoType || VideoType.NORMAL,
     });
 
     if (!searchResults.isViewed) {
@@ -181,7 +325,7 @@ const RecipeSearchedCardReady = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <article 
+      <article
         className="w-full group cursor-pointer"
         onClick={handleCardClick}
       >
@@ -204,13 +348,17 @@ const RecipeSearchedCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{t("card.serving", { count: detailMeta.servings })}</span>
+                  <span className="font-medium">
+                    {t("card.serving", { count: detailMeta.servings })}
+                  </span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{t("card.minute", { count: detailMeta.cookingTime })}</span>
+                  <span className="font-medium">
+                    {t("card.minute", { count: detailMeta.cookingTime })}
+                  </span>
                 </div>
               )}
             </div>
@@ -219,7 +367,10 @@ const RecipeSearchedCardReady = ({
           {tags && tags.length > 0 && (
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {tags.slice(0, 3).map((tag, index) => (
-                <span key={index} className="text-xs font-semibold text-orange-600 whitespace-nowrap">
+                <span
+                  key={index}
+                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
+                >
                   #{tag.name}
                 </span>
               ))}
@@ -235,7 +386,9 @@ const RecipeSearchedCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {t("dialog.title")}
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
@@ -262,7 +415,9 @@ const RecipeSearchedCardReady = ({
                 await create({
                   youtubeUrl: `https://www.youtube.com/watch?v=${searchResults.videoInfo.videoId}`,
                   recipeId: searchResults.recipeId,
-                  videoType: searchResults.videoInfo.videoType as VideoType | undefined,
+                  videoType: searchResults.videoInfo.videoType as
+                    | VideoType
+                    | undefined,
                   recipeTitle: searchResults.recipeTitle,
                   _source: "search_result",
                   _creationMethod: "card",

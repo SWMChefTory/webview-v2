@@ -1,8 +1,8 @@
 import Fire from "./assets/fire.png";
 import {
-  PopularRecipe,
   useFecthPopularRecipe,
 } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import {
   AlreadyEnrolledChip,
@@ -63,11 +63,16 @@ const ShortPopularRecipesSectionReady = () => {
       <div className=" flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
-            recipe={recipe}
-            key={recipe.recipeId}
-            trigger={<ShortsRecipeCardReady recipe={recipe} />}
-            entryPoint="popular_shorts"
-          />
+          key={recipe.recipeId}
+          recipeId={recipe.recipeId}
+          recipeCreditCost={recipe.creditCost}
+          recipeTitle={recipe.recipeTitle}
+          recipeIsViewed={recipe.isViewed}
+          recipeVideoType={recipe.videoType}
+          recipeVideoUrl={recipe.videoUrl}
+          entryPoint="popular_normal"
+          trigger={<ShortsRecipeCardReady recipe={recipe} />}
+        />
         ))}
         {isFetchingNextPage && <ShortsRecipeCardSkeleton />}
       </div>
@@ -79,7 +84,7 @@ function ShortsRecipeCardSkeleton() {
   return <Skeleton className="flex shrink-0 w-[180] h-[320] rounded-md" />;
 }
 
-function ShortsRecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
+function ShortsRecipeCardReady({ recipe }: { recipe: PopularSummaryRecipeDto }) {
   const { recipeStatus } = useFetchRecipeProgress({
     recipeId: recipe.recipeId,
   });

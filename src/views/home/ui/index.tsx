@@ -13,6 +13,7 @@ import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useLangcode, Lang} from "@/src/shared/translation/useLangCode";
 import { ChallengeBanner } from "@/src/features/challenge";
+import { BalanceWithRecharge } from "./balanceWithRecharge";
 
 function HomePage() {
   const router = useRouter();
@@ -31,7 +32,8 @@ function HomePage() {
       <Header
         leftContent={<Logo />}
         rightContent={
-          <div className="flex flex-row">
+          <div className="flex flex-row items-center gap-2">
+            <BalanceWithRecharge />
             <ProfileButton
               onClick={() => {
                 router.push("/user/settings");

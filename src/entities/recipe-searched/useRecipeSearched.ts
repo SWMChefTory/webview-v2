@@ -3,7 +3,7 @@ import { fetchRecipesSearched } from "@/src/entities/recipe-searched/api/api";
 export type { Recipe } from "@/src/entities/recipe-searched/api/api";
 
 
-const RECIPE_SEARCH_QUERY_KEY = "RecipeSearchQueryKey";
+export const RECIPE_SEARCH_QUERY_KEY = "RecipeSearchQueryKey";
 
 export function useFetchRecipesSearched({ query }: { query: string }) {
   const { data: queryData, hasNextPage, fetchNextPage, isFetchingNextPage } =

@@ -85,9 +85,6 @@ client.interceptors.response.use(
           return Promise.reject(error);
         });
     }
-    // request(MODE.UNBLOCKING, "LOGOUT", null)
-    // setMainAccessToken("");
-    // alert("로그인 정보가 만료되었습니다. 다시 로그인해주세요.");
     return Promise.reject(error);
   }
 );

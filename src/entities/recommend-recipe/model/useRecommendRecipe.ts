@@ -3,7 +3,7 @@ import { fetchRecommendRecipes } from "@/src/entities/recommend-recipe/api/api";
 import { RecommendType } from "@/src/entities/category/type/cuisineType";
 export type { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
 
-const RECOMMEND_RECIPE_QUERY_KEY = "RecommendRecipeQueryKey";
+export const RECOMMEND_RECIPE_QUERY_KEY = "RecommendRecipeQueryKey";
 
 export function useFetchRecommendRecipes({ recommendType }: { recommendType: RecommendType }) {
   const { data: queryData, hasNextPage, fetchNextPage, isFetchingNextPage } =

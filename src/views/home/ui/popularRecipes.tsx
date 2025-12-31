@@ -1,7 +1,4 @@
-import {
-  useFecthPopularRecipe,
-  PopularRecipe,
-} from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -17,9 +14,10 @@ import Link from "next/link";
 import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
+import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 
 export function PopularRecipes() {
-  const {t} = useHomeTranslation();
+  const { t } = useHomeTranslation();
   return (
     <div>
       <div className="h-4" />
@@ -66,19 +64,29 @@ function RecipeCardSectionReady() {
     >
       {recipes.map((recipe) => (
         <RecipeCardWrapper
-          recipe={recipe}
           key={recipe.recipeId}
-          trigger={<RecipeCardReady recipe={recipe} />}
+          recipeId={recipe.recipeId}
+          recipeCreditCost={recipe.creditCost}
+          recipeTitle={recipe.recipeTitle}
+          recipeIsViewed={recipe.isViewed}
+          recipeVideoType={recipe.videoType}
+          recipeVideoUrl={recipe.videoUrl}
           entryPoint="popular_normal"
+          trigger={<RecipeCardReady recipe={recipe} />}
         />
       ))}
+
       {isFetchingNextPage && <RecipeCardSkeleton />}
       <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]"></div>
     </HorizontalScrollArea>
   );
 }
 
-export function RecipeCardReady({ recipe }: { recipe: PopularRecipe }) {
+export function RecipeCardReady({
+  recipe,
+}: {
+  recipe: PopularSummaryRecipeDto;
+}) {
   const { recipeStatus } = useFetchRecipeProgress({
     recipeId: recipe.recipeId,
   });

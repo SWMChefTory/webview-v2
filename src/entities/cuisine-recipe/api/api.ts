@@ -24,6 +24,7 @@ const RawCuisineRecipeSchema = z.object({
   videoType: z.enum(['SHORTS', 'NORMAL']),
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
+  creditCost: z.number(),
 });
 
 // 변환된 레시피 스키마
@@ -34,6 +35,7 @@ const CuisineRecipeSchema = z.object({
   isViewed: z.boolean().optional(),
   videoInfo: VideoInfoSchema,
   detailMeta: RecipeDetailMetaSchema.optional(),
+  creditCost: z.number(),
 });
 
 const CuisineRecipesSchema = z.array(CuisineRecipeSchema);
@@ -64,9 +66,6 @@ export const fetchCuisineRecipes = async ({
       data: [],
     };
   }
-
-
-  console.log(JSON.stringify(response.data));
   
   // API 응답 데이터 파싱
   const rawRecipes = z.array(RawCuisineRecipeSchema).parse(response.data.cuisineRecipes || []);
@@ -93,6 +92,7 @@ export const fetchCuisineRecipes = async ({
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
       },
+      creditCost: recipe.creditCost,
     })),
   };
   

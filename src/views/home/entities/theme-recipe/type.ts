@@ -11,6 +11,7 @@ export const ThemeRecipeSchema = z.object({
   videoUrl: z.string(),
   isViewed: z.boolean(),
   videoType: z.enum(VideoType),
+  creditCost: z.number(),
 });
 
 export const ThemeRecipesSchema = z.array(ThemeRecipeSchema);

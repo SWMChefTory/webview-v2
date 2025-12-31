@@ -3,7 +3,7 @@ import { fetchCuisineRecipes } from "@/src/entities/cuisine-recipe/api/api";
 import { CuisineType } from "@/src/entities/category/type/cuisineType";
 export type { CuisineRecipe } from "@/src/entities/cuisine-recipe/api/api";
 
-const CUISINE_RECIPE_QUERY_KEY = "CuisineRecipeQueryKey";
+export const CUISINE_RECIPE_QUERY_KEY = "CuisineRecipeQueryKey";
 
 export function useFetchCuisineRecipes({ cuisineType }: { cuisineType: CuisineType }) {
   const { data: queryData, hasNextPage, fetchNextPage, isFetchingNextPage } =

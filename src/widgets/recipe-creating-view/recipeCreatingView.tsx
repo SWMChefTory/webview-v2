@@ -1,7 +1,10 @@
 import * as Dialog from "@radix-ui/react-dialog";
 
 import { useState, useEffect, useRef } from "react";
-import { useCreateRecipe, extractYouTubeVideoId } from "@/src/entities/user-recipe/model/useUserRecipe";
+import {
+  useCreateRecipe,
+  extractYouTubeVideoId,
+} from "@/src/entities/user-recipe/model/useUserRecipe";
 
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { FormInput, FormButton } from "@/src/shared/form/components";
@@ -14,6 +17,10 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { useTranslation } from "next-i18next";
+
+import Image from "next/image";
+import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -106,9 +113,7 @@ export function RecipeCreatingView() {
             className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
           >
             <div className="p-5">
-              <Dialog.Title className="text-xl font-bold">
-                {t("recipeCreating.form.title")}
-              </Dialog.Title>
+              <Title />
             </div>
             <CategoryChipListSection
               selectedCategoryId={selectedCategoryId}
@@ -125,11 +130,13 @@ export function RecipeCreatingView() {
                 placeholder={t("recipeCreating.form.placeholder")}
               />
             </div>
+            <div className="pb-3">
+              <BalanceDescription />
+            </div>
             <div className="p-3">
-              <FormButton
+              <CreateFormButton
                 onSubmit={handleSubmit}
-                label={t("recipeCreating.form.submit")}
-                isSubmittable={isSubmittable()}
+                isValidUrl={isSubmittable()}
               />
             </div>
           </Dialog.Content>
@@ -138,6 +145,53 @@ export function RecipeCreatingView() {
     </>
   );
 }
+
+const TitleSkeleton = () => {
+  const { t } = useTranslation("common");
+  return (
+    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+      <p>{t("recipeCreating.form.title")}</p>
+      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={22}
+          height={22}
+          className="object-contain"
+        />
+        0
+      </p>
+    </Dialog.Title>
+  );
+};
+
+const TitleReady = () => {
+  const { data: balance } = useFetchBalance();
+  const { t } = useTranslation("common");
+  return (
+    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+      <p>{t("recipeCreating.form.title")}</p>
+      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={22}
+          height={22}
+          className="object-contain"
+        />
+        {balance.balance}
+      </p>
+    </Dialog.Title>
+  );
+};
+
+const Title = () => {
+  return (
+    <SSRSuspense fallback={<TitleSkeleton />}>
+      <TitleReady />
+    </SSRSuspense>
+  );
+};
 
 function CategoryChipListSection({
   onSelect,
@@ -209,3 +263,164 @@ function CategoryChip({
     </motion.div>
   );
 }
+
+const CreateFormButtonSkeleton = () => {
+  const { t } = useTranslation("common");
+  return (
+    <FormButton
+      onSubmit={() => {}}
+      label={t("recipeCreating.berry.createWithOne")}
+      isSubmittable={false}
+    />
+  );
+};
+
+const CreateFormButtonReady = ({
+  balance,
+  creditCost,
+  onSubmit,
+  isValidUrl,
+}: {
+  balance: number;
+  creditCost: number;
+  onSubmit: () => void;
+  isValidUrl: boolean;
+}) => {
+  const { t } = useTranslation("common");
+
+  // 잔액 부족 시 충전하기 버튼
+  if (balance - creditCost < 0) {
+    return (
+      <FormButton
+        onSubmit={() => {
+          track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
+            source: "create_modal",
+          });
+          // TODO: 충전 기능이 백엔드에 구현되면 연결
+        }}
+        label={t("recipeCreating.berry.buttonRecharge")}
+        isSubmittable={true}
+      />
+    );
+  }
+
+  // 잔액 충분 시 생성하기 버튼
+  return (
+    <FormButton
+      onSubmit={onSubmit}
+      label={t("recipeCreating.berry.createWithOne")}
+      isSubmittable={isValidUrl}
+    />
+  );
+};
+
+const CreateFormButton = ({
+  onSubmit,
+  isValidUrl,
+}: {
+  onSubmit: () => void;
+  isValidUrl: boolean;
+}) => {
+  const { data: balance } = useFetchBalance();
+  const creditCost = 1; // 기본 베리 비용
+
+  return (
+    <SSRSuspense fallback={<CreateFormButtonSkeleton />}>
+      <CreateFormButtonReady
+        balance={balance.balance}
+        creditCost={creditCost}
+        onSubmit={onSubmit}
+        isValidUrl={isValidUrl}
+      />
+    </SSRSuspense>
+  );
+};
+
+const BalanceDescriptionSkeleton = () => {
+  const { t } = useTranslation("common");
+  return (
+    <div className="px-4 flex flex-col items-center gap-2">
+      <p className="text-lg text-gray-700 font-semibold">
+        {t("recipeCreating.berry.confirmCreate", { cost: 1 })}
+      </p>
+      <div className="flex items-center gap-1.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={18}
+          height={18}
+          className="object-contain"
+        />
+        <p className="text-sm text-gray-500">
+          {t("recipeCreating.berry.currentBalance", { balance: 0 })}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const BalanceDescriptionReady = ({
+  creditCost,
+  balance,
+}: {
+  creditCost: number;
+  balance: number;
+}) => {
+  const { t } = useTranslation("common");
+
+  if (balance - creditCost < 0) {
+    return (
+      <div className="px-4 flex flex-col items-center gap-2">
+        <p className="text-lg text-gray-700 font-semibold">
+          {t("recipeCreating.berry.insufficientMessage")}
+        </p>
+        <div className="flex items-center gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={18}
+            height={18}
+            className="object-contain"
+          />
+          <p className="text-sm text-gray-500">
+            {t("recipeCreating.berry.currentBalance", { balance })}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="px-4 flex flex-col items-center gap-2">
+      <p className="text-lg text-gray-700 font-semibold">
+        {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
+      </p>
+      <div className="flex items-center gap-1.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={18}
+          height={18}
+          className="object-contain"
+        />
+        <p className="text-sm text-gray-500">
+          {t("recipeCreating.berry.currentBalance", { balance })}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+function BalanceDescriptionContent() {
+  const { data: balance } = useFetchBalance();
+  const creditCost = 1;
+  return <BalanceDescriptionReady creditCost={creditCost} balance={balance.balance} />;
+}
+
+const BalanceDescription = () => {
+  return (
+    <SSRSuspense fallback={<BalanceDescriptionSkeleton />}>
+      <BalanceDescriptionContent />
+    </SSRSuspense>
+  );
+};

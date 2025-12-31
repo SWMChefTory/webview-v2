@@ -171,4 +171,11 @@ export const enum AMPLITUDE_EVENT {
 
   /** 챌린지 레시피 카드 클릭 */
   CHALLENGE_RECIPE_CLICK = "challenge_recipe_click",
+
+  // ─────────────────────────────────────────────────────────────
+  // 결제 (Recharge)
+  // 결제 버튼을 누르는지 추적
+  // ─────────────────────────────────────────────────────────────
+
+  RECHARGE_CLICK = "recharge_click",
 }

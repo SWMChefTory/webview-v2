@@ -20,7 +20,7 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-vi
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { useUserRecipeTranslation } from "@/src/views/user-recipe/hooks/useUserRecipeTranslation";
+import { useTranslation } from "next-i18next";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -75,7 +75,7 @@ const ElapsedViewTimeReady = ({ viewedAt }: { viewedAt: Date }) => {
 };
 
 const ElapsedViewTimeEmpty = () => {
-  const { t } = useUserRecipeTranslation();
+  const { t } = useTranslation("user-recipe");
 
   return (
     <p className="text-sm line-clamp-1 text-transparent">
@@ -94,7 +94,7 @@ const ElapsedViewTimeSkeleton = () => {
 
 export const UserRecipeCardEmpty = () => {
   const { open } = useRecipeCreatingViewOpenStore();
-  const { t } = useUserRecipeTranslation();
+  const { t } = useTranslation("user-recipe");
 
   return (
     <div>

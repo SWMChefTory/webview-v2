@@ -99,7 +99,7 @@ const BalanceRemainedSkeleton = () => {
             {t("berry.balance", { count: 0 })}
           </p>
         </div>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-red-500 font-semibold">
           {t("berry.recharge")}
         </p>
       </div>
@@ -113,13 +113,15 @@ const BalanceRemainedReadySection = () => {
 
   return (
     <div className="px-4">
-      <div
-        className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-red-50 justify-between "
+      <motion.div
+        className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-red-50 justify-between cursor-pointer"
         onClick={() => {
           track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
             source: "settings",
           });
         }}
+        whileTap={{ scale: 0.98, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
+        transition={{ duration: 0.2 }}
       >
         <div className="flex flex-row gap-1.5">
           <Image
@@ -133,10 +135,13 @@ const BalanceRemainedReadySection = () => {
             {t("berry.balance", { count: data.balance })}
           </p>
         </div>
-        <p className="text-sm text-gray-500">
-          {t("berry.recharge")}
-        </p>
-      </div>
+        <div className="flex items-center gap-1">
+          <p className="text-sm text-red-500 font-semibold">
+            {t("berry.recharge")}
+          </p>
+          <GoChevronRight className="size-4 text-red-500" />
+        </div>
+      </motion.div>
     </div>
   );
 };

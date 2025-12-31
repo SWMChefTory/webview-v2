@@ -17,6 +17,7 @@ import { useTranslation } from "next-i18next";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import Image from "next/image";
 
 export type RecipeCardEntryPoint =
   | "popular_normal"
@@ -81,7 +82,7 @@ function RecipeCardWrapperReady({
       >
         {trigger}
       </div>
-      <DialogContent className="w-[96%]">
+      <DialogContent className="w-[96%] space-y-4">
         <DialogTitle asChild>
           <p className="line-clamp-1">{recipeTitle}</p>
         </DialogTitle>
@@ -149,13 +150,13 @@ const CreateButton = ({
   const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
-      <Button onClick={onRecharge} className="flex-1 text-lg py-5 ">
+      <Button onClick={onRecharge} className="flex-1 text-lg py-5 font-bold">
         {t("recipeCreating.berry.buttonRecharge")}
       </Button>
     );
   }
   return (
-    <Button onClick={onCreate} className="flex-1 text-lg py-5 ">
+    <Button onClick={onCreate} className="flex-1 text-lg py-5 font-bold">
       {t("recipeCreating.berry.buttonCreate")}
     </Button>
   );
@@ -171,19 +172,42 @@ const CreatingDescription = ({
   const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
-      <div className="font-bold px-4 flex flex-col items-center">
-        {t("recipeCreating.berry.insufficientMessage")}
+      <div className="px-4 flex flex-col items-center gap-2">
+        <p className="text-lg text-gray-700 font-semibold">
+          {t("recipeCreating.berry.insufficientMessage")}
+        </p>
+        <div className="flex items-center gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={18}
+            height={18}
+            className="object-contain"
+          />
+          <p className="text-sm text-gray-500">
+            {t("recipeCreating.berry.currentBalance", { balance })}
+          </p>
+        </div>
       </div>
     );
   }
   return (
-    <div className="font-bold px-4 flex flex-col items-center">
-      <p className="text-lg text-gray-500">
+    <div className="px-4 flex flex-col items-center gap-2">
+      <p className="text-lg text-gray-700 font-semibold">
         {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
       </p>
-      <p className="text-sm text-gray-500 font-normal">
-        {t("recipeCreating.berry.currentBalance", { balance })}
-      </p>
+      <div className="flex items-center gap-1.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={18}
+          height={18}
+          className="object-contain"
+        />
+        <p className="text-sm text-gray-500">
+          {t("recipeCreating.berry.currentBalance", { balance })}
+        </p>
+      </div>
     </div>
   );
 };

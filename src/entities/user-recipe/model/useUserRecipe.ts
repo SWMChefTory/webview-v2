@@ -22,10 +22,6 @@ import { useEffect, useRef, useState } from "react";
 import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 import { PaginatedRecipes } from "@/src/entities/user-recipe/model/api";
 import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
-import {
-  patchIsViewedOptimistically,
-  rollbackIsViewed,
-} from "../../popular-recipe/model/usePopularRecipe";
 
 import { useFakeRecipeInCreatingStore } from "@/src/entities/user-recipe/model/useFakeRecipeInCreatingStore";
 import {
@@ -35,6 +31,13 @@ import {
 import { VideoType } from "../../popular-recipe/type/videoType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+
+import { BALANCE_QUERY_KEY } from "../../balance/model/useFetchBalance";
+import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineRecipe";
+import { POPULAR_RECIPE_QUERY_KEY } from "../../popular-recipe/model/usePopularRecipe";
+import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/useRecipeSearched";
+import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
+import { TRENDING_RECIPE_QUERY_KEY } from "@/src/views/search-recipe/entities/trend-recipe/model/useTrendRecipe"; 
 
 export const QUERY_KEY = "categoryRecipes";
 export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
@@ -270,12 +273,6 @@ export function useCreateRecipe() {
       if (!videoType) {
         throw new Error("videoType is required");
       }
-      return await patchIsViewedOptimistically(
-        queryClient,
-        existingRecipeId,
-        true,
-        videoType
-      );
     },
     throwOnError: false,
     onSuccess: (data, variables) => {
@@ -299,12 +296,39 @@ export function useCreateRecipe() {
 
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEY],
+        type: "all",
       });
       queryClient.invalidateQueries({
         queryKey: [ALL_RECIPE_QUERY_KEY],
+        type: "all",
       });
       queryClient.invalidateQueries({
         queryKey: [CATEGORY_QUERY_KEY],
+        type: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [BALANCE_QUERY_KEY],
+        type: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [CUISINE_RECIPE_QUERY_KEY],
+        type: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [POPULAR_RECIPE_QUERY_KEY],
+        type: "all",
+      });
+      queryClient.invalidateQueries({
+        queryKey: [RECIPE_SEARCH_QUERY_KEY],
+        type: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: [RECOMMEND_RECIPE_QUERY_KEY],
+        type: "all"
+      });
+      queryClient.invalidateQueries({
+        queryKey: [TRENDING_RECIPE_QUERY_KEY],
+        type: "all",
       });
     },
     onError: (error, _vars, ctx) => {
@@ -334,15 +358,6 @@ export function useCreateRecipe() {
           errorMessage: `url 주소 : ${_vars.youtubeUrl} 레시피 생성에 실패했어요`,
         },
       });
-
-      // rollback (카드 경로 + Optimistic Update가 있을 때만)
-      if (ctx?.prevList && _vars.videoType) {
-        rollbackIsViewed(
-          queryClient,
-          { prevList: ctx.prevList },
-          _vars.videoType
-        );
-      }
     },
   });
   return {
@@ -381,12 +396,10 @@ const createInProress = (
 ) => {
   const real = realProgress.recipeStatus;
 
-  // ✅ 종료 상태는 fake가 있어도 그대로 반환 (여기 중요)
   if (real === RecipeStatus.SUCCESS || real === RecipeStatus.FAILED) {
     return real;
   }
 
-  // ✅ real이 아직 종료가 아닐 때만 fake로 진행중 표시 가능
   return isInFakeProgress ? RecipeStatus.IN_PROGRESS : real;
 };
 

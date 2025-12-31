@@ -3,7 +3,6 @@ import { z } from "zod";
 import {
   RecipeDetailMetaSchema,
   RecipeTagSchema,
-  RecipeStatusSchema,
 } from "@/src/shared/schema/recipeSchema";
 import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
 import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
@@ -23,6 +22,7 @@ const RawRecommendRecipeSchema = z.object({
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
   videoType: z.enum(["SHORTS", "NORMAL"]),
+  creditCost: z.number(),
 });
 
 // 변환된 레시피 스키마
@@ -33,6 +33,7 @@ const RecommendRecipeSchema = z.object({
   isViewed: z.boolean(),
   videoInfo: VideoInfoSchema,
   detailMeta: RecipeDetailMetaSchema,
+  creditCost: z.number(),
 });
 
 const RecommendRecipesSchema = z.array(RecommendRecipeSchema);
@@ -63,6 +64,8 @@ export const fetchRecommendRecipes = async ({
       data: [],
     };
   }
+
+  console.log(response.data);
   
   // API 응답 데이터 파싱
   const rawRecipes = z.array(RawRecommendRecipeSchema).parse(response.data.recommendRecipes || []);
@@ -89,6 +92,7 @@ export const fetchRecommendRecipes = async ({
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
       },
+      creditCost : recipe.creditCost
     })),
   };
   

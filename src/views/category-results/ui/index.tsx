@@ -1,4 +1,7 @@
-import { ThumbnailSkeleton, ThumbnailReady } from "../../search-results/ui/thumbnail";
+import {
+  ThumbnailSkeleton,
+  ThumbnailReady,
+} from "../../search-results/ui/thumbnail";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import {
   useFetchCuisineRecipes,
@@ -23,13 +26,20 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CategoryType, isCuisineType, isRecommendType, RecommendType, CuisineType } from "@/src/entities/category/type/cuisineType";
+import {
+  CategoryType,
+  isCuisineType,
+  isRecommendType,
+  RecommendType,
+  CuisineType,
+} from "@/src/entities/category/type/cuisineType";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { Trans } from "next-i18next";
 import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
+import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
 
 export function CategoryResultsSkeleton() {
   return (
@@ -48,7 +58,11 @@ export function CategoryResultsSkeleton() {
   );
 }
 
-export function CategoryResultsContent({ categoryType }: { categoryType: CategoryType }) {
+export function CategoryResultsContent({
+  categoryType,
+}: {
+  categoryType: CategoryType;
+}) {
   // 타입에 따라 다른 컴포넌트 렌더링
   if (isRecommendType(categoryType)) {
     return <RecommendCategoryContent recommendType={categoryType} />;
@@ -56,92 +70,34 @@ export function CategoryResultsContent({ categoryType }: { categoryType: Categor
   return <CuisineCategoryContent cuisineType={categoryType} />;
 }
 
-function RecommendCategoryContent({ recommendType }: { recommendType: RecommendType }) {
+function RecommendCategoryContent({
+  recommendType,
+}: {
+  recommendType: RecommendType;
+}) {
   const {
     data: recipes,
     totalElements,
     hasNextPage,
     fetchNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useFetchRecommendRecipes({ recommendType });
-  
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  const { t } = useCategoryResultsTranslation();
   const { t: categoryT } = useCategoryTranslation();
   const categoryName = categoryT(`recommend.${recommendType}`);
 
-  useEffect(() => {
-    const loadMore = loadMoreRef.current;
-    
-    if (!loadMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
+  return (
+    <RecipeCardSection
+      recipes={recipes}
+      totalElements={totalElements}
+      onScroll={(entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
-      },
-      { 
-        threshold: 0.1,
-        rootMargin: '200px'
-      }
-    );
-
-    observer.observe(loadMore);
-
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
-
-  if (recipes.length === 0) {
-    return (
-      <div className="flex flex-col w-full h-full items-center justify-center py-16 px-4">
-        <div className="w-44 h-44 mb-8">
-          <img
-              src={"/empty_state.png"}
-              alt="empty inbox"
-              className="block w-full h-full object-contain"
-          />
-        </div>
-        <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">{t("empty.title")}</h3>
-          <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      {/* 카테고리 결과 헤더 */}
-      <div className="px-4 py-6">
-        <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{categoryName}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">{t("header.suffix")}</span>
-        </div>
-        <p className="text-sm text-gray-500 mt-2">{t("header.totalCount", { count: totalElements })}</p>
-      </div>
-
-      {/* 레시피 그리드 */}
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {recipes.map((recipe) => (
-            <RecommendRecipeCardReady
-              key={recipe.recipeId}
-              recipe={recipe}
-              recommendType={recommendType}
-            />
-          ))}
-          {isFetchingNextPage && (
-            <>
-              <RecipeCardSkeleton />
-              <RecipeCardSkeleton />
-            </>
-          )}
-        </div>
-        <div ref={loadMoreRef} className="h-20" />
-      </div>
-    </div>
+      }}
+      categoryName={categoryName}
+      isFetchingNextPage={isFetchingNextPage}
+      isRecommendType={false}
+    />
   );
 }
 
@@ -151,49 +107,77 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
     totalElements,
     hasNextPage,
     fetchNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useFetchCuisineRecipes({ cuisineType });
-  
-  const loadMoreRef = useRef<HTMLDivElement>(null);
 
-  const { t } = useCategoryResultsTranslation();
   const { t: categoryT } = useCategoryTranslation();
   const categoryName = categoryT(`cuisine.${cuisineType}`);
 
-  useEffect(() => {
-    const loadMore = loadMoreRef.current;
-    
-    if (!loadMore) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
+  return (
+    <RecipeCardSection
+      recipes={recipes}
+      totalElements={totalElements}
+      onScroll={(entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
-      },
-      { 
-        threshold: 0.1,
-        rootMargin: '200px'
-      }
-    );
+      }}
+      categoryName={categoryName}
+      isFetchingNextPage={isFetchingNextPage}
+      isRecommendType={false}
+    />
+  );
+}
+
+const RecipeCardSection = ({
+  recipes,
+  totalElements,
+  onScroll,
+  categoryName,
+  isFetchingNextPage,
+  isRecommendType,
+  // loadMoreRef
+}: {
+  recipes: CuisineRecipe[] | RecommendRecipe[];
+  totalElements: number;
+  onScroll: IntersectionObserverCallback;
+  categoryName: string;
+  isFetchingNextPage: boolean;
+  isRecommendType: boolean;
+}) => {
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  const { t } = useCategoryResultsTranslation();
+
+  useEffect(() => {
+    const loadMore = loadMoreRef.current;
+
+    if (!loadMore) return;
+
+    const observer = new IntersectionObserver(onScroll, {
+      threshold: 0.1,
+      rootMargin: "200px",
+    });
 
     observer.observe(loadMore);
 
     return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+  }, [onScroll]);
 
   if (recipes.length === 0) {
     return (
-        <div className="flex flex-col w-full h-full items-center pt-50 px-4">
+      <div className="flex flex-col w-full h-full items-center pt-50 px-4">
         <div className="w-40 h-40 mb-8">
           <img
-              src={"/empty_state.png"}
-              alt="empty inbox"
-              className="block w-full h-full object-contain"
+            src={"/empty_state.png"}
+            alt="empty inbox"
+            className="block w-full h-full object-contain"
           />
         </div>
         <div className="text-center space-y-3">
-          <h3 className="font-bold text-xl text-gray-900">{t("empty.title")}</h3>
+          <h3 className="font-bold text-xl text-gray-900">
+            {t("empty.title")}
+          </h3>
           <p className="text-s text-gray-600">{t("empty.subtitle")}</p>
         </div>
       </div>
@@ -205,22 +189,51 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
       {/* 카테고리 결과 헤더 */}
       <div className="px-4 py-6">
         <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">{categoryName}</h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">{t("header.suffix")}</span>
+          <h1 className="text-2xl font-bold text-gray-900 truncate">
+            {categoryName}
+          </h1>
+          <span className="text-lg font-medium text-gray-600 shrink-0">
+            {t("header.suffix")}
+          </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">{t("header.totalCount", { count: totalElements })}</p>
+        <p className="text-sm text-gray-500 mt-2">
+          {t("header.totalCount", { count: totalElements })}
+        </p>
       </div>
 
       {/* 레시피 그리드 */}
       <div className="px-4 pb-6">
         <div className="grid grid-cols-2 gap-4">
           {recipes.map((recipe) => (
-            <CuisineRecipeCardReady
+            <RecipeCardWrapper
               key={recipe.recipeId}
-              recipe={recipe}
-              cuisineType={cuisineType}
+              recipeCreditCost={recipe.creditCost}
+              recipeId={recipe.recipeId}
+              recipeTitle={recipe.recipeTitle}
+              recipeIsViewed={recipe.isViewed ?? false}
+              recipeVideoType={
+                recipe.videoInfo.videoType == "SHORTS"
+                  ? VideoType.SHORTS
+                  : VideoType.NORMAL
+              }
+              entryPoint={
+                isRecommendType ? "category_recommend" : "category_cuisine"
+              }
+              recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+              trigger={
+                <RecipeCardReady
+                  recipeTitle={recipe.recipeTitle}
+                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                  isViewed={recipe.isViewed ?? false}
+                  servings={recipe.detailMeta?.servings ?? 0}
+                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+                  tags={recipe.tags ?? []}
+                  description={recipe.detailMeta?.description ?? ""}
+                />
+              }
             />
           ))}
+
           {isFetchingNextPage && (
             <>
               <RecipeCardSkeleton />
@@ -232,7 +245,83 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
       </div>
     </div>
   );
-}
+};
+
+type RecipeCardProps = {
+  recipeTitle: string;
+  videoThumbnailUrl?: string;
+  isViewed: boolean;
+  servings: number;
+  cookingTime: number;
+  tags: { name: string }[];
+  description: string;
+};
+
+const RecipeCardReady = ({
+  recipeTitle,
+  videoThumbnailUrl,
+  isViewed,
+  servings,
+  cookingTime,
+  tags,
+  description,
+}: RecipeCardProps) => {
+  const { t } = useCategoryResultsTranslation();
+
+  return (
+    <article className="w-full group cursor-pointer">
+      <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
+        <ThumbnailReady imgUrl={videoThumbnailUrl || ""} />
+        {isViewed && (
+          <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
+            {t("card.badge")}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-2.5">
+        <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
+          {recipeTitle}
+        </h3>
+
+        <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-1.5">
+            <BsPeople size={14} className="shrink-0" />
+            <span className="font-medium">
+              {t("card.serving", { count: servings })}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <FaRegClock size={14} className="shrink-0" />
+            <span className="font-medium">
+              {t("card.minute", { count: cookingTime })}
+            </span>
+          </div>
+        </div>
+
+        {!!tags?.length && (
+          <div className="flex gap-2 overflow-hidden">
+            <div className="flex gap-2 line-clamp-1">
+              {tags.slice(0, 3).map((tag, index) => (
+                <span
+                  key={index}
+                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
+                >
+                  #{tag.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
+          {description}
+        </p>
+      </div>
+    </article>
+  );
+};
 
 const CuisineRecipeCardReady = ({
   recipe,
@@ -242,7 +331,7 @@ const CuisineRecipeCardReady = ({
   cuisineType: CuisineType;
 }) => {
   const router = useRouter();
-  const { detailMeta, tags, isViewed } = recipe;
+  const { detailMeta, tags, isViewed, creditCost } = recipe;
   const { create } = useCreateRecipe();
   const [isOpen, setIsOpen] = useState(false);
   const { t } = useCategoryResultsTranslation();
@@ -286,13 +375,17 @@ const CuisineRecipeCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{t("card.serving", { count: detailMeta.servings })}</span>
+                  <span className="font-medium">
+                    {t("card.serving", { count: detailMeta.servings })}
+                  </span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{t("card.minute", { count: detailMeta.cookingTime })}</span>
+                  <span className="font-medium">
+                    {t("card.minute", { count: detailMeta.cookingTime })}
+                  </span>
                 </div>
               )}
             </div>
@@ -301,7 +394,10 @@ const CuisineRecipeCardReady = ({
           {tags && tags.length > 0 && (
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {tags.slice(0, 3).map((tag, index) => (
-                <span key={index} className="text-xs font-semibold text-orange-600 whitespace-nowrap">
+                <span
+                  key={index}
+                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
+                >
                   #{tag.name}
                 </span>
               ))}
@@ -317,7 +413,9 @@ const CuisineRecipeCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {t("dialog.title")}
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">
@@ -415,13 +513,17 @@ const RecommendRecipeCardReady = ({
               {detailMeta?.servings && (
                 <div className="flex items-center gap-1.5">
                   <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">{t("card.serving", { count: detailMeta.servings })}</span>
+                  <span className="font-medium">
+                    {t("card.serving", { count: detailMeta.servings })}
+                  </span>
                 </div>
               )}
               {detailMeta?.cookingTime && (
                 <div className="flex items-center gap-1.5">
                   <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">{t("card.minute", { count: detailMeta.cookingTime })}</span>
+                  <span className="font-medium">
+                    {t("card.minute", { count: detailMeta.cookingTime })}
+                  </span>
                 </div>
               )}
             </div>
@@ -430,7 +532,10 @@ const RecommendRecipeCardReady = ({
           {tags && tags.length > 0 && (
             <div className="flex gap-2 overflow-x-auto scrollbar-hide">
               {tags.slice(0, 3).map((tag, index) => (
-                <span key={index} className="text-xs font-semibold text-orange-600 whitespace-nowrap">
+                <span
+                  key={index}
+                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
+                >
                   #{tag.name}
                 </span>
               ))}
@@ -446,7 +551,9 @@ const RecommendRecipeCardReady = ({
       </article>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold">{t("dialog.title")}</DialogTitle>
+          <DialogTitle className="text-xl font-bold">
+            {t("dialog.title")}
+          </DialogTitle>
         </DialogHeader>
         <DialogDescription>
           <div className="text-lg text-gray-400">

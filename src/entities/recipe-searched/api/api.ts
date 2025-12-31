@@ -24,6 +24,7 @@ const RawSearchRecipeSchema = z.object({
   videoType: z.enum(['SHORTS', 'NORMAL']),
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
+  creditCost: z.number(),
 });
 
 // 변환된 레시피 스키마
@@ -34,6 +35,8 @@ const RecipeSchema = z.object({
   tags: z.array(RecipeTagSchema),
   videoInfo: VideoInfoSchema,
   detailMeta: RecipeDetailMetaSchema,
+  creditCost: z.number(),
+  videoUrl: z.string(),
 });
 
 const RecipesSchema = z.array(RecipeSchema);
@@ -69,18 +72,21 @@ export const fetchRecipesSearched = async ({
       recipeTitle: recipe.recipeTitle,
       tags: recipe.tags,
       isViewed: recipe.isViewed,
+      videoUrl: recipe.videoUrl,
       videoInfo: {
         videoId: recipe.videoId,
         videoTitle: recipe.recipeTitle,
         videoThumbnailUrl: recipe.videoThumbnailUrl,
         videoSeconds: recipe.videoSeconds,
         videoType: recipe.videoType,
+        // videoUrl: z.string(),
       },
       detailMeta: {
         description: recipe.description,
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
       },
+      creditCost: recipe.creditCost
     })),
   };
   

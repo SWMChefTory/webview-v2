@@ -53,7 +53,7 @@ function FloatingButtonPopover({ trigger }: { trigger: React.ReactNode }) {
 
   return (
     <Popover.Root open={!hasEverClicked}>
-      <Popover.Trigger>{trigger}</Popover.Trigger>
+      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
           className="flex flex-col bg-orange-500 rounded-lg shadow-xl z-[2000] outline-none"

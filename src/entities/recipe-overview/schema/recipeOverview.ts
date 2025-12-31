@@ -19,6 +19,7 @@ export const RecipeOverviewSchema = z.object({
   videoType: z.string(),
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number().int(),
+  creditCost: z.number(),
 });
 
 export type RecipeOverview = z.infer<typeof RecipeOverviewSchema>;

@@ -2,7 +2,7 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { fetchTrendingRecipes } from "../api/api";
 import { ThemeRecipe } from "@/src/views/home/entities/theme-recipe/type";
 
-const TRENDING_RECIPE_QUERY_KEY = "TrendingRecipeQueryKey";
+export const TRENDING_RECIPE_QUERY_KEY = "TrendingRecipeQueryKey";
 
 export function useFetchTrendingRecipes() {
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =

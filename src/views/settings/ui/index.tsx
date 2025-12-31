@@ -9,8 +9,13 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
+import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
+import Image from "next/image";
+import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 function SettingsPage() {
   const router = useRouter();
@@ -22,6 +27,7 @@ function SettingsPage() {
     left: { color: "#FFFFFF", isExists: true },
     right: { color: "#FFFFFF", isExists: false },
   });
+
   return (
     <div>
       <Header
@@ -37,11 +43,11 @@ function SettingsPage() {
         <SSRSuspense fallback={<UserSectionSkeleton />}>
           <UserSectionReady />
         </SSRSuspense>
-        <div className="h-[32]" />
+        <div className="h-[16]" />
+        <BalanceRemainedReadySection />
+        <div className="h-[24]" />
         <div className="flex flex-col gap-1 px-2 ">
-          <div className="text-gray-500 pb-2">
-            {t("section.terms.title")}
-          </div>
+          <div className="text-gray-500 pb-2">{t("section.terms.title")}</div>
           <div className="flex flex-col gap-2 px-2">
             <div className="flex flex-row justify-between items-center">
               <div
@@ -76,6 +82,66 @@ function SettingsPage() {
     </div>
   );
 }
+
+const BalanceRemainedReadySection = () => {
+  const lang = useLangcode();
+  return (
+    <div className="px-4">
+      <div
+        className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-red-50 justify-between "
+        onClick={() => {
+          track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
+            source: "settings",
+          });
+        }}
+      >
+        <div className="flex flex-row gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={20}
+            height={20}
+            className="object-contain"
+          />
+          <p className="font-bold">
+            {lang == "en" ? (
+              <span>
+                <Balance /> berries to go!
+              </span>
+            ) : (
+              <span>
+                내 베리
+                <Balance />개
+              </span>
+            )}
+          </p>
+        </div>
+        <p className="text-sm text-gray-500">
+          {lang === "en" ? "Recharge" : "충전하기"}
+        </p>
+      </div>
+    </div>
+  );
+};
+
+const Balance = () => {
+  return (
+    <span className="text-red-600 leading-none tabular-nums">
+      <SSRSuspense fallback={<BalanceRemainedSkeleton />}>
+        <BalanceRemainedReady />
+      </SSRSuspense>
+    </span>
+  );
+};
+
+const BalanceRemainedReady = () => {
+  const { data } = useFetchBalance();
+  return <>{data.balance}</>;
+};
+
+const BalanceRemainedSkeleton = () => {
+  return <>0</>;
+};
 
 const UserSectionReady = () => {
   const { user } = fetchUserModel();

@@ -1,8 +1,5 @@
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
-import {
-  PopularRecipe,
-  useFecthPopularRecipe,
-} from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,9 +8,10 @@ import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCard
 import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import { Viewport } from "@radix-ui/react-toast";
 import { useTranslation } from "next-i18next";
+import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 
 function PopularRecipeContent() {
-  const {t} = useTranslation("popular-recipe");
+  const { t } = useTranslation("popular-recipe");
   return (
     <div className="px-4">
       <div className="h-4" />
@@ -51,7 +49,12 @@ function PopularRecipesReady() {
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
-            recipe={recipe}
+            recipeId={recipe.recipeId}
+            recipeCreditCost={recipe.creditCost}
+            recipeTitle={recipe.recipeTitle}
+            recipeIsViewed={recipe.isViewed}
+            recipeVideoType={recipe.videoType}
+            recipeVideoUrl={recipe.videoUrl}
             entryPoint="popular_normal"
             trigger={<PopularRecipeCard recipe={recipe} />}
           />
@@ -77,7 +80,7 @@ function PopularRecipesSkeleton() {
   );
 }
 
-function PopularRecipeCard({ recipe }: { recipe?: PopularRecipe }) {
+function PopularRecipeCard({ recipe }: { recipe?: PopularSummaryRecipeDto }) {
   return (
     <div className="relative aspect-[16/9]">
       {recipe ? (

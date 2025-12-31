@@ -20,7 +20,18 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-vi
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { useUserRecipeTranslation } from "@/src/views/user-recipe/hooks/useUserRecipeTranslation";
+
+// 텍스트 상수 정의 (유지보수 용이성)
+const TEXT = {
+  PLEASE_CREATE: {
+    ko: "레시피를 만들어주세요",
+    en: "Please create a recipe",
+  },
+  CLICK_TO_CREATE: {
+    ko: "클릭해서 레시피 생성",
+    en: "Click to create",
+  },
+};
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -75,11 +86,13 @@ const ElapsedViewTimeReady = ({ viewedAt }: { viewedAt: Date }) => {
 };
 
 const ElapsedViewTimeEmpty = () => {
-  const { t } = useUserRecipeTranslation();
+  const lang = useLangcode();
+  // 언어에 따른 텍스트 선택
+  const text = lang === "ko" ? TEXT.PLEASE_CREATE.ko : TEXT.PLEASE_CREATE.en;
 
   return (
     <p className="text-sm line-clamp-1 text-transparent">
-      {t("empty.pleaseCreate")}
+      {text}
     </p>
   );
 };
@@ -94,7 +107,9 @@ const ElapsedViewTimeSkeleton = () => {
 
 export const UserRecipeCardEmpty = () => {
   const { open } = useRecipeCreatingViewOpenStore();
-  const { t } = useUserRecipeTranslation();
+  const lang = useLangcode();
+  // 언어에 따른 텍스트 선택
+  const label = lang === "ko" ? TEXT.CLICK_TO_CREATE.ko : TEXT.CLICK_TO_CREATE.en;
 
   return (
     <div>
@@ -114,7 +129,7 @@ export const UserRecipeCardEmpty = () => {
           className="flex items-center rounded-sm px-2 h-[24] shrink-0 text-sm text-white bg-[#F97316] shadow-md
             shadow-stone-300"
         >
-          {t("empty.clickToCreate")}
+          {label}
         </div>
       </div>
       <div className="w-full">

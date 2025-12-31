@@ -9,7 +9,7 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import Image from "next/image";

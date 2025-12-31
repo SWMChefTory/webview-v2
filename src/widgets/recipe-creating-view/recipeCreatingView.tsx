@@ -21,6 +21,7 @@ import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
@@ -39,8 +40,6 @@ export function RecipeCreatingView() {
 
   const { t } = useTranslation("common");
   const hasTrackedStartRef = useRef(false);
-
-  const { data: balance } = useFetchBalance();
 
   const lang = useLangcode();
 
@@ -117,19 +116,7 @@ export function RecipeCreatingView() {
             className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
           >
             <div className="p-5">
-              <Dialog.Title className="text-xl font-bold flex justify-between items-center">
-                <p>{t("recipeCreating.form.title")}</p>
-                <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
-                  <Image
-                    src="/images/berry/berry.png"
-                    alt="berry"
-                    width={22}
-                    height={22}
-                    className="object-contain"
-                  />
-                  {balance.balance}
-                </p>
-              </Dialog.Title>
+              <Title/>
             </div>
             <CategoryChipListSection
               selectedCategoryId={selectedCategoryId}
@@ -163,6 +150,26 @@ export function RecipeCreatingView() {
     </>
   );
 }
+
+const Title = () => {
+  const { data: balance } = useFetchBalance();
+  const { t } = useTranslation("common");
+  return (
+    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+      <p>{t("recipeCreating.form.title")}</p>
+      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={22}
+          height={22}
+          className="object-contain"
+        />
+        <SSRSuspense fallback={<>0</>}>{balance.balance}</SSRSuspense>
+      </p>
+    </Dialog.Title>
+  );
+};
 
 function CategoryChipListSection({
   onSelect,

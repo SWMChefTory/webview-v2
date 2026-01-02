@@ -53,7 +53,7 @@ export const DefaultContentOverlay = ({
   return (
     <div className="flex flex-col w-full h-full overflow-y-scroll">
       {/* 컨테이너 통일: px-4 py-6 */}
-      <div className="px-4 py-6 space-y-6">
+      <div className="px-4 md:px-6 py-6 space-y-6">
         {/* 최근 검색어 섹션 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
@@ -173,7 +173,7 @@ export const DefaultContentOverlay = ({
 
           {autoCompleteData.autocompletes.length > 0 ? (
             isExpanded ? (
-              <div className="grid grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
                 {autoCompleteData.autocompletes.map((item, index) => (
                   <div
                     key={index}

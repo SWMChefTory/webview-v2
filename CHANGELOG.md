@@ -17,6 +17,32 @@
 
 ---
 
+## [1.1.2] - 2026-01-05
+
+### 추가
+
+- **태블릿 UI 지원**: 태블릿(768px~1023px) 및 데스크탑(1024px~) 반응형 레이아웃 추가
+  - 컴포넌트 분리 아키텍처 구현 (`.mobile.tsx`, `.tablet.tsx`, `.common.tsx`)
+  - HomePage, CategorySection, MyRecipes, PopularRecipes 등 주요 섹션 태블릿 대응
+  - 반응형 그리드 시스템: CategorySection (6열/8열), RecipeCard 최적화
+  - `breakpoints` 상수 및 `useMediaQuery` 훅 추가
+  - 모바일 UI 100% 보존 (기존 클래스 유지, `md:`/`lg:` 프리픽스만 추가)
+
+- **웹 브라우저 OAuth 로그인 지원**: 웹 브라우저에서 OAuth 로그인 후 접속 가능
+  - URL 파라미터 토큰 자동 추출 및 localStorage 저장
+  - 환경별 token refresh (Native: bridge / Web: Backend API)
+  - Native app 기존 동작 100% 유지
+
+### UI/UX 개선
+
+- **반응형 레이아웃**: 화면 크기에 최적화된 그리드 및 패딩 조정
+  - 모바일: 기존 2열 레이아웃 유지
+  - 태블릿: 3~4열 카드 그리드, 넓은 패딩
+  - 데스크탑: 4~6열 카드 그리드, 최대 너비 제한
+- **CategorySection 최적화**: 패딩 중복 제거, 그리드 간격 개선
+
+---
+
 ## [1.1.1] - 2026-01-01
 
 ### 추가

@@ -30,11 +30,11 @@ import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCard
 export function SearchResultsSkeleton() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="px-4 py-6">
+      <div className="px-4 md:px-6 py-6">
         <TextSkeleton fontSize="text-2xl" />
       </div>
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="px-4 md:px-6 pb-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <RecipeSearchedCardSkeleton key={index} />
           ))}
@@ -113,7 +113,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       {/* 검색 결과 헤더 */}
-      <div className="px-4 py-6">
+      <div className="px-4 md:px-6 py-6">
         <div className="flex items-baseline gap-2">
           <h1 className="text-2xl font-bold text-gray-900 truncate">
             {keyword}
@@ -128,8 +128,8 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
       </div>
 
       {/* 검색 결과 그리드 */}
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="px-4 md:px-6 pb-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {searchResults.map((recipe, index) => (
             <SearchedRecipeCard
               key={recipe.recipeId}

@@ -44,11 +44,11 @@ import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCard
 export function CategoryResultsSkeleton() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="px-4 py-6">
+      <div className="px-4 md:px-6 py-6">
         <TextSkeleton fontSize="text-2xl" />
       </div>
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="px-4 md:px-6 pb-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <RecipeCardSkeleton key={index} />
           ))}
@@ -187,7 +187,7 @@ const RecipeCardSection = ({
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       {/* 카테고리 결과 헤더 */}
-      <div className="px-4 py-6">
+      <div className="px-4 md:px-6 py-6">
         <div className="flex items-baseline gap-2">
           <h1 className="text-2xl font-bold text-gray-900 truncate">
             {categoryName}
@@ -202,8 +202,8 @@ const RecipeCardSection = ({
       </div>
 
       {/* 레시피 그리드 */}
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
+      <div className="px-4 md:px-6 pb-6">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
           {recipes.map((recipe) => (
             <RecipeCardWrapper
               key={recipe.recipeId}

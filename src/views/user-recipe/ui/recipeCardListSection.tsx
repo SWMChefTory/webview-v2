@@ -32,7 +32,7 @@ export const RecipeListSectionReady = ({
           fetchNextPage();
         }
       }}
-      className="flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden px-2"
+      className="flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden px-2 md:px-4"
     >
       {recipes.length !== 0 ? (
         <div className="flex flex-col w-full gap-2">
@@ -79,7 +79,7 @@ export const RecipeListSectionReady = ({
 
 export const RecipeListSectionSkeleton = () => {
   return (
-    <div className="flex-1 flex flex-col w-full overflow-y-scroll px-2l">
+    <div className="flex-1 flex flex-col w-full overflow-y-scroll px-2 md:px-4">
       <div className="flex flex-col w-full gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <RecipeDetailsCardSkeleton key={`skeleton-${i}`} />

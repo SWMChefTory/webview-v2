@@ -267,11 +267,36 @@ function RouteDialog({
 
 const useInit = () => {
   useEffect(() => {
-    // if (typeof window === "undefined") throw new Error("window is not defined");
+    // 웹 브라우저 환경에서만 URL 파라미터 추출
+    if (typeof window !== "undefined" && !window.ReactNativeWebView) {
+      const params = new URLSearchParams(window.location.search);
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+      const locale = params.get("locale");
+
+      // 토큰이 있으면 localStorage에 저장
+      if (accessToken && refreshToken) {
+        localStorage.setItem("MAIN_ACCESS_TOKEN", accessToken);
+        localStorage.setItem("MAIN_REFRESH_TOKEN", refreshToken);
+
+        // locale도 저장 (i18n 설정용)
+        if (locale) {
+          localStorage.setItem("locale", locale);
+        }
+
+        // 보안: URL에서 파라미터 제거 (브라우저 히스토리에 남지 않도록)
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+
+        console.log("[WebView] Tokens saved from URL parameters");
+      }
+    }
+
+    // Native bridge communication (기존 로직 유지)
     //사파리 전용
     window.addEventListener("message", communication);
     //크로미움 전용
-    document.addEventListener('message' as any, communication); 
+    document.addEventListener('message' as any, communication);
     return () => {
       console.log("brigdeEnd");
       window.removeEventListener("message", communication);

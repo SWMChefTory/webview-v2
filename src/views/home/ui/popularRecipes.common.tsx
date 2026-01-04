@@ -51,7 +51,7 @@ export function RecipeCardReady({
       <div
         className={`flex relative flex-col ${isTablet ? "w-full" : "w-[320px]"}`}
       >
-        <div className="h-[180] overflow-hidden rounded-md">
+        <div className="h-[180px] overflow-hidden rounded-md">
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
             <AlreadyEnrolledChip
               isEnrolled={
@@ -85,7 +85,7 @@ export function RecipeCardSkeleton({ isTablet = false }: { isTablet?: boolean })
     <div className="flex flex-col">
       <div className="flex flex-col">
         <Skeleton
-          className={`${isTablet ? "w-full" : "w-[320]"} h-[180] rounded-md`}
+          className={`${isTablet ? "w-full" : "w-[320px]"} h-[180px] rounded-md`}
         />
 
         <div className="w-[50%]">

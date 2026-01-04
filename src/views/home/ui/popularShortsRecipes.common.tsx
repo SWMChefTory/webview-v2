@@ -44,7 +44,7 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-full aspect-[9/16]" : "w-[180] h-[320]"} overflow-hidden rounded-md`}
+      className={`relative ${isTablet ? "w-full aspect-[9/16]" : "w-[180px] h-[320px]"} overflow-hidden rounded-md`}
     >
       <div className="absolute top-[12] left-[8] z-10">
         <AlreadyEnrolledChip
@@ -77,7 +77,7 @@ export function ShortsRecipeCardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`flex shrink-0 ${isTablet ? "w-full aspect-[9/16]" : "w-[180] h-[320]"} rounded-md`}
+      className={`flex shrink-0 ${isTablet ? "w-full aspect-[9/16]" : "w-[180px] h-[320px]"} rounded-md`}
     />
   );
 }

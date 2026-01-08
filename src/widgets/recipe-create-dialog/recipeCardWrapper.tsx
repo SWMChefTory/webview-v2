@@ -82,7 +82,7 @@ function RecipeCardWrapperReady({
       >
         {trigger}
       </div>
-      <DialogContent className="w-[96%] space-y-4">
+      <DialogContent className="w-[96%] md:max-w-md space-y-4">
         <DialogTitle asChild>
           <p className="line-clamp-1">{recipeTitle}</p>
         </DialogTitle>

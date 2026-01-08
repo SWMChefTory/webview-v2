@@ -79,7 +79,7 @@ const ShortPopularRecipesSectionReady = () => {
       },
       {
         threshold: 0.1,
-        rootMargin: "200px",
+        rootMargin: "50px",
       }
     );
 
@@ -89,7 +89,7 @@ const ShortPopularRecipesSectionReady = () => {
 
   return (
     <div>
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-5 gap-3 lg:grid-cols-6 lg:gap-4 xl:grid-cols-7">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -123,11 +123,11 @@ const ShortPopularRecipesSectionReady = () => {
 
 /**
  * 로딩 Skeleton (태블릿)
- * Grid 5열
+ * Grid 5-7열 반응형
  */
 const ShortPopularRecipesSectionSkeleton = () => {
   return (
-    <div className="grid grid-cols-5 gap-3">
+    <div className="grid grid-cols-5 gap-3 lg:grid-cols-6 lg:gap-4 xl:grid-cols-7">
       {Array.from({ length: 10 }, (_, index) => (
         <ShortsRecipeCardSkeleton key={index} isTablet={true} />
       ))}

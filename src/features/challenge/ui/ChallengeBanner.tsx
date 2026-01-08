@@ -159,7 +159,7 @@ function ChallengeBannerContent({
   };
 
   return (
-    <div className="px-4 py-2">
+    <div className="px-4 py-2 md:px-6 md:py-3">
       <div
         onClick={handleClick}
         className="relative overflow-hidden rounded-2xl shadow-sm transition-all duration-200 active:scale-[0.99] cursor-pointer"
@@ -172,12 +172,12 @@ function ChallengeBannerContent({
           {/* 그라데이션 오버레이 (왼쪽 텍스트 가독성 확보) */}
           <div className={`absolute inset-0 ${getOverlayStyle()}`} />
           {/* 콘텐츠 */}
-          <div className="relative p-4">
+          <div className="relative p-4 md:p-5">
             <div className="flex items-center gap-3">
               {/* 왼쪽: 챌린지 정보 */}
               <div className="flex-1 min-w-0">
                 <h3
-                  className="font-extrabold text-gray-900"
+                  className="font-extrabold text-gray-900 md:text-lg"
                   style={{ textShadow: "0 1px 3px rgba(255,255,255,0.9)" }}
                 >
                   {challengeName}
@@ -215,9 +215,9 @@ function ChallengeBannerContent({
                   alt="토리 캐릭터"
                   width={56}
                   height={56}
-                  className="object-contain"
+                  className="object-contain w-14 h-14 md:w-16 md:h-16"
                 />
-                <FaChevronRight size={14} className={getArrowColor()} />
+                <FaChevronRight size={14} className={`${getArrowColor()} md:w-4 md:h-4`} />
               </div>
             </div>
           </div>

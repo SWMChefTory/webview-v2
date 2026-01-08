@@ -57,7 +57,7 @@ export const DefaultContentOverlay = ({
         {/* 최근 검색어 섹션 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
               {t("recent.title")}
             </h2>
             {searchHistories.histories.length > 0 && (
@@ -127,7 +127,7 @@ export const DefaultContentOverlay = ({
         <section className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold text-gray-900">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 {t("trendingSearch.title")}
               </h2>
               {!isExpanded && autoCompleteData.autocompletes.length > 0 && (
@@ -173,7 +173,7 @@ export const DefaultContentOverlay = ({
 
           {autoCompleteData.autocompletes.length > 0 ? (
             isExpanded ? (
-              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">
                 {autoCompleteData.autocompletes.map((item, index) => (
                   <div
                     key={index}

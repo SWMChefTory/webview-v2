@@ -56,12 +56,12 @@ export function HomePageTablet() {
       />
 
       {/* 메인 컨텐츠 컨테이너 - 최대 너비 제한 & 중앙 정렬 */}
-      <div className="w-full max-w-[1200px] mx-auto">
+      <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto">
         {/* SearchBar - 태블릿 최적화 */}
         {lang === "ko" && (
           <div className="pt-3 px-6">
             <Link href="/search-recipe">
-              <div className="flex flex-row items-center justify-between px-5 w-full max-w-[600px] mx-auto h-[44px] text-gray-800 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+              <div className="flex flex-row items-center justify-between px-5 w-full max-w-[600px] lg:max-w-[800px] mx-auto h-11 lg:h-12 text-gray-800 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
                 <span className="text-base">{t("searchBarPlaceholder")}</span>
                 <PiMagnifyingGlassBold size={18} />
               </div>
@@ -76,22 +76,22 @@ export function HomePageTablet() {
         <CategorySection />
 
         {/* MyRecipes 섹션 */}
-        <div className="mt-2">
+        <div className="mt-6 md:mt-8 lg:mt-10">
           <MyRecipes />
         </div>
 
         {/* PopularRecipes 섹션 */}
-        <div className="mt-2">
+        <div className="mt-6 md:mt-8 lg:mt-10">
           <PopularRecipes />
         </div>
 
         {/* PopularShortsRecipes 섹션 */}
-        <div className="mt-2">
+        <div className="mt-6 md:mt-8 lg:mt-10">
           <PopularShortsRecipes />
         </div>
 
         {/* 하단 여백 */}
-        <div className="h-12" />
+        <div className="h-12 md:h-16 lg:h-20" />
       </div>
 
       {/* FloatingButton - 태블릿 위치 조정 */}

@@ -791,7 +791,7 @@ export const RecipeBottomSheet = ({
                 </div>
               </div>}
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {ingredients.map((ing, i) => {
                   const isSel = selected.has(i);
                   const isFirst = i === 0;

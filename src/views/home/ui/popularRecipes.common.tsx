@@ -51,8 +51,8 @@ export function RecipeCardReady({
       <div
         className={`flex relative flex-col ${isTablet ? "w-full" : "w-[320px]"}`}
       >
-        <div className="h-[180px] overflow-hidden rounded-md">
-          <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
+        <div className={`overflow-hidden rounded-md ${isTablet ? "aspect-video" : "h-[180px]"}`}>
+          <div className="absolute top-3 left-3 bg-black/10 z-10">
             <AlreadyEnrolledChip
               isEnrolled={
                 recipeStatus === RecipeStatus.SUCCESS && recipe.isViewed
@@ -64,7 +64,7 @@ export function RecipeCardReady({
           </div>
           <img
             src={recipe.videoThumbnailUrl}
-            className="block w-full h-full object-cover "
+            className="block w-full h-full object-cover"
           />
         </div>
         <div className="text-lg font-semibold w-full overflow-hidden line-clamp-2">
@@ -85,7 +85,7 @@ export function RecipeCardSkeleton({ isTablet = false }: { isTablet?: boolean })
     <div className="flex flex-col">
       <div className="flex flex-col">
         <Skeleton
-          className={`${isTablet ? "w-full" : "w-[320px]"} h-[180px] rounded-md`}
+          className={`${isTablet ? "w-full aspect-video" : "w-[320px] h-[180px]"} rounded-md`}
         />
 
         <div className="w-[50%]">

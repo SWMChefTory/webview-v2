@@ -28,7 +28,7 @@ const TrendRecipeGrid = () => {
       },
       {
         threshold: 0.1,
-        rootMargin: "200px",
+        rootMargin: "50px",
       }
     );
 
@@ -38,7 +38,7 @@ const TrendRecipeGrid = () => {
 
   if (recipes.length === 0) {
     return (
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
         <div className="col-span-2">
           <p className="text-sm text-gray-500 py-6">
             {t("trendingRecipe.empty")}
@@ -49,7 +49,7 @@ const TrendRecipeGrid = () => {
   }
 
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
       {recipes.map((recipe) => (
         <RecipeCardWrapper
           key={recipe.recipeId}

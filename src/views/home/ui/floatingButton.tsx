@@ -14,12 +14,12 @@ export const FloatingButton = () => {
   const { t } = useHomeTranslation();
 
   return (
-    <div className="fixed z-[100] bottom-[20] right-[20] pb-safe">
-      <div className="h-[60] w-[60]">
+    <div className="fixed z-[100] bottom-[20] right-[20] md:bottom-8 md:right-8 pb-safe">
+      <div className="h-[60] w-[60] md:h-[70] md:w-[70] lg:h-20 lg:w-20">
         <SSRSuspense fallback={<FloatingButtonSkeleton />}>
           <FloatingButtonPopover
             trigger={
-              <div className="h-[60] w-[60]">
+              <div className="h-[60] w-[60] md:h-[70] md:w-[70] lg:h-20 lg:w-20">
                 <Button
                   className="relative w-full h-full rounded-full border-none
               bg-gradient-to-b from-orange-400 to-orange-600
@@ -34,8 +34,7 @@ export const FloatingButton = () => {
                   }}
                 >
                   <FaPlus
-                    size={40}
-                    className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
+                    className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)] w-10 h-10 md:w-11 md:h-11 lg:w-12 lg:h-12"
                   />
                 </Button>
               </div>

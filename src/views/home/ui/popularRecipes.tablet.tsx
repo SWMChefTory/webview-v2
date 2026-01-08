@@ -79,7 +79,7 @@ function RecipeCardSectionReady() {
       },
       {
         threshold: 0.1,
-        rootMargin: "200px",
+        rootMargin: "50px",
       }
     );
 
@@ -89,7 +89,7 @@ function RecipeCardSectionReady() {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6">
+      <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -125,7 +125,7 @@ function RecipeCardSectionReady() {
  */
 function RecipeCardSectionSkeleton() {
   return (
-    <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6">
+    <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
       {Array.from({ length: 6 }, (_, index) => (
         <RecipeCardSkeleton key={index} isTablet={true} />
       ))}

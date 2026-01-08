@@ -38,7 +38,7 @@ export function UserRecipe() {
           />
         }
       />
-      <div className="pl-5 md:pl-6 text-2xl font-bold pb-2">{t("title")}</div>
+      <div className="pl-5 md:pl-6 text-2xl md:text-3xl font-bold pb-2">{t("title")}</div>
       <CategoryListSection
         selectedCategoryId={selectedCategoryId}
         setSelectedCategoryId={setSelectedCategoryId}

@@ -45,7 +45,7 @@ function PopularRecipesReady() {
         }
       }}
     >
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4 min-h-[100.5vh]">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5 min-h-[100.5vh]">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -71,7 +71,7 @@ function PopularRecipesReady() {
 function PopularRecipesSkeleton() {
   return (
     <div className="overflow-y-scroll h-[100vh] no-scrollbar">
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4 min-h-[100.5vh]">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5 min-h-[100.5vh]">
         {Array.from({ length: 10 }).map((_, index) => (
           <PopularRecipeCard key={index} />
         ))}

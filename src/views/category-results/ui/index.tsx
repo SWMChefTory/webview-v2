@@ -48,7 +48,7 @@ export function CategoryResultsSkeleton() {
         <TextSkeleton fontSize="text-2xl" />
       </div>
       <div className="px-4 md:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
           {Array.from({ length: 10 }).map((_, index) => (
             <RecipeCardSkeleton key={index} />
           ))}
@@ -156,7 +156,7 @@ const RecipeCardSection = ({
 
     const observer = new IntersectionObserver(onScroll, {
       threshold: 0.1,
-      rootMargin: "200px",
+      rootMargin: "50px",
     });
 
     observer.observe(loadMore);
@@ -203,7 +203,7 @@ const RecipeCardSection = ({
 
       {/* 레시피 그리드 */}
       <div className="px-4 md:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
           {recipes.map((recipe) => (
             <RecipeCardWrapper
               key={recipe.recipeId}

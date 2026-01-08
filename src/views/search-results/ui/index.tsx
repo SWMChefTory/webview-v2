@@ -34,7 +34,7 @@ export function SearchResultsSkeleton() {
         <TextSkeleton fontSize="text-2xl" />
       </div>
       <div className="px-4 md:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
           {Array.from({ length: 10 }).map((_, index) => (
             <RecipeSearchedCardSkeleton key={index} />
           ))}
@@ -81,7 +81,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
       },
       {
         threshold: 0.1,
-        rootMargin: "200px",
+        rootMargin: "50px",
       }
     );
 
@@ -129,7 +129,7 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
 
       {/* 검색 결과 그리드 */}
       <div className="px-4 md:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
           {searchResults.map((recipe, index) => (
             <SearchedRecipeCard
               key={recipe.recipeId}

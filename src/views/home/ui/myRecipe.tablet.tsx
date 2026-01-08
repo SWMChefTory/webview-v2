@@ -111,7 +111,7 @@ const UserRecipesSection = ({
       },
       {
         threshold: 0.1,
-        rootMargin: "200px",
+        rootMargin: "50px",
       }
     );
 
@@ -131,15 +131,15 @@ const UserRecipesSection = ({
   // 레시피 목록 (Grid 3열, 데스크탑 4열)
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6">
+      <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
         {userRecipes.map((recipe) => (
-          <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
+          <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} isTablet={true} />
         ))}
         {isFetchingNextPage && (
           <>
-            <UserRecipeCardSkeleton />
-            <UserRecipeCardSkeleton />
-            <UserRecipeCardSkeleton />
+            <UserRecipeCardSkeleton isTablet={true} />
+            <UserRecipeCardSkeleton isTablet={true} />
+            <UserRecipeCardSkeleton isTablet={true} />
           </>
         )}
       </div>
@@ -157,9 +157,9 @@ const UserRecipesSection = ({
  */
 const UserRecipesSectionSkeleton = () => {
   return (
-    <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6">
+    <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
       {Array.from({ length: 6 }, (_, index) => (
-        <UserRecipeCardSkeleton key={index} />
+        <UserRecipeCardSkeleton key={index} isTablet={true} />
       ))}
     </div>
   );

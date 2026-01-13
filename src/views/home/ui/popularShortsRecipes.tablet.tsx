@@ -13,7 +13,7 @@ import {
  * PopularShortsRecipes 섹션 - 태블릿 버전 (768px ~)
  *
  * 특징:
- * - 레시피 목록: Grid 5열 (Shorts는 세로형이므로 더 많은 열)
+ * - 레시피 목록: Grid 4열 → 5열 → 6열 (반응형)
  * - 무한 스크롤: IntersectionObserver
  * - 좌우 패딩: px-6
  * - 카드: w-full aspect-[9/16] (Grid에 맞춤)
@@ -89,7 +89,7 @@ const ShortPopularRecipesSectionReady = () => {
 
   return (
     <div>
-      <div className="grid grid-cols-5 gap-3 lg:grid-cols-6 lg:gap-4 xl:grid-cols-7">
+      <div className="grid grid-cols-4 gap-4 md:grid-cols-5 lg:grid-cols-6 lg:gap-4 xl:grid-cols-7">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -123,12 +123,12 @@ const ShortPopularRecipesSectionReady = () => {
 
 /**
  * 로딩 Skeleton (태블릿)
- * Grid 5-7열 반응형
+ * Grid 4-7열 반응형
  */
 const ShortPopularRecipesSectionSkeleton = () => {
   return (
-    <div className="grid grid-cols-5 gap-3 lg:grid-cols-6 lg:gap-4 xl:grid-cols-7">
-      {Array.from({ length: 10 }, (_, index) => (
+    <div className="grid grid-cols-4 gap-4 md:grid-cols-5 lg:grid-cols-6 lg:gap-4 xl:grid-cols-7">
+      {Array.from({ length: 8 }, (_, index) => (
         <ShortsRecipeCardSkeleton key={index} isTablet={true} />
       ))}
     </div>

@@ -76,19 +76,19 @@ export const CategorySection = () => {
   };
 
   return (
-    <div className="w-full pt-4 pb-4 bg-white">
-      <div className="px-4 md:px-6 mb-2">
+    <div className="w-full pt-4 pb-4 md:pt-6 md:pb-6 bg-white">
+      <div className="px-4 md:px-6 mb-2 md:mb-3">
         <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
           {t("recipeCategory")}
         </h2>
       </div>
-      {/* 반응형 그리드: 모바일 5열, 태블릿 6열, 데스크탑 8열 */}
-      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4 md:px-6 md:grid-cols-6 md:gap-x-3 md:gap-y-3 lg:grid-cols-8 lg:gap-x-4 lg:gap-y-4">
+      {/* 반응형 그리드: 모바일 5열, 태블릿 5열(2x5 균형), 데스크탑 10열(1행) */}
+      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4 md:px-6 md:grid-cols-5 md:gap-x-4 md:gap-y-3 lg:grid-cols-10 lg:gap-x-4 lg:gap-y-4">
         {categories.map((category) => (
           <button
             key={category.type}
             onClick={() => handleCategoryClick(category)}
-            className="flex flex-col items-center justify-center gap-1 active:opacity-70 transition-opacity"
+            className="flex flex-col items-center justify-center gap-1 md:gap-2 active:opacity-70 transition-opacity"
           >
             {/* 둥근 사각형 아이콘 배경 */}
             <div className="w-full aspect-square rounded-4xl bg-gray-100 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow overflow-hidden">
@@ -99,7 +99,7 @@ export const CategorySection = () => {
               />
             </div>
             {/* 카테고리 이름 */}
-            <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
+            <span className="text-sm md:text-base font-medium text-gray-800 whitespace-nowrap">
               {getCategoryLabel(category.type)}
             </span>
           </button>

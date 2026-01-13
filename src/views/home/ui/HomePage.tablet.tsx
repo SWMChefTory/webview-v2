@@ -76,17 +76,17 @@ export function HomePageTablet() {
         <CategorySection />
 
         {/* MyRecipes 섹션 */}
-        <div className="mt-6 md:mt-8 lg:mt-10">
+        <div className="mt-8 lg:mt-10">
           <MyRecipes />
         </div>
 
         {/* PopularRecipes 섹션 */}
-        <div className="mt-6 md:mt-8 lg:mt-10">
+        <div className="mt-10 lg:mt-12">
           <PopularRecipes />
         </div>
 
         {/* PopularShortsRecipes 섹션 */}
-        <div className="mt-6 md:mt-8 lg:mt-10">
+        <div className="mt-10 lg:mt-12">
           <PopularShortsRecipes />
         </div>
 

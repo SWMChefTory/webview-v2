@@ -19,9 +19,9 @@ import {
 export const PopularShortsRecipesTitleReady = () => {
   const { t } = useHomeTranslation();
   return (
-    <div className="pl-4 flex items-center gap-2">
-      <div className="text-xl font-semibold">{t("shortsPopularRecipes")}</div>
-      <img src={Fire.src} className="size-6" />
+    <div className="pl-4 md:pl-0 flex items-center gap-2">
+      <div className="text-xl md:text-2xl font-semibold">{t("shortsPopularRecipes")}</div>
+      <img src={Fire.src} className="size-6 md:size-7" alt="fire" />
     </div>
   );
 };
@@ -44,7 +44,7 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-full aspect-[9/16]" : "w-[180px] h-[320px]"} overflow-hidden rounded-md`}
+      className={`relative ${isTablet ? "w-full aspect-[9/16] rounded-lg" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
     >
       <div className="absolute top-[12] left-[8] z-10">
         <AlreadyEnrolledChip
@@ -77,7 +77,7 @@ export function ShortsRecipeCardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`flex shrink-0 ${isTablet ? "w-full aspect-[9/16]" : "w-[180px] h-[320px]"} rounded-md`}
+      className={`flex shrink-0 ${isTablet ? "w-full aspect-[9/16] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
     />
   );
 }

@@ -38,7 +38,7 @@ export const UserRecipeCardReady = ({
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
       <div
-        className={`relative ${isTablet ? "w-full aspect-video" : "w-40 h-[90px]"}`}
+        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg" : "w-40 h-[90px]"}`}
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
             router.push(`/recipe/${userRecipe.recipeId}/detail`);
@@ -58,7 +58,7 @@ export const UserRecipeCardReady = ({
           />
         </div>
       </div>
-      <div className="w-full">
+      <div className="w-full mt-2">
         <TitleReady title={userRecipe.title} />
         <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
       </div>
@@ -180,8 +180,10 @@ const Tail = ({
 export const UserRecipeCardSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
   return (
     <div className={isTablet ? "w-full" : "w-40"}>
-      <ThumbnailSkeleton size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }} />
-      <div className="w-full">
+      <div className={isTablet ? "rounded-lg overflow-hidden" : ""}>
+        <ThumbnailSkeleton size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }} />
+      </div>
+      <div className="w-full mt-2">
         <TitleSkeleton />
         <ElapsedViewTimeSkeleton />
       </div>

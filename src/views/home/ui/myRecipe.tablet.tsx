@@ -22,7 +22,7 @@ import {
  *
  * 특징:
  * - 카테고리: 가로 스크롤 (동일)
- * - 레시피 목록: Grid 3열
+ * - 레시피 목록: Grid 2열 → 3열 → 4열 → 5열 (반응형)
  * - 무한 스크롤: IntersectionObserver
  * - 좌우 패딩: px-6
  */
@@ -128,10 +128,10 @@ const UserRecipesSection = ({
     );
   }
 
-  // 레시피 목록 (Grid 3열, 데스크탑 4열)
+  // 레시피 목록 (Grid 2열→3열→4열→5열 반응형)
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
         {userRecipes.map((recipe) => (
           <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} isTablet={true} />
         ))}
@@ -153,11 +153,11 @@ const UserRecipesSection = ({
 
 /**
  * 로딩 Skeleton (태블릿)
- * Grid 3열, 데스크탑 4열
+ * Grid 2열→3열→4열→5열 반응형
  */
 const UserRecipesSectionSkeleton = () => {
   return (
-    <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
       {Array.from({ length: 6 }, (_, index) => (
         <UserRecipeCardSkeleton key={index} isTablet={true} />
       ))}

@@ -13,7 +13,7 @@ import {
  * PopularRecipes 섹션 - 태블릿 버전 (768px ~)
  *
  * 특징:
- * - 레시피 목록: Grid 3열
+ * - 레시피 목록: Grid 2열 → 3열 → 4열 → 5열 (반응형)
  * - 무한 스크롤: IntersectionObserver
  * - 좌우 패딩: px-6
  * - 카드 width: w-full (Grid에 맞춤)
@@ -89,7 +89,7 @@ function RecipeCardSectionReady() {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -121,11 +121,11 @@ function RecipeCardSectionReady() {
 
 /**
  * 로딩 Skeleton (태블릿)
- * Grid 3열, 데스크탑 4열
+ * Grid 2열→3열→4열→5열 반응형
  */
 function RecipeCardSectionSkeleton() {
   return (
-    <div className="grid grid-cols-3 gap-4 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
       {Array.from({ length: 6 }, (_, index) => (
         <RecipeCardSkeleton key={index} isTablet={true} />
       ))}

@@ -28,9 +28,9 @@ export const PopularShortsRecipesTitleReady = () => {
 
 /**
  * Shorts 레시피 카드 컴포넌트
- * 세로형 (180x320)
- * 모바일: 180px 고정 width
- * 태블릿: w-full (Grid에 맞춤)
+ * 세로형 (9:16 비율)
+ * 모바일: 180x320 고정
+ * 태블릿: 130x231 고정 (가로 스크롤에 최적화)
  */
 export function ShortsRecipeCardReady({
   recipe,
@@ -44,9 +44,9 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-full aspect-[9/16] rounded-lg shadow-md md:hover:shadow-lg md:hover:scale-[1.02] md:transition-all md:duration-200" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
+      className={`relative ${isTablet ? "w-[130px] h-[231px] rounded-lg shadow-md md:hover:shadow-lg md:hover:scale-[1.02] md:transition-all md:duration-200" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
     >
-      <div className="absolute top-[12] left-[8] z-10">
+      <div className="absolute top-2 left-2 z-10">
         <AlreadyEnrolledChip
           isEnrolled={recipe.isViewed && recipeStatus === RecipeStatus.SUCCESS}
         />
@@ -58,7 +58,7 @@ export function ShortsRecipeCardReady({
         src={recipe.videoThumbnailUrl}
         className="block w-full h-full object-cover"
       />
-      <div className="absolute text-left bottom-[24] w-[90%] left-[10] font-bold text-white line-clamp-2">
+      <div className={`absolute text-left w-[90%] left-2 font-bold text-white line-clamp-2 ${isTablet ? "bottom-4 text-xs" : "bottom-[24] left-[10] text-base"}`}>
         {recipe.recipeTitle}
       </div>
     </div>
@@ -67,8 +67,8 @@ export function ShortsRecipeCardReady({
 
 /**
  * Shorts 레시피 카드 스켈레톤
- * 모바일: 180px 고정 width
- * 태블릿: w-full (Grid에 맞춤)
+ * 모바일: 180x320 고정
+ * 태블릿: 130x231 고정 (가로 스크롤에 최적화)
  */
 export function ShortsRecipeCardSkeleton({
   isTablet = false,
@@ -77,7 +77,7 @@ export function ShortsRecipeCardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`flex shrink-0 ${isTablet ? "w-full aspect-[9/16] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
+      className={`flex shrink-0 ${isTablet ? "w-[130px] h-[231px] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
     />
   );
 }

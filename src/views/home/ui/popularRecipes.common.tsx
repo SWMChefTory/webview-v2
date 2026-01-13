@@ -34,7 +34,7 @@ export const PopularRecipesTitleReady = () => {
 /**
  * 레시피 카드 컴포넌트
  * 모바일: 320px 고정 width
- * 태블릿: w-full (Grid에 맞춤)
+ * 태블릿: 260px 고정 width (가로 스크롤에 최적화)
  */
 export function RecipeCardReady({
   recipe,
@@ -49,9 +49,9 @@ export function RecipeCardReady({
   return (
     <div className="flex flex-col">
       <div
-        className={`flex relative flex-col ${isTablet ? "w-full md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-[320px]"}`}
+        className={`flex relative flex-col ${isTablet ? "w-[260px] md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-[320px]"}`}
       >
-        <div className={`overflow-hidden ${isTablet ? "rounded-lg aspect-video shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "rounded-md h-[180px]"}`}>
+        <div className={`overflow-hidden ${isTablet ? "rounded-lg h-[146px] shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "rounded-md h-[180px]"}`}>
           <div className="absolute top-3 left-3 bg-black/10 z-10">
             <AlreadyEnrolledChip
               isEnrolled={
@@ -67,7 +67,7 @@ export function RecipeCardReady({
             className="block w-full h-full object-cover"
           />
         </div>
-        <div className={`font-semibold w-full overflow-hidden line-clamp-2 mt-2 ${isTablet ? "text-base" : "text-lg"}`}>
+        <div className={`font-semibold w-full overflow-hidden line-clamp-2 mt-2 ${isTablet ? "text-sm" : "text-lg"}`}>
           {recipe.recipeTitle}
         </div>
       </div>
@@ -78,18 +78,18 @@ export function RecipeCardReady({
 /**
  * 레시피 카드 스켈레톤
  * 모바일: 320px 고정 width
- * 태블릿: w-full (Grid에 맞춤)
+ * 태블릿: 260px 고정 width (가로 스크롤에 최적화)
  */
 export function RecipeCardSkeleton({ isTablet = false }: { isTablet?: boolean }) {
   return (
     <div className="flex flex-col">
       <div className="flex flex-col">
         <Skeleton
-          className={`${isTablet ? "w-full aspect-video rounded-lg" : "w-[320px] h-[180px] rounded-md"}`}
+          className={`${isTablet ? "w-[260px] h-[146px] rounded-lg" : "w-[320px] h-[180px] rounded-md"}`}
         />
 
         <div className="w-[50%] mt-2">
-          <TextSkeleton fontSize={isTablet ? "text-base" : "text-lg"} />
+          <TextSkeleton fontSize={isTablet ? "text-sm" : "text-lg"} />
         </div>
         <div className="w-[20%]">
           <TextSkeleton fontSize="text-sm" />

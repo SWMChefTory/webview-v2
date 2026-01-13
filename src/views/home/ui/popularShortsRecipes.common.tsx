@@ -44,7 +44,7 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-full aspect-[9/16] rounded-lg" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
+      className={`relative ${isTablet ? "w-full aspect-[9/16] rounded-lg shadow-md md:hover:shadow-lg md:hover:scale-[1.02] md:transition-all md:duration-200" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
     >
       <div className="absolute top-[12] left-[8] z-10">
         <AlreadyEnrolledChip

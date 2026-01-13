@@ -2,21 +2,19 @@ import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePo
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
-import { useState, useEffect, useRef } from "react";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
+import { HorizontalScrollAreaTablet } from "./horizontalScrollAreaTablet";
 
 /**
  * PopularRecipes 섹션 - 태블릿 버전 (768px ~)
  *
  * 특징:
- * - 레시피 목록: Grid 2열 → 3열 → 4열 → 5열 (반응형)
- * - 무한 스크롤: IntersectionObserver
- * - 좌우 패딩: px-6
- * - 카드 width: w-full (Grid에 맞춤)
+ * - 레시피 목록: 가로 스크롤 + 더보기 링크
+ * - 더보기: /popular-recipe 페이지로 이동
  */
 export function PopularRecipesTablet() {
   return (
@@ -33,7 +31,6 @@ export function PopularRecipesTablet() {
 
 /**
  * 태블릿 레이아웃 템플릿
- * 좌우 패딩 추가 (px-6)
  */
 const PopularRecipesTemplateTablet = ({
   title,
@@ -43,9 +40,9 @@ const PopularRecipesTemplateTablet = ({
   recipeSection: React.ReactNode;
 }) => {
   return (
-    <div className="px-6">
+    <div>
       <div className="h-4" />
-      {title}
+      <div className="px-6">{title}</div>
       <div className="h-4" />
       {recipeSection}
     </div>
@@ -54,81 +51,39 @@ const PopularRecipesTemplateTablet = ({
 
 /**
  * 레시피 목록 섹션 (태블릿)
- * Grid 3열 + IntersectionObserver 무한 스크롤
+ * 가로 스크롤 + 더보기 링크
  */
 function RecipeCardSectionReady() {
-  const {
-    data: recipes,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-  } = useFecthPopularRecipe(VideoType.NORMAL);
-
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  // IntersectionObserver로 무한 스크롤
-  useEffect(() => {
-    const element = loadMoreRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "50px",
-      }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+  const { data: recipes } = useFecthPopularRecipe(VideoType.NORMAL);
 
   return (
-    <div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
-        {recipes.map((recipe) => (
-          <RecipeCardWrapper
-            key={recipe.recipeId}
-            recipeId={recipe.recipeId}
-            recipeCreditCost={recipe.creditCost}
-            recipeTitle={recipe.recipeTitle}
-            recipeIsViewed={recipe.isViewed}
-            recipeVideoType={recipe.videoType}
-            recipeVideoUrl={recipe.videoUrl}
-            entryPoint="popular_normal"
-            trigger={<RecipeCardReady recipe={recipe} isTablet={true} />}
-          />
-        ))}
-        {isFetchingNextPage && (
-          <>
-            <RecipeCardSkeleton isTablet={true} />
-            <RecipeCardSkeleton isTablet={true} />
-            <RecipeCardSkeleton isTablet={true} />
-          </>
-        )}
-      </div>
-      {/* IntersectionObserver 타겟 */}
-      {hasNextPage && !isFetchingNextPage && (
-        <div ref={loadMoreRef} className="h-20" />
-      )}
-    </div>
+    <HorizontalScrollAreaTablet moreLink="/popular-recipe" gap="gap-5">
+      {recipes.map((recipe) => (
+        <RecipeCardWrapper
+          key={recipe.recipeId}
+          recipeId={recipe.recipeId}
+          recipeCreditCost={recipe.creditCost}
+          recipeTitle={recipe.recipeTitle}
+          recipeIsViewed={recipe.isViewed}
+          recipeVideoType={recipe.videoType}
+          recipeVideoUrl={recipe.videoUrl}
+          entryPoint="popular_normal"
+          trigger={<RecipeCardReady recipe={recipe} isTablet={true} />}
+        />
+      ))}
+    </HorizontalScrollAreaTablet>
   );
 }
 
 /**
  * 로딩 Skeleton (태블릿)
- * Grid 2열→3열→4열→5열 반응형
  */
 function RecipeCardSectionSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
+    <HorizontalScrollAreaTablet gap="gap-5">
       {Array.from({ length: 6 }, (_, index) => (
         <RecipeCardSkeleton key={index} isTablet={true} />
       ))}
-    </div>
+    </HorizontalScrollAreaTablet>
   );
 }

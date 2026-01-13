@@ -61,7 +61,7 @@ export function HomePageTablet() {
         {lang === "ko" && (
           <div className="pt-3 px-6">
             <Link href="/search-recipe">
-              <div className="flex flex-row items-center justify-between px-5 w-full max-w-[600px] lg:max-w-[800px] mx-auto h-11 lg:h-12 text-gray-800 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
+              <div className="flex flex-row items-center justify-between px-5 w-full max-w-[600px] lg:max-w-[800px] mx-auto h-12 lg:h-14 text-gray-800 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm">
                 <span className="text-base">{t("searchBarPlaceholder")}</span>
                 <PiMagnifyingGlassBold size={18} />
               </div>
@@ -76,22 +76,22 @@ export function HomePageTablet() {
         <CategorySection />
 
         {/* MyRecipes 섹션 */}
-        <div className="mt-8 lg:mt-10">
+        <div className="mt-6 lg:mt-8">
           <MyRecipes />
         </div>
 
         {/* PopularRecipes 섹션 */}
-        <div className="mt-10 lg:mt-12">
+        <div className="mt-8 lg:mt-10">
           <PopularRecipes />
         </div>
 
         {/* PopularShortsRecipes 섹션 */}
-        <div className="mt-10 lg:mt-12">
+        <div className="mt-8 lg:mt-10">
           <PopularShortsRecipes />
         </div>
 
         {/* 하단 여백 */}
-        <div className="h-12 md:h-16 lg:h-20" />
+        <div className="h-16 lg:h-24" />
       </div>
 
       {/* FloatingButton - 태블릿 위치 조정 */}
@@ -112,7 +112,7 @@ const Logo = () => {
       <img
         src="/logo-en.png"
         alt="logo"
-        className="h-[22px] w-auto pl-3"
+        className="h-[24px] md:h-[28px] w-auto"
       />
     );
   }
@@ -120,7 +120,7 @@ const Logo = () => {
     <img
       src="/logo.png"
       alt="logo"
-      className="h-[22px] w-auto pl-3"
+      className="h-[24px] md:h-[28px] w-auto"
     />
   );
 };

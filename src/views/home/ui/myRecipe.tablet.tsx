@@ -4,7 +4,7 @@ import {
   UserRecipeCardSkeleton,
 } from "@/src/views/home/ui/userRecipeCard";
 import { Category } from "@/src/entities/category/model/useCategory";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import {
   ALL_RECIPES,
   useFetchUserRecipes,
@@ -16,15 +16,15 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
+import { HorizontalScrollAreaTablet } from "./horizontalScrollAreaTablet";
 
 /**
  * MyRecipes 섹션 - 태블릿 버전 (768px ~)
  *
  * 특징:
- * - 카테고리: 가로 스크롤 (동일)
- * - 레시피 목록: Grid 2열 → 3열 → 4열 → 5열 (반응형)
- * - 무한 스크롤: IntersectionObserver
- * - 좌우 패딩: px-6
+ * - 카테고리: 가로 스크롤
+ * - 레시피 목록: 가로 스크롤 + 더보기 링크
+ * - 더보기: /user/recipes 페이지로 이동
  */
 export const MyRecipesTablet = () => {
   const [selectedCategory, setSelectedCategory] = useState<
@@ -53,7 +53,6 @@ export const MyRecipesTablet = () => {
 
 /**
  * 태블릿 레이아웃 템플릿
- * 좌우 패딩 추가 (px-6)
  */
 const MyRecipesTemplateTablet = ({
   title,
@@ -65,16 +64,16 @@ const MyRecipesTemplateTablet = ({
   userRecipesSection: React.ReactNode;
 }) => {
   return (
-    <div className="pt-2 px-6">
-      {title}
+    <div className="pt-2">
+      <div className="px-6">{title}</div>
       <div className="h-2" />
-      {/* 카테고리 필터 - 가로 스크롤 (동일) */}
+      {/* 카테고리 필터 - 가로 스크롤 */}
       <ScrollArea className="whitespace-nowrap">
-        <div className="flex flex-row">{categoryList}</div>
+        <div className="flex flex-row pl-6">{categoryList}</div>
         <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
       </ScrollArea>
       <div className="h-4" />
-      {/* 레시피 목록 - Grid 3열 */}
+      {/* 레시피 목록 - 가로 스크롤 */}
       {userRecipesSection}
     </div>
   );
@@ -82,85 +81,46 @@ const MyRecipesTemplateTablet = ({
 
 /**
  * 사용자 레시피 목록 섹션 (태블릿)
- * Grid 3열 + IntersectionObserver 무한 스크롤
+ * 가로 스크롤 + 더보기 링크
  */
 const UserRecipesSection = ({
   selectedCategory,
 }: {
   selectedCategory: Category | typeof ALL_RECIPES;
 }) => {
-  const {
-    recipes: userRecipes,
-    fetchNextPage,
-    isFetchingNextPage,
-    hasNextPage,
-  } = useFetchUserRecipes(selectedCategory);
-
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-
-  // IntersectionObserver로 무한 스크롤
-  useEffect(() => {
-    const element = loadMoreRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "50px",
-      }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+  const { recipes: userRecipes } = useFetchUserRecipes(selectedCategory);
 
   // 빈 상태
   if (userRecipes.length === 0) {
     return (
-      <div className="flex items-center justify-center py-12">
+      <div className="flex items-center justify-center py-12 px-6">
         <UserRecipeCardEmpty />
       </div>
     );
   }
 
-  // 레시피 목록 (Grid 2열→3열→4열→5열 반응형)
   return (
-    <div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
-        {userRecipes.map((recipe) => (
-          <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} isTablet={true} />
-        ))}
-        {isFetchingNextPage && (
-          <>
-            <UserRecipeCardSkeleton isTablet={true} />
-            <UserRecipeCardSkeleton isTablet={true} />
-            <UserRecipeCardSkeleton isTablet={true} />
-          </>
-        )}
-      </div>
-      {/* IntersectionObserver 타겟 */}
-      {hasNextPage && !isFetchingNextPage && (
-        <div ref={loadMoreRef} className="h-20" />
-      )}
-    </div>
+    <HorizontalScrollAreaTablet moreLink="/user/recipes" gap="gap-5">
+      {userRecipes.map((recipe) => (
+        <UserRecipeCardReady
+          userRecipe={recipe}
+          key={recipe.recipeId}
+          isTablet={true}
+        />
+      ))}
+    </HorizontalScrollAreaTablet>
   );
 };
 
 /**
  * 로딩 Skeleton (태블릿)
- * Grid 2열→3열→4열→5열 반응형
  */
 const UserRecipesSectionSkeleton = () => {
   return (
-    <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 lg:grid-cols-4 lg:gap-6 xl:grid-cols-5">
+    <HorizontalScrollAreaTablet gap="gap-5">
       {Array.from({ length: 6 }, (_, index) => (
         <UserRecipeCardSkeleton key={index} isTablet={true} />
       ))}
-    </div>
+    </HorizontalScrollAreaTablet>
   );
 };

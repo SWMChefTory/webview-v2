@@ -83,15 +83,15 @@ export const CategorySection = () => {
         </h2>
       </div>
       {/* 반응형 그리드: 모바일 5열, 태블릿 5열(2x5 균형), 데스크탑 10열(1행) */}
-      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4 md:px-6 md:grid-cols-5 md:gap-x-4 md:gap-y-3 lg:grid-cols-10 lg:gap-x-4 lg:gap-y-4">
+      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4 md:px-6 md:grid-cols-5 md:gap-x-4 md:gap-y-3 lg:grid-cols-10 lg:gap-x-6 lg:gap-y-4">
         {categories.map((category) => (
           <button
             key={category.type}
             onClick={() => handleCategoryClick(category)}
-            className="flex flex-col items-center justify-center gap-1 md:gap-2 active:opacity-70 transition-opacity"
+            className="flex flex-col items-center justify-center gap-1 md:gap-2 active:opacity-70 transition-all duration-200"
           >
             {/* 둥근 사각형 아이콘 배경 */}
-            <div className="w-full aspect-square rounded-4xl bg-gray-100 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+            <div className="w-full aspect-square rounded-4xl bg-gray-100 flex items-center justify-center shadow-sm hover:shadow-md md:hover:scale-105 md:hover:shadow-lg transition-all duration-200 overflow-hidden">
               <img
                 src={category.image}
                 alt={getCategoryLabel(category.type)}

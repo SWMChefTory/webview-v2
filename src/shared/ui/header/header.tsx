@@ -5,6 +5,7 @@ import { IoMdArrowBack, IoMdClose } from "react-icons/io";
 
 /**
  * header는 44px 항상 공간 차지함.
+ * 태블릿(md)에서는 52px로 확대
  */
 const Header = ({
   leftContent,
@@ -24,13 +25,12 @@ const Header = ({
   return (
     <div className={className}>
       <div
-        className={`flex fixed top-0 left-0 right-0 items-center py-2 px-2 h-[44px] z-40 ${
+        className={`flex fixed top-0 left-0 right-0 items-center py-2 px-2 md:px-4 h-[44px] md:h-[52px] z-40 ${
           color || "bg-transparent"
         }`}
       >
-        {/* h-[44] → h-[44px] */}
         {leftContent && (
-          <div className="absolute flex pl-2 h-full w-full top-0 left-0 items-center pointer-events-auto">
+          <div className="absolute flex pl-2 md:pl-4 h-full w-full top-0 left-0 items-center pointer-events-auto">
             {leftContent}
           </div>
         )}
@@ -40,12 +40,12 @@ const Header = ({
           </div>
         )}
         {rightContent && (
-          <div className="absolute pr-2 h-full w-full top-0 right-0 flex justify-end items-center pointer-events-auto">
+          <div className="absolute pr-2 md:pr-4 h-full w-full top-0 right-0 flex justify-end items-center pointer-events-auto">
             {rightContent}
           </div>
         )}
       </div>
-      <div className="h-[44px]" />
+      <div className="h-[44px] md:h-[52px]" />
     </div>
   );
 };
@@ -119,7 +119,7 @@ const AddButton = ({ onClick }: { onClick: () => void }) => {
 const ProfileButton = ({ onClick }: { onClick: () => void }) => {
   return (
     <IconButtonTemplate
-      icon={<CgProfile className="!w-6 !h-6" />}
+      icon={<CgProfile className="!w-6 !h-6 md:!w-7 md:!h-7" />}
       onClick={onClick}
     />
   );

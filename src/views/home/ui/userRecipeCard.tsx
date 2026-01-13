@@ -33,12 +33,12 @@ export const UserRecipeCardReady = ({
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
-    <div className={`relative flex flex-col ${isTablet ? "w-full" : "w-40"}`}>
+    <div className={`relative flex flex-col ${isTablet ? "w-full md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-40"}`}>
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
       <div
-        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg" : "w-40 h-[90px]"}`}
+        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "w-40 h-[90px]"}`}
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
             router.push(`/recipe/${userRecipe.recipeId}/detail`);

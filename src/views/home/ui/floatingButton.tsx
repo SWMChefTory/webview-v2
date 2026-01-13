@@ -14,12 +14,12 @@ export const FloatingButton = () => {
   const { t } = useHomeTranslation();
 
   return (
-    <div className="fixed z-[100] bottom-[20] right-[20] md:bottom-8 md:right-8 pb-safe">
-      <div className="h-[60] w-[60] md:h-[70] md:w-[70] lg:h-20 lg:w-20">
+    <div className="fixed z-[100] bottom-[20] right-[20] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 pb-safe">
+      <div className="h-[60] w-[60] md:h-[72] md:w-[72] lg:h-20 lg:w-20">
         <SSRSuspense fallback={<FloatingButtonSkeleton />}>
           <FloatingButtonPopover
             trigger={
-              <div className="h-[60] w-[60] md:h-[70] md:w-[70] lg:h-20 lg:w-20">
+              <div className="h-[60] w-[60] md:h-[72] md:w-[72] lg:h-20 lg:w-20">
                 <Button
                   className="relative w-full h-full rounded-full border-none
               bg-gradient-to-b from-orange-400 to-orange-600

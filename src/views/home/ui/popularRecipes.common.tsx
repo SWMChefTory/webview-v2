@@ -49,9 +49,9 @@ export function RecipeCardReady({
   return (
     <div className="flex flex-col">
       <div
-        className={`flex relative flex-col ${isTablet ? "w-full" : "w-[320px]"}`}
+        className={`flex relative flex-col ${isTablet ? "w-full md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-[320px]"}`}
       >
-        <div className={`overflow-hidden ${isTablet ? "rounded-lg aspect-video" : "rounded-md h-[180px]"}`}>
+        <div className={`overflow-hidden ${isTablet ? "rounded-lg aspect-video shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "rounded-md h-[180px]"}`}>
           <div className="absolute top-3 left-3 bg-black/10 z-10">
             <AlreadyEnrolledChip
               isEnrolled={

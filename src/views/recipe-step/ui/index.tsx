@@ -83,6 +83,12 @@ function RecipeStepPageReady({ id }: { id: string }) {
 
   // 뒤로 갈 때 safe area 원상복귀 뒤로가기 눌러도 backpress caching땨뮨애 전애 있던 패이지에서 useEffect실행 안될 수 도 있음. pageshow 혹은 visibilitychange 이벤트 사용해서 처리
   useEffect(() => {
+    request(MODE.UNBLOCKING, "SAFE_AREA", {
+      top: { color: "#000000", isExists: true },
+      bottom: { color: "#000000", isExists: true },
+      left: { color: "#000000", isExists: true },
+      right: { color: "#000000", isExists: true },
+    });
     return () => {
       request(MODE.UNBLOCKING, "SAFE_AREA", {
         top: { color: "#ffffff", isExists: true },
@@ -457,7 +463,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
         />
       }
       <div
-        className={`relative overflow-hidden ${
+        className={`relative overflow-hidden w-full ${
           orientation !== "portrait" && "h-[100vh]"
         }`}
       >

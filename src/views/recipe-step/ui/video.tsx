@@ -1,11 +1,6 @@
 import dynamic from "next/dynamic";
 const ReactYouTube = dynamic(() => import("react-youtube"), { ssr: false });
-import {
-  useRef,
-  useMemo,
-  useEffect,
-  useImperativeHandle,
-} from "react";
+import { useRef, useMemo, useEffect, useImperativeHandle } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export type VideoRefProps = {
@@ -67,18 +62,21 @@ export const Video = ({
     () => ({
       width: "100%",
       height: "100%",
-      playerVars: { autoplay: 0 },
+      playerVars: { autoplay: 0, rel: 0 },
       modestbranding: 1,
+      // controls: 0,
       rel: 0,
     }),
     []
   );
 
   return (
-    <div className={`flex z-[0] shrink-0 ${isLandscape?"w-[64%] h-full items-center justify-center":"w-full"}`}>
-      <div
-        className={`relative w-full aspect-video`}
-      >
+    <div
+      className={`flex z-[0] shrink-0 ${
+        isLandscape ? "w-[64%] h-full items-center justify-center" : "w-full"
+      }`}
+    >
+      <div className={`relative w-full aspect-video`}>
         {videoId ? (
           <ReactYouTube
             videoId={videoId}
@@ -94,5 +92,20 @@ export const Video = ({
         )}
       </div>
     </div>
+    // <div className="relative w-full max-w-[360px] mx-auto aspect-[9/]">
+    //   {videoId ? (
+    //     <ReactYouTube
+    //       videoId={videoId}
+    //       opts={opts}
+    //       onReady={(e) => {
+    //         ytRef.current = e.target;
+    //       }}
+    //       iframeClassName="absolute inset-0 w-full h-full"
+    //       title={`${title ?? ""} 동영상`}
+    //     />
+    //   ) : (
+    //     <Skeleton className="absolute inset-0" />
+    //   )}
+    // </div>
   );
 };

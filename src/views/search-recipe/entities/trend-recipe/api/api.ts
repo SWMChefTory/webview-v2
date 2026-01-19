@@ -4,7 +4,6 @@ import { ThemeRecipePageResponseSchema, ThemeRecipePageResponse } from "@/src/vi
 
 export async function fetchTrendingRecipes({ page }: { page: number }): Promise<ThemeRecipePageResponse> {
   const response = await client.get(`/recipes/recommend/trending?page=${page}`);
-  console.log("!!!!!!!!!!!!!");
   return parseWithErrLog(ThemeRecipePageResponseSchema, {
     ...response.data,
     data: response.data.recommendRecipes,

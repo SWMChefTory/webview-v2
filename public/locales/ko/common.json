@@ -19,6 +19,14 @@
     "accessibility": {
       "close": "닫기",
       "loading": "로딩 중"
+    },
+    "berry": {
+      "insufficientMessage": "베리가 부족합니다. 충전하시겠어요?",
+      "confirmCreate": "베리 {{cost}}개로 레시피를 생성하시겠어요?",
+      "currentBalance": "현재 베리 {{balance}}개",
+      "buttonCreate": "생성할게요",
+      "buttonRecharge": "충전할게요",
+      "createWithOne": "베리 1개로 생성하기"
     }
   }
 }

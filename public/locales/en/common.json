@@ -19,6 +19,14 @@
     "accessibility": {
       "close": "Close",
       "loading": "Loading"
+    },
+    "berry": {
+      "insufficientMessage": "You don't have enough berries. Would you like to recharge?",
+      "confirmCreate": "Would you like to create a recipe with {{cost}} berries?",
+      "currentBalance": "Current berries: {{balance}}",
+      "buttonCreate": "I will create",
+      "buttonRecharge": "I will recharge",
+      "createWithOne": "Create with 1 berry"
     }
   }
 }

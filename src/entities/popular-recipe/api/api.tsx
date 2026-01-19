@@ -39,7 +39,6 @@ export async function fetchPopularSummary({
   videoType: VideoType;
 }): Promise<PopularSummaryRecipePagenatedResponse> {
   const response = await client.get(`/recipes/recommend?page=${page}&query=${videoType}`);
-  console.log(response.data);
   return parseWithErrLog(PopularSummaryRecipePagenatedResponse, {
     currentPage: response.data.currentPage,
     hasNext: response.data.hasNext,

@@ -65,8 +65,6 @@ export const fetchRecommendRecipes = async ({
     };
   }
 
-  console.log(response.data);
-  
   // API 응답 데이터 파싱
   const rawRecipes = z.array(RawRecommendRecipeSchema).parse(response.data.recommendRecipes || []);
 

@@ -1,74 +1,19 @@
-import { PopularRecipes } from "@/src/views/home/ui/popularRecipes";
-import Header, { ProfileButton } from "@/src/shared/ui/header/header";
-import { FloatingButton } from "@/src/views/home/ui/floatingButton";
-import { MyRecipes } from "@/src/views/home/ui/myRecipe";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import { PiMagnifyingGlassBold } from "react-icons/pi";
-import { PopularShortsRecipes } from "./popularShortsRecipes";
-import { CategorySection } from "./categorySection";
-import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
-import * as Toast from "@radix-ui/react-toast";
-import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
-import { useLangcode, Lang} from "@/src/shared/translation/useLangCode";
-import { ChallengeBanner } from "@/src/features/challenge";
+import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
+import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { HomePageMobile } from "./HomePage.mobile";
+import { HomePageTablet } from "./HomePage.tablet";
 
+/**
+ * Home 페이지 진입점
+ *
+ * 디바이스 타입에 따라 최적화된 UI를 렌더링:
+ * - Mobile (0 ~ 767px): HomePageMobile
+ * - Tablet/Desktop (768px ~): HomePageTablet
+ */
 function HomePage() {
-  const router = useRouter();
-  const { t } = useHomeTranslation();
-  const lang = useLangcode();
+  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
 
-  useSafeArea({
-    top: { color: "transparent", isExists: true },
-    bottom: { color: "#FFFFFF", isExists: false },
-    left: { color: "#FFFFFF", isExists: true },
-    right: { color: "#FFFFFF", isExists: true },
-  });
-
-  return (
-    <div className="min-h-screen w-screen w-full overflow-hidden">
-      <Header
-        leftContent={<Logo />}
-        rightContent={
-          <div className="flex flex-row">
-            <ProfileButton
-              onClick={() => {
-                router.push("/user/settings");
-              }}
-            />
-          </div>
-        }
-        color="bg-white"
-      />
-      {lang == "ko" && <div className="pt-2 px-2">
-        <Link href="/search-recipe">
-          <div className="flex flex-row items-center justify-between px-4 w-full h-[36] text-gray-800 bg-gray-100 rounded-lg">
-            {t("searchBarPlaceholder")}
-            <PiMagnifyingGlassBold size={16} />
-          </div>
-        </Link>
-      </div>}
-      <ChallengeBanner />
-      <CategorySection />
-      <MyRecipes />
-      <PopularRecipes />
-      <PopularShortsRecipes />
-      <FloatingButton />
-      <RecipeCreateToast>
-        <Toast.Viewport className="fixed right-3 top-2 z-1000 w-[300px]" />
-      </RecipeCreateToast>
-      <div className="h-8" />
-    </div>
-  );
+  return isMobile ? <HomePageMobile /> : <HomePageTablet />;
 }
-
-const Logo = () => {
-  const lang = useLangcode();
-  if(lang=="en"){
-    return <img src="/logo-en.png" alt="logo" className="h-[20] w-auto pl-2" />;
-  }
-  return <img src="/logo.png" alt="logo" className="h-[20] w-auto pl-2" />;
-};
 
 export default HomePage;

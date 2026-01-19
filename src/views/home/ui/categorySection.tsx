@@ -77,13 +77,13 @@ export const CategorySection = () => {
 
   return (
     <div className="w-full pt-4 pb-4 bg-white">
-      <div className="px-4 mb-2">
+      <div className="px-4 md:px-6 mb-2">
         <h2 className="text-xl font-semibold text-gray-900">
           {t("recipeCategory")}
         </h2>
       </div>
-      {/* 5열 2행 그리드 */}
-      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4">
+      {/* 반응형 그리드: 모바일 5열, 태블릿 6열, 데스크탑 8열 */}
+      <div className="grid grid-cols-5 gap-x-2 gap-y-2 px-4 md:px-6 md:grid-cols-6 md:gap-x-3 md:gap-y-3 lg:grid-cols-8 lg:gap-x-4 lg:gap-y-4">
         {categories.map((category) => (
           <button
             key={category.type}

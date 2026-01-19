@@ -16,7 +16,8 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useTranslation } from "next-i18next";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import Image from "next/image";
 
 export type RecipeCardEntryPoint =
   | "popular_normal"
@@ -28,18 +29,7 @@ export type RecipeCardEntryPoint =
   | "category_recommend"
   | "category_cuisine";
 
-//이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
-export function RecipeCardWrapper({
-  recipeId,
-  recipeCreditCost,
-  recipeTitle,
-  recipeIsViewed,
-  recipeVideoType,
-  recipeVideoUrl,
-  trigger,
-  entryPoint,
-}: {
-  // recipe: PopularSummaryRecipeDto | ThemeRecipe;
+type RecipeCardWrapperProps = {
   recipeId: string;
   recipeCreditCost: number;
   recipeTitle: string;
@@ -48,7 +38,22 @@ export function RecipeCardWrapper({
   recipeVideoUrl: string;
   trigger: React.ReactNode;
   entryPoint: RecipeCardEntryPoint;
-}) {
+};
+
+function RecipeCardWrapperSkeleton({ trigger }: { trigger: React.ReactNode }) {
+  return <>{trigger}</>;
+}
+
+function RecipeCardWrapperReady({
+  recipeId,
+  recipeCreditCost,
+  recipeTitle,
+  recipeIsViewed,
+  recipeVideoType,
+  recipeVideoUrl,
+  trigger,
+  entryPoint,
+}: RecipeCardWrapperProps) {
   const { create } = useCreateRecipe();
   const { recipeStatus } = useFetchRecipeProgress({
     recipeId,
@@ -56,7 +61,6 @@ export function RecipeCardWrapper({
   const { data: balance } = useFetchBalance();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
-  const lang = useLangcode();
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -78,7 +82,7 @@ export function RecipeCardWrapper({
       >
         {trigger}
       </div>
-      <DialogContent className="w-[96%]">
+      <DialogContent className="w-[96%] space-y-4">
         <DialogTitle asChild>
           <p className="line-clamp-1">{recipeTitle}</p>
         </DialogTitle>
@@ -123,6 +127,15 @@ export function RecipeCardWrapper({
   );
 }
 
+//이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
+export function RecipeCardWrapper(props: RecipeCardWrapperProps) {
+  return (
+    <SSRSuspense fallback={<RecipeCardWrapperSkeleton trigger={props.trigger} />}>
+      <RecipeCardWrapperReady {...props} />
+    </SSRSuspense>
+  );
+}
+
 const CreateButton = ({
   creditCost,
   balance,
@@ -134,17 +147,17 @@ const CreateButton = ({
   onCreate: () => void;
   onRecharge: () => void;
 }) => {
-  const lang = useLangcode();
+  const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
-      <Button onClick={onRecharge} className="flex-1 text-lg py-5 ">
-        {lang === "en" ? `I will recharge` : `충전할게요`}
+      <Button onClick={onRecharge} className="flex-1 text-lg py-5 font-bold">
+        {t("recipeCreating.berry.buttonRecharge")}
       </Button>
     );
   }
   return (
-    <Button onClick={onCreate} className="flex-1 text-lg py-5 ">
-      {lang === "en" ? `I will create` : `생성할게요`}
+    <Button onClick={onCreate} className="flex-1 text-lg py-5 font-bold">
+      {t("recipeCreating.berry.buttonCreate")}
     </Button>
   );
 };
@@ -156,26 +169,45 @@ const CreatingDescription = ({
   creditCost: number;
   balance: number;
 }) => {
-  const lang = useLangcode();
+  const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
-      <div className="font-bold px-4 flex flex-col items-center">
-        베리가 부족합니다. 충전하시겠어요?
+      <div className="px-4 flex flex-col items-center gap-2">
+        <p className="text-lg text-gray-700 font-semibold">
+          {t("recipeCreating.berry.insufficientMessage")}
+        </p>
+        <div className="flex items-center gap-1.5">
+          <Image
+            src="/images/berry/berry.png"
+            alt="berry"
+            width={18}
+            height={18}
+            className="object-contain"
+          />
+          <p className="text-sm text-gray-500">
+            {t("recipeCreating.berry.currentBalance", { balance })}
+          </p>
+        </div>
       </div>
     );
   }
   return (
-    <div className="font-bold px-4 flex flex-col items-center">
-      <p className="text-lg text-gray-500">
-        {lang === "en"
-          ? `Would you like to create a recipe with ${creditCost} berries?`
-          : `베리 ${creditCost}개로 레시피를 생성하시겠어요?`}
+    <div className="px-4 flex flex-col items-center gap-2">
+      <p className="text-lg text-gray-700 font-semibold">
+        {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
       </p>
-      <p className="text-sm text-gray-500 font-normal">
-        {lang === "en"
-          ? `Current berries: ${balance}`
-          : `현재 베리 ${balance}개`}
-      </p>
+      <div className="flex items-center gap-1.5">
+        <Image
+          src="/images/berry/berry.png"
+          alt="berry"
+          width={18}
+          height={18}
+          className="object-contain"
+        />
+        <p className="text-sm text-gray-500">
+          {t("recipeCreating.berry.currentBalance", { balance })}
+        </p>
+      </div>
     </div>
   );
 };

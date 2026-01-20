@@ -41,7 +41,7 @@ export function HomePageMobile() {
         leftContent={<Logo />}
         rightContent={
           <div className="flex flex-row items-center gap-2">
-            <BalanceWithRecharge />
+            {/* <BalanceWithRecharge /> */}
             <ProfileButton
               onClick={() => {
                 router.push("/user/settings");
@@ -61,7 +61,7 @@ export function HomePageMobile() {
           </Link>
         </div>
       )}
-      <ChallengeBanner />
+      {/* <ChallengeBanner /> */}
       <CategorySection />
       <MyRecipes />
       <PopularRecipes />

@@ -56,7 +56,7 @@ export const UserRecipeCardReady = ({
           />
         </div>
       </div>
-      <div className="w-full">
+      <div className="w-full h-16">
         <TitleReady title={userRecipe.title} />
         <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
       </div>
@@ -117,7 +117,7 @@ export const UserRecipeCardEmpty = () => {
           {t("empty.clickToCreate")}
         </div>
       </div>
-      <div className="w-full">
+      <div className="w-full h-16">
         <TitleEmpty />
         <ElapsedViewTimeEmpty />
       </div>
@@ -179,7 +179,7 @@ export const UserRecipeCardSkeleton = () => {
   return (
     <div>
       <ThumbnailSkeleton size={{ width: 160, height: 90 }} />
-      <div className="w-full">
+      <div className="w-full h-16">
         <TitleSkeleton />
         <ElapsedViewTimeSkeleton />
       </div>

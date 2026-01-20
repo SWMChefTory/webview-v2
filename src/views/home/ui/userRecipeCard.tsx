@@ -15,7 +15,7 @@ import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import { useRouter } from "next/router";
-import { TimerTag } from "@/src/features/timer/ui/timerTag";
+import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";

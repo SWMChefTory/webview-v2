@@ -4,9 +4,9 @@ import {
   ActiveTimer,
   IdleTimer,
   PausedTimer,
-} from "../model/useInProgressTimers";
-import { formatTime } from "../utils/time";
-import { useProgressTimer } from "../model/useProgressTimer";
+} from "../../../../features/timer/useInProgressTimers";
+import { formatTime } from "@/src/features/timer/utils/time";
+import { useProgressTimer } from "../../../../features/timer/useProgressTimer";
 
 export function ActiveTimerItem(props: {
   timer: ActiveTimer;

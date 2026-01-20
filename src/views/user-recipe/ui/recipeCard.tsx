@@ -27,7 +27,7 @@ import { useResolveLongClick } from "@/src/shared/hooks/useClick";
 import { useState } from "react";
 import { IoFolderOpenOutline } from "react-icons/io5";
 import { useRouter } from "next/router";
-import { TimerTag } from "@/src/features/timer/ui/timerTag";
+import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
 import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";

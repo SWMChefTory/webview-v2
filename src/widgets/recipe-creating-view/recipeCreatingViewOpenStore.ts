@@ -48,11 +48,9 @@ export const useRecipeCreatingViewOpenStore = create<RecipeCreatingViewOpenStore
       setUrl: (url) => set({ videoUrl: url }),
       openTutorial: () => set({ isTutorialOpen: true }),
       closeTutorial: () => {
-        // 단순히 닫기만 함 (hasSeenTutorial 저장 안 함)
         set({ isTutorialOpen: false });
       },
       markTutorialAsSeen: () => {
-        // "다시 보지 않음" 체크 시에만 저장
         set({ hasSeenTutorial: true });
       },
       openRecipeCreatingView: (videoUrl = "") => {

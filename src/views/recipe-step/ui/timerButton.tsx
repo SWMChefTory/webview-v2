@@ -24,18 +24,13 @@ export const HeaderTimerButton = ({
     // Amplitude: wrapper div로 클릭 이벤트 캡처 (이벤트 버블링)
     <div onClick={onTimerClick}>
       <TimerBottomSheet
-        trigger={
-          <TimerButtonDefault
-            waitingCount={timerActveCount}
-          />
-        }
+        trigger={<TimerButtonDefault waitingCount={timerActveCount} />}
         recipeId={recipeId}
         recipeName={recipeName}
       />
     </div>
   );
 };
-
 
 const TimerButtonDefault = ({
   waitingCount = 0,
@@ -51,7 +46,7 @@ const TimerButtonDefault = ({
               !
             </div>
           )}
-          <LuTimer className="!w-6 !h-6" />
+          <LuTimer color="#ffffff" className="!w-6 !h-6" />
         </div>
       }
       onClick={() => {}}

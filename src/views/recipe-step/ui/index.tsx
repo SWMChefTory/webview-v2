@@ -13,13 +13,11 @@ import { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { popoverHandle as micButtonPopoverHandle } from "./micButtonPopover";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
-import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
+import { TimerBottomSheet } from "@/src/widgets/timer/modal/ui/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/views/recipe-step/hooks/useSimpleSpeech";
 import { request, MODE } from "@/src/shared/client/native/client";
-import {
-  popoverHandle,
-  TimerButton,
-} from "@/src/features/timer/ui/timerButton";
+import { TimerButton } from "@/src/widgets/timer/index";
+import type { popoverHandle } from "@/src/widgets/timer/index";
 import { useHandleTimerVoiceIntent } from "@/src/views/recipe-step/hooks/useTimerIntent";
 import { Video, VideoRefProps } from "./video";
 import { useRecipeStepController } from "../hooks/useRecipeStepController";
@@ -29,13 +27,14 @@ import { useOrientation } from "../hooks/useOrientation";
 import { useSafeArea } from "../hooks/useSafeArea";
 import { StepsContent } from "./stepsContent";
 import { MicButton, VoiceGuideModal, VoiceGuideMicStep } from "./micButton";
-import { LoopSettingButton } from "./loopSettingButton";
+import { LoopSettingButton, ShortLoopSettingButton } from "./loopSettingButton";
 import { ProgressBar } from "./progressBar";
 import { useTutorialActions, useTutorial } from "../hooks/useTutorial";
 import { VoiceGuideTimerStep } from "./timerTutorialStep";
 import { TutorialStarter } from "./tutorialStarter";
 import { useCookingModeAnalytics } from "../hooks/useCookingModeAnalytics";
 import { useRecipeStepTranslation } from "../hooks/useRecipeStepTranslation";
+import { HeaderTimerButton } from "./timerButton";
 
 type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
 
@@ -425,12 +424,29 @@ function RecipeStepPageReady({ id }: { id: string }) {
       {orientation === "portrait" && (
         <Header
           leftContent={
-            <BackButton
-              onClick={() => {
-                router.back();
-              }}
-              color="text-white"
-            />
+            <div className="z-1">
+              <BackButton
+                onClick={() => {
+                  router.back();
+                }}
+                color="text-white"
+              />
+            </div>
+          }
+          rightContent={
+            <div className="z-1 flex items-center justify-center gap-1">
+              <HeaderTimerButton
+                recipeId={id}
+                recipeName={recipe.videoInfo.videoTitle}
+              />
+              <ShortLoopSettingButton
+                onClick={() => {
+                  setIsInRepeat((v) => !v);
+                  analytics.recordLoopToggle();
+                }}
+                isRepeat={isInRepeat}
+              />
+            </div>
           }
         />
       )}
@@ -443,25 +459,24 @@ function RecipeStepPageReady({ id }: { id: string }) {
         }
         isLandscape={orientation !== "portrait"}
       />
-      {
-        <ProgressBar
-          steps={steps}
-          currentDetailStepIndex={currentDetailIndex}
-          currentStepIndex={currentIndex}
-          isLandscape={orientation !== "portrait"}
-          onClick={handleChangeStepWithVideoTime}
-          onTrackTouchNavigation={() => {
-            analytics.trackCommand({
-              recipeId: id,
-              commandType: "navigation",
-              commandDetail: "STEP",
-              triggerMethod: "touch",
-              currentStep: currentIndex,
-              currentDetail: currentDetailIndex,
-            });
-          }}
-        />
-      }
+      {/* <ProgressBar
+        steps={steps}
+        currentDetailStepIndex={currentDetailIndex}
+        currentStepIndex={currentIndex}
+        isLandscape={orientation !== "portrait"}
+        onClick={handleChangeStepWithVideoTime}
+        onTrackTouchNavigation={() => {
+          analytics.trackCommand({
+            recipeId: id,
+            commandType: "navigation",
+            commandDetail: "STEP",
+            triggerMethod: "touch",
+            currentStep: currentIndex,
+            currentDetail: currentDetailIndex,
+          });
+        }}
+      /> */}
+      <div className="flex shrink-0 h-4" />
       <div
         className={`relative overflow-hidden w-full ${
           orientation !== "portrait" && "h-[100vh]"
@@ -485,7 +500,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
             });
           }}
         />
-        <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
+        {/* <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
           {orientation === "portrait" ? (
             <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           ) : (
@@ -559,8 +574,8 @@ function RecipeStepPageReady({ id }: { id: string }) {
                 }}
               />
             )}
-          </div>
-        </div>
+          </div> */}
+        {/* </div> */}
       </div>
     </div>
   );

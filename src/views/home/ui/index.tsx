@@ -12,7 +12,6 @@ import { HomePageTablet } from "./HomePage.tablet";
  */
 function HomePage() {
   const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-
   return isMobile ? <HomePageMobile /> : <HomePageTablet />;
 }
 

@@ -16,15 +16,18 @@ export const Video = ({
   title,
   isLandscape = false,
   ref,
+  isShorts = true,
   onInternallyChangeTime,
 }: {
   videoId?: string;
   title?: string;
   isLandscape?: boolean;
   ref: React.RefObject<VideoRefProps | null>;
+  isShorts?: boolean;
   onInternallyChangeTime: (time: number) => void; //내부적으로 바꾸는 현재 유튜브 시간, external바꾸면 무한 루프 위험.
 }) => {
   const ytRef = useRef<YT.Player | null>(null);
+
   useImperativeHandle(ref, () => {
     return {
       seekTo: ({ time }) => {
@@ -64,11 +67,30 @@ export const Video = ({
       height: "100%",
       playerVars: { autoplay: 0, rel: 0 },
       modestbranding: 1,
-      // controls: 0,
       rel: 0,
     }),
     []
   );
+
+  if (isShorts) {
+    return (
+      <div className={`flex shrink-0 relative w-full h-[64%]`}>
+        {videoId ? (
+          <ReactYouTube
+            videoId={videoId}
+            opts={opts}
+            onReady={(e) => {
+              ytRef.current = e.target;
+            }}
+            iframeClassName="absolute inset-0 z-0"
+            title={`${title ?? ""} 동영상`}
+          />
+        ) : (
+          <Skeleton className="absolute inset-0" />
+        )}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -92,20 +114,5 @@ export const Video = ({
         )}
       </div>
     </div>
-    // <div className="relative w-full max-w-[360px] mx-auto aspect-[9/]">
-    //   {videoId ? (
-    //     <ReactYouTube
-    //       videoId={videoId}
-    //       opts={opts}
-    //       onReady={(e) => {
-    //         ytRef.current = e.target;
-    //       }}
-    //       iframeClassName="absolute inset-0 w-full h-full"
-    //       title={`${title ?? ""} 동영상`}
-    //     />
-    //   ) : (
-    //     <Skeleton className="absolute inset-0" />
-    //   )}
-    // </div>
   );
 };

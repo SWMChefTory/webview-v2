@@ -14,9 +14,9 @@ export type VideoRefProps = {
 export const Video = ({
   videoId,
   title,
-  isLandscape = false,
+  isLandscape = true,
   ref,
-  isShorts = true,
+  isShorts = false,
   onInternallyChangeTime,
 }: {
   videoId?: string;

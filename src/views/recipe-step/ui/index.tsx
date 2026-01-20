@@ -433,21 +433,21 @@ function RecipeStepPageReady({ id }: { id: string }) {
               />
             </div>
           }
-          rightContent={
-            <div className="z-1 flex items-center justify-center gap-1">
-              <HeaderTimerButton
-                recipeId={id}
-                recipeName={recipe.videoInfo.videoTitle}
-              />
-              <ShortLoopSettingButton
-                onClick={() => {
-                  setIsInRepeat((v) => !v);
-                  analytics.recordLoopToggle();
-                }}
-                isRepeat={isInRepeat}
-              />
-            </div>
-          }
+          // rightContent={
+          //   <div className="z-1 flex items-center justify-center gap-1">
+          //     <HeaderTimerButton
+          //       recipeId={id}
+          //       recipeName={recipe.videoInfo.videoTitle}
+          //     />
+          //     <ShortLoopSettingButton
+          //       onClick={() => {
+          //         setIsInRepeat((v) => !v);
+          //         analytics.recordLoopToggle();
+          //       }}
+          //       isRepeat={isInRepeat}
+          //     />
+          //   </div>
+          // }
         />
       )}
       <Video
@@ -459,7 +459,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
         }
         isLandscape={orientation !== "portrait"}
       />
-      {/* <ProgressBar
+      <ProgressBar
         steps={steps}
         currentDetailStepIndex={currentDetailIndex}
         currentStepIndex={currentIndex}
@@ -475,7 +475,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
             currentDetail: currentDetailIndex,
           });
         }}
-      /> */}
+      />
       <div className="flex shrink-0 h-4" />
       <div
         className={`relative overflow-hidden w-full ${
@@ -500,7 +500,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
             });
           }}
         />
-        {/* <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
+        <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
           {orientation === "portrait" ? (
             <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           ) : (
@@ -574,8 +574,8 @@ function RecipeStepPageReady({ id }: { id: string }) {
                 }}
               />
             )}
-          </div> */}
-        {/* </div> */}
+          </div>
+        </div>
       </div>
     </div>
   );

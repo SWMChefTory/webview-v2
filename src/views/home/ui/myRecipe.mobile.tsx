@@ -17,6 +17,7 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
+import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 
 /**
  * MyRecipes 섹션 - 모바일 버전 (0 ~ 767px)

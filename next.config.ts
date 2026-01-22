@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 import i18nConfig from "./next-i18next.config";
+import withBundleAnalyzer from '@next/bundle-analyzer'
 
 const { i18n } = i18nConfig;
+
+// const withBundleAnalyzer = require('@next/bundle-analyzer')({
+//   enabled: true,
+//   openAnalyzer: true,
+// });
+
 
 const nextConfig: NextConfig = {
   // eslint: {
@@ -18,7 +25,11 @@ const nextConfig: NextConfig = {
   // reactStrictMode: true,
 };
 
-export default nextConfig;
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+  // openAnalyzer: true // default!
+})(nextConfig)
+
 
 
 // import type { NextConfig } from "next";

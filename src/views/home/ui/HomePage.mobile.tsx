@@ -12,8 +12,8 @@ import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { ChallengeBanner } from "@/src/features/challenge";
 import { BalanceWithRecharge } from "./balanceWithRecharge";
+import * as Popover from "@radix-ui/react-popover";
 
 /**
  * Home 페이지 - 모바일 버전 (0 ~ 767px)
@@ -41,7 +41,7 @@ export function HomePageMobile() {
         leftContent={<Logo />}
         rightContent={
           <div className="flex flex-row items-center gap-2">
-            {/* <BalanceWithRecharge /> */}
+            <BalanceWithRecharge />
             <ProfileButton
               onClick={() => {
                 router.push("/user/settings");
@@ -61,9 +61,8 @@ export function HomePageMobile() {
           </Link>
         </div>
       )}
-      {/* <ChallengeBanner /> */}
+      <MyRecipes/>
       <CategorySection />
-      <MyRecipes />
       <PopularRecipes />
       <PopularShortsRecipes />
       <FloatingButton />
@@ -78,7 +77,10 @@ export function HomePageMobile() {
 const Logo = () => {
   const lang = useLangcode();
   if (lang === "en") {
-    return <img src="/logo-en.png" alt="logo" className="h-[20px] w-auto pl-2" />;
+    return (
+      <img src="/logo-en.png" alt="logo" className="h-[20px] w-auto pl-2" />
+    );
   }
   return <img src="/logo.png" alt="logo" className="h-[20px] w-auto pl-2" />;
 };
+

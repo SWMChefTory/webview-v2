@@ -81,7 +81,7 @@ export function TimerBottomSheet({
             className={`${
               isLandscape
                 ? "fixed bottom-0 top-0 right-0 w-[36vw] z-[1002] bg-gray-200 rounded-l-[20px]"
-                : "fixed bottom-0 left-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px]"
+                : "fixed bottom-0 left-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px] md:max-w-[600px] md:mx-auto"
             }`}
             onPointerDown={() => handleOpen()}
             onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
@@ -109,7 +109,7 @@ export function TimerBottomSheet({
               }  z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${
                 isLandscape
                   ? "top-0 right-0 w-[36vw] rounded-l-[20px]"
-                  : "left-0 rounded-t-[20px]"
+                  : "left-0 rounded-t-[20px] md:max-w-[600px] md:mx-auto"
               }`}
               onPointerDown={() => handleOpen()}
               onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}

@@ -38,7 +38,7 @@ export function HomePageTablet() {
   });
 
   return (
-    <div className="min-h-screen w-screen overflow-hidden">
+    <div className="min-h-screen w-full bg-white">
       {/* Header - 태블릿 최적화 */}
       <Header
         leftContent={<Logo />}

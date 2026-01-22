@@ -52,8 +52,7 @@ export const DefaultContentOverlay = ({
 
   return (
     <div className="flex flex-col w-full h-full overflow-y-scroll">
-      {/* 컨테이너 통일: px-4 py-6 */}
-      <div className="px-4 md:px-6 py-6 space-y-6">
+      <div className="px-4 md:px-6 py-6 space-y-6 md:space-y-8 md:max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] md:mx-auto">
         {/* 최근 검색어 섹션 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
@@ -62,7 +61,7 @@ export const DefaultContentOverlay = ({
             </h2>
             {searchHistories.histories.length > 0 && (
               <button
-                className="text-xs font-medium text-gray-500"
+                className="text-xs md:text-sm font-medium text-gray-500 md:hover:text-gray-700 md:transition-colors"
                 onClick={() => deleteAllSearchHistoriesMutation.mutate()}
                 disabled={deleteAllSearchHistoriesMutation.isPending}
               >
@@ -86,7 +85,7 @@ export const DefaultContentOverlay = ({
                 {searchHistories.histories.map((search, index) => (
                   <div
                     key={index}
-                    className="shrink-0 snap-start flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-gray-200 cursor-pointer"
+                    className="shrink-0 snap-start flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-white border border-gray-200 cursor-pointer md:hover:border-orange-300 md:hover:bg-orange-50 md:transition-all md:duration-200"
                     onClick={() => {
                       track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
                         keyword: search,
@@ -95,13 +94,13 @@ export const DefaultContentOverlay = ({
                       onSearchSelect?.(search);
                     }}
                   >
-                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    <span className="text-sm md:text-base font-medium text-gray-700 whitespace-nowrap">
                       {search.length > 10
                         ? `${search.slice(0, 10)}...`
                         : search}
                     </span>
                     <button
-                      className="text-gray-400 text-base leading-none"
+                      className="text-gray-400 text-base md:text-lg leading-none md:hover:text-gray-600"
                       onClick={(e) => {
                         e.stopPropagation();
                         deleteSearchHistoryMutation.mutate(search);
@@ -177,7 +176,7 @@ export const DefaultContentOverlay = ({
                 {autoCompleteData.autocompletes.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-transparent cursor-pointer transition-all duration-200 group"
+                    className="flex items-center gap-2.5 px-3 py-2 md:px-4 md:py-3 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-transparent cursor-pointer transition-all duration-200 group"
                     onClick={() => {
                       track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
                         keyword: item.autocomplete,
@@ -186,10 +185,10 @@ export const DefaultContentOverlay = ({
                       onSearchSelect?.(item.autocomplete);
                     }}
                   >
-                    <span className="text-base font-bold text-orange-600 shrink-0 w-6 group-hover:text-orange-700 transition-colors">
+                    <span className="text-base md:text-lg font-bold text-orange-600 shrink-0 w-6 md:w-8 group-hover:text-orange-700 transition-colors">
                       {index + 1}
                     </span>
-                    <span className="text-base font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">
+                    <span className="text-base md:text-lg font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">
                       {item.autocomplete}
                     </span>
                   </div>
@@ -229,7 +228,7 @@ export const DefaultContentOverlay = ({
                 {autoCompleteData.autocompletes.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2.5 px-3 absolute w-full h-[60px] cursor-pointer hover:bg-orange-50 hover:border-orange-200 border border-transparent transition-all duration-200 group rounded-lg"
+                    className="flex items-center gap-2.5 px-3 md:px-4 absolute w-full h-[60px] cursor-pointer hover:bg-orange-50 hover:border-orange-200 border border-transparent transition-all duration-200 group rounded-lg"
                     style={{ top: `${index * 60}px` }}
                     onClick={() => {
                       track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
@@ -239,10 +238,10 @@ export const DefaultContentOverlay = ({
                       onSearchSelect?.(item.autocomplete);
                     }}
                   >
-                    <span className="text-base font-bold text-orange-600 shrink-0 w-6 group-hover:text-orange-700 transition-colors">
+                    <span className="text-base md:text-lg font-bold text-orange-600 shrink-0 w-6 md:w-8 group-hover:text-orange-700 transition-colors">
                       {index + 1}
                     </span>
-                    <span className="text-base font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">
+                    <span className="text-base md:text-lg font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">
                       {item.autocomplete}
                     </span>
                   </div>

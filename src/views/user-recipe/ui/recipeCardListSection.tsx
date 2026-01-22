@@ -9,8 +9,10 @@ import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
+  isTablet = false,
 }: {
   selectedCategoryId: string | typeof ALL_RECIPES;
+  isTablet?: boolean;
 }) => {
   const { data: categories } = useFetchCategories();
   const selectedCategory =
@@ -24,15 +26,13 @@ export const RecipeListSectionReady = ({
 
   return (
     <div
-      onScroll={(event: any) => {
-        if (
-          event.target.scrollTop + event.target.clientHeight >=
-          event.target.scrollHeight + 10
-        ) {
+      onScroll={(event: React.UIEvent<HTMLDivElement>) => {
+        const target = event.target as HTMLDivElement;
+        if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10) {
           fetchNextPage();
         }
       }}
-      className="flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden px-2 md:px-4"
+      className={`flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden ${isTablet ? "px-6" : "px-2"}`}
     >
       {recipes.length !== 0 ? (
         <div className="flex flex-col w-full gap-2">
@@ -77,9 +77,9 @@ export const RecipeListSectionReady = ({
   );
 };
 
-export const RecipeListSectionSkeleton = () => {
+export const RecipeListSectionSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
   return (
-    <div className="flex-1 flex flex-col w-full overflow-y-scroll px-2 md:px-4">
+    <div className={`flex-1 flex flex-col w-full overflow-y-scroll ${isTablet ? "px-6" : "px-2"}`}>
       <div className="flex flex-col w-full gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <RecipeDetailsCardSkeleton key={`skeleton-${i}`} />

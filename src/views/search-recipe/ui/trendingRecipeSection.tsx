@@ -95,19 +95,19 @@ const TrendRecipeCard = ({
 
   return (
     <div className="flex flex-col w-full group cursor-pointer">
-      <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200 h-[160px]">
+      <div className="relative overflow-hidden rounded-xl shadow-sm md:shadow-md group-hover:shadow-md md:group-hover:shadow-lg md:group-hover:scale-[1.02] transition-all duration-200 h-[160px] md:h-[180px]">
         <img
           src={videoThumbnailUrl}
           className="block w-full h-full object-cover"
           alt={recipeTitle}
         />
         {isViewed && (
-          <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
+          <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 md:px-3 md:py-1.5 rounded-full text-xs md:text-sm text-white z-10">
             {t("trendingRecipe.badge")}
           </div>
         )}
       </div>
-      <h3 className="mt-3 text-sm font-semibold text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
+      <h3 className="mt-3 text-sm md:text-base font-semibold text-gray-900 line-clamp-2 group-hover:text-orange-600 transition-colors">
         {recipeTitle}
       </h3>
     </div>
@@ -127,14 +127,14 @@ const TrendRecipeGridSkeleton = () => {
 export const TrendingRecipeSection = () => {
   const { t } = useSearchOverlayTranslation();
   return (
-    <section className="space-y-4">
+    <section className="space-y-4 md:space-y-5">
       <div className="flex items-center gap-2">
-        <h2 className="text-xl font-bold text-gray-900">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900">
           {t("trendingRecipe.title")}
         </h2>
-        <img src={Trend.src} className="size-5" alt="trend" />
+        <img src={Trend.src} className="size-5 md:size-6" alt="trend" />
       </div>
-      <p className="text-sm text-gray-500">{t("trendingRecipe.subtitle")}</p>
+      <p className="text-sm md:text-base text-gray-500">{t("trendingRecipe.subtitle")}</p>
       <SSRSuspense fallback={<TrendRecipeGridSkeleton />}>
         <TrendRecipeGrid />
       </SSRSuspense>
@@ -145,10 +145,10 @@ export const TrendingRecipeSection = () => {
 const TrendRecipeCardSkeleton = () => {
   return (
     <div className="flex flex-col w-full">
-      <Skeleton className="w-full h-[160px] rounded-xl" />
+      <Skeleton className="w-full h-[160px] md:h-[180px] rounded-xl" />
       <div className="mt-3 space-y-2">
-        <Skeleton className="w-full h-4 rounded" />
-        <Skeleton className="w-3/4 h-4 rounded" />
+        <Skeleton className="w-full h-4 md:h-5 rounded" />
+        <Skeleton className="w-3/4 h-4 md:h-5 rounded" />
       </div>
     </div>
   );

@@ -216,8 +216,8 @@ export const IngredientPurchaseModal = ({
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-[1001] animate-in slide-in-from-bottom duration-300">
-        <div className="bg-white rounded-t-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div className="fixed inset-x-0 bottom-0 z-[1001] animate-in slide-in-from-bottom duration-300 md:max-w-[600px] md:mx-auto md:bottom-6">
+        <div className="bg-white rounded-t-3xl md:rounded-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
           {/* Header */}
           <div className="relative px-5 pt-6 pb-4 border-b border-gray-100">
             <button
@@ -234,14 +234,14 @@ export const IngredientPurchaseModal = ({
               </svg>
             </button>
 
-            <h2 className="text-xl font-bold text-neutral-900 mb-1 pr-8">
-              지금 필요한 재료,
-              <br />
-              쿠팡에서 바로 준비해보세요!
-            </h2>
-            <p className="text-xs text-gray-500">
-              쿠팡 파트너스 활동의 일환으로 수수료를 일부 제공 받습니다.
-            </p>
+              <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-1 pr-8">
+                지금 필요한 재료,
+                <br />
+                쿠팡에서 바로 준비해보세요!
+              </h2>
+              <p className="text-xs md:text-sm text-gray-500">
+                쿠팡 파트너스 활동의 일환으로 수수료를 일부 제공 받습니다.
+              </p>
           </div>
 
           {/* Content */}

@@ -186,7 +186,7 @@ export function ShareTutorialModal() {
             <div className="px-6 py-3 space-y-3">
               {guideVideoSrc && (
                 <div className="flex justify-center">
-                  <div className={`relative w-full max-w-[240px] ${deviceStyles.container}`}>
+                  <div className={`relative w-full max-w-[240px] md:max-w-[320px] ${deviceStyles.container}`}>
                     <div className={`relative p-1 shadow-2xl ${deviceStyles.frame}`}>
                       {deviceType === "android" && (
                         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gray-800 rounded-full z-10" />

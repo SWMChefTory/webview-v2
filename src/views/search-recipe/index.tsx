@@ -157,7 +157,7 @@ const SearchBar = memo(({
       <div className="flex items-center">
         <input
           ref={inputRef}
-          className="w-full text-lg outline-none z-10"
+          className="w-full text-lg md:text-xl outline-none z-10"
           type="text"
           placeholder={t("input.placeholder")}
           value={keyboardInput}
@@ -291,13 +291,13 @@ const AutoCompleteKeywordItem = memo(({
 
   return (
     <motion.div
-      className="flex flex-row gap-3 items-center py-3 px-4 hover:bg-gray-50 cursor-pointer"
+      className="flex flex-row gap-3 items-center py-3 px-4 md:py-4 md:px-6 hover:bg-gray-50 md:hover:bg-orange-50 cursor-pointer md:transition-colors md:duration-200"
       onClick={handleClick}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.15 }}
     >
-      <FaMagnifyingGlass size={16} className="shrink-0 text-gray-600" />
-      <span className="text-lg flex-1 truncate text-gray-900">
+      <FaMagnifyingGlass size={16} className="shrink-0 text-gray-600 md:text-gray-500" />
+      <span className="text-lg md:text-xl flex-1 truncate text-gray-900">
         <HighlightKeywordText text={text} keyword={keyword} />
       </span>
     </motion.div>

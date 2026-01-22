@@ -40,18 +40,44 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { Trans } from "next-i18next";
 import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
+import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
 
 export function CategoryResultsSkeleton() {
+  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
+  return isMobile ? <CategoryResultsSkeletonMobile /> : <CategoryResultsSkeletonTablet />;
+}
+
+function CategoryResultsSkeletonMobile() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="px-4 md:px-6 py-6">
+      <div className="px-4 py-6">
         <TextSkeleton fontSize="text-2xl" />
       </div>
-      <div className="px-4 md:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
+      <div className="px-4 pb-6">
+        <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 10 }).map((_, index) => (
             <RecipeCardSkeleton key={index} />
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CategoryResultsSkeletonTablet() {
+  return (
+    <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
+      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto w-full px-6">
+        <div className="py-8">
+          <TextSkeleton fontSize="text-3xl" />
+        </div>
+        <div className="pb-8">
+          <div className="grid grid-cols-3 gap-6 lg:grid-cols-4 xl:grid-cols-5">
+            {Array.from({ length: 15 }).map((_, index) => (
+              <RecipeCardSkeleton key={index} isTablet />
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -63,17 +89,20 @@ export function CategoryResultsContent({
 }: {
   categoryType: CategoryType;
 }) {
-  // 타입에 따라 다른 컴포넌트 렌더링
+  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
+  
   if (isRecommendType(categoryType)) {
-    return <RecommendCategoryContent recommendType={categoryType} />;
+    return <RecommendCategoryContent recommendType={categoryType} isTablet={!isMobile} />;
   }
-  return <CuisineCategoryContent cuisineType={categoryType} />;
+  return <CuisineCategoryContent cuisineType={categoryType} isTablet={!isMobile} />;
 }
 
 function RecommendCategoryContent({
   recommendType,
+  isTablet = false,
 }: {
   recommendType: RecommendType;
+  isTablet?: boolean;
 }) {
   const {
     data: recipes,
@@ -97,11 +126,18 @@ function RecommendCategoryContent({
       categoryName={categoryName}
       isFetchingNextPage={isFetchingNextPage}
       isRecommendType={true}
+      isTablet={isTablet}
     />
   );
 }
 
-function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
+function CuisineCategoryContent({ 
+  cuisineType,
+  isTablet = false,
+}: { 
+  cuisineType: CuisineType;
+  isTablet?: boolean;
+}) {
   const {
     data: recipes,
     totalElements,
@@ -125,6 +161,7 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
       categoryName={categoryName}
       isFetchingNextPage={isFetchingNextPage}
       isRecommendType={false}
+      isTablet={isTablet}
     />
   );
 }
@@ -136,7 +173,7 @@ const RecipeCardSection = ({
   categoryName,
   isFetchingNextPage,
   isRecommendType,
-  // loadMoreRef
+  isTablet = false,
 }: {
   recipes: CuisineRecipe[] | RecommendRecipe[];
   totalElements: number;
@@ -144,6 +181,7 @@ const RecipeCardSection = ({
   categoryName: string;
   isFetchingNextPage: boolean;
   isRecommendType: boolean;
+  isTablet?: boolean;
 }) => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -187,23 +225,32 @@ const RecipeCardSection = ({
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       {/* 카테고리 결과 헤더 */}
-      <div className="px-4 md:px-6 py-6">
+      <div className={isTablet 
+        ? "max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto w-full px-6 py-8" 
+        : "px-4 py-6"
+      }>
         <div className="flex items-baseline gap-2">
-          <h1 className="text-2xl font-bold text-gray-900 truncate">
+          <h1 className={`font-bold text-gray-900 truncate ${isTablet ? "text-3xl" : "text-2xl"}`}>
             {categoryName}
           </h1>
-          <span className="text-lg font-medium text-gray-600 shrink-0">
+          <span className={`font-medium text-gray-600 shrink-0 ${isTablet ? "text-xl" : "text-lg"}`}>
             {t("header.suffix")}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className={`text-gray-500 mt-2 ${isTablet ? "text-base" : "text-sm"}`}>
           {t("header.totalCount", { count: totalElements })}
         </p>
       </div>
 
       {/* 레시피 그리드 */}
-      <div className="px-4 md:px-6 pb-6">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5">
+      <div className={isTablet 
+        ? "max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto w-full px-6 pb-8" 
+        : "px-4 pb-6"
+      }>
+        <div className={isTablet 
+          ? "grid grid-cols-3 gap-6 lg:grid-cols-4 xl:grid-cols-5" 
+          : "grid grid-cols-2 gap-4"
+        }>
           {recipes.map((recipe) => (
             <RecipeCardWrapper
               key={recipe.recipeId}
@@ -229,6 +276,7 @@ const RecipeCardSection = ({
                   cookingTime={recipe.detailMeta?.cookingTime ?? 0}
                   tags={recipe.tags ?? []}
                   description={recipe.detailMeta?.description ?? ""}
+                  isTablet={isTablet}
                 />
               }
             />
@@ -236,8 +284,8 @@ const RecipeCardSection = ({
 
           {isFetchingNextPage && (
             <>
-              <RecipeCardSkeleton />
-              <RecipeCardSkeleton />
+              <RecipeCardSkeleton isTablet={isTablet} />
+              <RecipeCardSkeleton isTablet={isTablet} />
             </>
           )}
         </div>
@@ -255,6 +303,7 @@ type RecipeCardProps = {
   cookingTime: number;
   tags: { name: string }[];
   description: string;
+  isTablet?: boolean;
 };
 
 const RecipeCardReady = ({
@@ -265,12 +314,13 @@ const RecipeCardReady = ({
   cookingTime,
   tags,
   description,
+  isTablet = false,
 }: RecipeCardProps) => {
   const { t } = useCategoryResultsTranslation();
 
   return (
-    <article className="w-full group cursor-pointer">
-      <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
+    <article className={`w-full group cursor-pointer ${isTablet ? "hover:scale-[1.02] transition-transform duration-200" : ""}`}>
+      <div className={`relative overflow-hidden rounded-xl shadow-sm transition-shadow duration-200 ${isTablet ? "group-hover:shadow-lg" : "group-hover:shadow-md"}`}>
         <ThumbnailReady imgUrl={videoThumbnailUrl || ""} />
         {isViewed && (
           <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
@@ -279,21 +329,21 @@ const RecipeCardReady = ({
         )}
       </div>
 
-      <div className="mt-3 space-y-2.5">
-        <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
+      <div className={isTablet ? "mt-4 space-y-3" : "mt-3 space-y-2.5"}>
+        <h3 className={`font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors ${isTablet ? "text-lg" : "text-base"}`}>
           {recipeTitle}
         </h3>
 
-        <div className="flex items-center gap-3 text-sm text-gray-600">
+        <div className={`flex items-center text-gray-600 ${isTablet ? "gap-4 text-base" : "gap-3 text-sm"}`}>
           <div className="flex items-center gap-1.5">
-            <BsPeople size={14} className="shrink-0" />
+            <BsPeople size={isTablet ? 16 : 14} className="shrink-0" />
             <span className="font-medium">
               {t("card.serving", { count: servings })}
             </span>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <FaRegClock size={14} className="shrink-0" />
+            <FaRegClock size={isTablet ? 16 : 14} className="shrink-0" />
             <span className="font-medium">
               {t("card.minute", { count: cookingTime })}
             </span>
@@ -306,7 +356,7 @@ const RecipeCardReady = ({
               {tags.slice(0, 3).map((tag, index) => (
                 <span
                   key={index}
-                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
+                  className={`font-semibold text-orange-600 whitespace-nowrap ${isTablet ? "text-sm" : "text-xs"}`}
                 >
                   #{tag.name}
                 </span>
@@ -315,7 +365,7 @@ const RecipeCardReady = ({
           </div>
         )}
 
-        <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
+        <p className={`text-gray-600 line-clamp-2 leading-relaxed ${isTablet ? "text-base min-h-[3rem]" : "text-sm min-h-[2.75rem]"}`}>
           {description}
         </p>
       </div>
@@ -599,15 +649,15 @@ const RecommendRecipeCardReady = ({
   );
 };
 
-const RecipeCardSkeleton = () => {
+const RecipeCardSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
   return (
     <div className="w-full">
       <div className="rounded-xl overflow-hidden">
         <ThumbnailSkeleton />
       </div>
-      <div className="mt-3 space-y-2.5">
+      <div className={`${isTablet ? "mt-4 space-y-3" : "mt-3 space-y-2.5"}`}>
         <TextSkeleton fontSize="text-base" />
-        <div className="flex gap-3">
+        <div className={`flex ${isTablet ? "gap-4" : "gap-3"}`}>
           <TextSkeleton fontSize="text-sm" />
           <TextSkeleton fontSize="text-sm" />
         </div>

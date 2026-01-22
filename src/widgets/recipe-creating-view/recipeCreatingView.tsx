@@ -110,7 +110,7 @@ export function RecipeCreatingView() {
           <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
           <Dialog.Content
             data-tour="create-recipe"
-            className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
+            className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg md:max-w-[500px] md:mx-auto md:bottom-4 md:rounded-lg"
           >
             <div className="p-5">
               <Title />

@@ -47,7 +47,7 @@ export function CategoryCreatingView({
     >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
-        <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg">
+        <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg md:max-w-[500px] md:mx-auto md:bottom-4 md:rounded-lg">
           <div className="p-5">
             <Dialog.Title className="text-xl font-bold">
               {t("form.title")}

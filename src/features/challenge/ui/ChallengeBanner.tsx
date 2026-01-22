@@ -159,7 +159,7 @@ function ChallengeBannerContent({
   };
 
   return (
-    <div className="px-4 py-2 md:px-6 md:py-3">
+    <div className="px-4 py-2 md:px-6 md:py-3 lg:px-8 lg:py-4 xl:px-10 xl:py-5">
       <div
         onClick={handleClick}
         className="relative overflow-hidden rounded-2xl shadow-sm transition-all duration-200 active:scale-[0.99] cursor-pointer"
@@ -172,12 +172,12 @@ function ChallengeBannerContent({
           {/* 그라데이션 오버레이 (왼쪽 텍스트 가독성 확보) */}
           <div className={`absolute inset-0 ${getOverlayStyle()}`} />
           {/* 콘텐츠 */}
-          <div className="relative p-4 md:p-5">
+          <div className="relative p-4 md:p-5 lg:p-6 xl:p-8">
             <div className="flex items-center gap-3">
               {/* 왼쪽: 챌린지 정보 */}
               <div className="flex-1 min-w-0">
                 <h3
-                  className="font-extrabold text-gray-900 md:text-lg"
+                  className="font-extrabold text-gray-900 md:text-lg lg:text-xl xl:text-2xl"
                   style={{ textShadow: "0 1px 3px rgba(255,255,255,0.9)" }}
                 >
                   {challengeName}
@@ -190,17 +190,17 @@ function ChallengeBannerContent({
                       return (
                         <div
                           key={i}
-                          className={`w-5 h-5 rounded-md flex items-center justify-center ${getMiniBoxStyle(isDone)}`}
+                          className={`w-5 h-5 lg:w-6 lg:h-6 rounded-md flex items-center justify-center ${getMiniBoxStyle(isDone)}`}
                         >
                           {isDone && (
-                            <FaCheck className="text-white text-[10px]" />
+                            <FaCheck className="text-white text-[10px] lg:text-xs" />
                           )}
                         </div>
                       );
                     })}
                   </div>
                   <span
-                    className="text-sm text-gray-700 font-semibold"
+                    className="text-sm lg:text-base text-gray-700 font-semibold"
                     style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
                   >
                     {getSubMessage()}
@@ -215,9 +215,9 @@ function ChallengeBannerContent({
                   alt="토리 캐릭터"
                   width={56}
                   height={56}
-                  className="object-contain w-14 h-14 md:w-16 md:h-16"
+                  className="object-contain w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24"
                 />
-                <FaChevronRight size={14} className={`${getArrowColor()} md:w-4 md:h-4`} />
+                <FaChevronRight size={14} className={`${getArrowColor()} md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6`} />
               </div>
             </div>
           </div>

@@ -52,11 +52,11 @@ export const DefaultContentOverlay = ({
 
   return (
     <div className="flex flex-col w-full h-full overflow-y-scroll">
-      <div className="px-4 md:px-6 py-6 space-y-6 md:space-y-8 md:max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] md:mx-auto">
+      <div className="px-4 md:px-6 py-6 space-y-6 md:space-y-8 md:max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] md:mx-auto">
         {/* 최근 검색어 섹션 */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+            <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
               {t("recent.title")}
             </h2>
             {searchHistories.histories.length > 0 && (
@@ -85,7 +85,7 @@ export const DefaultContentOverlay = ({
                 {searchHistories.histories.map((search, index) => (
                   <div
                     key={index}
-                    className="shrink-0 snap-start flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full bg-white border border-gray-200 cursor-pointer md:hover:border-orange-300 md:hover:bg-orange-50 md:transition-all md:duration-200"
+                    className="shrink-0 snap-start flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 lg:px-5 lg:py-2.5 rounded-full bg-white border border-gray-200 cursor-pointer md:hover:border-orange-300 md:hover:bg-orange-50 md:transition-all md:duration-200"
                     onClick={() => {
                       track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
                         keyword: search,
@@ -94,7 +94,7 @@ export const DefaultContentOverlay = ({
                       onSearchSelect?.(search);
                     }}
                   >
-                    <span className="text-sm md:text-base font-medium text-gray-700 whitespace-nowrap">
+                    <span className="text-sm md:text-base lg:text-lg font-medium text-gray-700 whitespace-nowrap">
                       {search.length > 10
                         ? `${search.slice(0, 10)}...`
                         : search}
@@ -126,7 +126,7 @@ export const DefaultContentOverlay = ({
         <section className="space-y-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+              <h2 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900">
                 {t("trendingSearch.title")}
               </h2>
               {!isExpanded && autoCompleteData.autocompletes.length > 0 && (
@@ -172,11 +172,11 @@ export const DefaultContentOverlay = ({
 
           {autoCompleteData.autocompletes.length > 0 ? (
             isExpanded ? (
-              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 2xl:gap-6">
                 {autoCompleteData.autocompletes.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center gap-2.5 px-3 py-2 md:px-4 md:py-3 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-transparent cursor-pointer transition-all duration-200 group"
+                    className="flex items-center gap-2.5 px-3 py-2 md:px-4 md:py-3 lg:px-5 lg:py-4 rounded-lg hover:bg-orange-50 hover:border-orange-200 border border-transparent cursor-pointer transition-all duration-200 group"
                     onClick={() => {
                       track(AMPLITUDE_EVENT.SEARCH_EXECUTED, {
                         keyword: item.autocomplete,
@@ -185,10 +185,10 @@ export const DefaultContentOverlay = ({
                       onSearchSelect?.(item.autocomplete);
                     }}
                   >
-                    <span className="text-base md:text-lg font-bold text-orange-600 shrink-0 w-6 md:w-8 group-hover:text-orange-700 transition-colors">
+                    <span className="text-base md:text-lg lg:text-xl font-bold text-orange-600 shrink-0 w-6 md:w-8 group-hover:text-orange-700 transition-colors">
                       {index + 1}
                     </span>
-                    <span className="text-base md:text-lg font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">
+                    <span className="text-base md:text-lg lg:text-xl font-medium flex-1 text-gray-900 group-hover:text-orange-700 transition-colors line-clamp-2 leading-tight">
                       {item.autocomplete}
                     </span>
                   </div>

@@ -37,8 +37,8 @@ export function UserRecipeTablet() {
           />
         }
       />
-      <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto pb-8">
-        <div className="px-6 text-2xl lg:text-3xl font-bold pb-3">{t("title")}</div>
+      <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto pb-8">
+        <div className="px-6 text-2xl lg:text-3xl xl:text-4xl font-bold pb-3">{t("title")}</div>
         <CategoryListSection
           selectedCategoryId={selectedCategoryId}
           setSelectedCategoryId={setSelectedCategoryId}

@@ -15,7 +15,7 @@ export function PopularRecipeTablet() {
   const { t } = useTranslation("popular-recipe");
 
   return (
-    <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto px-6">
+    <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-6">
       <div className="h-6" />
       <div className="text-2xl lg:text-3xl font-semibold">{t("popularRecipes")}</div>
       <div className="h-6" />
@@ -55,7 +55,7 @@ function PopularRecipesReady() {
 
   return (
     <div className="pb-8">
-      <div className="grid grid-cols-3 gap-6 lg:grid-cols-4 xl:grid-cols-5 min-h-[50vh]">
+      <div className="grid grid-cols-3 gap-6 2xl:gap-8 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 min-h-[50vh]">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -88,7 +88,7 @@ function PopularRecipesReady() {
 function PopularRecipesSkeleton() {
   return (
     <div className="pb-8">
-      <div className="grid grid-cols-3 gap-6 lg:grid-cols-4 xl:grid-cols-5 min-h-[50vh]">
+      <div className="grid grid-cols-3 gap-6 2xl:gap-8 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 min-h-[50vh]">
         {Array.from({ length: 15 }).map((_, index) => (
           <PopularRecipeCardSkeleton key={index} isTablet />
         ))}

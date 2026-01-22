@@ -34,7 +34,7 @@ export function ChallengePageTablet() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
-        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto">
+        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto">
           <Header
             leftContent={
               <div className="flex flex-row gap-3 items-center">
@@ -50,7 +50,7 @@ export function ChallengePageTablet() {
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto px-6 py-8">
+        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-6 py-8">
           <SSRErrorBoundary
             fallbackRender={({ resetErrorBoundary }) => (
               <ChallengeErrorFallback resetErrorBoundary={resetErrorBoundary} />
@@ -99,7 +99,7 @@ function ChallengePageReadyTablet() {
         </div>
       </div>
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
-        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto">
+        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto">
           <ChallengeBottomBar
             challengeType={data.challengeType}
             startDate={data.startDate}
@@ -193,7 +193,7 @@ function ChallengeRecipeListTablet({
         <span className="text-base text-gray-500">총 {totalElements}개</span>
       </div>
 
-      <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 2xl:gap-8">
         {recipes.map((recipe) => (
           <div 
             key={recipe.recipeId} 
@@ -230,7 +230,7 @@ export function ChallengePageSkeletonTablet() {
       </div>
       <div className="p-6 border-t border-gray-100">
         <Skeleton className="w-48 h-7 mb-6" />
-        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 2xl:gap-8">
           <ChallengeRecipeCardSkeleton />
           <ChallengeRecipeCardSkeleton />
           <ChallengeRecipeCardSkeleton />
@@ -255,7 +255,7 @@ function ChallengeContentSkeletonTablet() {
       </div>
       <div className="p-6">
         <Skeleton className="w-48 h-7 mb-6" />
-        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 2xl:gap-8">
           <ChallengeRecipeCardSkeleton />
           <ChallengeRecipeCardSkeleton />
           <ChallengeRecipeCardSkeleton />

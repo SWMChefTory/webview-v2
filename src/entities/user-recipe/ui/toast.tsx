@@ -71,7 +71,7 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
     <>
       <Toast.Provider swipeDirection="right">
         {toastInfo && (
-          <Toast.Root className="z-1000 w-[300px] md:w-[400px]">
+          <Toast.Root className="z-1000 w-[300px] md:w-[400px] lg:w-[480px] xl:w-[520px]">
             <motion.div
               whileInView={{ x: 0 }}
               initial={{

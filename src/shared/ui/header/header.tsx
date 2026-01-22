@@ -25,10 +25,11 @@ const Header = ({
   return (
     <div className={className}>
       <div
-        className={`flex fixed top-0 left-0 right-0 items-center py-2 px-2 md:px-4 h-[44px] md:h-[52px] z-40 ${
+        className={`fixed top-0 left-0 right-0 z-40 ${
           color || "bg-transparent"
         }`}
       >
+        <div className="flex relative items-center py-2 px-2 md:px-4 h-[44px] md:h-[52px] mx-auto max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px]">
         {leftContent && (
           <div className="absolute flex pl-2 md:pl-4 h-full w-full top-0 left-0 items-center pointer-events-auto">
             {leftContent}
@@ -44,6 +45,7 @@ const Header = ({
             {rightContent}
           </div>
         )}
+        </div>
       </div>
       <div className="h-[44px] md:h-[52px]" />
     </div>

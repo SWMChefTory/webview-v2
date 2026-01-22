@@ -46,7 +46,7 @@ export function SettingsPageTablet() {
       />
 
       {/* 메인 컨텐츠 - 최대 너비 제한 & 중앙 정렬 */}
-      <div className="w-full max-w-[600px] lg:max-w-[700px] mx-auto px-6 flex flex-col justify-center">
+      <div className="w-full max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] mx-auto px-6 lg:px-8 flex flex-col justify-center">
         {/* 프로필 섹션 - 확대된 크기 */}
         <SSRSuspense fallback={<UserSectionSkeleton isTablet />}>
           <UserSectionReady isTablet />

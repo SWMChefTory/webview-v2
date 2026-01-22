@@ -33,7 +33,7 @@ export const UserRecipeCardReady = ({
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
-    <div className={`relative flex flex-col ${isTablet ? "w-full md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-40"}`}>
+    <div className={`relative flex flex-col ${isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px] md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-40"}`}>
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
@@ -179,7 +179,7 @@ const Tail = ({
 
 export const UserRecipeCardSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
   return (
-    <div className={isTablet ? "w-full" : "w-40"}>
+    <div className={isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px]" : "w-40"}>
       <div className={isTablet ? "rounded-lg overflow-hidden" : ""}>
         <ThumbnailSkeleton size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }} />
       </div>

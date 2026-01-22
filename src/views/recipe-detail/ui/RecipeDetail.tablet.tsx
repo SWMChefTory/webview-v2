@@ -15,7 +15,7 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export const RecipeDetailPageSkeletonTablet = () => (
   <div className="min-h-screen bg-gray-50">
-    <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto px-6 py-8">
+    <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-6 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <Skeleton className="w-full aspect-video rounded-xl lg:col-span-7 xl:col-span-8" />
         <div className="space-y-4 lg:col-span-5 xl:col-span-4">
@@ -165,7 +165,7 @@ export const RecipeDetailPageReadyTablet = ({ id }: { id: string }) => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
-        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto">
+        <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto">
           <Header
             leftContent={
               <div className="z-1">
@@ -191,7 +191,7 @@ export const RecipeDetailPageReadyTablet = ({ id }: { id: string }) => {
         </div>
       </div>
 
-      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto px-6 py-8">
+      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 xl:col-span-8 space-y-6">
             <div className="sticky top-24">

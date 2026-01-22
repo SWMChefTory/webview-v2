@@ -19,9 +19,9 @@ import {
 export const PopularShortsRecipesTitleReady = () => {
   const { t } = useHomeTranslation();
   return (
-    <div className="pl-4 md:pl-0 flex items-center gap-2">
-      <div className="text-xl md:text-2xl font-semibold">{t("shortsPopularRecipes")}</div>
-      <img src={Fire.src} className="size-6 md:size-7" alt="fire" />
+    <div className="pl-4 md:pl-0 flex items-center gap-2 lg:gap-3">
+      <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("shortsPopularRecipes")}</div>
+      <img src={Fire.src} className="size-6 md:size-7 lg:size-7 xl:size-8" alt="fire" />
     </div>
   );
 };
@@ -44,7 +44,7 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-[130px] h-[231px] rounded-lg shadow-md md:hover:shadow-lg md:hover:scale-[1.02] md:transition-all md:duration-200" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
+      className={`relative ${isTablet ? "w-[130px] lg:w-[140px] xl:w-[150px] h-[231px] lg:h-[249px] xl:h-[267px] rounded-lg shadow-md md:hover:shadow-lg md:hover:scale-[1.02] md:transition-all md:duration-200" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
     >
       <div className="absolute top-2 left-2 z-10">
         <AlreadyEnrolledChip
@@ -58,7 +58,7 @@ export function ShortsRecipeCardReady({
         src={recipe.videoThumbnailUrl}
         className="block w-full h-full object-cover"
       />
-      <div className={`absolute text-left w-[90%] left-2 font-bold text-white line-clamp-2 ${isTablet ? "bottom-4 text-xs" : "bottom-[24] left-[10] text-base"}`}>
+      <div className={`absolute text-left w-[90%] left-2 font-bold text-white line-clamp-2 ${isTablet ? "bottom-4 text-xs lg:text-sm" : "bottom-[24] left-[10] text-base"}`}>
         {recipe.recipeTitle}
       </div>
     </div>
@@ -77,7 +77,7 @@ export function ShortsRecipeCardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`flex shrink-0 ${isTablet ? "w-[130px] h-[231px] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
+      className={`flex shrink-0 ${isTablet ? "w-[130px] lg:w-[140px] xl:w-[150px] h-[231px] lg:h-[249px] xl:h-[267px] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
     />
   );
 }

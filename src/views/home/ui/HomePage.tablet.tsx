@@ -56,14 +56,14 @@ export function HomePageTablet() {
       />
 
       {/* 메인 컨텐츠 컨테이너 - 최대 너비 제한 & 중앙 정렬 */}
-      <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto">
-        {/* SearchBar - 태블릿 최적화 */}
+      <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto">
+        {/* SearchBar - 태블릿/데스크톱 최적화 */}
         {lang === "ko" && (
-          <div className="pt-3 px-6">
+          <div className="pt-3 px-6 lg:px-8">
             <Link href="/search-recipe">
-              <div className="flex flex-row items-center justify-between px-5 w-full max-w-[600px] lg:max-w-[800px] mx-auto h-12 lg:h-14 text-gray-800 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm">
-                <span className="text-base">{t("searchBarPlaceholder")}</span>
-                <PiMagnifyingGlassBold size={18} />
+              <div className="flex flex-row items-center justify-between px-5 lg:px-6 w-full max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] 2xl:max-w-[1200px] mx-auto h-12 lg:h-14 xl:h-16 text-gray-800 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm">
+                <span className="text-base lg:text-lg xl:text-xl">{t("searchBarPlaceholder")}</span>
+                <PiMagnifyingGlassBold className="size-[18px] lg:size-[22px] xl:size-[24px]" />
               </div>
             </Link>
           </div>
@@ -97,9 +97,9 @@ export function HomePageTablet() {
       {/* FloatingButton - 태블릿 위치 조정 */}
       <FloatingButton />
 
-      {/* Toast - 태블릿 위치 조정 */}
+      {/* Toast - 태블릿/데스크톱 위치 조정 */}
       <RecipeCreateToast>
-        <Toast.Viewport className="fixed right-6 top-2 z-1000 w-[360px]" />
+        <Toast.Viewport className="fixed right-6 lg:right-8 xl:right-10 top-2 lg:top-4 z-1000 w-[360px] lg:w-[400px]" />
       </RecipeCreateToast>
     </div>
   );
@@ -112,7 +112,7 @@ const Logo = () => {
       <img
         src="/logo-en.png"
         alt="logo"
-        className="h-[24px] md:h-[28px] w-auto"
+        className="h-[24px] md:h-[28px] lg:h-[32px] xl:h-[36px] w-auto"
       />
     );
   }
@@ -120,7 +120,7 @@ const Logo = () => {
     <img
       src="/logo.png"
       alt="logo"
-      className="h-[24px] md:h-[28px] w-auto"
+      className="h-[24px] md:h-[28px] lg:h-[32px] xl:h-[36px] w-auto"
     />
   );
 };

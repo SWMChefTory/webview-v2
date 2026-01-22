@@ -16,12 +16,12 @@ import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCard
 export function SearchResultsSkeletonTablet() {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto w-full px-6">
+      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto w-full px-6">
         <div className="py-8">
           <TextSkeleton fontSize="text-3xl" />
         </div>
         <div className="pb-8">
-          <div className="grid grid-cols-3 gap-6 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-3 gap-6 2xl:gap-8 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {Array.from({ length: 15 }).map((_, index) => (
               <RecipeSearchedCardSkeleton key={index} />
             ))}
@@ -87,7 +87,7 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] mx-auto w-full px-6">
+      <div className="max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto w-full px-6">
         <div className="py-8">
           <div className="flex items-baseline gap-3">
             <h1 className="text-3xl font-bold text-gray-900 truncate">{keyword}</h1>
@@ -97,7 +97,7 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
         </div>
 
         <div className="pb-8">
-          <div className="grid grid-cols-3 gap-6 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-3 gap-6 2xl:gap-8 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
             {searchResults.map((recipe, index) => (
               <SearchedRecipeCard
                 key={recipe.recipeId}

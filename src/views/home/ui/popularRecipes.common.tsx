@@ -24,8 +24,8 @@ export const PopularRecipesTitleReady = () => {
   return (
     <Link href="/popular-recipe">
       <div className="pl-4 md:pl-0 flex items-center">
-        <div className="text-xl md:text-2xl font-semibold">{t("popularRecipes")}</div>
-        <IoChevronForwardOutline className="size-6 md:size-7" color="black" />
+        <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("popularRecipes")}</div>
+        <IoChevronForwardOutline className="size-6 md:size-7 lg:size-7 xl:size-8" color="black" />
       </div>
     </Link>
   );
@@ -49,9 +49,9 @@ export function RecipeCardReady({
   return (
     <div className="flex flex-col">
       <div
-        className={`flex relative flex-col ${isTablet ? "w-[260px] md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-[320px]"}`}
+        className={`flex relative flex-col ${isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px] md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-[320px]"}`}
       >
-        <div className={`overflow-hidden ${isTablet ? "rounded-lg h-[146px] shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "rounded-md h-[180px]"}`}>
+        <div className={`overflow-hidden ${isTablet ? "rounded-lg h-[146px] lg:h-[158px] xl:h-[169px] shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "rounded-md h-[180px]"}`}>
           <div className="absolute top-3 left-3 bg-black/10 z-10">
             <AlreadyEnrolledChip
               isEnrolled={
@@ -67,7 +67,7 @@ export function RecipeCardReady({
             className="block w-full h-full object-cover"
           />
         </div>
-        <div className={`font-semibold w-full overflow-hidden line-clamp-2 mt-2 ${isTablet ? "text-sm" : "text-lg"}`}>
+        <div className={`font-semibold w-full overflow-hidden line-clamp-2 mt-2 ${isTablet ? "text-sm lg:text-base" : "text-lg"}`}>
           {recipe.recipeTitle}
         </div>
       </div>
@@ -85,11 +85,11 @@ export function RecipeCardSkeleton({ isTablet = false }: { isTablet?: boolean })
     <div className="flex flex-col">
       <div className="flex flex-col">
         <Skeleton
-          className={`${isTablet ? "w-[260px] h-[146px] rounded-lg" : "w-[320px] h-[180px] rounded-md"}`}
+          className={`${isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px] h-[146px] lg:h-[158px] xl:h-[169px] rounded-lg" : "w-[320px] h-[180px] rounded-md"}`}
         />
 
         <div className="w-[50%] mt-2">
-          <TextSkeleton fontSize={isTablet ? "text-sm" : "text-lg"} />
+          <TextSkeleton fontSize={isTablet ? "text-sm lg:text-base" : "text-lg"} />
         </div>
         <div className="w-[20%]">
           <TextSkeleton fontSize="text-sm" />

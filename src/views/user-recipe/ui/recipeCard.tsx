@@ -63,13 +63,13 @@ const RecipeDetailsCardReady = ({
     <motion.div
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
       transition={{ duration: 1 }}
-      className="relative w-full  flex flex-row items-center justify-center z-10"
+      className="relative w-full flex flex-row items-center justify-center z-10 lg:p-3 lg:rounded-xl lg:hover:bg-gray-50 lg:transition-colors"
       onTapStart={handleTapStart}
     >
       <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
         <ProgressDetailsCheckList recipeStatus={recipeStatus} />
       </div>
-      <div className="relative h-[108] w-[192]">
+      <div className="relative h-[108] w-[192] lg:h-[120px] lg:w-[213px] xl:h-[135px] xl:w-[240px]">
         <div className="absolute top-1 right-1 z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
@@ -81,8 +81,8 @@ const RecipeDetailsCardReady = ({
           size={{ height: 108, width: 192 }}
         />
       </div>
-      <div className="w-2" />
-      <div className=" flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+      <div className="w-2 lg:w-4" />
+      <div className="flex flex-col items-start flex-1 gap-1 lg:gap-1.5 overflow-x-hidden">
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
           tags={userRecipe.tags || []}

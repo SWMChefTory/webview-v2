@@ -216,15 +216,15 @@ export const IngredientPurchaseModal = ({
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-0 bottom-0 z-[1001] animate-in slide-in-from-bottom duration-300 md:max-w-[600px] md:mx-auto md:bottom-6">
-        <div className="bg-white rounded-t-3xl md:rounded-3xl max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+      <div className="fixed inset-x-0 bottom-0 z-[1001] animate-in slide-in-from-bottom duration-300 md:max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] md:mx-auto md:bottom-6 lg:bottom-8">
+        <div className="bg-white rounded-t-3xl md:rounded-3xl max-h-[85vh] lg:max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
           {/* Header */}
-          <div className="relative px-5 pt-6 pb-4 border-b border-gray-100">
+          <div className="relative px-5 lg:px-6 xl:px-8 pt-6 lg:pt-8 pb-4 lg:pb-6 border-b border-gray-100">
             <button
-              className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600"
+              className="absolute top-4 right-4 lg:top-6 lg:right-6 w-8 h-8 lg:w-10 lg:h-10 flex items-center justify-center text-gray-400 hover:text-gray-600 lg:hover:bg-gray-100 lg:rounded-full lg:transition-colors"
               onClick={handleClose}
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="lg:w-6 lg:h-6">
                 <path
                   d="M18 6L6 18M6 6L18 18"
                   stroke="currentColor"
@@ -234,18 +234,18 @@ export const IngredientPurchaseModal = ({
               </svg>
             </button>
 
-              <h2 className="text-xl md:text-2xl font-bold text-neutral-900 mb-1 pr-8">
+              <h2 className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-neutral-900 mb-1 lg:mb-2 pr-8 lg:pr-12">
                 지금 필요한 재료,
                 <br />
                 쿠팡에서 바로 준비해보세요!
               </h2>
-              <p className="text-xs md:text-sm text-gray-500">
+              <p className="text-xs md:text-sm lg:text-base text-gray-500">
                 쿠팡 파트너스 활동의 일환으로 수수료를 일부 제공 받습니다.
               </p>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto px-5 py-4">
+          <div className="flex-1 overflow-y-auto px-5 lg:px-6 xl:px-8 py-4 lg:py-6">
             {loading ? (
               <div className="flex items-center justify-center py-12">
                 <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
@@ -275,11 +275,11 @@ export const IngredientPurchaseModal = ({
                     href={product.purchaseUrl}
                     target="_blank"
                     rel="noopener noreferrer nofollow"
-                    className="flex gap-3 p-3 rounded-xl border border-gray-200 bg-white hover:shadow-md transition-shadow active:scale-[0.98]"
+                    className="flex gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl border border-gray-200 bg-white hover:shadow-md lg:hover:shadow-lg lg:hover:-translate-y-0.5 transition-all active:scale-[0.98]"
                     onClick={() => handleProductClick(product, index)}
                   >
                     {/* Product Image */}
-                    <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100 relative">
+                    <div className="w-24 h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 flex-shrink-0 rounded-lg lg:rounded-xl overflow-hidden bg-gray-100 relative">
                       <img
                         src={product.imageUrl}
                         alt={product.name}
@@ -299,14 +299,14 @@ export const IngredientPurchaseModal = ({
                     {/* Product Info */}
                     <div className="flex-1 flex flex-col justify-between min-w-0">
                       <div>
-                        <h3 className="font-bold text-base text-neutral-900 mb-0.5">
+                        <h3 className="font-bold text-base lg:text-lg text-neutral-900 mb-0.5 lg:mb-1">
                           {product.name}
                         </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2">
+                        <p className="text-sm lg:text-base text-gray-600 line-clamp-2">
                           {product.description}
                         </p>
                       </div>
-                      <p className="font-bold text-lg text-neutral-900">
+                      <p className="font-bold text-lg lg:text-xl text-neutral-900">
                         {product.price.toLocaleString()}원
                       </p>
                     </div>

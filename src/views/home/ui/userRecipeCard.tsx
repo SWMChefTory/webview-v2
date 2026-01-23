@@ -33,12 +33,12 @@ export const UserRecipeCardReady = ({
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
-    <div className={`relative flex flex-col ${isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px] md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-40"}`}>
+    <div className={`relative flex flex-col ${isTablet ? "w-[260px] lg:w-full group" : "w-40"}`}>
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady userRecipe={userRecipe} />
       </SSRSuspense>
       <div
-        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "w-40 h-[90px]"}`}
+        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1" : "w-40 h-[90px]"}`}
         onClick={() => {
           if (progress.recipeStatus === RecipeStatus.SUCCESS) {
             router.push(`/recipe/${userRecipe.recipeId}/detail`);
@@ -55,11 +55,12 @@ export const UserRecipeCardReady = ({
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
             size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }}
+            className="group-hover:scale-105 transition-transform duration-500"
           />
         </div>
       </div>
-      <div className="w-full mt-2">
-        <TitleReady title={userRecipe.title} />
+      <div className="w-full mt-3">
+        <TitleReady title={userRecipe.title} className={isTablet ? "lg:text-lg lg:leading-snug group-hover:text-black transition-colors" : ""} />
         <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
       </div>
     </div>

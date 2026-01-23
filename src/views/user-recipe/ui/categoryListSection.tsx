@@ -64,8 +64,8 @@ export const CategoryListSection = ({
   }, []);
 
   return (
-    <div className={`pt-2 flex flex-col flex-none items-center w-full pb-3 ${isTablet ? "px-6" : "px-4"}`}>
-      <div className={`overflow-x-auto no-scrollbar ${isTablet ? "w-full max-w-[1200px]" : "w-[100vw]"}`}>
+    <div className={`pt-2 flex flex-col flex-none items-center w-full pb-3 ${isTablet ? "px-6 lg:px-8 xl:px-10" : "px-4"}`}>
+      <div className={`overflow-x-auto no-scrollbar ${isTablet ? "w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px]" : "w-[100vw]"}`}>
         <SSRSuspense fallback={<CategoryListSkeleton />}>
           <CategoryListReady
             selectedCategoryId={selectedCategoryId}

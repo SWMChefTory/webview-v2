@@ -75,9 +75,9 @@ export const Video = ({
   );
 
   return (
-    <div className={`flex z-[0] shrink-0 ${isLandscape?"w-[64%] h-full items-center justify-center":"w-full"}`}>
+    <div className={`flex z-[0] shrink-0 ${isLandscape?"w-[64%] lg:w-[60%] h-full items-center justify-center":"w-full"}`}>
       <div
-        className={`relative w-full aspect-video`}
+        className={`relative w-full aspect-video lg:rounded-lg lg:overflow-hidden`}
       >
         {videoId ? (
           <ReactYouTube

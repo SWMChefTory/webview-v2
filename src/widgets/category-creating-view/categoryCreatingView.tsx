@@ -47,14 +47,14 @@ export function CategoryCreatingView({
     >
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
-        <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg md:max-w-[500px] md:mx-auto md:bottom-4 md:rounded-lg">
-          <div className="p-5">
-            <Dialog.Title className="text-xl font-bold">
+        <Dialog.Content className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg md:max-w-[500px] md:mx-auto md:bottom-4 md:rounded-lg lg:max-w-[560px] xl:max-w-[640px] lg:bottom-6 lg:rounded-xl">
+          <div className="p-5 lg:p-6">
+            <Dialog.Title className="text-xl lg:text-2xl font-bold">
               {t("form.title")}
             </Dialog.Title>
           </div>
 
-          <div className="px-4 pb-5">
+          <div className="px-4 pb-5 lg:px-6 lg:pb-6">
             <CategoryCreatingInputForm
               name={name}
               onNameChange={handleNameChange}
@@ -63,7 +63,7 @@ export function CategoryCreatingView({
           </div>
 
           {/* Submit Button */}
-          <div className="p-3">
+          <div className="p-3 lg:p-4">
             <FormButton
               onSubmit={handleSubmit}
               label={t("form.submit")}
@@ -113,7 +113,7 @@ function CategoryCreatingInputForm({
       <div
         ref={scope}
         style={{ opacity: 0 }}
-        className="absolute right-[4] bottom-full bg-gray-500 text-white text-xs px-3 py-2 rounded-md shadow-md whitespace-nowrap"
+        className="absolute right-[4] bottom-full bg-gray-500 text-white text-xs lg:text-sm px-3 py-2 lg:px-4 lg:py-2.5 rounded-md shadow-md whitespace-nowrap"
       >
         {t("form.errorTooLong")}
         <div

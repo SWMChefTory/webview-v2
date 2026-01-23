@@ -18,7 +18,7 @@ export function ActiveTimerItem(props: {
   const { time } = useProgressTimer({ timer, onFinish });
 
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+    <div className="flex flex-col bg-white rounded-md lg:rounded-lg shadow-xs p-6 lg:p-8 pt-8 lg:pt-10">
       {/* <TimerItemHeader  title={timer.timerName} /> */}
       <TimerItemTime duration={timer.duration} remaining={time} />
       <TimerButtonTemplate
@@ -50,7 +50,7 @@ export function PausedTimerItem(props: {
 }) {
   const { timer, onCancel, onResume } = props;
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+    <div className="flex flex-col bg-white rounded-md lg:rounded-lg shadow-xs p-6 lg:p-8 pt-8 lg:pt-10">
       {/* <TimerItemHeader title={timer.timerName} /> */}
       <TimerItemTime
         duration={timer.duration}
@@ -86,7 +86,7 @@ export function IdleTimerItem({
   onStart: () => void;
 }) {
   return (
-    <div className="flex flex-col bg-white rounded-md shadow-xs p-6 pt-8">
+    <div className="flex flex-col bg-white rounded-md lg:rounded-lg shadow-xs p-6 lg:p-8 pt-8 lg:pt-10">
       {/* <TimerItemHeader title={timer.timerName} /> */}
       <TimerItemTime duration={timer.duration} remaining={timer.duration} />
       <TimerButtonTemplate
@@ -132,7 +132,7 @@ export function TimerItemTime({
   //높이 60px
   return (
     <div className="flex flex-col">
-      <span className={`pl-3 text-6xl font-semibold tabular-nums`}>
+      <span className={`pl-3 lg:pl-4 text-6xl lg:text-7xl xl:text-8xl font-semibold tabular-nums`}>
         {formatTime(Math.ceil(remaining))}
       </span>
     </div>
@@ -151,9 +151,9 @@ function TimerButtonTemplate({
   onClickRight?: () => void;
 }) {
   return (
-    <div className="flex flex-col w-full justify-between items-center pt-[24px]">
+    <div className="flex flex-col w-full justify-between items-center pt-[24px] lg:pt-[32px]">
       <div className="w-full border" />
-      <div className="flex flex-row justify-evenly w-full h-10 items-center">
+      <div className="flex flex-row justify-evenly w-full h-10 lg:h-12 items-center">
         <div onClick={onClickLeft} className="flex-1 flex justify-center">
           {leftButton}
         </div>

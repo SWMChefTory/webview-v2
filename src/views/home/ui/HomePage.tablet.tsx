@@ -61,7 +61,7 @@ export function HomePageTablet() {
         {lang === "ko" && (
           <div className="pt-3 px-6 lg:px-8">
             <Link href="/search-recipe">
-              <div className="flex flex-row items-center justify-between px-5 lg:px-6 w-full max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] 2xl:max-w-[1200px] mx-auto h-12 lg:h-14 xl:h-16 text-gray-800 bg-gray-100 rounded-xl hover:bg-gray-200 transition-colors shadow-sm">
+              <div className="flex flex-row items-center justify-between px-5 lg:px-6 w-full max-w-[600px] lg:max-w-[800px] xl:max-w-[1000px] 2xl:max-w-[1200px] mx-auto h-12 lg:h-14 xl:h-16 text-gray-800 bg-gray-100 rounded-xl lg:bg-white lg:border lg:border-gray-200 lg:shadow-sm lg:hover:shadow-md lg:hover:border-gray-300 hover:bg-gray-200 lg:hover:bg-white transition-all duration-300 shadow-sm">
                 <span className="text-base lg:text-lg xl:text-xl">{t("searchBarPlaceholder")}</span>
                 <PiMagnifyingGlassBold className="size-[18px] lg:size-[22px] xl:size-[24px]" />
               </div>
@@ -76,22 +76,22 @@ export function HomePageTablet() {
         <CategorySection />
 
         {/* MyRecipes 섹션 */}
-        <div className="mt-6 lg:mt-8">
+        <div className="mt-6 lg:mt-12 xl:mt-16">
           <MyRecipes />
         </div>
 
         {/* PopularRecipes 섹션 */}
-        <div className="mt-8 lg:mt-10">
+        <div className="mt-8 lg:mt-16 xl:mt-20">
           <PopularRecipes />
         </div>
 
         {/* PopularShortsRecipes 섹션 */}
-        <div className="mt-8 lg:mt-10">
+        <div className="mt-8 lg:mt-16 xl:mt-20">
           <PopularShortsRecipes />
         </div>
 
         {/* 하단 여백 */}
-        <div className="h-16 lg:h-24" />
+        <div className="h-16 lg:h-32" />
       </div>
 
       {/* FloatingButton - 태블릿 위치 조정 */}

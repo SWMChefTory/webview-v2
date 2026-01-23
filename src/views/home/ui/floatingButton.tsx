@@ -25,7 +25,8 @@ export const FloatingButton = () => {
               bg-gradient-to-b from-orange-400 to-orange-600
               shadow-[0_4px_10px_rgba(0,0,0,0.25)]
               active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)]
-              transition-all duration-150"
+              transition-all duration-150
+              lg:cursor-pointer lg:hover:scale-105 lg:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
                   variant="outline"
                   aria-label={t("accessibility.floatingButton")}
                   onClick={() => {
@@ -55,14 +56,14 @@ function FloatingButtonPopover({ trigger }: { trigger: React.ReactNode }) {
       <Popover.Trigger asChild>{trigger}</Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="flex flex-col bg-orange-500 rounded-lg shadow-xl z-[2000] outline-none"
+          className="flex flex-col bg-orange-500 rounded-lg lg:rounded-xl shadow-xl z-[2000] outline-none"
           side="top"
           align="end"
           sideOffset={2}
           alignOffset={10}
         >
           <Popover.Arrow fill="#f97316" />
-          <div className="px-4 py-2 text-white font-bold">
+          <div className="px-4 py-2 lg:px-5 lg:py-3 text-white font-bold lg:text-base xl:text-lg">
             {t("createRecipe")}
           </div>
         </Popover.Content>

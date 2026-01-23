@@ -82,9 +82,9 @@ function RecipeCardWrapperReady({
       >
         {trigger}
       </div>
-      <DialogContent className="w-[96%] md:max-w-md space-y-4">
+      <DialogContent className="w-[96%] md:max-w-md lg:max-w-lg xl:max-w-xl space-y-4 lg:space-y-5">
         <DialogTitle asChild>
-          <p className="line-clamp-1">{recipeTitle}</p>
+          <p className="line-clamp-1 lg:text-xl">{recipeTitle}</p>
         </DialogTitle>
         <DialogDescription asChild>
           <CreatingDescription
@@ -150,13 +150,13 @@ const CreateButton = ({
   const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
-      <Button onClick={onRecharge} className="flex-1 text-lg py-5 font-bold">
+      <Button onClick={onRecharge} className="flex-1 text-lg lg:text-xl py-5 lg:py-6 font-bold lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:transition-all">
         {t("recipeCreating.berry.buttonRecharge")}
       </Button>
     );
   }
   return (
-    <Button onClick={onCreate} className="flex-1 text-lg py-5 font-bold">
+    <Button onClick={onCreate} className="flex-1 text-lg lg:text-xl py-5 lg:py-6 font-bold lg:hover:-translate-y-0.5 lg:hover:shadow-lg lg:transition-all">
       {t("recipeCreating.berry.buttonCreate")}
     </Button>
   );
@@ -172,19 +172,19 @@ const CreatingDescription = ({
   const { t } = useTranslation("common");
   if (balance - creditCost < 0) {
     return (
-      <div className="px-4 flex flex-col items-center gap-2">
-        <p className="text-lg text-gray-700 font-semibold">
+      <div className="px-4 lg:px-5 flex flex-col items-center gap-2 lg:gap-3">
+        <p className="text-lg lg:text-xl text-gray-700 font-semibold">
           {t("recipeCreating.berry.insufficientMessage")}
         </p>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 lg:gap-2">
           <Image
             src="/images/berry/berry.png"
             alt="berry"
             width={18}
             height={18}
-            className="object-contain"
+            className="object-contain lg:w-[22px] lg:h-[22px]"
           />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm lg:text-base text-gray-500">
             {t("recipeCreating.berry.currentBalance", { balance })}
           </p>
         </div>
@@ -192,19 +192,19 @@ const CreatingDescription = ({
     );
   }
   return (
-    <div className="px-4 flex flex-col items-center gap-2">
-      <p className="text-lg text-gray-700 font-semibold">
+    <div className="px-4 lg:px-5 flex flex-col items-center gap-2 lg:gap-3">
+      <p className="text-lg lg:text-xl text-gray-700 font-semibold">
         {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
       </p>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 lg:gap-2">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
           width={18}
           height={18}
-          className="object-contain"
+          className="object-contain lg:w-[22px] lg:h-[22px]"
         />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm lg:text-base text-gray-500">
           {t("recipeCreating.berry.currentBalance", { balance })}
         </p>
       </div>

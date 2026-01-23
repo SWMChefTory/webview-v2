@@ -47,15 +47,17 @@ const ThumbnailEmpty = ({
 const ThumbnailReady = ({
   imgUrl,
   size,
+  className,
 }: {
   imgUrl: string;
   size: { width: number; height: number };
+  className?: string;
 }) => {
   return (
-    <ThumbnailTemplate size={size}>
+    <ThumbnailTemplate size={size} className={className}>
       <img
         src={imgUrl}
-        className={`block w-full h-full object-cover object-center`}
+        className={`block w-full h-full object-cover object-center ${className}`}
         onDragStart={(e) => e.preventDefault()}
       />
     </ThumbnailTemplate>
@@ -65,13 +67,15 @@ const ThumbnailReady = ({
 const ThumbnailTemplate = ({
   children,
   size,
+  className,
 }: {
   children: React.ReactNode;
   size: { width: number; height: number };
+  className?: string;
 }) => {
   return (
     <div
-      className={`overflow-hidden rounded-md relative`}
+      className={`overflow-hidden rounded-md relative ${className}`}
       style={{ width: size.width, height: size.height }}
     >
       {children}

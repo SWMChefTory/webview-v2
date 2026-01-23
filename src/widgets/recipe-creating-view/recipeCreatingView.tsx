@@ -110,9 +110,9 @@ export function RecipeCreatingView() {
           <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
           <Dialog.Content
             data-tour="create-recipe"
-            className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg md:max-w-[500px] md:mx-auto md:bottom-4 md:rounded-lg"
+            className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg md:max-w-[500px] lg:max-w-[560px] xl:max-w-[640px] md:mx-auto md:bottom-4 lg:bottom-6 xl:bottom-8 md:rounded-lg lg:rounded-xl xl:rounded-2xl lg:shadow-2xl"
           >
-            <div className="p-5">
+            <div className="p-5 lg:p-6 xl:p-8">
               <Title />
             </div>
             <CategoryChipListSection
@@ -121,7 +121,7 @@ export function RecipeCreatingView() {
                 setSelectedCategoryId(selectedCategoryId);
               }}
             />
-            <div className="px-4 pb-5">
+            <div className="px-4 lg:px-5 xl:px-6 pb-5 lg:pb-6">
               <FormInput
                 value={url}
                 onChange={handleUrlChange}
@@ -130,10 +130,10 @@ export function RecipeCreatingView() {
                 placeholder={t("recipeCreating.form.placeholder")}
               />
             </div>
-            <div className="pb-3">
+            <div className="pb-3 lg:pb-4">
               <BalanceDescription />
             </div>
-            <div className="p-3">
+            <div className="p-3 lg:p-4 xl:p-5">
               <CreateFormButton
                 onSubmit={handleSubmit}
                 isValidUrl={isSubmittable()}
@@ -149,15 +149,15 @@ export function RecipeCreatingView() {
 const TitleSkeleton = () => {
   const { t } = useTranslation("common");
   return (
-    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+    <Dialog.Title className="text-xl lg:text-2xl font-bold flex justify-between items-center">
       <p>{t("recipeCreating.form.title")}</p>
-      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+      <p className="px-2 py-1 lg:px-3 lg:py-1.5 text-base lg:text-lg text-red-500 font-base flex justify-center items-center gap-0.5 lg:gap-1">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
           width={22}
           height={22}
-          className="object-contain"
+          className="object-contain lg:w-[26px] lg:h-[26px]"
         />
         0
       </p>
@@ -169,15 +169,15 @@ const TitleReady = () => {
   const { data: balance } = useFetchBalance();
   const { t } = useTranslation("common");
   return (
-    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+    <Dialog.Title className="text-xl lg:text-2xl font-bold flex justify-between items-center">
       <p>{t("recipeCreating.form.title")}</p>
-      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+      <p className="px-2 py-1 lg:px-3 lg:py-1.5 text-base lg:text-lg text-red-500 font-base flex justify-center items-center gap-0.5 lg:gap-1">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
           width={22}
           height={22}
-          className="object-contain"
+          className="object-contain lg:w-[26px] lg:h-[26px]"
         />
         {balance.balance}
       </p>
@@ -250,10 +250,10 @@ function CategoryChip({
 }) {
   return (
     <motion.div
-      className={`rounded-xl px-2 py-1 whitespace-nowrap font-semibold border ${
+      className={`rounded-xl px-2 py-1 lg:px-3 lg:py-1.5 whitespace-nowrap font-semibold border lg:text-base lg:cursor-pointer lg:hover:shadow-md lg:transition-shadow ${
         isSelected
           ? "border-black bg-black text-white"
-          : "border-gray-300 text-gray-500"
+          : "border-gray-300 text-gray-500 lg:hover:border-gray-400"
       }`}
       whileTap={{ scale: 0.9 }}
       transition={{ duration: 0.2 }}
@@ -339,19 +339,19 @@ const CreateFormButton = ({
 const BalanceDescriptionSkeleton = () => {
   const { t } = useTranslation("common");
   return (
-    <div className="px-4 flex flex-col items-center gap-2">
-      <p className="text-lg text-gray-700 font-semibold">
+    <div className="px-4 lg:px-5 flex flex-col items-center gap-2 lg:gap-3">
+      <p className="text-lg lg:text-xl text-gray-700 font-semibold">
         {t("recipeCreating.berry.confirmCreate", { cost: 1 })}
       </p>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 lg:gap-2">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
           width={18}
           height={18}
-          className="object-contain"
+          className="object-contain lg:w-[22px] lg:h-[22px]"
         />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm lg:text-base text-gray-500">
           {t("recipeCreating.berry.currentBalance", { balance: 0 })}
         </p>
       </div>
@@ -370,19 +370,19 @@ const BalanceDescriptionReady = ({
 
   if (balance - creditCost < 0) {
     return (
-      <div className="px-4 flex flex-col items-center gap-2">
-        <p className="text-lg text-gray-700 font-semibold">
+      <div className="px-4 lg:px-5 flex flex-col items-center gap-2 lg:gap-3">
+        <p className="text-lg lg:text-xl text-gray-700 font-semibold">
           {t("recipeCreating.berry.insufficientMessage")}
         </p>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 lg:gap-2">
           <Image
             src="/images/berry/berry.png"
             alt="berry"
             width={18}
             height={18}
-            className="object-contain"
+            className="object-contain lg:w-[22px] lg:h-[22px]"
           />
-          <p className="text-sm text-gray-500">
+          <p className="text-sm lg:text-base text-gray-500">
             {t("recipeCreating.berry.currentBalance", { balance })}
           </p>
         </div>
@@ -391,19 +391,19 @@ const BalanceDescriptionReady = ({
   }
 
   return (
-    <div className="px-4 flex flex-col items-center gap-2">
-      <p className="text-lg text-gray-700 font-semibold">
+    <div className="px-4 lg:px-5 flex flex-col items-center gap-2 lg:gap-3">
+      <p className="text-lg lg:text-xl text-gray-700 font-semibold">
         {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
       </p>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5 lg:gap-2">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
           width={18}
           height={18}
-          className="object-contain"
+          className="object-contain lg:w-[22px] lg:h-[22px]"
         />
-        <p className="text-sm text-gray-500">
+        <p className="text-sm lg:text-base text-gray-500">
           {t("recipeCreating.berry.currentBalance", { balance })}
         </p>
       </div>

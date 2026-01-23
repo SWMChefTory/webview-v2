@@ -64,15 +64,15 @@ const MyRecipesTemplateTablet = ({
   userRecipesSection: React.ReactNode;
 }) => {
   return (
-    <div className="pt-2">
-      <div className="px-6">{title}</div>
-      <div className="h-2" />
+    <div className="pt-2 xl:pt-4">
+      <div className="px-6 xl:px-8">{title}</div>
+      <div className="h-2 xl:h-4" />
       {/* 카테고리 필터 - 가로 스크롤 */}
       <ScrollArea className="whitespace-nowrap">
         <div className="flex flex-row pl-6">{categoryList}</div>
         <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
       </ScrollArea>
-      <div className="h-4" />
+      <div className="h-4 xl:h-6" />
       {/* 레시피 목록 - 가로 스크롤 */}
       {userRecipesSection}
     </div>

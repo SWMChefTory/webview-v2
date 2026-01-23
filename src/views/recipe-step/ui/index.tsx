@@ -413,7 +413,7 @@ function RecipeStepPageReady({ id }: { id: string }) {
     <div
       className={`flex ${
         orientation === "portrait" ? "flex-col" : "flex-row"
-      } w-[100vw] h-[100vh] overflow-hidden bg-black items-center`}
+      } w-[100vw] h-[100vh] overflow-hidden bg-black items-center lg:max-w-[1920px] lg:mx-auto`}
     >
       <TutorialStarter recipeId={id} />
       {orientation === "portrait" && (
@@ -481,11 +481,11 @@ function RecipeStepPageReady({ id }: { id: string }) {
         />
         <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
           {orientation === "portrait" ? (
-            <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+            <div className="h-40 lg:h-48 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           ) : (
-            <div className="h-12 bg-gradient-to-t from-black to-transparent pointer-events-none" />
+            <div className="h-12 lg:h-16 bg-gradient-to-t from-black to-transparent pointer-events-none" />
           )}
-          <div className="flex justify-between items-center bg-black pb-[30] px-[20] pointer-events-auto">
+          <div className="flex justify-between items-center bg-black pb-[30] px-[20] lg:px-8 lg:pb-8 pointer-events-auto">
             {isInTutorial ? (
               <VoiceGuideTimerStep
                 trigger={
@@ -566,12 +566,12 @@ const RecipeStepPageSkeleton = () => {
   return (
     <>
       <GlobalNoBounce />
-      <div className="h-[100svh] overflow-hidden bg-black px-4 py-6 text-white">
+      <div className="h-[100svh] overflow-hidden bg-black px-4 py-6 lg:px-8 lg:py-8 text-white lg:max-w-[1920px] lg:mx-auto">
         <div className="mb-4">
           <Header
             leftContent={<BackButton onClick={() => router.back()} />}
             centerContent={
-              <div className="max-w-[calc(100vw-144px)] overflow-hidden text-ellipsis whitespace-nowrap text-center text-xl font-semibold">
+              <div className="max-w-[calc(100vw-144px)] overflow-hidden text-ellipsis whitespace-nowrap text-center text-xl lg:text-2xl font-semibold">
                 {t("loading")}
               </div>
             }

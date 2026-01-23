@@ -1,8 +1,18 @@
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 
-const TitleReady = ({ title }: { title: string }) => {
+const TitleReady = ({
+  title,
+  className,
+}: {
+  title: string;
+  className?: string;
+}) => {
   return (
-    <p className="font-semibold text-sm lg:text-base xl:text-lg line-clamp-2">{title}</p>
+    <p
+      className={`font-semibold text-sm lg:text-base xl:text-lg line-clamp-2 ${className}`}
+    >
+      {title}
+    </p>
   );
 };
 

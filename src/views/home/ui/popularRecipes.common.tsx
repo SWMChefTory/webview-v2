@@ -47,11 +47,11 @@ export function RecipeCardReady({
     recipeId: recipe.recipeId,
   });
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col h-full">
       <div
-        className={`flex relative flex-col ${isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px] md:hover:scale-[1.02] md:transition-transform md:duration-200" : "w-[320px]"}`}
+        className={`flex relative flex-col ${isTablet ? "w-[260px] lg:w-full h-full group" : "w-[320px]"}`}
       >
-        <div className={`overflow-hidden ${isTablet ? "rounded-lg h-[146px] lg:h-[158px] xl:h-[169px] shadow-md md:hover:shadow-lg md:transition-shadow md:duration-200" : "rounded-md h-[180px]"}`}>
+        <div className={`overflow-hidden relative ${isTablet ? "rounded-lg h-[146px] lg:h-auto lg:aspect-video shadow-md md:hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1" : "rounded-md h-[180px]"}`}>
           <div className="absolute top-3 left-3 bg-black/10 z-10">
             <AlreadyEnrolledChip
               isEnrolled={
@@ -64,10 +64,14 @@ export function RecipeCardReady({
           </div>
           <img
             src={recipe.videoThumbnailUrl}
-            className="block w-full h-full object-cover"
+            className="block w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
+          {/* Desktop Hover Overlay */}
+          {isTablet && (
+             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 lg:block hidden" />
+          )}
         </div>
-        <div className={`font-semibold w-full overflow-hidden line-clamp-2 mt-2 ${isTablet ? "text-sm lg:text-base" : "text-lg"}`}>
+        <div className={`font-semibold w-full overflow-hidden line-clamp-2 mt-3 text-gray-800 group-hover:text-black transition-colors ${isTablet ? "text-sm lg:text-lg lg:leading-snug" : "text-lg"}`}>
           {recipe.recipeTitle}
         </div>
       </div>
@@ -82,16 +86,16 @@ export function RecipeCardReady({
  */
 export function RecipeCardSkeleton({ isTablet = false }: { isTablet?: boolean }) {
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col">
+    <div className="flex flex-col h-full">
+      <div className="flex flex-col w-full">
         <Skeleton
-          className={`${isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px] h-[146px] lg:h-[158px] xl:h-[169px] rounded-lg" : "w-[320px] h-[180px] rounded-md"}`}
+          className={`${isTablet ? "w-[260px] lg:w-full h-[146px] lg:h-auto lg:aspect-video rounded-lg" : "w-[320px] h-[180px] rounded-md"}`}
         />
 
-        <div className="w-[50%] mt-2">
-          <TextSkeleton fontSize={isTablet ? "text-sm lg:text-base" : "text-lg"} />
+        <div className="w-[80%] mt-3">
+          <TextSkeleton fontSize={isTablet ? "text-sm lg:text-lg" : "text-lg"} />
         </div>
-        <div className="w-[20%]">
+        <div className="w-[40%] mt-1">
           <TextSkeleton fontSize="text-sm" />
         </div>
       </div>

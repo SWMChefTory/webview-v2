@@ -41,9 +41,9 @@ const PopularRecipesTemplateTablet = ({
 }) => {
   return (
     <div>
-      <div className="h-4" />
-      <div className="px-6">{title}</div>
-      <div className="h-4" />
+      <div className="h-4 xl:h-6" />
+      <div className="px-6 xl:px-8">{title}</div>
+      <div className="h-4 xl:h-6" />
       {recipeSection}
     </div>
   );

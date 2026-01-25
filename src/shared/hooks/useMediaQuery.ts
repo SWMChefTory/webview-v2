@@ -12,10 +12,7 @@ import { useEffect, useState } from "react";
  */
 export function useMediaQuery(query: string): boolean {
   // SSR 환경에서는 항상 false 반환
-  const [matches, setMatches] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia(query).matches;
-  });
+  const [matches, setMatches] = useState<boolean>(false);
 
   useEffect(() => {
     // SSR 환경 체크

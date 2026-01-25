@@ -1,11 +1,6 @@
 import dynamic from "next/dynamic";
 const ReactYouTube = dynamic(() => import("react-youtube"), { ssr: false });
-import {
-  useRef,
-  useMemo,
-  useEffect,
-  useImperativeHandle,
-} from "react";
+import { useRef, useMemo, useEffect, useImperativeHandle } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export type VideoRefProps = {
@@ -19,17 +14,20 @@ export type VideoRefProps = {
 export const Video = ({
   videoId,
   title,
-  isLandscape = false,
+  isLandscape = true,
   ref,
+  isShorts = false,
   onInternallyChangeTime,
 }: {
   videoId?: string;
   title?: string;
   isLandscape?: boolean;
   ref: React.RefObject<VideoRefProps | null>;
+  isShorts?: boolean;
   onInternallyChangeTime: (time: number) => void; //내부적으로 바꾸는 현재 유튜브 시간, external바꾸면 무한 루프 위험.
 }) => {
   const ytRef = useRef<YT.Player | null>(null);
+
   useImperativeHandle(ref, () => {
     return {
       seekTo: ({ time }) => {
@@ -67,18 +65,40 @@ export const Video = ({
     () => ({
       width: "100%",
       height: "100%",
-      playerVars: { autoplay: 0 },
+      playerVars: { autoplay: 0, rel: 0 },
       modestbranding: 1,
       rel: 0,
     }),
     []
   );
 
+  if (isShorts) {
+    return (
+      <div className={`flex shrink-0 relative w-full h-[64%]`}>
+        {videoId ? (
+          <ReactYouTube
+            videoId={videoId}
+            opts={opts}
+            onReady={(e) => {
+              ytRef.current = e.target;
+            }}
+            iframeClassName="absolute inset-0 z-0"
+            title={`${title ?? ""} 동영상`}
+          />
+        ) : (
+          <Skeleton className="absolute inset-0" />
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div className={`flex z-[0] shrink-0 ${isLandscape?"w-[64%] h-full items-center justify-center":"w-full"}`}>
-      <div
-        className={`relative w-full aspect-video`}
-      >
+    <div
+      className={`flex z-[0] shrink-0 ${
+        isLandscape ? "w-[64%] h-full items-center justify-center" : "w-full"
+      }`}
+    >
+      <div className={`relative w-full aspect-video`}>
         {videoId ? (
           <ReactYouTube
             videoId={videoId}

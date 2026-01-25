@@ -18,6 +18,7 @@ class VideoInfo {
   seconds!: number;
   lastPlaySeconds!: number;
   videoTitle!: string;
+  videoType! : "SHORTS"|"NORMAL";
 
   private constructor(data: unknown) {
     Object.assign(this, data);
@@ -30,6 +31,7 @@ class VideoInfo {
       thumbnailUrl: data.videoThumbnailUrl,
       seconds: data.videoSeconds,
       videoTitle: data.videoTitle,
+      videoType : data.videoType,
     });
   }
 }
@@ -181,6 +183,7 @@ class Recipe {
   steps?: RecipeStep[];
   tags?: RecipeTag[];
   briefings?: RecipeBriefing[];
+  // videoType? : 
 
   private constructor(data: unknown) {
     Object.assign(this, data);
@@ -217,7 +220,6 @@ export const useFetchRecipe = (id: string) => {
     select: (res) => {
       return Recipe.create(res);
     },
-    
   });
   return { data };
 };

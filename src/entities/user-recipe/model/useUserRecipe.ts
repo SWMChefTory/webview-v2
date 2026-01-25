@@ -37,7 +37,7 @@ import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineR
 import { POPULAR_RECIPE_QUERY_KEY } from "../../popular-recipe/model/usePopularRecipe";
 import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/useRecipeSearched";
 import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
-import { TRENDING_RECIPE_QUERY_KEY } from "@/src/views/search-recipe/entities/trend-recipe/model/useTrendRecipe"; 
+import { TRENDING_RECIPE_QUERY_KEY } from "@/src/views/search-recipe/entities/trend-recipe/model/useTrendRecipe";
 
 export const QUERY_KEY = "categoryRecipes";
 export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
@@ -47,7 +47,8 @@ export const ALL_RECIPES = "allRecipes";
 // 에러 타입 추출 헬퍼 함수
 function getErrorType(error: Error): string {
   const message = error.message.toLowerCase();
-  if (message.includes("network") || message.includes("fetch")) return "network";
+  if (message.includes("network") || message.includes("fetch"))
+    return "network";
   if (message.includes("timeout")) return "timeout";
   return "server";
 }
@@ -244,6 +245,15 @@ export function useCreateRecipe() {
       _videoUrl?: string;
       _videoId?: string;
     }) => {
+      console.log(
+        JSON.stringify({
+          youtubeUrl,
+          targetCategoryId,
+          existingRecipeId,
+          videoType,
+          recipeTitle,
+        }),"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+      );
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
       const recipeId = await createRecipe(standardUrl);
@@ -320,11 +330,11 @@ export function useCreateRecipe() {
       });
       queryClient.invalidateQueries({
         queryKey: [RECIPE_SEARCH_QUERY_KEY],
-        type: "all"
+        type: "all",
       });
       queryClient.invalidateQueries({
         queryKey: [RECOMMEND_RECIPE_QUERY_KEY],
-        type: "all"
+        type: "all",
       });
       queryClient.invalidateQueries({
         queryKey: [TRENDING_RECIPE_QUERY_KEY],
@@ -333,6 +343,9 @@ export function useCreateRecipe() {
     },
     onError: (error, _vars, ctx) => {
       const errorType = getErrorType(error);
+
+      console.log(JSON.stringify(error.message), "!!!!!!!!!!!!!!!!!!!!!!");
+      console.log(errorType, "!!!!!!!!!!!!!!!!!!!!!!");
 
       if (_vars._creationMethod === "card") {
         // 카드 경로 실패

@@ -41,7 +41,7 @@ export function StepsContent({
   }, [currentStepIndex, currentDetailStepIndex]);
   return (
     <>
-      <div className="flex-1 w-full text-white h-full overflow-scroll">
+      <div className="w-full text-white h-full overflow-scroll">
         <div className="flex flex-col h-full">
           {steps.map((step, i) => {
             return (
@@ -104,7 +104,12 @@ function Step({
     >
       <VoiceGuideStep
         trigger={
-          <div className="text-gray-400 font-bold text-base">
+          <div
+            className="text-gray-400 font-bold text-base"
+            onClick={() => {
+              onChangeStep({ stepIndex: i, stepDetailIndex: 0 });
+            }}
+          >
             {i}. {step.subtitle}
           </div>
         }
@@ -115,7 +120,7 @@ function Step({
       <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} px-2`}>
         {step.details.map((detail, di) => {
           return isSelected ? (
-            di >= currentdetailStepIndex - 2 && (
+            di >= currentdetailStepIndex && (
               <>
                 <Detail
                   alphabetIndex={indexToLetter(di)}
@@ -212,8 +217,7 @@ function VoiceGuideStep({
             </div>
 
             <p className="break-keep leading-relaxed font-semibold ">
-              {currentStep.when}{" "}
-              {/* 언어별 문장 구조 처리 */}
+              {currentStep.when} {/* 언어별 문장 구조 처리 */}
               {lang === "ko" ? (
                 <>
                   <span className="font-extrabold whitespace-nowrap text-lg">

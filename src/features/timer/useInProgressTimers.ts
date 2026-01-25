@@ -4,8 +4,8 @@ import { v4 as uuidv4 } from "uuid";
 import {
   cancelNotification,
   scheduleNotification,
-} from "../utils/notification";
-import { startLiveActivity, endLiveActivity } from "../utils/liveActivity";
+} from "./utils/notification";
+import { startLiveActivity, endLiveActivity } from "./utils/liveActivity";
 import { createStore, StoreApi } from "zustand/vanilla";
 import { useStoreWithEqualityFn } from "zustand/traditional";
 import { shallow } from "zustand/shallow";
@@ -73,8 +73,6 @@ const createTimerStore = ({
           if (!get().timers.has(id) && get().timers.size >= 1) {
             if([...get().timers.entries()][0][1]?.state === TimerState.IDLE || [...get().timers.entries()][0][1]?.state === TimerState.PAUSED) {
               const nextTimers = new Map([[id, timer]]);
-              // nextTimers.delete(id);
-              // nextTimers.set(id, timer);
               console.log("nextTimers", nextTimers);
               set({ timers: nextTimers });
               return;
@@ -165,17 +163,6 @@ function getOrCreateRecipeStore(recipeId: string, recipeName: string) {
   registry.set(recipeId, newStore);
   return newStore;
 }
-
-// function disposeRecipeStore(recipeId: string) {
-//   const store = registry.get(recipeId);
-//   if (store) {
-//     registry.delete(recipeId);
-//   }
-// }
-
-// function listRecipeStores() {
-//   return Array.from(registry.keys());
-// }
 
 export function useTimers(recipeId: string, recipeName: string) {
   const store = getOrCreateRecipeStore(recipeId, recipeName);

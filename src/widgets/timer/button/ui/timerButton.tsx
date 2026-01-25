@@ -4,15 +4,14 @@ import {
   TimerState,
   useHandleTimers,
   useTimers,
-} from "../model/useInProgressTimers";
-import { motion } from "framer-motion";
-
-import { useProgressTimer } from "../model/useProgressTimer";
-import { filterActiveTimers } from "../utils/query";
+} from "../../../../features/timer/useInProgressTimers";
+import { useProgressTimer } from "../../../../features/timer/useProgressTimer";
+import { filterActiveTimers } from "@/src/features/timer/utils/query";
 import { useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
-import {create} from "zustand";
 import { useTimerTranslation } from "@/src/entities/timer/hooks/useTimerTranslation";
+import { HeaderIconButtonTemplate } from "@/src/shared/ui/header/header";
+import { LuTimer } from "react-icons/lu";
 
 export function TimerButton({
   recipeId,
@@ -36,7 +35,6 @@ export function TimerButton({
     return (
       <div className="relative">
         <StaticTimerButton />
-        <TimerButtonEffect />
       </div>
     );
   }
@@ -55,7 +53,6 @@ export function TimerButton({
         <PausedTimerButton time={(curTimer[1] as PausedTimer).remainingTime} />
       )}
       {curTimer[1].state === TimerState.IDLE && <StaticTimerButton />}
-      <TimerButtonEffect />
     </div>
   );
 }
@@ -107,64 +104,7 @@ function TimerTemplate({
   );
 }
 
-export const useTimerEffectVisibilityStore = create<{
-  visible: boolean;
-  setVisible: (visible: boolean) => void;
-}>((set) => ({
-  visible: false,
-  setVisible: (visible: boolean) => {
-    set({ visible: visible });
-  },
-}));
 
-function TimerButtonEffect() {
-  const { visible } = useTimerEffectVisibilityStore();
-
-  if (!visible) {
-    return null;
-  }
-  return (
-    <>
-      {/* 1번째 링 */}
-      <motion.span
-        className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 z-[1010]"
-        style={{ willChange: "transform, opacity", transformOrigin: "50% 50%" }}
-        animate={{
-          // 1) 작게 보임 → 2) 크게 사라짐 → 3) 안 보이는 상태로 원래 크기 복귀(루프 대비)
-          scale: [1, 2.2, 1],
-          opacity: [0.8, 0.0, 0.0],
-        }}
-        transition={{
-          duration: 1.8,
-          ease: "easeOut",
-          times: [0, 0.85, 1],
-          repeat: Infinity,
-          repeatType: "loop",
-          repeatDelay: 0,
-        }}
-      />
-
-      {/* 2번째 링 (0.9s 지연 시작) */}
-      <motion.span
-        className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 z-[1010]"
-        style={{ willChange: "transform, opacity", transformOrigin: "50% 50%" }}
-        animate={{
-          scale: [1, 2.2, 1],
-          opacity: [0.8, 0.0, 0.0],
-        }}
-        transition={{
-          duration: 1.8,
-          ease: "easeOut",
-          times: [0, 0.85, 1],
-          repeat: Infinity,
-          repeatType: "loop",
-          repeatDelay: 0,
-          delay: 0.9, // ← 시차
-        }}
-      />
-    </>
-  );
-}
 
 function StaticTimerButton() {
   const { t } = useTimerTranslation();

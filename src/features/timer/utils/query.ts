@@ -1,4 +1,4 @@
-import { ActiveTimer, Timer, TimerState } from "../model/useInProgressTimers";
+import { ActiveTimer, Timer, TimerState } from "../useInProgressTimers";
 
 function filterActiveTimers(
   timers: Map<string, Timer>

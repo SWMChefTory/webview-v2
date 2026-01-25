@@ -9,17 +9,15 @@
 // - NEW: 전역 바운스 방지(상하좌우 흰 화면/풀투리프레시 차단)
 // - NEW: 세로모드 스크롤 시 유튜브 고정
 
-import { useRouter } from "next/router";
+import router, { useRouter } from "next/router";
 import React, { useEffect, useRef, useState } from "react";
 import { popoverHandle as micButtonPopoverHandle } from "./micButtonPopover";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
-import { TimerBottomSheet } from "@/src/widgets/timer/timerBottomSheet";
+import { TimerBottomSheet } from "@/src/widgets/timer/modal/ui/timerBottomSheet";
 import { useSimpleSpeech } from "@/src/views/recipe-step/hooks/useSimpleSpeech";
 import { request, MODE } from "@/src/shared/client/native/client";
-import {
-  popoverHandle,
-  TimerButton,
-} from "@/src/features/timer/ui/timerButton";
+import { TimerButton } from "@/src/widgets/timer/index";
+import type { popoverHandle } from "@/src/widgets/timer/index";
 import { useHandleTimerVoiceIntent } from "@/src/views/recipe-step/hooks/useTimerIntent";
 import { Video, VideoRefProps } from "./video";
 import { useRecipeStepController } from "../hooks/useRecipeStepController";
@@ -29,13 +27,15 @@ import { useOrientation } from "../hooks/useOrientation";
 import { useSafeArea } from "../hooks/useSafeArea";
 import { StepsContent } from "./stepsContent";
 import { MicButton, VoiceGuideModal, VoiceGuideMicStep } from "./micButton";
-import { LoopSettingButton } from "./loopSettingButton";
+import { LoopSettingButton, ShortLoopSettingButton } from "./loopSettingButton";
 import { ProgressBar } from "./progressBar";
 import { useTutorialActions, useTutorial } from "../hooks/useTutorial";
 import { VoiceGuideTimerStep } from "./timerTutorialStep";
 import { TutorialStarter } from "./tutorialStarter";
 import { useCookingModeAnalytics } from "../hooks/useCookingModeAnalytics";
 import { useRecipeStepTranslation } from "../hooks/useRecipeStepTranslation";
+import { useOrientation as useHandleOientation } from "../useOrientation";
+import { HeaderTimerButton } from "./timerButton";
 
 type TimerCommandType = "SET" | "STOP" | "START" | "CHECK";
 
@@ -81,8 +81,27 @@ function RecipeStepPageReady({ id }: { id: string }) {
 
   useSafeArea({ orientation });
 
+  const { handleUnlockOrientation, handleLockOrientation } =
+    useHandleOientation();
+
+  useEffect(() => {
+    // if (recipe.videoInfo.videoType === "NORMAL") {
+    //   handleUnlockOrientation();
+    // }
+    handleUnlockOrientation();
+    return () => {
+      handleLockOrientation();
+    };
+  }, []);
+
   // 뒤로 갈 때 safe area 원상복귀 뒤로가기 눌러도 backpress caching땨뮨애 전애 있던 패이지에서 useEffect실행 안될 수 도 있음. pageshow 혹은 visibilitychange 이벤트 사용해서 처리
   useEffect(() => {
+    request(MODE.UNBLOCKING, "SAFE_AREA", {
+      top: { color: "#000000", isExists: true },
+      bottom: { color: "#000000", isExists: true },
+      left: { color: "#000000", isExists: true },
+      right: { color: "#000000", isExists: true },
+    });
     return () => {
       request(MODE.UNBLOCKING, "SAFE_AREA", {
         top: { color: "#ffffff", isExists: true },
@@ -415,16 +434,39 @@ function RecipeStepPageReady({ id }: { id: string }) {
         orientation === "portrait" ? "flex-col" : "flex-row"
       } w-[100vw] h-[100vh] overflow-hidden bg-black items-center`}
     >
-      <TutorialStarter recipeId={id} />
+      {recipe.videoInfo.videoType === "SHORTS" && (
+        <TutorialStarter recipeId={id} />
+      )}
       {orientation === "portrait" && (
         <Header
           leftContent={
-            <BackButton
-              onClick={() => {
-                router.back();
-              }}
-              color="text-white"
-            />
+            <div className="z-1">
+              <BackButton
+                onClick={() => {
+                  router.back();
+                }}
+                color="text-white"
+              />
+            </div>
+          }
+          rightContent={
+            <>
+              {recipe.videoInfo.videoType === "SHORTS" && (
+                <div className="z-1 flex items-center justify-center gap-1">
+                  <HeaderTimerButton
+                    recipeId={id}
+                    recipeName={recipe.videoInfo.videoTitle}
+                  />
+                  <ShortLoopSettingButton
+                    onClick={() => {
+                      setIsInRepeat((v) => !v);
+                      analytics.recordLoopToggle();
+                    }}
+                    isRepeat={isInRepeat}
+                  />
+                </div>
+              )}
+            </>
           }
         />
       )}
@@ -436,8 +478,9 @@ function RecipeStepPageReady({ id }: { id: string }) {
           isInRepeat ? handleRepeatInGroup : chageStepByTime
         }
         isLandscape={orientation !== "portrait"}
+        isShorts={recipe.videoInfo.videoType === "SHORTS"}
       />
-      {
+      {recipe.videoInfo.videoType === "NORMAL" && (
         <ProgressBar
           steps={steps}
           currentDetailStepIndex={currentDetailIndex}
@@ -455,9 +498,10 @@ function RecipeStepPageReady({ id }: { id: string }) {
             });
           }}
         />
-      }
+      )}
+      <div className="flex shrink-0 h-4" />
       <div
-        className={`relative overflow-hidden ${
+        className={`relative overflow-hidden w-full ${
           orientation !== "portrait" && "h-[100vh]"
         }`}
       >
@@ -479,82 +523,84 @@ function RecipeStepPageReady({ id }: { id: string }) {
             });
           }}
         />
-        <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
-          {orientation === "portrait" ? (
-            <div className="h-40 bg-gradient-to-t from-black to-transparent pointer-events-none" />
-          ) : (
-            <div className="h-12 bg-gradient-to-t from-black to-transparent pointer-events-none" />
-          )}
-          <div className="flex justify-between items-center bg-black pb-[30] px-[20] pointer-events-auto">
-            {isInTutorial ? (
-              <VoiceGuideTimerStep
-                trigger={
-                  <TimerButton
-                    recipeId={id}
-                    recipeName={recipe.videoInfo.videoTitle}
-                    errorPopoverRef={timerErrorPopoverRef}
-                  />
-                }
-                recipeId={id}
-              />
+        {recipe.videoInfo.videoType === "NORMAL" && (
+          <div className="absolute flex flex-col bottom-[0] left-[0] right-[0] z-[20] pt-[10] pointer-events-none">
+            {orientation === "portrait" ? (
+              <div className="h-20 bg-gradient-to-t from-black to-transparent pointer-events-none" />
             ) : (
-              <TimerBottomSheet
-                trigger={
-                  <TimerButton
-                    recipeId={id}
-                    recipeName={recipe.videoInfo.videoTitle}
-                    errorPopoverRef={timerErrorPopoverRef}
-                  />
-                }
-                recipeId={id}
-                recipeName={recipe.videoInfo.videoTitle}
-                isDarkMode={true}
-                isLandscape={orientation !== "portrait"}
-                onTriggerClick={() => analytics.recordTimerButtonTouch()}
-              />
+              <div className="h-12 bg-gradient-to-t from-black to-transparent pointer-events-none" />
             )}
-            <LoopSettingButton
-              isRepeat={isInRepeat}
-              onClick={() => {
-                setIsInRepeat((v) => !v);
-                analytics.recordLoopToggle();
-              }}
-            />
-            {isInTutorial ? (
-              <VoiceGuideMicStep
-                trigger={
-                  <MicButton
-                    isActive={isListeningActive}
-                    ref={micButtonPopoverRef}
-                    onClick={() => {
-                      setIsVoiceGuideOpen(true);
-                      handleTutorialNextStep({ index: 4 });
-                      analytics.recordMicButtonTouch();
-                    }}
-                  />
-                }
-                recipeId={id}
-              />
-            ) : (
-              <MicButton
-                isActive={isListeningActive}
-                ref={micButtonPopoverRef}
+            <div className="flex justify-between items-center bg-black pb-[4] px-[20] pointer-events-auto">
+              {isInTutorial ? (
+                <VoiceGuideTimerStep
+                  trigger={
+                    <TimerButton
+                      recipeId={id}
+                      recipeName={recipe.videoInfo.videoTitle}
+                      errorPopoverRef={timerErrorPopoverRef}
+                    />
+                  }
+                  recipeId={id}
+                />
+              ) : (
+                <TimerBottomSheet
+                  trigger={
+                    <TimerButton
+                      recipeId={id}
+                      recipeName={recipe.videoInfo.videoTitle}
+                      errorPopoverRef={timerErrorPopoverRef}
+                    />
+                  }
+                  recipeId={id}
+                  recipeName={recipe.videoInfo.videoTitle}
+                  isDarkMode={true}
+                  isLandscape={orientation !== "portrait"}
+                  onTriggerClick={() => analytics.recordTimerButtonTouch()}
+                />
+              )}
+              <LoopSettingButton
+                isRepeat={isInRepeat}
                 onClick={() => {
-                  setIsVoiceGuideOpen(true);
-                  analytics.recordMicButtonTouch();
+                  setIsInRepeat((v) => !v);
+                  analytics.recordLoopToggle();
                 }}
               />
-            )}
+              {isInTutorial ? (
+                <VoiceGuideMicStep
+                  trigger={
+                    <MicButton
+                      isActive={isListeningActive}
+                      ref={micButtonPopoverRef}
+                      onClick={() => {
+                        setIsVoiceGuideOpen(true);
+                        handleTutorialNextStep({ index: 4 });
+                        analytics.recordMicButtonTouch();
+                      }}
+                    />
+                  }
+                  recipeId={id}
+                />
+              ) : (
+                <MicButton
+                  isActive={isListeningActive}
+                  ref={micButtonPopoverRef}
+                  onClick={() => {
+                    setIsVoiceGuideOpen(true);
+                    analytics.recordMicButtonTouch();
+                  }}
+                />
+              )}
 
-            {isVoiceGuideOpen && (
-              <VoiceGuideModal
-                onClick={() => {
-                  setIsVoiceGuideOpen(false);
-                }}
-              />
-            )}
+              {isVoiceGuideOpen && (
+                <VoiceGuideModal
+                  onClick={() => {
+                    setIsVoiceGuideOpen(false);
+                  }}
+                />
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

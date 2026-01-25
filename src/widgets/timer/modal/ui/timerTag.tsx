@@ -1,14 +1,12 @@
 import {
   ActiveTimer,
-  Timer,
-  TimerState,
   useTimers,
-} from "@/src/features/timer/model/useInProgressTimers";
-import { useProgressTimer } from "@/src/features/timer/model/useProgressTimer";
+} from "@/src/features/timer/useInProgressTimers";
+import { useProgressTimer } from "@/src/features/timer/useProgressTimer";
 import { formatTime } from "@/src/features/timer/utils/time";
-import { useHandleTimers } from "@/src/features/timer/model/useInProgressTimers";
+import { useHandleTimers } from "@/src/features/timer/useInProgressTimers";
 import { LuTimer } from "react-icons/lu";
-import { filterActiveTimers, findEarliestFinishTimer } from "../utils/query";
+import { filterActiveTimers, findEarliestFinishTimer } from "@/src/features/timer/utils/query";
 
 export function TimerTag({
   recipeId,

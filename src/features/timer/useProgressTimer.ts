@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useState } from "react";
 import { TimerState, ActiveTimer } from "./useInProgressTimers";
 import { useInterval } from "@/src/shared/hooks/useInterval";
 

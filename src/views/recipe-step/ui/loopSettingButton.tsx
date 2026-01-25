@@ -1,4 +1,18 @@
 import { useRecipeStepTranslation } from "../hooks/useRecipeStepTranslation";
+import { MdLoop } from "react-icons/md";
+
+export const ShortLoopSettingButton = ({
+  isRepeat,
+  onClick,
+}: {
+  isRepeat: boolean;
+  onClick: () => void;
+}) => {
+  if (isRepeat) {
+    return <MdLoop onClick={onClick} className="!w-6 !h-6" color="#F54927" />;
+  }
+  return <MdLoop onClick={onClick} className="!w-6 !h-6" color="#ffffff" />;
+};
 
 export const LoopSettingButton = ({
   isRepeat,
@@ -63,9 +77,7 @@ export const LoopSettingButton = ({
           <span className="pointer-events-none absolute inset-0 rounded-full animate-[pulse_2.4s_ease-in-out_infinite] shadow-[0_0_0_0_rgba(251,146,60,0.45)]" />
         )}
       </button>
-      <div className="text-gray-500 pt-1">
-        {t("loop.label")}
-      </div>
+      <div className="text-gray-500 pt-1">{t("loop.label")}</div>
     </div>
   );
 };

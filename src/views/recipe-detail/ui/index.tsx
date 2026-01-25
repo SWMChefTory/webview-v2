@@ -7,7 +7,7 @@ import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IngredientPurchaseModal } from "./IngredientPurchaseModal";
 import { MeasurementOverlay } from "./MeasurementOverlay";
-import { TimerButton } from "./timerButton";
+import { HeaderTimerButton } from "./timerButton";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
 import { track } from "@/src/shared/analytics/amplitude";
@@ -31,7 +31,7 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
   const { data } = useFetchRecipe(id);
   const router = useRouter();
 
-  const videoInfo = data?.videoInfo ?? {};
+  const videoInfo = data.videoInfo ?? {};
   const recipeSummary = data?.detailMeta ?? {};
   const ingredients = data?.ingredients ?? [];
   const steps = data?.steps ?? [];
@@ -217,7 +217,7 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
             </div>
           }
           rightContent={
-            <TimerButton
+            <HeaderTimerButton
               recipeId={id}
               recipeName={videoInfo?.videoTitle}
               onTimerClick={handleTimerClick}
@@ -244,7 +244,6 @@ export const RecipeDetailPageReady = ({ id }: { id: string }) => {
         collapsedTopPx={collapsedTop}
         expandedTopPx={expandedTop}
         recipeId={id}
-        // Amplitude 콜백
         onTabClick={handleTabClick}
         onStepClick={handleStepClick}
         onMeasurementClick={handleMeasurementClick}
@@ -274,7 +273,7 @@ const StickyVideo = ({
     () => ({
       width: "100%",
       height: "100%",
-      playerVars: { autoplay: 0 },
+      playerVars: { autoplay: 1 },
     }),
     []
   );

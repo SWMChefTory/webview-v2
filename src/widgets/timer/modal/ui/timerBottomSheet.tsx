@@ -5,16 +5,18 @@ import {
   useHandleTimers,
   useTimers,
   TimerState,
-} from "@/src/features/timer/model/useInProgressTimers";
+} from "@/src/features/timer/useInProgressTimers";
 import {
   ActiveTimerItem,
   PausedTimerItem,
   IdleTimerItem,
-} from "@/src/features/timer/ui/timerItem";
+} from "@/src/widgets/timer/modal/ui/timerItem";
 import { createPortal } from "react-dom";
-import { useTimerBottomSheetVisibility } from "./useTimerBottomSheetStore";
+import { useTimerBottomSheetVisibility } from "../hooks/useTimerBottomSheetStore";
 import { useInterval } from "@/src/shared/hooks/useInterval";
 import { useTimerTranslation } from "@/src/entities/timer/hooks/useTimerTranslation";
+import { HeaderIconButtonTemplate } from "@/src/shared/ui/header/header";
+import { LuTimer } from "react-icons/lu";
 
 export function TimerBottomSheet({
   trigger = null,
@@ -186,6 +188,7 @@ export function TimerBottomSheet({
   );
 }
 
+
 function TimerStarter({
   handleClose,
   onStartTimer,
@@ -232,9 +235,7 @@ function TimerStarter({
           <button onClick={handleClose} className="text-lg text-orange-500 p-2">
             {t("close")}
           </button>
-          <div className="text-xl font-bold text-gray-900">
-            {t("title")}
-          </div>
+          <div className="text-xl font-bold text-gray-900">{t("title")}</div>
           <button
             className={`text-lg p-2 ${
               isInvalid ? "text-gray-500" : "text-orange-500"

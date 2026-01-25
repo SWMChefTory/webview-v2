@@ -3,13 +3,12 @@ import {
   TimerState,
   useHandleTimers,
   useTimers,
-} from "@/src/features/timer/model/useInProgressTimers";
+} from "@/src/features/timer/useInProgressTimers";
 import {
   findEarliestFinishTimer,
   filterActiveTimers,
 } from "@/src/features/timer/utils/query";
-import { useTimerBottomSheetVisibility } from "@/src/widgets/timer/useTimerBottomSheetStore";
-import { useTimerEffectVisibilityStore } from "@/src/features/timer/ui/timerButton";
+import { useTimerBottomSheetVisibility } from "@/src/widgets/timer/index";
 import { useEffect, useRef } from "react";
 import { useTimerTranslation } from "@/src/entities/timer/hooks/useTimerTranslation";
 
@@ -30,22 +29,12 @@ export function useHandleTimerVoiceIntent({
   const activeTimers = filterActiveTimers(timers);
   const earliestFinishTimer = findEarliestFinishTimer(activeTimers);
   const { handleOpenTemporarily } = useTimerBottomSheetVisibility();
-  const { setVisible, visible } = useTimerEffectVisibilityStore();
 
   const { t } = useTimerTranslation();
 
   const timerEffectVisibilityRef = useRef<NodeJS.Timeout | undefined>(
     undefined
   );
-
-  function handleTimerEffectVisibility() {
-    if (!visible) {
-      setVisible(true);
-      timerEffectVisibilityRef.current = setTimeout(() => {
-        setVisible(false);
-      }, 2000);
-    }
-  }
 
   useEffect(() => {
     return () => {

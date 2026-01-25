@@ -42,5 +42,6 @@ export type RecipeResponse = z.infer<typeof RecipeSchema>;
 export const fetchRecipe = async (id: string): Promise<RecipeResponse> => {
   const response = await client.get(`/recipes/${id}`);
   const data = response.data;
+  console.log(JSON.stringify(data),"!!!!!!!!2222222222");
   return RecipeSchema.parse(data);
 };

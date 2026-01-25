@@ -186,7 +186,6 @@ function RecipeStepPageReady({ id }: { id: string }) {
   }, [currentIndex, currentDetailIndex, analytics]);
 
   const {
-    steps: tutorialStep,
     currentStepIndex: currentTutorialStep,
     isInTutorial,
   } = useTutorial();

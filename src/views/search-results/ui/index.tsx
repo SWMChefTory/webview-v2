@@ -67,27 +67,27 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
     }
   }, [keyword, searchResults.length]);
 
-  useEffect(() => {
-    const loadMore = loadMoreRef.current;
+    useEffect(() => {
+      const loadMore = loadMoreRef.current;
 
-    if (!loadMore) return;
+      if (!loadMore) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage();
+          }
+        },
+        {
+          threshold: 0.1,
+          rootMargin: "200px",
         }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "200px",
-      }
-    );
+      );
 
-    observer.observe(loadMore);
+      observer.observe(loadMore);
 
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
+      return () => observer.disconnect();
+    }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   if (searchResults.length === 0) {
     return (

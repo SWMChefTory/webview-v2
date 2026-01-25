@@ -61,14 +61,16 @@ export const fetchRecommendRecipes = async ({
   const response = await (async () => {
     if (cursor !== undefined) {
       if (cursor === null) {
-        return await client.get(path, { params: { cursor: null, query:videoType } });
+        return await client.get(path, {
+          params: { cursor: null, query: videoType },
+        });
       }
       return await client.get(path, {
-        params: { cursor: cursor, query:videoType },
+        params: { cursor: cursor, query: videoType },
       });
     }
     return await client.get(path, {
-      params: { query:videoType },
+      params: { query: videoType },
     });
   })();
 

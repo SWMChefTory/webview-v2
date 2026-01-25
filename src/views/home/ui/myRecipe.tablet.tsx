@@ -16,7 +16,7 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
-import { HorizontalScrollAreaTablet } from "./horizontalScrollAreaTablet";
+import { HorizontalScrollArea } from "./horizontalScrollArea";
 
 /**
  * MyRecipes 섹션 - 태블릿 버전 (768px ~)
@@ -64,15 +64,19 @@ const MyRecipesTemplateTablet = ({
   userRecipesSection: React.ReactNode;
 }) => {
   return (
-    <div className="pt-2 xl:pt-4">
-      <div className="px-6 xl:px-8">{title}</div>
-      <div className="h-2 xl:h-4" />
+    <div className="pt-2">
+      <div className="px-6 mb-4 flex items-center justify-between">
+        {title}
+      </div>
+      
       {/* 카테고리 필터 - 가로 스크롤 */}
-      <ScrollArea className="whitespace-nowrap">
-        <div className="flex flex-row pl-6">{categoryList}</div>
-        <ScrollBar orientation="horizontal" className="opacity-0 z-10" />
+      <ScrollArea className="whitespace-nowrap pb-2">
+        <div className="flex flex-row pl-6 pr-6 gap-3">{categoryList}</div>
+        <ScrollBar orientation="horizontal" className="hidden" />
       </ScrollArea>
-      <div className="h-4 xl:h-6" />
+      
+      <div className="h-6" />
+      
       {/* 레시피 목록 - 가로 스크롤 */}
       {userRecipesSection}
     </div>
@@ -100,7 +104,7 @@ const UserRecipesSection = ({
   }
 
   return (
-    <HorizontalScrollAreaTablet moreLink="/user/recipes" gap="gap-5">
+    <HorizontalScrollArea moreLink="/user/recipes" gap="gap-5">
       {userRecipes.map((recipe) => (
         <UserRecipeCardReady
           userRecipe={recipe}
@@ -108,7 +112,7 @@ const UserRecipesSection = ({
           isTablet={true}
         />
       ))}
-    </HorizontalScrollAreaTablet>
+    </HorizontalScrollArea>
   );
 };
 
@@ -117,10 +121,10 @@ const UserRecipesSection = ({
  */
 const UserRecipesSectionSkeleton = () => {
   return (
-    <HorizontalScrollAreaTablet gap="gap-5">
+    <HorizontalScrollArea gap="gap-5">
       {Array.from({ length: 6 }, (_, index) => (
         <UserRecipeCardSkeleton key={index} isTablet={true} />
       ))}
-    </HorizontalScrollAreaTablet>
+    </HorizontalScrollArea>
   );
 };

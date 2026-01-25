@@ -1,31 +1,25 @@
-/**
- *
- * @param children - scrollarea에서 보여줄 컨텐츠
- * @param onReachEnd - 스크롤 영역 끝에 도달했을 때 호출될 함수. 스크롤 영역 끝이란 스크롤 컨텐츠의 전체 길이에 10px를 더한 값을 초과했을 때를 의미한다.
- */
+import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
+import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { HorizontalScrollAreaDesktop } from "./horizontalScrollArea.desktop";
+import { HorizontalScrollAreaTablet } from "./horizontalScrollArea.tablet";
 
-export function HorizontalScrollArea({
-  children,
-  onReachEnd,
-}: {
+/**
+ * Horizontal Scroll Area Router
+ * 
+ * Routes between:
+ * - Desktop: Grid layout
+ * - Tablet: Horizontal scroll layout
+ * 
+ * Note: Mobile uses a different component/pattern usually, or this can be extended for mobile too if needed.
+ */
+export function HorizontalScrollArea(props: {
   children: React.ReactNode;
-  onReachEnd?: () => void;
+  moreLink?: string;
+  gap?: string;
 }) {
-  return (
-    <div
-      className="whitespace-nowrap w-[100vw] overflow-x-scroll scrollbar-hide no-scrollbar"
-      onScroll={(e: any) => {
-        if (
-          e.target.scrollLeft + e.target.clientWidth >=
-          e.target.scrollWidth + 10
-        ) {
-          onReachEnd?.();
-        }
-      }}
-    >
-      <div className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
-        {children}
-      </div>
-    </div>
-  );
+  const isDesktop = useMediaQuery(MEDIA_QUERIES.desktop);
+  
+  return isDesktop 
+    ? <HorizontalScrollAreaDesktop {...props} />
+    : <HorizontalScrollAreaTablet {...props} />;
 }

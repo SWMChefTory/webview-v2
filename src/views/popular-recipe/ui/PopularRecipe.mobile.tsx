@@ -1,50 +1,41 @@
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
-import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
-import { Viewport } from "@radix-ui/react-toast";
-import { useTranslation } from "next-i18next";
 import {
   PopularRecipeCard,
   PopularRecipeCardSkeleton,
 } from "@/src/views/popular-recipe/ui/components/PopularRecipeCard";
+import {
+  usePopularRecipeController,
+  usePopularRecipeContent,
+  PopularRecipePageProps,
+  PopularRecipeContentProps,
+} from "./PopularRecipe.controller";
 
 export function PopularRecipeMobile() {
-  const { t } = useTranslation("popular-recipe");
+  const props = usePopularRecipeController("mobile");
+  return <PopularRecipeMobileLayout {...props} />;
+}
 
+function PopularRecipeMobileLayout({ title, renderToast }: PopularRecipePageProps) {
   return (
     <div className="px-4">
       <div className="h-4" />
-      <div className="text-2xl font-semibold">{t("popularRecipes")}</div>
+      <div className="text-2xl font-semibold">{title}</div>
       <div className="h-4" />
       <SSRSuspense fallback={<PopularRecipesSkeleton />}>
-        <PopularRecipesReady />
+        <PopularRecipesContent renderToast={renderToast} />
       </SSRSuspense>
     </div>
   );
 }
 
-function PopularRecipesReady() {
-  const {
-    data: recipes,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = useFecthPopularRecipe(VideoType.NORMAL);
+function PopularRecipesContent({
+  renderToast,
+}: Pick<PopularRecipeContentProps, "renderToast">) {
+  const { recipes, isFetchingNextPage, onScroll } = usePopularRecipeContent("mobile");
 
   return (
-    <div
-      className="overflow-y-scroll h-[100vh] no-scrollbar"
-      onScroll={(event: React.UIEvent<HTMLDivElement>) => {
-        const target = event.target as HTMLDivElement;
-        if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10) {
-          if (hasNextPage) {
-            fetchNextPage();
-          }
-        }
-      }}
-    >
+    <div className="overflow-y-scroll h-[100vh] no-scrollbar" onScroll={onScroll}>
       <div className="grid grid-cols-2 gap-2 min-h-[100.5vh]">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
@@ -66,9 +57,7 @@ function PopularRecipesReady() {
           </>
         )}
       </div>
-      <RecipeCreateToast>
-        <Viewport className="fixed right-3 top-2 z-1000 w-[300px]" />
-      </RecipeCreateToast>
+      {renderToast("fixed right-3 top-2 z-1000 w-[300px]")}
     </div>
   );
 }

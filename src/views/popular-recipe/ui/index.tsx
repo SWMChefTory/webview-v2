@@ -1,11 +1,17 @@
-import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
-import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { ResponsiveSwitcher } from "@/src/shared/ui/responsive";
 import { PopularRecipeMobile } from "./PopularRecipe.mobile";
 import { PopularRecipeTablet } from "./PopularRecipe.tablet";
+import { PopularRecipeDesktop } from "./PopularRecipe.desktop";
 
 function PopularRecipeContent() {
-  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-  return isMobile ? <PopularRecipeMobile /> : <PopularRecipeTablet />;
+  return (
+    <ResponsiveSwitcher
+      mobile={PopularRecipeMobile}
+      tablet={PopularRecipeTablet}
+      desktop={PopularRecipeDesktop}
+      props={{}}
+    />
+  );
 }
 
 export default PopularRecipeContent;

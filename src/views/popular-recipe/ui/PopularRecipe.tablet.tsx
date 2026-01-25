@@ -1,61 +1,42 @@
-import React from "react";
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
-import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
-import { Viewport } from "@radix-ui/react-toast";
-import { useTranslation } from "next-i18next";
 import {
   PopularRecipeCard,
   PopularRecipeCardSkeleton,
 } from "@/src/views/popular-recipe/ui/components/PopularRecipeCard";
+import {
+  usePopularRecipeController,
+  usePopularRecipeContent,
+  PopularRecipePageProps,
+  PopularRecipeContentProps,
+} from "./PopularRecipe.controller";
 
 export function PopularRecipeTablet() {
-  const { t } = useTranslation("popular-recipe");
+  const props = usePopularRecipeController("tablet");
+  return <PopularRecipeTabletLayout {...props} />;
+}
 
+function PopularRecipeTabletLayout({ title, renderToast }: PopularRecipePageProps) {
   return (
-    <div className="w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px] mx-auto px-6">
-      <div className="h-6" />
-      <div className="text-2xl lg:text-3xl font-semibold">{t("popularRecipes")}</div>
-      <div className="h-6" />
+    <div className="w-full max-w-[1024px] mx-auto px-8">
+      <div className="h-10" />
+      <div className="text-4xl font-bold text-gray-900 tracking-tight">{title}</div>
+      <div className="h-10" />
       <SSRSuspense fallback={<PopularRecipesSkeleton />}>
-        <PopularRecipesReady />
+        <PopularRecipesContent renderToast={renderToast} />
       </SSRSuspense>
     </div>
   );
 }
 
-function PopularRecipesReady() {
-  const {
-    data: recipes,
-    isFetchingNextPage,
-    fetchNextPage,
-    hasNextPage,
-  } = useFecthPopularRecipe(VideoType.NORMAL);
-
-  const observerRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage) {
-          fetchNextPage();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (observerRef.current) {
-      observer.observe(observerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage]);
+function PopularRecipesContent({
+  renderToast,
+}: Pick<PopularRecipeContentProps, "renderToast">) {
+  const { recipes, isFetchingNextPage, loadMoreRef } = usePopularRecipeContent("tablet");
 
   return (
-    <div className="pb-8">
-      <div className="grid grid-cols-3 gap-6 2xl:gap-8 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 min-h-[50vh]">
+    <div className="pb-16">
+      <div className="grid grid-cols-3 gap-8 min-h-[50vh]">
         {recipes.map((recipe) => (
           <RecipeCardWrapper
             key={recipe.recipeId}
@@ -77,10 +58,8 @@ function PopularRecipesReady() {
           </>
         )}
       </div>
-      <div ref={observerRef} className="h-10 w-full" />
-      <RecipeCreateToast>
-        <Viewport className="fixed right-6 top-2 z-1000 w-[360px]" />
-      </RecipeCreateToast>
+      <div ref={loadMoreRef} className="h-24 w-full" />
+      {renderToast("fixed right-6 top-2 z-1000 w-[360px]")}
     </div>
   );
 }
@@ -88,7 +67,7 @@ function PopularRecipesReady() {
 function PopularRecipesSkeleton() {
   return (
     <div className="pb-8">
-      <div className="grid grid-cols-3 gap-6 2xl:gap-8 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 min-h-[50vh]">
+      <div className="grid grid-cols-3 gap-6 min-h-[50vh]">
         {Array.from({ length: 15 }).map((_, index) => (
           <PopularRecipeCardSkeleton key={index} isTablet />
         ))}

@@ -17,6 +17,7 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { useTranslation } from "next-i18next";
+import { isValidYoutubeUrl } from "@/src/shared/utils/youtube";
 
 import Image from "next/image";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
@@ -55,11 +56,6 @@ export function RecipeCreatingView() {
       hasTrackedStartRef.current = false;
     }
   }, [isOpen, entryPoint, url]);
-
-  const isValidYoutubeUrl = (url: string) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
-    return youtubeRegex.test(url);
-  };
 
   const isError = () => {
     const error = hasEverTyped && url.length > 0 && !isValidYoutubeUrl(url);

@@ -1,5 +1,5 @@
 import { RecipeStep } from "../type/recipeSteps";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export function ProgressBar({
   steps,

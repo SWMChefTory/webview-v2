@@ -1,23 +1,35 @@
-import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
-import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { ResponsiveSwitcher } from "@/src/shared/ui/responsive";
 import {
   RecipeDetailPageSkeletonMobile,
   RecipeDetailPageReadyMobile,
-  RecipeBottomSheetMobile,
 } from "./RecipeDetail.mobile";
 import {
   RecipeDetailPageSkeletonTablet,
   RecipeDetailPageReadyTablet,
 } from "./RecipeDetail.tablet";
+import {
+  RecipeDetailPageSkeletonDesktop,
+  RecipeDetailPageReadyDesktop,
+} from "./RecipeDetail.desktop";
 
 export const RecipeDetailPageSkeleton = () => {
-  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-  return isMobile ? <RecipeDetailPageSkeletonMobile /> : <RecipeDetailPageSkeletonTablet />;
+  return (
+    <ResponsiveSwitcher
+      mobile={RecipeDetailPageSkeletonMobile}
+      tablet={RecipeDetailPageSkeletonTablet}
+      desktop={RecipeDetailPageSkeletonDesktop}
+      props={{}}
+    />
+  );
 };
 
 export const RecipeDetailPageReady = ({ id }: { id: string }) => {
-  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-  return isMobile ? <RecipeDetailPageReadyMobile id={id} /> : <RecipeDetailPageReadyTablet id={id} />;
+  return (
+    <ResponsiveSwitcher
+      mobile={RecipeDetailPageReadyMobile}
+      tablet={RecipeDetailPageReadyTablet}
+      desktop={RecipeDetailPageReadyDesktop}
+      props={{ id }}
+    />
+  );
 };
-
-export { RecipeBottomSheetMobile as RecipeBottomSheet };

@@ -5,7 +5,7 @@ import {
   useRecipeCreateToastAction,
 } from "../model/useToast";
 import { ReactElement } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useFetchRecipeOverview } from "../../recipe-overview/model/model";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";

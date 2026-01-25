@@ -7,7 +7,7 @@ function AlreadyEnrolledChip({ isEnrolled }: { isEnrolled: boolean }) {
     return null;
   }
   return (
-    <div className="flex px-[8] py-[4] lg:px-3 lg:py-1.5 bg-gray-800/70 z-10 rounded-md lg:rounded-lg items-center justify-center text-white lg:text-sm">
+    <div className="flex px-2 py-1 lg:px-3 lg:py-1.5 bg-gray-800/70 z-10 rounded-md lg:rounded-lg items-center justify-center text-white lg:text-sm">
       {t("regist")}
     </div>
   );
@@ -20,7 +20,7 @@ function CreatingStatusChip({isInCreating}:{isInCreating: boolean}){
     return null;
   }
   return (
-    <div className="flex px-[8] py-[4] lg:px-3 lg:py-1.5 bg-gray-800/70 z-10 rounded-md lg:rounded-lg items-center justify-center text-white lg:text-sm">
+    <div className="flex px-2 py-1 lg:px-3 lg:py-1.5 bg-gray-800/70 z-10 rounded-md lg:rounded-lg items-center justify-center text-white lg:text-sm">
       {t("creating")}
     </div>
   );
@@ -28,7 +28,7 @@ function CreatingStatusChip({isInCreating}:{isInCreating: boolean}){
 
 function NewRecipeChip() {
   return (
-    <div className="flex w-[28] h-[28] lg:w-8 lg:h-8 bg-orange-500 z-10 rounded-md lg:rounded-lg items-center justify-center text-white lg:text-base font-bold">
+    <div className="flex w-7 h-7 lg:w-8 lg:h-8 bg-orange-500 z-10 rounded-md lg:rounded-lg items-center justify-center text-white lg:text-base font-bold">
       N
     </div>
   );

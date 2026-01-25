@@ -1,6 +1,3 @@
-import { useTranslation } from "next-i18next";
+import { createTranslationHook } from "@/src/shared/translation/createTranslationHook";
 
-export const useRecipeDetailTranslation = () => {
-  const { t } = useTranslation("recipe-detail");
-  return { t };
-};
+export const useRecipeDetailTranslation = createTranslationHook("recipe-detail");

@@ -5,7 +5,7 @@ import {
   useHandleTimers,
   useTimers,
 } from "../model/useInProgressTimers";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 import { useProgressTimer } from "../model/useProgressTimer";
 import { filterActiveTimers } from "../utils/query";

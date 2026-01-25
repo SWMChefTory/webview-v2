@@ -2,7 +2,7 @@ import { GoChevronRight } from "react-icons/go";
 import { useRouter } from "next/router";
 import Chef from "@/src/views/settings/assets/chef.png";
 import { request, MODE } from "@/src/shared/client/native/client";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { fetchUserModel } from "@/src/views/settings/entities/user/model";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";

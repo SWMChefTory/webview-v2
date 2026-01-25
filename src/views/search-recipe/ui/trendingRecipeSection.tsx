@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
 import { useFetchTrendingRecipes } from "../entities/trend-recipe/model/useTrendRecipe";
 import { useSearchOverlayTranslation } from "../hooks/useSearchOverlayTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import Trend from "@/src/views/home/ui/assets/trend.png";
+import { useInfiniteScroll } from "@/src/shared/hooks";
 
 const TrendRecipeGrid = () => {
   const {
@@ -13,28 +13,8 @@ const TrendRecipeGrid = () => {
     fetchNextPage,
     isFetchingNextPage,
   } = useFetchTrendingRecipes();
-  const loadMoreRef = useRef<HTMLDivElement>(null);
+  const { loadMoreRef } = useInfiniteScroll(fetchNextPage, hasNextPage, isFetchingNextPage, { rootMargin: "50px" });
   const { t } = useSearchOverlayTranslation();
-
-  useEffect(() => {
-    const element = loadMoreRef.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage();
-        }
-      },
-      {
-        threshold: 0.1,
-        rootMargin: "50px",
-      }
-    );
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [hasNextPage, fetchNextPage, isFetchingNextPage]);
 
   if (recipes.length === 0) {
     return (

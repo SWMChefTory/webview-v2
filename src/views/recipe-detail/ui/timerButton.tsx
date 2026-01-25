@@ -47,11 +47,11 @@ const TimerButtonDefault = ({
       icon={
         <div className="relative bg-transparent">
           {waitingCount > 0 && (
-            <div className="absolute top-0.5 -right-0.5 bg-red-400 text-sm w-4 h-4 md:w-5 md:h-5 flex items-center justify-center font-semibold text-white z-1 rounded-full">
+            <div className="absolute top-0.5 -right-0.5 bg-red-400 text-sm w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 flex items-center justify-center font-semibold text-white z-1 rounded-full">
               !
             </div>
           )}
-          <LuTimer className="!w-6 !h-6 md:!w-7 md:!h-7" />
+          <LuTimer className="!w-6 !h-6 md:!w-7 md:!h-7 lg:!w-8 lg:!h-8" />
         </div>
       }
       onClick={() => {}}

@@ -1,4 +1,4 @@
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
@@ -7,7 +7,7 @@ import {
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
-import { HorizontalScrollAreaTablet } from "./horizontalScrollAreaTablet";
+import { HorizontalScrollArea } from "./horizontalScrollArea";
 
 /**
  * PopularRecipes 섹션 - 태블릿 버전 (768px ~)
@@ -41,9 +41,7 @@ const PopularRecipesTemplateTablet = ({
 }) => {
   return (
     <div>
-      <div className="h-4 xl:h-6" />
-      <div className="px-6 xl:px-8">{title}</div>
-      <div className="h-4 xl:h-6" />
+      <div className="px-6 mb-6">{title}</div>
       {recipeSection}
     </div>
   );
@@ -54,10 +52,10 @@ const PopularRecipesTemplateTablet = ({
  * 가로 스크롤 + 더보기 링크
  */
 function RecipeCardSectionReady() {
-  const { data: recipes } = useFecthPopularRecipe(VideoType.NORMAL);
+  const { data: recipes } = useFetchPopularRecipe(VideoType.NORMAL);
 
   return (
-    <HorizontalScrollAreaTablet moreLink="/popular-recipe" gap="gap-5">
+    <HorizontalScrollArea moreLink="/popular-recipe" gap="gap-5">
       {recipes.map((recipe) => (
         <RecipeCardWrapper
           key={recipe.recipeId}
@@ -71,7 +69,7 @@ function RecipeCardSectionReady() {
           trigger={<RecipeCardReady recipe={recipe} isTablet={true} />}
         />
       ))}
-    </HorizontalScrollAreaTablet>
+    </HorizontalScrollArea>
   );
 }
 
@@ -80,10 +78,10 @@ function RecipeCardSectionReady() {
  */
 function RecipeCardSectionSkeleton() {
   return (
-    <HorizontalScrollAreaTablet gap="gap-5">
+    <HorizontalScrollArea gap="gap-5">
       {Array.from({ length: 6 }, (_, index) => (
         <RecipeCardSkeleton key={index} isTablet={true} />
       ))}
-    </HorizontalScrollAreaTablet>
+    </HorizontalScrollArea>
   );
 }

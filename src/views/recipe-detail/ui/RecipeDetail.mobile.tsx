@@ -1,17 +1,19 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
-import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import dynamic from "next/dynamic";
-import { useRouter } from "next/router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { IngredientPurchaseModal } from "./IngredientPurchaseModal";
 import { MeasurementOverlay } from "./MeasurementOverlay";
 import { TimerButton } from "./timerButton";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
-import { track } from "@/src/shared/analytics/amplitude";
-import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import {
+  useRecipeDetailController,
+  type TabName,
+  type Ingredient,
+  type RecipeStep,
+  type RecipeTag,
+  type RecipeBriefing,
+  type RecipeMeta,
+} from "./RecipeDetail.controller";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeletonMobile = () => (
@@ -28,15 +30,25 @@ export const RecipeDetailPageSkeletonMobile = () => (
 );
 
 export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
-  const { data } = useFetchRecipe(id);
-  const router = useRouter();
-
-  const videoInfo = data?.videoInfo ?? {};
-  const recipeSummary = data?.detailMeta ?? {};
-  const ingredients = data?.ingredients ?? [];
-  const steps = data?.steps ?? [];
-  const tags = data?.tags ?? [];
-  const briefings = data?.briefings ?? [];
+  const {
+    videoInfo,
+    recipeSummary,
+    ingredients,
+    steps,
+    tags,
+    briefings,
+    onBack,
+    onCookingStart,
+    routeToStep,
+    onTimeClick,
+    onTabClick,
+    onStepClick,
+    onTimerClick,
+    onMeasurementClick,
+    t,
+    lang,
+    formatTime,
+  } = useRecipeDetailController(id, "mobile");
 
   // 높이 측정용
   const headerWrapRef = useRef<HTMLDivElement | null>(null);
@@ -48,62 +60,6 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
 
   // YouTube 플레이어 ref
   const playerRef = useRef<YT.Player | null>(null);
-
-  // Amplitude 추적용 refs
-  const pageStartTime = useRef(Date.now());
-  const tabSwitchCount = useRef(0);
-  const currentTab = useRef<"summary" | "recipe" | "ingredients">("summary");
-  const reachedCookingStart = useRef(false);
-
-  // Amplitude: View/Exit 이벤트
-  useEffect(() => {
-    // is_first_view 판단 로직 (1시간 기준)
-    const key = `recipe_${id}_last_view`;
-    const lastView = sessionStorage.getItem(key);
-    let isFirstView = true;
-
-    if (lastView) {
-      const elapsed = Date.now() - Number(lastView);
-      const ONE_HOUR = 60 * 60 * 1000;
-      isFirstView = elapsed > ONE_HOUR;
-    }
-
-    // timestamp 갱신
-    sessionStorage.setItem(key, Date.now().toString());
-
-    // View 이벤트
-    const totalDetails = steps.reduce(
-      (sum, step) => sum + (step.details?.length ?? 0),
-      0
-    );
-    track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIEW, {
-      recipe_id: id,
-      recipe_title: videoInfo?.videoTitle || "",
-      is_first_view: isFirstView,
-      total_steps: steps.length,
-      total_details: totalDetails,
-      total_ingredients: ingredients.length,
-      has_video: !!videoInfo?.id,
-    });
-
-    // Exit 이벤트 (cleanup)
-    return () => {
-      track(AMPLITUDE_EVENT.RECIPE_DETAIL_EXIT, {
-        recipe_id: id,
-        stay_duration: Math.round((Date.now() - pageStartTime.current) / 1000),
-        tab_switch_count: tabSwitchCount.current,
-        final_tab: currentTab.current,
-        reached_cooking_start: reachedCookingStart.current,
-      });
-    };
-  }, []);
-
-  useSafeArea({
-    top: { color: "#FFFFFF", isExists: true },
-    bottom: { color: "#FFFFFF", isExists: true },
-    left: { color: "#FFFFFF", isExists: true },
-    right: { color: "#FFFFFF", isExists: true },
-  });
 
   useEffect(() => {
     const measure = () => {
@@ -122,77 +78,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
   }, []);
 
   const handleTimeClick = (sec: number) => {
-    const t = Math.max(0, sec - 1.5);
-    const p = playerRef.current;
-    if (!p) return;
-    try {
-      p.seekTo(t, true);
-      if (typeof p.playVideo === "function") p.playVideo();
-    } catch {}
-  };
-
-  // Amplitude: 탭 클릭 핸들러
-  const handleTabClick = (tabName: "summary" | "recipe" | "ingredients") => {
-    if (currentTab.current !== tabName) {
-      tabSwitchCount.current++;
-    }
-    currentTab.current = tabName;
-
-    track(AMPLITUDE_EVENT.RECIPE_DETAIL_TAB_CLICK, {
-      recipe_id: id,
-      tab_name: tabName,
-      time_since_view: Math.round((Date.now() - pageStartTime.current) / 1000),
-    });
-  };
-
-  // Amplitude: 스텝 클릭 핸들러 (영상 시간 이동)
-  const handleStepClick = (
-    stepOrder: number,
-    stepTitle: string,
-    videoTime: number,
-    detailIndex: number
-  ) => {
-    track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIDEO_SEEK, {
-      recipe_id: id,
-      step_order: stepOrder,
-      step_title: stepTitle,
-      video_time: videoTime,
-      detail_index: detailIndex,
-    });
-  };
-
-  // Amplitude: 타이머 클릭 핸들러
-  const handleTimerClick = () => {
-    track(AMPLITUDE_EVENT.RECIPE_DETAIL_FEATURE_CLICK, {
-      recipe_id: id,
-      feature_type: "timer",
-      current_tab: currentTab.current,
-    });
-  };
-
-  // Amplitude: 계량법 클릭 핸들러
-  const handleMeasurementClick = () => {
-    track(AMPLITUDE_EVENT.RECIPE_DETAIL_FEATURE_CLICK, {
-      recipe_id: id,
-      feature_type: "measurement",
-      current_tab: currentTab.current,
-    });
-  };
-
-  // Amplitude: 요리 시작 핸들러
-  const handleCookingStart = (selectedIngredientCount: number) => {
-    // 더블 클릭/탭 방지: 이미 요리 시작을 눌렀으면 중복 실행 방지
-    if (reachedCookingStart.current) return;
-    reachedCookingStart.current = true;
-
-    track(AMPLITUDE_EVENT.RECIPE_DETAIL_COOKING_START, {
-      recipe_id: id,
-      time_to_start: Math.round((Date.now() - pageStartTime.current) / 1000),
-      tab_switch_count: tabSwitchCount.current,
-      ingredient_prepared_count: selectedIngredientCount,
-    });
-
-    router.push(`/recipe/${id}/step`);
+    onTimeClick(sec, playerRef);
   };
 
   return (
@@ -201,7 +87,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
         <Header
           leftContent={
             <div className="z-1">
-              <BackButton onClick={() => router.back()} />
+              <BackButton onClick={onBack} />
             </div>
           }
           centerContent={
@@ -219,8 +105,8 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
           rightContent={
             <TimerButton
               recipeId={id}
-              recipeName={videoInfo?.videoTitle}
-              onTimerClick={handleTimerClick}
+              recipeName={videoInfo?.videoTitle ?? ""}
+              onTimerClick={onTimerClick}
             />
           }
         />
@@ -237,18 +123,20 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
         steps={steps}
         ingredients={ingredients}
         onTimeClick={handleTimeClick}
-        handleRouteToStep={() => router.push(`/recipe/${id}/step`)}
+        handleRouteToStep={routeToStep}
         recipe_summary={recipeSummary}
         tags={tags}
         briefings={briefings}
         collapsedTopPx={collapsedTop}
         expandedTopPx={expandedTop}
         recipeId={id}
-        // Amplitude 콜백
-        onTabClick={handleTabClick}
-        onStepClick={handleStepClick}
-        onMeasurementClick={handleMeasurementClick}
-        onCookingStart={handleCookingStart}
+        onTabClick={onTabClick}
+        onStepClick={onStepClick}
+        onMeasurementClick={onMeasurementClick}
+        onCookingStart={onCookingStart}
+        t={t}
+        lang={lang}
+        formatTime={formatTime}
       />
     </div>
   );
@@ -300,23 +188,7 @@ const StickyVideo = ({
 };
 
 /** ---- Bottom Sheet ---- */
-type Ingredient = { name: string; amount?: number; unit?: string };
-type StepDetail = { text: string; start: number };
-type RecipeStep = {
-  id: string;
-  stepOrder: number;
-  subtitle: string;
-  details: StepDetail[];
-};
-type RecipeTag = { name: string };
-type RecipeBriefing = { content: string };
-type RecipeMeta = {
-  description?: string;
-  servings?: number;
-  cookTime?: number;
-};
-
-export const RecipeBottomSheetMobile = ({
+const RecipeBottomSheetMobile = ({
   steps,
   ingredients,
   onTimeClick,
@@ -327,11 +199,13 @@ export const RecipeBottomSheetMobile = ({
   collapsedTopPx,
   expandedTopPx,
   recipeId,
-  // Amplitude 콜백
   onTabClick,
   onStepClick,
   onMeasurementClick,
   onCookingStart,
+  t,
+  lang,
+  formatTime,
 }: {
   steps: RecipeStep[];
   ingredients: Ingredient[];
@@ -343,15 +217,15 @@ export const RecipeBottomSheetMobile = ({
   collapsedTopPx: number;
   expandedTopPx: number;
   recipeId: string;
-  // Amplitude 콜백 타입
-  onTabClick?: (tabName: "summary" | "recipe" | "ingredients") => void;
+  onTabClick?: (tabName: TabName) => void;
   onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number, detailIndex: number) => void;
   onMeasurementClick?: () => void;
   onCookingStart?: (selectedIngredientCount: number) => void;
+  t: (key: string, options?: Record<string, unknown>) => string;
+  lang: string;
+  formatTime: (min: number) => string;
 }) => {
-  const [activeTab, setActiveTab] = useState<
-    "summary" | "recipe" | "ingredients"
-  >("summary");
+  const [activeTab, setActiveTab] = useState<TabName>("summary");
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [measurementOpen, setMeasurementOpen] = useState(false);
@@ -364,36 +238,6 @@ export const RecipeBottomSheetMobile = ({
   const dragging = useRef(false);
   const dragStartY = useRef(0);
   const dragStartTop = useRef(0);
-
-  // 언어 설정 및 번역 가져오기
-  const lang = useLangcode();
-  const { t } = useRecipeDetailTranslation();
-
-  // 시간 포맷 함수 (언어별 로직 유지)
-  const formatTime = (min: number) => {
-    const h = Math.floor(min / 60);
-    const m = min % 60;
-
-    if (lang === 'ko') {
-      // 한국어: 5분 단위 반올림
-      if (h > 0) {
-        const r5 = m > 0 ? Math.ceil(m / 5) * 5 : 0;
-        return r5
-          ? t('summary.timeHourMinute', { hours: h, minutes: r5 })
-          : t('summary.timeHour', { hours: h });
-      }
-      const rounded = Math.max(5, Math.ceil(min / 5) * 5);
-      return t('summary.timeMinute', { minutes: rounded });
-    } else {
-      // 영어: 단순 표시
-      if (h > 0) {
-        return m > 0
-          ? t('summary.timeHourMinute', { hours: h, minutes: m })
-          : t('summary.timeHour', { hours: h });
-      }
-      return t('summary.timeMinute', { minutes: min });
-    }
-  };
 
   // 상단/하단 한계 (완전 확장=헤더 하단, 접힘=헤더+영상)
   const maxExpandTop = Math.max(0, expandedTopPx);
@@ -434,7 +278,7 @@ export const RecipeBottomSheetMobile = ({
       minCollapseTop
     );
     setTopPx(nextTop);
-    if ((e as any).cancelable) e.preventDefault();
+    if ((e as TouchEvent).cancelable) e.preventDefault();
   };
 
   const onDragEnd = () => {
@@ -516,7 +360,6 @@ export const RecipeBottomSheetMobile = ({
                     if (tab === "recipe") {
                       setExpanded(new Set(steps.map((_, idx) => idx)));
                     }
-                    // Amplitude: 탭 클릭 추적
                     onTabClick?.(tab);
                   }}
                 >
@@ -581,8 +424,8 @@ export const RecipeBottomSheetMobile = ({
 
                   {(tags?.length ?? 0) > 0 && (
                     <div className="flex flex-wrap gap-1.5 mt-3">
-                      {tags!.map((t, i) => {
-                        const name = t?.name ?? "";
+                      {tags!.map((tag, i) => {
+                        const name = tag?.name ?? "";
                         if (!name) return null;
                         return (
                           <span
@@ -688,7 +531,6 @@ export const RecipeBottomSheetMobile = ({
                           onClick={() => {
                             onTimeClick(d.start);
                             setTopPx(minCollapseTop);
-                            // Amplitude: 스텝 클릭 추적
                             onStepClick?.(step.stepOrder, step.subtitle, d.start, di);
                           }}
                         >
@@ -741,7 +583,6 @@ export const RecipeBottomSheetMobile = ({
                   className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm"
                   onClick={() => {
                     setMeasurementOpen(true);
-                    // Amplitude: 계량법 클릭 추적
                     onMeasurementClick?.();
                   }}
                 >
@@ -902,7 +743,6 @@ export const RecipeBottomSheetMobile = ({
               <button
                 className="flex-1 px-4 py-3 rounded-md font-bold bg-orange-500 text-white active:scale-[0.98] transition"
                 onClick={() => {
-                  // Amplitude: 요리 시작 추적 (있으면 콜백 사용, 없으면 기존 라우팅)
                   if (onCookingStart) {
                     onCookingStart(selected.size);
                   } else {

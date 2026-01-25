@@ -1,7 +1,3 @@
-import { useTranslation } from "next-i18next";
-const useHomeTranslation = () => {
-  const { t } = useTranslation("home");
-  return { t };
-};
+import { createTranslationHook } from "@/src/shared/translation/createTranslationHook";
 
-export { useHomeTranslation };
+export const useHomeTranslation = createTranslationHook("home");

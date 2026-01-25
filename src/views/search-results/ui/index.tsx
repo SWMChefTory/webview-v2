@@ -1,18 +1,26 @@
-import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
-import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { ResponsiveSwitcher } from "@/src/shared/ui/responsive";
 import { SearchResultsSkeletonMobile, SearchResultsContentMobile } from "./SearchResults.mobile";
 import { SearchResultsSkeletonTablet, SearchResultsContentTablet } from "./SearchResults.tablet";
+import { SearchResultsSkeletonDesktop, SearchResultsContentDesktop } from "./SearchResults.desktop";
 
 export function SearchResultsSkeleton() {
-  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-  return isMobile ? <SearchResultsSkeletonMobile /> : <SearchResultsSkeletonTablet />;
+  return (
+    <ResponsiveSwitcher
+      mobile={SearchResultsSkeletonMobile}
+      tablet={SearchResultsSkeletonTablet}
+      desktop={SearchResultsSkeletonDesktop}
+      props={{}}
+    />
+  );
 }
 
 export function SearchResultsContent({ keyword }: { keyword: string }) {
-  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-  return isMobile ? (
-    <SearchResultsContentMobile keyword={keyword} />
-  ) : (
-    <SearchResultsContentTablet keyword={keyword} />
+  return (
+    <ResponsiveSwitcher
+      mobile={SearchResultsContentMobile}
+      tablet={SearchResultsContentTablet}
+      desktop={SearchResultsContentDesktop}
+      props={{ keyword }}
+    />
   );
 }

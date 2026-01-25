@@ -10,9 +10,11 @@ import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 export const RecipeListSectionReady = ({
   selectedCategoryId,
   isTablet = false,
+  isDesktop = false,
 }: {
   selectedCategoryId: string | typeof ALL_RECIPES;
   isTablet?: boolean;
+  isDesktop?: boolean;
 }) => {
   const { data: categories } = useFetchCategories();
   const selectedCategory =
@@ -32,15 +34,24 @@ export const RecipeListSectionReady = ({
           fetchNextPage();
         }
       }}
-      className={`flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden ${isTablet ? "px-6 lg:px-8 xl:px-10" : "px-2"}`}
+      className={`flex-1 flex flex-col w-full overflow-y-scroll overflow-x-hidden ${
+        isDesktop ? "px-1 py-4" : isTablet ? "px-6" : "px-2"
+      }`}
     >
       {recipes.length !== 0 ? (
-        <div className="flex flex-col w-full gap-2 lg:gap-4 xl:gap-6">
+        <div
+          className={
+            isDesktop
+              ? "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+              : "flex flex-col w-full gap-2 lg:gap-4 xl:gap-6"
+          }
+        >
           {recipes.map((recipe) => (
             <RecipeDetailsCardReady
               key={recipe.recipeId}
               userRecipe={recipe}
               selectedCategoryId={selectedCategoryId}
+              isDesktop={isDesktop}
             />
           ))}
         </div>
@@ -62,7 +73,9 @@ export const RecipeListSectionReady = ({
               ) : (
                 <>
                   <span className="shrink-0">
-                  {t("empty.noRecipeInCategory", { categoryName: selectedCategory?.name || "" })}
+                    {t("empty.noRecipeInCategory", {
+                      categoryName: selectedCategory?.name || "",
+                    })}
                   </span>
                 </>
               )}
@@ -77,12 +90,31 @@ export const RecipeListSectionReady = ({
   );
 };
 
-export const RecipeListSectionSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
+export const RecipeListSectionSkeleton = ({
+  isTablet = false,
+  isDesktop = false,
+}: {
+  isTablet?: boolean;
+  isDesktop?: boolean;
+}) => {
   return (
-    <div className={`flex-1 flex flex-col w-full overflow-y-scroll ${isTablet ? "px-6 lg:px-8 xl:px-10" : "px-2"}`}>
-      <div className="flex flex-col w-full gap-2 lg:gap-4 xl:gap-6">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <RecipeDetailsCardSkeleton key={`skeleton-${i}`} />
+    <div
+      className={`flex-1 flex flex-col w-full overflow-y-scroll ${
+        isDesktop ? "px-1 py-4" : isTablet ? "px-6" : "px-2"
+      }`}
+    >
+      <div
+        className={
+          isDesktop
+            ? "grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+            : "flex flex-col w-full gap-2 lg:gap-4 xl:gap-6"
+        }
+      >
+        {Array.from({ length: isDesktop ? 8 : 3 }).map((_, i) => (
+          <RecipeDetailsCardSkeleton
+            key={`skeleton-${i}`}
+            isDesktop={isDesktop}
+          />
         ))}
       </div>
     </div>

@@ -5,7 +5,7 @@ import { FaPlus } from "react-icons/fa6";
 const ThumbnailBlocking = ({
   size,
 }: {
-  size: { width: number; height: number };
+  size: { width: number | string; height: number | string };
 }) => {
   return (
     <ThumbnailTemplate size={size}>
@@ -19,7 +19,7 @@ const ThumbnailBlocking = ({
 const ThumbnailSkeleton = ({
   size,
 }: {
-  size: { width: number; height: number };
+  size: { width: number | string; height: number | string };
 }) => {
   return (
     <ThumbnailTemplate size={size}>
@@ -31,7 +31,7 @@ const ThumbnailSkeleton = ({
 const ThumbnailEmpty = ({
   size,
 }: {
-  size: { width: number; height: number };
+  size: { width: number | string; height: number | string };
 }) => {
   return (
     <div className="flex flex-row">
@@ -50,7 +50,7 @@ const ThumbnailReady = ({
   className,
 }: {
   imgUrl: string;
-  size: { width: number; height: number };
+  size: { width: number | string; height: number | string };
   className?: string;
 }) => {
   return (
@@ -70,7 +70,7 @@ const ThumbnailTemplate = ({
   className,
 }: {
   children: React.ReactNode;
-  size: { width: number; height: number };
+  size: { width: number | string; height: number | string };
   className?: string;
 }) => {
   return (

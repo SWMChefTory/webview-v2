@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import Picker from "react-mobile-picker";
+import { cn } from "@/lib/utils";
 
 import {
   useHandleTimers,
@@ -78,11 +79,11 @@ export function TimerBottomSheet({
         open &&
         createPortal(
           <div
-            className={`${
+            className={cn(
               isLandscape
                 ? "fixed bottom-0 top-0 right-0 w-[36vw] z-[1002] bg-gray-200 rounded-l-[20px]"
                 : "fixed bottom-0 left-0 right-0 z-[1002] bg-gray-200 rounded-t-[20px] md:max-w-[600px] lg:max-w-[700px] md:mx-auto md:rounded-xl md:mb-4 md:shadow-2xl"
-            }`}
+            )}
             onPointerDown={() => handleOpen()}
             onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
           >
@@ -104,13 +105,13 @@ export function TimerBottomSheet({
         <>
           {createPortal(
             <div
-              className={`flex flex-col ${
-                isDarkMode ? "bg-gray-200/30" : "bg-gray-200/80"
-              }  z-[1002] fixed bottom-0 right-0 px-1 pb-1 ${
+              className={cn(
+                "flex flex-col z-[1002] fixed bottom-0 right-0 px-1 pb-1",
+                isDarkMode ? "bg-gray-200/30" : "bg-gray-200/80",
                 isLandscape
                   ? "top-0 right-0 w-[36vw] rounded-l-[20px]"
                   : "left-0 rounded-t-[20px] md:max-w-[600px] lg:max-w-[700px] md:mx-auto md:rounded-xl md:mb-4 md:shadow-2xl"
-              }`}
+              )}
               onPointerDown={() => handleOpen()}
               onPointerUp={() => handleOpenTemporarily({ seconds: 5 })}
             >
@@ -236,9 +237,10 @@ function TimerStarter({
             {t("title")}
           </div>
           <button
-            className={`text-lg p-2 ${
+            className={cn(
+              "text-lg p-2",
               isInvalid ? "text-gray-500" : "text-orange-500"
-            }`}
+            )}
             onClick={handleConfirm}
             disabled={isInvalid}
           >
@@ -287,11 +289,12 @@ function TimeColumn({ values, name }: { values: number[]; name: string }) {
         <Picker.Item key={value} value={value}>
           {({ selected }) => (
             <div
-              className={`text-center py-3 transition-all ${
+              className={cn(
+                "text-center py-3 transition-all",
                 selected
                   ? "text-orange-500 font-bold text-2xl"
                   : "text-gray-400 text-lg"
-              }`}
+              )}
             >
               {String(value).padStart(2, "0")}
             </div>

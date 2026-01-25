@@ -1,4 +1,4 @@
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
@@ -7,7 +7,7 @@ import {
   ShortsRecipeCardReady,
   ShortsRecipeCardSkeleton,
 } from "./popularShortsRecipes.common";
-import { HorizontalScrollAreaTablet } from "./horizontalScrollAreaTablet";
+import { HorizontalScrollArea } from "./horizontalScrollArea";
 
 /**
  * PopularShortsRecipes 섹션 - 태블릿 버전 (768px ~)
@@ -41,9 +41,8 @@ const PopularShortsRecipesTemplateTablet = ({
 }) => {
   return (
     <div>
-      <div className="h-6 xl:h-8" />
-      <div className="px-6 xl:px-8">{title}</div>
-      <div className="h-4 xl:h-6" />
+      <div className="h-8" />
+      <div className="px-6 mb-6">{title}</div>
       {recipeSection}
     </div>
   );
@@ -54,10 +53,10 @@ const PopularShortsRecipesTemplateTablet = ({
  * 가로 스크롤 (더보기 없음)
  */
 const ShortPopularRecipesSectionReady = () => {
-  const { data: recipes } = useFecthPopularRecipe(VideoType.SHORTS);
+  const { data: recipes } = useFetchPopularRecipe(VideoType.SHORTS);
 
   return (
-    <HorizontalScrollAreaTablet gap="gap-4">
+    <HorizontalScrollArea gap="gap-4">
       {recipes.map((recipe) => (
         <RecipeCardWrapper
           key={recipe.recipeId}
@@ -71,7 +70,7 @@ const ShortPopularRecipesSectionReady = () => {
           trigger={<ShortsRecipeCardReady recipe={recipe} isTablet={true} />}
         />
       ))}
-    </HorizontalScrollAreaTablet>
+    </HorizontalScrollArea>
   );
 };
 
@@ -80,10 +79,10 @@ const ShortPopularRecipesSectionReady = () => {
  */
 const ShortPopularRecipesSectionSkeleton = () => {
   return (
-    <HorizontalScrollAreaTablet gap="gap-4">
+    <HorizontalScrollArea gap="gap-4">
       {Array.from({ length: 8 }, (_, index) => (
         <ShortsRecipeCardSkeleton key={index} isTablet={true} />
       ))}
-    </HorizontalScrollAreaTablet>
+    </HorizontalScrollArea>
   );
 };

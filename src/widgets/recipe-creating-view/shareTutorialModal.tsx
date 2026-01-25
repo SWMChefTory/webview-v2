@@ -3,22 +3,24 @@ import { Button } from "@/components/ui/button";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingViewOpenStore";
 import { MODE, request } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { X } from "lucide-react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useTranslation } from "next-i18next";
+import { useDragToClose } from "@/src/shared/hooks/useDragToClose";
 
 export function ShareTutorialModal() {
   const { isTutorialOpen, closeTutorial, openRecipeCreatingView, videoUrl, markTutorialAsSeen } =
     useRecipeCreatingViewOpenStore();
 
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startYRef = useRef(0);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
-
   const { t } = useTranslation("common");
+
+  const { handlers: dragHandlers, style: dragStyle } = useDragToClose({
+    onClose: closeTutorial,
+    scrollAreaRef,
+  });
 
   const { guideVideoSrc, deviceType, deviceStyles } = useMemo(() => {
     if (typeof window === "undefined") {
@@ -102,59 +104,16 @@ export function ShareTutorialModal() {
     }
   };
 
-  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    if (!isTutorialOpen) return;
-    
-    startYRef.current = e.touches[0].clientY;
-    
-    const scrollTop = scrollAreaRef.current?.scrollTop ?? 0;
-    
-    if (scrollTop <= 0) {
-      setIsDragging(true);
-    }
-  };
-
-  const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    if (!isDragging) return;
-    
-    const currentY = e.touches[0].clientY;
-    const deltaY = currentY - startYRef.current;
-    const scrollTop = scrollAreaRef.current?.scrollTop ?? 0;
-
-    if (deltaY > 0 && scrollTop <= 0) {
-      setDragOffset(deltaY);
-      e.preventDefault();
-    } else if (scrollTop > 0) {
-      setIsDragging(false);
-      setDragOffset(0);
-    }
-  };
-
-  const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
-    if (!isDragging) return;
-    
-    const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-    const threshold = Math.min(240, viewportHeight * 0.25);
-    const shouldClose = dragOffset > threshold;
-    
-    setIsDragging(false);
-    setDragOffset(0);
-    
-    if (shouldClose) {
-      handleClose();
-    }
-  };
-
   return (
     <Dialog.Root open={isTutorialOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1500] animate-in fade-in duration-300" />
         <Dialog.Content
           className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl lg:rounded-2xl animate-in slide-in-from-bottom duration-300 max-h-[92svh] lg:max-h-[85vh] flex flex-col shadow-2xl lg:max-w-[500px] xl:max-w-[560px] lg:mx-auto lg:bottom-6 xl:bottom-8"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          style={{ transform: `translateY(${dragOffset}px)`, transition: isDragging ? "none" : "transform 200ms ease" }}
+          onTouchStart={dragHandlers.onTouchStart}
+          onTouchMove={dragHandlers.onTouchMove}
+          onTouchEnd={dragHandlers.onTouchEnd}
+          style={dragStyle}
         >
           <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full" />

@@ -1,4 +1,4 @@
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
@@ -60,7 +60,7 @@ const ShortPopularRecipesSectionReady = () => {
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useFecthPopularRecipe(VideoType.SHORTS);
+  } = useFetchPopularRecipe(VideoType.SHORTS);
 
   return (
     <HorizontalScrollArea

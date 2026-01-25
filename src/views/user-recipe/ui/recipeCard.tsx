@@ -42,7 +42,7 @@ const RecipeDetailsCardReady = ({
   selectedCategoryId,
 }: {
   userRecipe: UserRecipe;
-  selectedCategoryId: string;
+  selectedCategoryId?: string;
 }) => {
   const { recipeStatus } = useFetchRecipeProgressWithToast(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
@@ -310,7 +310,7 @@ const CategorySelect = ({
   recipeId: string;
   isCategorySelectOpen: boolean;
   setIsCategorySelectOpen: (isOpen: boolean) => void;
-  selectedCategoryId: string;
+  selectedCategoryId?: string;
 }) => {
   const { data: categories } = useFetchCategories();
   const { updateCategory } = useUpdateCategoryOfRecipe();

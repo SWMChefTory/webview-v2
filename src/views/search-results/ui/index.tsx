@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { Trans } from "next-i18next";
 import { useSearchResultsTranslation } from "../hooks/useSearchResultsTranslation";
 
@@ -46,8 +46,7 @@ export function SearchResultsSkeleton() {
 
 export function SearchResultsContent({ keyword }: { keyword: string }) {
   const {
-    data: searchResults,
-    totalElements,
+    entities: searchResults,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
@@ -62,11 +61,11 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
     if (!hasTrackedView.current && searchResults.length > 0) {
       track(AMPLITUDE_EVENT.SEARCH_RESULTS_VIEW, {
         keyword,
-        result_count: totalElements,
+        // result_count: totalElements,
       });
       hasTrackedView.current = true;
     }
-  }, [keyword, searchResults.length, totalElements]);
+  }, [keyword, searchResults.length]);
 
   useEffect(() => {
     const loadMore = loadMoreRef.current;
@@ -122,9 +121,9 @@ export function SearchResultsContent({ keyword }: { keyword: string }) {
             {t("header.suffix")}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
+        {/* <p className="text-sm text-gray-500 mt-2">
           {t("header.totalCount", { count: totalElements })}
-        </p>
+        </p> */}
       </div>
 
       {/* 검색 결과 그리드 */}

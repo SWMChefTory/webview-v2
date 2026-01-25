@@ -1,7 +1,7 @@
 import Fire from "./assets/fire.png";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
+// import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import {
@@ -36,11 +36,16 @@ export function ShortsRecipeCardReady({
   recipe,
   isTablet = false,
 }: {
-  recipe: PopularSummaryRecipeDto;
+  recipe: {
+    id:string;
+    isViewed:boolean;
+    videoThumbnailUrl:string;
+    recipeTitle:string;
+  };
   isTablet?: boolean;
 }) {
   const { recipeStatus } = useFetchRecipeProgress({
-    recipeId: recipe.recipeId,
+    recipeId: recipe.id,
   });
   return (
     <div

@@ -58,7 +58,7 @@ export type SkeletonType = {
  */
 export type FilterChipProps = {
   type: ChipType.FILTER;
-  accessary: number;
+  accessary?: number;
   name: string;
   onClick: () => void;
   isSelected: boolean;
@@ -67,7 +67,7 @@ export type FilterChipProps = {
 
 export type EditableChipProps = {
   type: ChipType.EDITION;
-  accessary: IconType;
+  accessary?: IconType;
   name: string;
   onClick: () => void;
 };
@@ -118,13 +118,13 @@ function FilterChip({
         >
           {name}
         </span>
-        <span
+        {/* <span
           className={`${
             isSelected ? "text-gray-800 font-bold" : "text-gray-600"
           } text-xs flex-shrink-0`}
         >
           {accessary}
-        </span>
+        </span> */}
       </div>
     </motion.div>
   );

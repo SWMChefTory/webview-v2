@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import {
@@ -40,11 +39,16 @@ export function RecipeCardReady({
   recipe,
   isTablet = false,
 }: {
-  recipe: PopularSummaryRecipeDto;
+  recipe: {
+    id:string;
+    isViewed:boolean;
+    videoThumbnailUrl:string;
+    recipeTitle:string;
+  };
   isTablet?: boolean;
 }) {
   const { recipeStatus } = useFetchRecipeProgress({
-    recipeId: recipe.recipeId,
+    recipeId: recipe.id,
   });
   return (
     <div className="flex flex-col">

@@ -5,9 +5,9 @@ import {
   RecipeTagSchema,
 } from "@/src/shared/schema/recipeSchema";
 import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
-import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
+import { createCursorPaginatedSchema } from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
-import { CuisineType } from "@/src/entities/category/type/cuisineType";
+import { CuisineType } from "@/src/entities/cuisine-recipe/type/cuisineType";
 
 // API 원시 응답 데이터 스키마
 const RawCuisineRecipeSchema = z.object({
@@ -21,7 +21,7 @@ const RawCuisineRecipeSchema = z.object({
   videoId: z.string(),
   count: z.number(),
   videoUrl: z.string(),
-  videoType: z.enum(['SHORTS', 'NORMAL']),
+  videoType: z.enum(["SHORTS", "NORMAL"]),
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
   creditCost: z.number(),
@@ -40,41 +40,47 @@ const CuisineRecipeSchema = z.object({
 
 const CuisineRecipesSchema = z.array(CuisineRecipeSchema);
 
-const PaginatedCuisineRecipeSchema = createPaginatedSchema(CuisineRecipesSchema);
+const PaginatedCuisineRecipeSchema =
+  createCursorPaginatedSchema(CuisineRecipesSchema);
 
 export type CuisineRecipe = z.infer<typeof CuisineRecipeSchema>;
-export type PaginatedCuisineRecipeResponse = z.infer<typeof PaginatedCuisineRecipeSchema>;
+export type PaginatedCuisineRecipeResponse = z.infer<
+  typeof PaginatedCuisineRecipeSchema
+>;
 
 export const fetchCuisineRecipes = async ({
-  page,
+  cursor,
   cuisineType,
 }: {
-  page: number;
+  cursor: string | null | undefined;
   cuisineType: CuisineType;
 }): Promise<PaginatedCuisineRecipeResponse> => {
-  const url = `/recipes/cuisine/${cuisineType}?page=${page}`;
-  
-  const response = await client.get(url);
-  
+  const path = `/recipes/cuisine/${cuisineType}`;
+
+  const response = await (async () => {
+    if (cursor === undefined) {
+      return await client.get(path);
+    }
+    if (cursor === null) {
+      return await client.get(path, { params: { cursor: null } });
+    }
+    return await client.get(path, {
+      params: { cursor: cursor },
+    });
+  })();
+
   // 빈 응답 처리
   if (!response.data || Object.keys(response.data).length === 0) {
-    return {
-      currentPage: 0,
-      totalPages: 0,
-      totalElements: 0,
-      hasNext: false,
-      data: [],
-    };
+    throw new Error("No data");
   }
-  
+
   // API 응답 데이터 파싱
-  const rawRecipes = z.array(RawCuisineRecipeSchema).parse(response.data.cuisineRecipes || []);
-  
+  const rawRecipes = z
+    .array(RawCuisineRecipeSchema)
+    .parse(response.data.cuisineRecipes || []);
+
   const data = {
-    currentPage: response.data.currentPage ?? 0,
-    totalPages: response.data.totalPages ?? 0,
-    totalElements: response.data.totalElements ?? 0,
-    hasNext: response.data.hasNext ?? false,
+    ...response.data,
     data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
       recipeTitle: recipe.recipeTitle,
@@ -95,7 +101,39 @@ export const fetchCuisineRecipes = async ({
       creditCost: recipe.creditCost,
     })),
   };
-  
+
   return parseWithErrLog(PaginatedCuisineRecipeSchema, data);
 };
 
+// export async function fetchPopularSummary({
+//   cursor,
+//   recommendType,
+//   videoType,
+// }: {
+//   cursor: string | null | undefined;
+//   recommendType: RecommendType;
+//   videoType?: VideoType;
+// }): Promise<PopularSummaryRecipePagenatedResponse> {
+//   const path = `/recipes/recommend/${recommendType}`;
+//   const response = await (async () => {
+//     if (cursor === undefined) {
+//       return await client.get(path, {
+//         params: {
+//           query: videoType,
+//         },
+//       });
+//     }
+//     return await client.get(path, {
+//       params: {
+//         query: videoType,
+//         cursor: cursor,
+//       },
+//     });
+//   })();
+
+//   return parseWithErrLog(PopularSummaryRecipePagenatedResponse, {
+//     hasNext: response.data.hasNext,
+//     nextCursor: response.data.nextCursor,
+//     data: response.data.recommendRecipes,
+//   });
+// }

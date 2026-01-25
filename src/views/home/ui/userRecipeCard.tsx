@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import { useRouter } from "next/router";
 import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
-import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
+import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
@@ -24,8 +24,10 @@ import { useTranslation } from "next-i18next";
 
 export const UserRecipeCardReady = ({
   userRecipe,
+  // thumbnailUrl,
 }: {
   userRecipe: UserRecipe;
+  // thumbnailUrl:string;
 }) => {
   const router = useRouter();
   const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
@@ -51,6 +53,7 @@ export const UserRecipeCardReady = ({
         </div>
         <div className="absolute inset-[0]">
           <ThumbnailReady
+            // imgUrl={userRecipe.videoInfo.thumbnailUrl}
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
             size={{ width: 160, height: 90 }}
           />

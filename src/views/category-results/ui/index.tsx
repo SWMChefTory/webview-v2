@@ -9,37 +9,25 @@ import {
 } from "@/src/entities/cuisine-recipe/model/useCuisineRecipe";
 import {
   useFetchRecommendRecipes,
-  RecommendRecipe,
 } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  CategoryType,
-  isCuisineType,
-  isRecommendType,
-  RecommendType,
-  CuisineType,
-} from "@/src/entities/category/type/cuisineType";
+import { useEffect, useRef } from "react";
+
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
-import { track } from "@/src/shared/analytics/amplitude";
-import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { Trans } from "next-i18next";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+
+import {
+  CuisineType,
+  toCuisineType,
+} from "@/src/entities/cuisine-recipe/type/cuisineType";
+import {
+  RecommendType,
+  toRecommendType,
+} from "@/src/entities/recommend-recipe/type/recommendType";
+import { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
 
 export function CategoryResultsSkeleton() {
   return (
@@ -61,13 +49,18 @@ export function CategoryResultsSkeleton() {
 export function CategoryResultsContent({
   categoryType,
 }: {
-  categoryType: CategoryType;
+  categoryType: string;
 }) {
   // 타입에 따라 다른 컴포넌트 렌더링
-  if (isRecommendType(categoryType)) {
-    return <RecommendCategoryContent recommendType={categoryType} />;
+  const recommendType = toRecommendType(categoryType);
+  if (recommendType) {
+    return <RecommendCategoryContent recommendType={recommendType} />;
   }
-  return <CuisineCategoryContent cuisineType={categoryType} />;
+  const causinType = toCuisineType(categoryType);
+  if (causinType) {
+    return <CuisineCategoryContent cuisineType={causinType} />;
+  }
+  throw new Error("지원되지 않는 타입");
 }
 
 function RecommendCategoryContent({
@@ -76,19 +69,17 @@ function RecommendCategoryContent({
   recommendType: RecommendType;
 }) {
   const {
-    data: recipes,
-    totalElements,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    entities
   } = useFetchRecommendRecipes({ recommendType });
   const { t: categoryT } = useCategoryTranslation();
   const categoryName = categoryT(`recommend.${recommendType}`);
 
   return (
     <RecipeCardSection
-      recipes={recipes}
-      totalElements={totalElements}
+      recipes={entities}
       onScroll={(entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
@@ -103,11 +94,10 @@ function RecommendCategoryContent({
 
 function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
   const {
-    data: recipes,
-    totalElements,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    entities
   } = useFetchCuisineRecipes({ cuisineType });
 
   const { t: categoryT } = useCategoryTranslation();
@@ -115,8 +105,7 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
 
   return (
     <RecipeCardSection
-      recipes={recipes}
-      totalElements={totalElements}
+      recipes={entities}
       onScroll={(entries) => {
         if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
@@ -131,15 +120,12 @@ function CuisineCategoryContent({ cuisineType }: { cuisineType: CuisineType }) {
 
 const RecipeCardSection = ({
   recipes,
-  totalElements,
   onScroll,
   categoryName,
   isFetchingNextPage,
   isRecommendType,
-  // loadMoreRef
 }: {
   recipes: CuisineRecipe[] | RecommendRecipe[];
-  totalElements: number;
   onScroll: IntersectionObserverCallback;
   categoryName: string;
   isFetchingNextPage: boolean;
@@ -196,9 +182,9 @@ const RecipeCardSection = ({
             {t("header.suffix")}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
+        {/* <p className="text-sm text-gray-500 mt-2">
           {t("header.totalCount", { count: totalElements })}
-        </p>
+        </p> */}
       </div>
 
       {/* 레시피 그리드 */}
@@ -323,281 +309,6 @@ const RecipeCardReady = ({
   );
 };
 
-const CuisineRecipeCardReady = ({
-  recipe,
-  cuisineType,
-}: {
-  recipe: CuisineRecipe;
-  cuisineType: CuisineType;
-}) => {
-  const router = useRouter();
-  const { detailMeta, tags, isViewed, creditCost } = recipe;
-  const { create } = useCreateRecipe();
-  const [isOpen, setIsOpen] = useState(false);
-  const { t } = useCategoryResultsTranslation();
-
-  const handleCardClick = () => {
-    if (!isViewed) {
-      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-        entry_point: "category_cuisine",
-        video_type: recipe.videoInfo?.videoType || "NORMAL",
-        category_type: cuisineType,
-        recipe_id: recipe.recipeId,
-      });
-      setIsOpen(true);
-    } else {
-      router.replace(`/recipe/${recipe.recipeId}/detail`);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <article
-        className="w-full group cursor-pointer"
-        onClick={handleCardClick}
-      >
-        <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
-          <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
-          {isViewed && (
-            <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              {t("card.badge")}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-3 space-y-2.5">
-          <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
-            {recipe.recipeTitle}
-          </h3>
-
-          {(detailMeta?.servings || detailMeta?.cookingTime) && (
-            <div className="flex items-center gap-3 text-sm text-gray-600">
-              {detailMeta?.servings && (
-                <div className="flex items-center gap-1.5">
-                  <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">
-                    {t("card.serving", { count: detailMeta.servings })}
-                  </span>
-                </div>
-              )}
-              {detailMeta?.cookingTime && (
-                <div className="flex items-center gap-1.5">
-                  <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">
-                    {t("card.minute", { count: detailMeta.cookingTime })}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {tags && tags.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {tags.slice(0, 3).map((tag, index) => (
-                <span
-                  key={index}
-                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
-                >
-                  #{tag.name}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {detailMeta?.description && (
-            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
-              {detailMeta.description}
-            </p>
-          )}
-        </div>
-      </article>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            {t("dialog.title")}
-          </DialogTitle>
-        </DialogHeader>
-        <DialogDescription>
-          <div className="text-lg text-gray-400">
-            <Trans
-              i18nKey="category-results:dialog.description"
-              values={{ name: recipe.recipeTitle }}
-              components={{ bold: <span className="text-black font-bold" /> }}
-            />
-          </div>
-        </DialogDescription>
-        <DialogFooter className="flex flex-row justify-center gap-2">
-          <DialogClose asChild>
-            <Button variant="outline" className="flex-1">
-              {t("dialog.cancel")}
-            </Button>
-          </DialogClose>
-          <Button
-            onClick={async () => {
-              track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                entry_point: "category_cuisine",
-                video_type: recipe.videoInfo?.videoType || "NORMAL",
-                category_type: cuisineType,
-              });
-              const videoId = recipe.videoInfo?.videoId || "";
-              await create({
-                youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
-                recipeId: recipe.recipeId,
-                videoType: recipe.videoInfo?.videoType as VideoType | undefined,
-                recipeTitle: recipe.recipeTitle,
-                _source: "category_cuisine",
-                _creationMethod: "card",
-              });
-              setIsOpen(false);
-              router.replace(`/recipe/${recipe.recipeId}/detail`);
-            }}
-            className="flex-1"
-          >
-            {t("dialog.confirm")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
-
-const RecommendRecipeCardReady = ({
-  recipe,
-  recommendType,
-}: {
-  recipe: RecommendRecipe;
-  recommendType: RecommendType;
-}) => {
-  const router = useRouter();
-  const { detailMeta, tags, isViewed } = recipe;
-  const { create } = useCreateRecipe();
-  const [isOpen, setIsOpen] = useState(false);
-  const { t } = useCategoryResultsTranslation();
-
-  const handleCardClick = () => {
-    if (!isViewed) {
-      track(AMPLITUDE_EVENT.RECIPE_CREATE_START_CARD, {
-        entry_point: "category_recommend",
-        video_type: recipe.videoInfo?.videoType || "NORMAL",
-        category_type: recommendType,
-        recipe_id: recipe.recipeId,
-      });
-      setIsOpen(true);
-    } else {
-      router.replace(`/recipe/${recipe.recipeId}/detail`);
-    }
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <article
-        className="w-full group cursor-pointer"
-        onClick={handleCardClick}
-      >
-        <div className="relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200">
-          <ThumbnailReady imgUrl={recipe.videoInfo?.videoThumbnailUrl || ""} />
-          {isViewed && (
-            <div className="absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10">
-              {t("card.badge")}
-            </div>
-          )}
-        </div>
-
-        <div className="mt-3 space-y-2.5">
-          <h3 className="text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors">
-            {recipe.recipeTitle}
-          </h3>
-
-          {(detailMeta?.servings || detailMeta?.cookingTime) && (
-            <div className="flex items-center gap-3 text-sm text-gray-600">
-              {detailMeta?.servings && (
-                <div className="flex items-center gap-1.5">
-                  <BsPeople size={14} className="shrink-0" />
-                  <span className="font-medium">
-                    {t("card.serving", { count: detailMeta.servings })}
-                  </span>
-                </div>
-              )}
-              {detailMeta?.cookingTime && (
-                <div className="flex items-center gap-1.5">
-                  <FaRegClock size={14} className="shrink-0" />
-                  <span className="font-medium">
-                    {t("card.minute", { count: detailMeta.cookingTime })}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
-
-          {tags && tags.length > 0 && (
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {tags.slice(0, 3).map((tag, index) => (
-                <span
-                  key={index}
-                  className="text-xs font-semibold text-orange-600 whitespace-nowrap"
-                >
-                  #{tag.name}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {detailMeta?.description && (
-            <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]">
-              {detailMeta.description}
-            </p>
-          )}
-        </div>
-      </article>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            {t("dialog.title")}
-          </DialogTitle>
-        </DialogHeader>
-        <DialogDescription>
-          <div className="text-lg text-gray-400">
-            <Trans
-              i18nKey="category-results:dialog.description"
-              values={{ name: recipe.recipeTitle }}
-              components={{ bold: <span className="text-black font-bold" /> }}
-            />
-          </div>
-        </DialogDescription>
-        <DialogFooter className="flex flex-row justify-center gap-2">
-          <DialogClose asChild>
-            <Button variant="outline" className="flex-1">
-              {t("dialog.cancel")}
-            </Button>
-          </DialogClose>
-          <Button
-            onClick={async () => {
-              track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                entry_point: "category_recommend",
-                video_type: recipe.videoInfo?.videoType || "NORMAL",
-                category_type: recommendType,
-              });
-              const videoId = recipe.videoInfo?.videoId || "";
-              await create({
-                youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
-                recipeId: recipe.recipeId,
-                videoType: recipe.videoInfo?.videoType as VideoType | undefined,
-                recipeTitle: recipe.recipeTitle,
-                _source: "category_recommend",
-                _creationMethod: "card",
-              });
-              setIsOpen(false);
-              router.replace(`/recipe/${recipe.recipeId}/detail`);
-            }}
-            className="flex-1"
-          >
-            {t("dialog.confirm")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 const RecipeCardSkeleton = () => {
   return (

@@ -61,8 +61,8 @@ export function HomePageMobile() {
           </Link>
         </div>
       )}
-      <MyRecipes/>
       <CategorySection />
+      <MyRecipes/>
       <PopularRecipes />
       <PopularShortsRecipes />
       <FloatingButton />

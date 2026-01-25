@@ -5,9 +5,10 @@ import {
   RecipeTagSchema,
 } from "@/src/shared/schema/recipeSchema";
 import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
-import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
+import { createCursorPaginatedSchema } from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
-import { RecommendType } from "@/src/entities/category/type/cuisineType";
+import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
+import { VideoType } from "../type/videoType";
 
 // API 원시 응답 데이터 스키마
 const RawRecommendRecipeSchema = z.object({
@@ -38,40 +39,51 @@ const RecommendRecipeSchema = z.object({
 
 const RecommendRecipesSchema = z.array(RecommendRecipeSchema);
 
-const PaginatedRecommendRecipeSchema = createPaginatedSchema(RecommendRecipesSchema);
+const PaginatedRecommendRecipeSchema = createCursorPaginatedSchema(
+  RecommendRecipesSchema
+);
 
 export type RecommendRecipe = z.infer<typeof RecommendRecipeSchema>;
-export type PaginatedRecommendRecipeResponse = z.infer<typeof PaginatedRecommendRecipeSchema>;
+export type PaginatedRecommendRecipeResponse = z.infer<
+  typeof PaginatedRecommendRecipeSchema
+>;
 
 export const fetchRecommendRecipes = async ({
-  page,
+  cursor,
   recommendType,
+  videoType = VideoType.ALL,
 }: {
-  page: number;
+  cursor: string | undefined | null;
   recommendType: RecommendType;
+  videoType?: VideoType;
 }): Promise<PaginatedRecommendRecipeResponse> => {
-  const url = `/recipes/recommend/${recommendType}?page=${page}`;
+  const path = `/recipes/recommend/${recommendType}`;
+  const response = await (async () => {
+    if (cursor !== undefined) {
+      if (cursor === null) {
+        return await client.get(path, { params: { cursor: null, query:videoType } });
+      }
+      return await client.get(path, {
+        params: { cursor: cursor, query:videoType },
+      });
+    }
+    return await client.get(path, {
+      params: { query:videoType },
+    });
+  })();
 
-  const response = await client.get(url);
-  
   // 빈 응답 처리
   if (!response.data || Object.keys(response.data).length === 0) {
-    return {
-      currentPage: 0,
-      totalPages: 0,
-      totalElements: 0,
-      hasNext: false,
-      data: [],
-    };
+    throw new Error("No data");
   }
 
   // API 응답 데이터 파싱
-  const rawRecipes = z.array(RawRecommendRecipeSchema).parse(response.data.recommendRecipes || []);
+  const rawRecipes = z
+    .array(RawRecommendRecipeSchema)
+    .parse(response.data.recommendRecipes || []);
 
   const data = {
-    currentPage: response.data.currentPage,
-    totalPages: response.data.totalPages,
-    totalElements: response.data.totalElements,
+    nextCursor: response.data.nextCursor,
     hasNext: response.data.hasNext,
     data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
@@ -90,10 +102,9 @@ export const fetchRecommendRecipes = async ({
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
       },
-      creditCost : recipe.creditCost
+      creditCost: recipe.creditCost,
     })),
   };
-  
+
   return parseWithErrLog(PaginatedRecommendRecipeSchema, data);
 };
-

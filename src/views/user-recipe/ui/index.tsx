@@ -4,8 +4,9 @@ import { useRouter } from "next/router";
 import { ALL_RECIPES } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { CategoryListSection } from "@/src/views/user-recipe/ui/categoryListSection";
 import {
-  RecipeListSectionReady,
-  RecipeListSectionSkeleton,
+  RecipeAllListSectionReady,
+  RecipeCategoryListSectionReady,
+  RecipeListSectionSkeleton
 } from "@/src/views/user-recipe/ui/recipeCardListSection";
 import { useState } from "react";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -44,7 +45,7 @@ export function UserRecipe() {
         setSelectedCategoryId={setSelectedCategoryId}
       />
       <SSRSuspense fallback={<RecipeListSectionSkeleton />}>
-        <RecipeListSectionReady selectedCategoryId={selectedCategoryId} />
+        {selectedCategoryId===ALL_RECIPES ? <RecipeAllListSectionReady/>:<RecipeCategoryListSectionReady categoryId={selectedCategoryId}/>}
       </SSRSuspense>
     </div>
   );

@@ -1,6 +1,7 @@
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import {
@@ -8,6 +9,7 @@ import {
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
+import { useCallback } from "react";
 
 /**
  * PopularRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -56,19 +58,24 @@ const PopularRecipesTemplateMobile = ({
  */
 function RecipeCardSectionReady() {
   const {
-    data: recipes,
+    entities: recipes,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useFecthPopularRecipe(VideoType.NORMAL);
+  } = useFetchRecommendRecipes({
+    videoType: VideoType.NORMAL,
+    recommendType: RecommendType.POPULAR,
+  });
+
+  const handleReachEnd = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <HorizontalScrollArea
-      onReachEnd={() => {
-        if (hasNextPage) {
-          fetchNextPage();
-        }
-      }}
+      onReachEnd={handleReachEnd}
     >
       {recipes.map((recipe) => (
         <RecipeCardWrapper
@@ -77,10 +84,20 @@ function RecipeCardSectionReady() {
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
           recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoType}
-          recipeVideoUrl={recipe.videoUrl}
+          recipeVideoType={VideoType.NORMAL}
+          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
           entryPoint="popular_normal"
-          trigger={<RecipeCardReady recipe={recipe} isTablet={false} />}
+          trigger={
+            <RecipeCardReady
+              recipe={{
+                id: recipe.recipeId,
+                isViewed: recipe.isViewed,
+                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+                recipeTitle: recipe.videoInfo.videoTitle,
+              }}
+              isTablet={false}
+            />
+          }
         />
       ))}
 

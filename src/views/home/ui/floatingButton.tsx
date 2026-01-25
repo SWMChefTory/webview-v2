@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { FaPlus } from "react-icons/fa6";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
+import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import * as Popover from "@radix-ui/react-popover";
 import { create } from "zustand";

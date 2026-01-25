@@ -21,8 +21,8 @@ import {
   QueryErrorResetBoundary,
   useQueryClient,
 } from "@tanstack/react-query";
-import { RecipeCreatingView } from "@/src/widgets/recipe-creating-view/recipeCreatingView";
-import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
+import { RecipeCreatingView } from "@/src/widgets/recipe-creating-form/recipeCreatingForm";
+import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";

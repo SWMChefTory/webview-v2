@@ -1,13 +1,14 @@
-import { useFecthPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
+import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
 
 /**
  * PopularRecipes 섹션 - 태블릿 버전 (768px ~)
@@ -58,11 +59,14 @@ const PopularRecipesTemplateTablet = ({
  */
 function RecipeCardSectionReady() {
   const {
-    data: recipes,
+    entities: recipes,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useFecthPopularRecipe(VideoType.NORMAL);
+  } = useFetchRecommendRecipes({
+    videoType: VideoType.NORMAL,
+    recommendType: RecommendType.POPULAR,
+  });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -97,10 +101,20 @@ function RecipeCardSectionReady() {
             recipeCreditCost={recipe.creditCost}
             recipeTitle={recipe.recipeTitle}
             recipeIsViewed={recipe.isViewed}
-            recipeVideoType={recipe.videoType}
-            recipeVideoUrl={recipe.videoUrl}
+            recipeVideoType={VideoType.NORMAL}
+            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
             entryPoint="popular_normal"
-            trigger={<RecipeCardReady recipe={recipe} isTablet={true} />}
+            trigger={
+              <RecipeCardReady
+                recipe={{
+                  id: recipe.recipeId,
+                  isViewed: recipe.isViewed,
+                  videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+                  recipeTitle: recipe.videoInfo.videoTitle,
+                }}
+                isTablet={true}
+              />
+            }
           />
         ))}
         {isFetchingNextPage && (

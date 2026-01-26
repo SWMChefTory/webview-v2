@@ -24,25 +24,25 @@ import { useTranslation } from "next-i18next";
 
 export const UserRecipeCardReady = ({
   userRecipe,
-  // thumbnailUrl,
-}: {
+}: // thumbnailUrl,
+{
   userRecipe: UserRecipe;
   // thumbnailUrl:string;
 }) => {
   const router = useRouter();
-  const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
+  // const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
     <div className="relative flex flex-col w-[160px]">
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
-        <RecipeProgressReady userRecipe={userRecipe} />
+        <RecipeProgressReady recipeId={userRecipe.recipeId} />
       </SSRSuspense>
       <div
         className="relative w-[160] h-[90]"
         onClick={() => {
-          if (progress.recipeStatus === RecipeStatus.SUCCESS) {
-            router.push(`/recipe/${userRecipe.recipeId}/detail`);
-          }
+          // if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+          //   router.push(`/recipe/${userRecipe.recipeId}/detail`);
+          // }
         }}
       >
         <div className="absolute top-[12] right-[12] z-[10]">
@@ -53,7 +53,6 @@ export const UserRecipeCardReady = ({
         </div>
         <div className="absolute inset-[0]">
           <ThumbnailReady
-            // imgUrl={userRecipe.videoInfo.thumbnailUrl}
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
             size={{ width: 160, height: 90 }}
           />
@@ -193,13 +192,13 @@ export const UserRecipeCardSkeleton = () => {
 const RecipeProgressSkeleton = () => {
   return (
     <div className="absolute top-0 right-0 w-full h-full bg-gray-500/10 rounded-md flex items-center justify-center z-10">
-      <Loader2 className="size-[32] animate-spin text-stone-100 z-10" />
+      {/* <Loader2 className="size-[32] animate-spin text-stone-100 z-10" /> */}
     </div>
   );
 };
 
-const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
-  const { recipeStatus } = useFetchRecipeProgressWithToast(userRecipe.recipeId);
+const RecipeProgressReady = ({ recipeId }: { recipeId: string }) => {
+  const { recipeStatus } = useFetchRecipeProgressWithToast(recipeId);
   if (recipeStatus === RecipeStatus.SUCCESS) {
     return <></>;
   }

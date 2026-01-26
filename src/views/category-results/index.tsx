@@ -4,7 +4,7 @@ import { CategoryResultsSkeleton, CategoryResultsContent } from "./ui";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import {
   toCuisineType,
-} from "@/src/entities/cuisine-recipe/type/cuisineType";
+} from "@/src/entities/category/type/cuisineType"
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 
 const CategoryResultsPage = () => {

@@ -39,7 +39,6 @@ export function useCursorPaginationQuery<T>({
       entities: data.pages.flatMap((page) => page.data),
     }),
     initialPageParam: null,
-    staleTime: 5 * 60 * 1000,
   });
 
   const handleFetchNextPage = () => {

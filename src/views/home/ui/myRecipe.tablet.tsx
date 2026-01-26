@@ -3,7 +3,10 @@ import {
   UserRecipeCardEmpty,
   UserRecipeCardSkeleton,
 } from "@/src/views/home/ui/userRecipeCard";
-import { Category, useFetchCategories } from "@/src/entities/category/model/useCategory";
+import {
+  Category,
+  useFetchCategories,
+} from "@/src/entities/category/model/useCategory";
 import { useState, useEffect, useRef } from "react";
 import {
   ALL_RECIPES,
@@ -89,7 +92,7 @@ const UserRecipesSection = ({
   if (selectedCategory === ALL_RECIPES) {
     return <UserRecipesAllSection />;
   }
-  return <UserRecipesCategorySection category={selectedCategory}/>;
+  return <UserRecipesCategorySection category={selectedCategory} />;
 };
 
 /**
@@ -114,13 +117,16 @@ const UserRecipesAllSection = () => {
   );
 };
 
-const UserRecipesCategorySection = ({category}:{category:Category}) => {
+const UserRecipesCategorySection = ({ category }: { category: Category }) => {
   const {
     entities: userRecipes,
     fetchNextPage,
     isFetchingNextPage,
-    hasNextPage
-  } = useFetchCategoryRecipes({id:category?.id || "" ,name:category?.name || ""});
+    hasNextPage,
+  } = useFetchCategoryRecipes({
+    id: category?.id || "",
+    name: category?.name || "",
+  });
 
   return (
     <UserRecipesSectionTemplate

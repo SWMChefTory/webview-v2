@@ -3,10 +3,13 @@ import {
   RecommendType,
   toRecommendType,
 } from "@/src/entities/recommend-recipe/type/recommendType";
+// import {
+//   CuisineType,
+//   toCuisineType,
+// } from "@/src/entities/cuisine-recipe/type/cuisineType";
 import {
   CuisineType,
-  toCuisineType,
-} from "@/src/entities/cuisine-recipe/type/cuisineType";
+} from "@/src/entities/category/type/cuisineType"
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 

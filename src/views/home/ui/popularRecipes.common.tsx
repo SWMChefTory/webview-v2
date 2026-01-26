@@ -44,12 +44,10 @@ export function RecipeCardReady({
     isViewed:boolean;
     videoThumbnailUrl:string;
     recipeTitle:string;
+    isViewd:boolean;
   };
   isTablet?: boolean;
 }) {
-  const { recipeStatus } = useFetchRecipeProgress({
-    recipeId: recipe.id,
-  });
   return (
     <div className="flex flex-col">
       <div
@@ -59,11 +57,8 @@ export function RecipeCardReady({
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
             <AlreadyEnrolledChip
               isEnrolled={
-                recipeStatus === RecipeStatus.SUCCESS && recipe.isViewed
+                recipe.isViewed
               }
-            />
-            <CreatingStatusChip
-              isInCreating={recipeStatus === RecipeStatus.IN_PROGRESS}
             />
           </div>
           <img

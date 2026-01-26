@@ -8,6 +8,7 @@ import { useState } from "react";
 import {
   ALL_RECIPES,
   useFetchAllRecipes,
+  useFetchCategoryRecipes,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { UserRecipeCardReady } from "@/src/views/home/ui/userRecipeCard";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
@@ -17,9 +18,7 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
-import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
+import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 
 /**
  * MyRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -47,20 +46,19 @@ export const MyRecipesMobile = () => {
       }
       userRecipesSection={
         <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
-          <UserRecipesSection />
+          {selectedCategory === ALL_RECIPES ? (
+            <UserRecipesSection />
+          ) : (
+            <UserCategoryRecipesSection
+              id={selectedCategory.id}
+              name={selectedCategory.name}
+            />
+          )}
         </SSRSuspense>
       }
     />
-    // <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
-    //       <UserRecipesSection selectedCategory={selectedCategory} />
-    //     </SSRSuspense>
-      //   <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
-      //   <UserRecipesSection />
-      // </SSRSuspense>
   );
 };
-
-
 
 /**
  * 모바일 레이아웃 템플릿
@@ -90,7 +88,6 @@ const MyRecipesTemplateMobile = ({
   );
 };
 
-
 const UserRecipesSection = () => {
   const {
     entities: userRecipes,
@@ -98,37 +95,71 @@ const UserRecipesSection = () => {
     isFetchingNextPage,
     hasNextPage,
   } = useFetchAllRecipes();
-  // const {
-  //   entities: recipes,
-  //   isFetchingNextPage,
-  //   hasNextPage,
-  //   fetchNextPage,
-  // } = useFetchRecommendRecipes({
-  //   videoType: VideoType.NORMAL,
-  //   recommendType: RecommendType.POPULAR,
-  // });
 
-  // if (userRecipes.length === 0) {
-  //   return (
-  //     <HorizontalScrollArea>
-  //       <UserRecipeCardEmpty />
-  //     </HorizontalScrollArea>
-  //   );
-  // }
-
-  // 레시피 목록 (가로 스크롤)
   return (
-    <HorizontalScrollArea
+    <RecipeListTemplate
+      userRecipes={userRecipes}
+      isLoadingMore={isFetchingNextPage}
       onReachEnd={() => {
-        if (hasNextPage&&!isFetchingNextPage) {
+        if (hasNextPage && !isFetchingNextPage) {
           fetchNextPage();
         }
       }}
-    >
+    />
+  );
+};
+
+const UserCategoryRecipesSection = ({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) => {
+  const {
+    entities: userRecipes,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useFetchCategoryRecipes({ id, name });
+
+  return (
+    <RecipeListTemplate
+      userRecipes={userRecipes}
+      isLoadingMore={isFetchingNextPage}
+      onReachEnd={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
+    />
+  );
+};
+
+const RecipeListTemplate = ({
+  userRecipes,
+  isLoadingMore,
+  onReachEnd,
+}: {
+  userRecipes: UserRecipe[];
+  isLoadingMore: boolean;
+  onReachEnd: () => void;
+}) => {
+  if (userRecipes.length === 0) {
+    return (
+      <HorizontalScrollArea>
+        <UserRecipeCardEmpty />
+      </HorizontalScrollArea>
+    );
+  }
+
+  // 레시피 목록 (가로 스크롤)
+  return (
+    <HorizontalScrollArea onReachEnd={onReachEnd}>
       {userRecipes.map((recipe) => (
         <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
       ))}
-      {isFetchingNextPage && <UserRecipeCardSkeleton />}
+      {isLoadingMore && <UserRecipeCardSkeleton />}
     </HorizontalScrollArea>
   );
 };

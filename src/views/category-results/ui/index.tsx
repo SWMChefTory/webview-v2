@@ -20,9 +20,9 @@ import { useCategoryResultsTranslation } from "@/src/entities/category-results/h
 import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
 
 import {
-  CuisineType,
   toCuisineType,
-} from "@/src/entities/cuisine-recipe/type/cuisineType";
+  CuisineType
+} from "@/src/entities/category/type/cuisineType"
 import {
   RecommendType,
   toRecommendType,

@@ -94,6 +94,7 @@ function RecipeCardSectionReady() {
                 isViewed: recipe.isViewed,
                 videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
                 recipeTitle: recipe.videoInfo.videoTitle,
+                isViewd: recipe.isViewed
               }}
               isTablet={false}
             />

@@ -121,7 +121,7 @@ function CategoryCreatingInputForm({
           border-l-8 border-l-transparent
           border-r-8 border-r-transparent
           border-t-8 border-t-gray-500"
-        ></div>
+        />
       </div>
       <div className="h-[10]" />
       <FormInput

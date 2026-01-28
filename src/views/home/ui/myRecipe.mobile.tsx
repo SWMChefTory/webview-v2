@@ -7,7 +7,8 @@ import { Category } from "@/src/entities/category/model/useCategory";
 import { useState } from "react";
 import {
   ALL_RECIPES,
-  useFetchUserRecipes,
+  useFetchAllRecipes,
+  useFetchCategoryRecipes,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { UserRecipeCardReady } from "@/src/views/home/ui/userRecipeCard";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
@@ -17,7 +18,7 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
-import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
+import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 
 /**
  * MyRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -45,7 +46,14 @@ export const MyRecipesMobile = () => {
       }
       userRecipesSection={
         <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
-          <UserRecipesSection selectedCategory={selectedCategory} />
+          {selectedCategory === ALL_RECIPES ? (
+            <UserRecipesSection />
+          ) : (
+            <UserCategoryRecipesSection
+              id={selectedCategory.id}
+              name={selectedCategory.name}
+            />
+          )}
         </SSRSuspense>
       }
     />
@@ -80,23 +88,63 @@ const MyRecipesTemplateMobile = ({
   );
 };
 
-/**
- * 사용자 레시피 목록 섹션
- * HorizontalScrollArea + 무한 스크롤
- */
-const UserRecipesSection = ({
-  selectedCategory,
-}: {
-  selectedCategory: Category | typeof ALL_RECIPES;
-}) => {
+const UserRecipesSection = () => {
   const {
-    recipes: userRecipes,
+    entities: userRecipes,
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useFetchUserRecipes(selectedCategory);
+  } = useFetchAllRecipes();
 
-  // 빈 상태
+  return (
+    <RecipeListTemplate
+      userRecipes={userRecipes}
+      isLoadingMore={isFetchingNextPage}
+      onReachEnd={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
+    />
+  );
+};
+
+const UserCategoryRecipesSection = ({
+  id,
+  name,
+}: {
+  id: string;
+  name: string;
+}) => {
+  const {
+    entities: userRecipes,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useFetchCategoryRecipes({ id, name });
+
+  return (
+    <RecipeListTemplate
+      userRecipes={userRecipes}
+      isLoadingMore={isFetchingNextPage}
+      onReachEnd={() => {
+        if (hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      }}
+    />
+  );
+};
+
+const RecipeListTemplate = ({
+  userRecipes,
+  isLoadingMore,
+  onReachEnd,
+}: {
+  userRecipes: UserRecipe[];
+  isLoadingMore: boolean;
+  onReachEnd: () => void;
+}) => {
   if (userRecipes.length === 0) {
     return (
       <HorizontalScrollArea>
@@ -107,17 +155,11 @@ const UserRecipesSection = ({
 
   // 레시피 목록 (가로 스크롤)
   return (
-    <HorizontalScrollArea
-      onReachEnd={() => {
-        if (hasNextPage) {
-          fetchNextPage();
-        }
-      }}
-    >
+    <HorizontalScrollArea onReachEnd={onReachEnd}>
       {userRecipes.map((recipe) => (
         <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
       ))}
-      {isFetchingNextPage && <UserRecipeCardSkeleton />}
+      {isLoadingMore && <UserRecipeCardSkeleton />}
     </HorizontalScrollArea>
   );
 };

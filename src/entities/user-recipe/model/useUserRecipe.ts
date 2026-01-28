@@ -8,41 +8,59 @@ import {
   RecipeStatus,
   RecipeProgressDetail,
 } from "@/src/entities/user-recipe/type/type";
-import {
-  useSuspenseInfiniteQuery,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 import { RecipeCreateStatusResponse } from "@/src/entities/user-recipe/model/api";
 
 import { useMutation } from "@tanstack/react-query";
 import { createRecipe } from "@/src/entities/user-recipe/model/api";
 import { useEffect, useRef, useState } from "react";
-import { Category, CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
-import { PaginatedRecipes } from "@/src/entities/user-recipe/model/api";
-import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
 import { useFakeRecipeInCreatingStore } from "@/src/entities/user-recipe/model/useFakeRecipeInCreatingStore";
 import {
   RecipeCreateToastStatus,
   useRecipeCreateToastAction,
 } from "./useToast";
-import { VideoType } from "../../popular-recipe/type/videoType";
+import { VideoType } from "../../recommend-recipe/type/videoType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { BALANCE_QUERY_KEY } from "../../balance/model/useFetchBalance";
 import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineRecipe";
-import { POPULAR_RECIPE_QUERY_KEY } from "../../popular-recipe/model/usePopularRecipe";
 import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/useRecipeSearched";
 import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
-import { TRENDING_RECIPE_QUERY_KEY } from "@/src/views/search-recipe/entities/trend-recipe/model/useTrendRecipe";
+import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";
+import { useRecipeEnrollModalStore } from "@/src/widgets/recipe-creating-modal/recipeErollModalStore";
 
-export const QUERY_KEY = "categoryRecipes";
-export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
+// export const QUERY_KEY = "categoryRecipes";
 
 export const ALL_RECIPES = "allRecipes";
+
+export const useFetchAllRecipes = () => {
+  const result = useCursorPaginationQuery({
+    queryKey: [ALL_RECIPES],
+    queryFn: async ({ pageParam }) =>
+      fetchAllRecipesSummary({ cursor: pageParam }),
+  });
+  return result;
+};
+
+export const useFetchCategoryRecipes = (category: {
+  name: string;
+  id: string;
+}) => {
+  const result = useCursorPaginationQuery({
+    queryKey: [ALL_RECIPES, category.id],
+    queryFn: ({ pageParam }) =>
+      fetchCategorizedRecipesSummary({
+        categoryId: category.id,
+        categoryName: category.name,
+        cursor: pageParam,
+      }),
+  });
+  return result;
+};
 
 // 에러 타입 추출 헬퍼 함수
 function getErrorType(error: Error): string {
@@ -51,82 +69,6 @@ function getErrorType(error: Error): string {
     return "network";
   if (message.includes("timeout")) return "timeout";
   return "server";
-}
-
-export function useFetchUserRecipes(category: Category | typeof ALL_RECIPES): {
-  recipes: UserRecipe[];
-  totalElements: number;
-  refetchAll: () => void;
-  fetchNextPage: () => void;
-  hasNextPage: boolean;
-  isFetchingNextPage: boolean;
-  isLoading: boolean;
-  error: Error | null;
-} {
-  const queryClient = useQueryClient();
-  const {
-    data: { recipes, totalElements } = { recipes: [], totalElements: 0 },
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-  } = useSuspenseInfiniteQuery({
-    queryKey: (() => {
-      return category === ALL_RECIPES
-        ? [ALL_RECIPE_QUERY_KEY]
-        : [QUERY_KEY, category?.id ?? "unknown"];
-    })(),
-    queryFn: ({ pageParam = 0 }) => {
-      switch (category) {
-        case ALL_RECIPES:
-          return fetchAllRecipesSummary({ page: pageParam });
-        default:
-          return fetchCategorizedRecipesSummary({
-            categoryId: category.id,
-            categoryName: category.name,
-            page: pageParam,
-          });
-      }
-    },
-    getNextPageParam: (lastPage: PaginatedRecipes) => {
-      return lastPage.hasNext ? lastPage.currentPage + 1 : undefined;
-    },
-    select: (data) => {
-      if (!data) {
-        throw new Error("Data is not valid");
-      }
-      return {
-        recipes: data.pages.flatMap((page) => page.data),
-        totalElements: data.pages[0].totalElements,
-      };
-    },
-    initialPageParam: 0,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const refetchAll = () => {
-    queryClient.invalidateQueries({
-      queryKey: [QUERY_KEY, (category as Category)?.id || ALL_RECIPE_QUERY_KEY],
-    });
-  };
-
-  const handleFetchNextPage = () => {
-    if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
-  };
-
-  return {
-    recipes,
-    totalElements,
-    refetchAll,
-    fetchNextPage: handleFetchNextPage,
-    hasNextPage: !!hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-    error,
-  };
 }
 
 const isValidYouTubeUrl = (url: string): boolean => {
@@ -197,11 +139,9 @@ export function useUpdateCategoryOfRecipe() {
       return updateCategory({ recipeId, targetCategoryId });
     },
     onSuccess: (data) => {
+      
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [ALL_RECIPE_QUERY_KEY],
+        queryKey: [ALL_RECIPES],
       });
       queryClient.invalidateQueries({
         queryKey: [CATEGORY_QUERY_KEY],
@@ -217,8 +157,8 @@ export function useUpdateCategoryOfRecipe() {
 
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
-  const { handleAddFakeCreating } = useFakeRecipeInCreatingStore();
-  const { handleOpenToast } = useRecipeCreateToastAction();
+  const { open } = useRecipeEnrollModalStore();
+
   const {
     mutate,
     data,
@@ -245,24 +185,11 @@ export function useCreateRecipe() {
       _videoUrl?: string;
       _videoId?: string;
     }) => {
-      console.log(
-        JSON.stringify({
-          youtubeUrl,
-          targetCategoryId,
-          existingRecipeId,
-          videoType,
-          recipeTitle,
-        }),"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
-      );
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
       const recipeId = await createRecipe(standardUrl);
       if (targetCategoryId)
         await updateCategory({ recipeId, targetCategoryId });
-      handleAddFakeCreating({
-        recipeId: recipeId,
-        recipeTitle: recipeTitle ?? "",
-      });
       return { recipeId, standardUrl };
     },
     onMutate: async ({
@@ -271,12 +198,6 @@ export function useCreateRecipe() {
       videoType,
       recipeTitle,
     }) => {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.IN_PROGRESS,
-          recipeTitle: recipeTitle || "",
-        },
-      });
       if (!existingRecipeId) {
         return null;
       }
@@ -294,7 +215,6 @@ export function useCreateRecipe() {
           recipe_id: data.recipeId,
         });
       } else if (variables._creationMethod === "url") {
-        // URL 경로 성공
         track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_URL, {
           entry_point: variables._entryPoint,
           recipe_id: data.recipeId,
@@ -305,11 +225,7 @@ export function useCreateRecipe() {
       }
 
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY],
-        type: "all",
-      });
-      queryClient.invalidateQueries({
-        queryKey: [ALL_RECIPE_QUERY_KEY],
+        queryKey: [ALL_RECIPES],
         type: "all",
       });
       queryClient.invalidateQueries({
@@ -325,10 +241,6 @@ export function useCreateRecipe() {
         type: "all",
       });
       queryClient.invalidateQueries({
-        queryKey: [POPULAR_RECIPE_QUERY_KEY],
-        type: "all",
-      });
-      queryClient.invalidateQueries({
         queryKey: [RECIPE_SEARCH_QUERY_KEY],
         type: "all",
       });
@@ -336,17 +248,10 @@ export function useCreateRecipe() {
         queryKey: [RECOMMEND_RECIPE_QUERY_KEY],
         type: "all",
       });
-      queryClient.invalidateQueries({
-        queryKey: [TRENDING_RECIPE_QUERY_KEY],
-        type: "all",
-      });
+      open(data.recipeId);
     },
     onError: (error, _vars, ctx) => {
       const errorType = getErrorType(error);
-
-      console.log(JSON.stringify(error.message), "!!!!!!!!!!!!!!!!!!!!!!");
-      console.log(errorType, "!!!!!!!!!!!!!!!!!!!!!!");
-
       if (_vars._creationMethod === "card") {
         // 카드 경로 실패
         track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_CARD, {
@@ -364,13 +269,6 @@ export function useCreateRecipe() {
           video_id: _vars._videoId,
         });
       }
-
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.FAILED,
-          errorMessage: `url 주소 : ${_vars.youtubeUrl} 레시피 생성에 실패했어요`,
-        },
-      });
     },
   });
   return {
@@ -431,9 +329,7 @@ export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   };
 };
 
-export const useFetchRecipeProgressWithToast = (recipeId: string) => {
-  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
-  const { handleOpenToast } = useRecipeCreateToastAction();
+export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
   const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -452,23 +348,10 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
       setIsInProgressBefore(true);
     }
     if (progress.recipeStatus === RecipeStatus.FAILED) {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.FAILED,
-          errorMessage: "",
-        },
-      });
       clearInterval(timerRef.current);
       setIsInProgressBefore(false);
     }
     if (isInProgressBefore && progress.recipeStatus === RecipeStatus.SUCCESS) {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.SUCCESS,
-          recipeId: recipeId,
-          recipeTitle: "test",
-        },
-      });
       clearInterval(timerRef.current);
       setIsInProgressBefore(false);
     }
@@ -480,6 +363,6 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
   }, [progress.recipeStatus, recipeId]);
 
   return {
-    recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
+    recipeStatus: progress.recipeStatus,
   };
 };

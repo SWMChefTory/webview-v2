@@ -26,7 +26,20 @@
       "currentBalance": "현재 베리 {{balance}}개",
       "buttonCreate": "생성할게요",
       "buttonRecharge": "충전할게요",
-      "createWithOne": "베리 1개로 생성하기"
+      "createWithOne": "베리 1개로 생성하기",
+      "usesOne": "등록 시 베리 1개가 소모돼요"
+    },
+    "modal": {
+      "registered": "등록 완료",
+      "creating": "레시피 생성중",
+      "creatingMessage": "레시피 생성에 약간의 시간이 걸릴 수 있어요",
+      "failed": "레시피 생성에 실패했어요...",
+      "failedMessage": "요리 영상이 맞는지 확인해주세요",
+      "navigate": "이동하기",
+      "register": "등록할게요",
+      "recharge": "충전하기",
+      "titleReady": "레시피 등록하기",
+      "submitReady": "입력 완료"
     }
   }
 }

@@ -9,14 +9,14 @@ import {
   TitleSkeleton,
 } from "@/src/entities/user-recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { useFetchRecipeProgressWithToast } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { useFetchRecipeProgress, useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
 import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
-import { useRouter } from "next/router";
+import router, { useRouter } from "next/router";
 import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
-import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-view/recipeCreatingViewOpenStore";
+import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
@@ -24,25 +24,17 @@ import { useTranslation } from "next-i18next";
 
 export const UserRecipeCardReady = ({
   userRecipe,
-}: {
+}:
+{
   userRecipe: UserRecipe;
 }) => {
-  const router = useRouter();
-  const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
 
   return (
     <div className="relative flex flex-col w-[160px]">
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
-        <RecipeProgressReady userRecipe={userRecipe} />
+        <RecipeProgressReady recipeId={userRecipe.recipeId} />
       </SSRSuspense>
-      <div
-        className="relative w-[160] h-[90]"
-        onClick={() => {
-          if (progress.recipeStatus === RecipeStatus.SUCCESS) {
-            router.push(`/recipe/${userRecipe.recipeId}/detail`);
-          }
-        }}
-      >
+      <div className="relative w-[160] h-[90]">
         <div className="absolute top-[12] right-[12] z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
@@ -190,16 +182,25 @@ export const UserRecipeCardSkeleton = () => {
 const RecipeProgressSkeleton = () => {
   return (
     <div className="absolute top-0 right-0 w-full h-full bg-gray-500/10 rounded-md flex items-center justify-center z-10">
-      <Loader2 className="size-[32] animate-spin text-stone-100 z-10" />
     </div>
   );
 };
 
-const RecipeProgressReady = ({ userRecipe }: { userRecipe: UserRecipe }) => {
-  const { recipeStatus } = useFetchRecipeProgressWithToast(userRecipe.recipeId);
+const RecipeProgressReady = ({ recipeId }: { recipeId: string }) => {
+  const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
+
   if (recipeStatus === RecipeStatus.SUCCESS) {
-    return <></>;
+    return (
+      <div className="absolute inset-0 flex items-center overflow-hidden z-10"
+        onClick={() => {
+          if (recipeStatus === RecipeStatus.SUCCESS) {
+            router.push(`/recipe/${recipeId}/detail`);
+          }
+        }}
+      />
+    );
   }
+
   return (
     <div className="absolute inset-0 flex items-center overflow-hidden z-10">
       <ProgressDetailsCheckList recipeStatus={recipeStatus} />

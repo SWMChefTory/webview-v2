@@ -5,17 +5,34 @@ import {
   RecipeProgressDetail,
   RecipeProgressStep,
 } from "@/src/entities/user-recipe/type/type";
-import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
+import { createCursorPaginatedSchema } from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
-import { UserRecipesSchema,} from "./schema";
+import { UserRecipesSchema } from "./schema";
 
-export const PaginatedSchema = createPaginatedSchema(UserRecipesSchema);
+export const PaginatedSchema = createCursorPaginatedSchema(UserRecipesSchema);
 export type PaginatedRecipes = z.infer<typeof PaginatedSchema>;
 
-export async function fetchAllRecipesSummary({ page }: { page: number }) {
-  const response = await client.get(`/recipes/recent?page=${page}`);
+export async function fetchAllRecipesSummary({
+  cursor,
+}: {
+  cursor: string | null | undefined;
+}) {
+  const path = "/recipes/recent";
+  const response = await (async () => {
+    if (cursor !== undefined) {
+      if (cursor === null) {
+        return await client.get(path, { params: { cursor: null } });
+      }
+      return await client.get(path, {
+        params: { cursor },
+      });
+    }
+    return await client.get(path);
+  })();
+
+  console.log("fetchAllRecipesSummary", JSON.stringify(response.data, null, 2));
+
   const data = response.data;
-  console.log(JSON.stringify(response),"!!!!!!!!!!!!!!!!");
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.recentRecipes.map((recipe: any) => transformRecipe(recipe)),
@@ -25,22 +42,28 @@ export async function fetchAllRecipesSummary({ page }: { page: number }) {
 export async function fetchCategorizedRecipesSummary({
   categoryId,
   categoryName,
-  page,
+  cursor,
 }: {
   categoryId: string;
   categoryName: string;
-  page: number;
+  cursor: string | null | undefined;
 }): Promise<PaginatedRecipes> {
-  const response = await client.get(
-    `/recipes/categorized/${categoryId}?page=${page}`
-  );
+  const path = `/recipes/categorized/${categoryId}`
+  const response = await (async () => {
+    if (cursor !== undefined) {
+      if (cursor === null) {
+        return await client.get(path, { params: { cursor: null } });
+      }
+      return await client.get(path, {
+        params: { cursor },
+      });
+    }
+    return await client.get(path);
+  })();
 
   const data = response.data;
   return parseWithErrLog(PaginatedSchema, {
-    currentPage: data.currentPage,
-    hasNext: data.hasNext,
-    totalElements: data.totalElements,
-    totalPages: data.totalPages,
+    ...data,
     data: data.categorizedRecipes
       .map((recipe: any) =>
         transformRecipe({ ...recipe, category: categoryName })
@@ -52,23 +75,23 @@ export async function fetchCategorizedRecipesSummary({
   });
 }
 
-export async function fetchUnCategorizedRecipesSummary(params: {
-  page: number;
-}): Promise<PaginatedRecipes> {
-  const { page } = params;
-  const response = await client.get(`/recipes/uncategorized?page=${page}`);
-  const data = response.data;
+// export async function fetchUnCategorizedRecipesSummary(params: {
+//   page: number;
+// }): Promise<PaginatedRecipes> {
+//   const { page } = params;
+//   const response = await client.get(`/recipes/uncategorized?page=${page}`);
+//   const data = response.data;
 
-  return parseWithErrLog(PaginatedSchema, {
-    currentPage: data.currentPage,
-    hasNext: data.hasNext,
-    totalElements: data.totalElements,
-    totalPages: data.totalPages,
-    data: data.unCategorizedRecipes.map((recipe: any) =>
-      transformRecipe(recipe)
-    ),
-  });
-}
+//   return parseWithErrLog(PaginatedSchema, {
+//     currentPage: data.currentPage,
+//     hasNext: data.hasNext,
+//     totalElements: data.totalElements,
+//     totalPages: data.totalPages,
+//     data: data.unCategorizedRecipes.map((recipe: any) =>
+//       transformRecipe(recipe)
+//     ),
+//   });
+// }
 
 const transformRecipe = (recipe: any) => {
   return {

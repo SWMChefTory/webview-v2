@@ -1,0 +1,10 @@
+export enum CuisineType {
+  KOREAN = "KOREAN",
+  SNACK = "SNACK",
+  CHINESE = "CHINESE",
+  JAPANESE = "JAPANESE",
+  WESTERN = "WESTERN",
+  DESSERT = "DESSERT",
+  HEALTHY = "HEALTHY",
+  SIMPLE = "SIMPLE",
+}

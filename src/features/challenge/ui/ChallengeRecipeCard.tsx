@@ -17,7 +17,7 @@ import { BsPeople } from "react-icons/bs";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { VideoType } from "@/src/entities/popular-recipe/type/videoType";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import type { ChallengeRecipe } from "../model/schema";
 import { useTranslation } from "next-i18next";
 

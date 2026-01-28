@@ -13,7 +13,8 @@ import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { BalanceWithRecharge } from "./balanceWithRecharge";
-import * as Popover from "@radix-ui/react-popover";
+import { useState } from "react";
+import { Sheet } from "react-modal-sheet";
 
 /**
  * Home 페이지 - 모바일 버전 (0 ~ 767px)
@@ -25,8 +26,8 @@ import * as Popover from "@radix-ui/react-popover";
  */
 export function HomePageMobile() {
   const router = useRouter();
-  const { t } = useHomeTranslation();
   const lang = useLangcode();
+  const {t} = useHomeTranslation();
 
   useSafeArea({
     top: { color: "transparent", isExists: true },
@@ -51,6 +52,7 @@ export function HomePageMobile() {
         }
         color="bg-white"
       />
+
       {lang === "ko" && (
         <div className="pt-2 px-2">
           <Link href="/search-recipe">
@@ -74,6 +76,20 @@ export function HomePageMobile() {
   );
 }
 
+const SearchBar = () => {
+  const { t } = useHomeTranslation();
+  return (
+    <div className="pt-2 px-2">
+      <Link href="/search-recipe">
+        <div className="flex flex-row items-center justify-between px-4 w-full h-[36px] text-gray-800 bg-gray-100 rounded-lg">
+          {t("searchBarPlaceholder")}
+          <PiMagnifyingGlassBold size={16} />
+        </div>
+      </Link>
+    </div>
+  );
+};
+
 const Logo = () => {
   const lang = useLangcode();
   if (lang === "en") {
@@ -83,4 +99,3 @@ const Logo = () => {
   }
   return <img src="/logo.png" alt="logo" className="h-[20px] w-auto pl-2" />;
 };
-

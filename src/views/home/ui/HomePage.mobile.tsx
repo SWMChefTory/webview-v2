@@ -26,6 +26,9 @@ import { Sheet } from "react-modal-sheet";
  */
 export function HomePageMobile() {
   const router = useRouter();
+  const lang = useLangcode();
+  const {t} = useHomeTranslation();
+
   useSafeArea({
     top: { color: "transparent", isExists: true },
     bottom: { color: "#FFFFFF", isExists: false },
@@ -49,9 +52,19 @@ export function HomePageMobile() {
         }
         color="bg-white"
       />
-      <SearchBar />
+
+      {lang === "ko" && (
+        <div className="pt-2 px-2">
+          <Link href="/search-recipe">
+            <div className="flex flex-row items-center justify-between px-4 w-full h-[36px] text-gray-800 bg-gray-100 rounded-lg">
+              {t("searchBarPlaceholder")}
+              <PiMagnifyingGlassBold size={16} />
+            </div>
+          </Link>
+        </div>
+      )}
       <CategorySection />
-      <MyRecipes />
+      <MyRecipes/>
       <PopularRecipes />
       <PopularShortsRecipes />
       <FloatingButton />

@@ -15,6 +15,12 @@
 ### 수정 예정
 - 알려진 버그들
 
+### 수정
+- **레시피 생성 모달/폼 다국어 지원 추가**: recipe-creating-modal, recipe-creating-form의 하드코딩된 한국어 텍스트를 i18n으로 교체
+  - `recipeCreating.modal` 섹션 신규 추가 (등록 완료, 생성중, 실패 메시지, 이동하기, 등록할게요, 충전하기, 제목/제출 버튼 텍스트)
+  - `recipeCreating.berry` 섹션에 `usesOne` 키 추가
+  - recipeErollModal.tsx, recipeCardWrapper.tsx, recipeCreatingForm.tsx의 하드코딩된 한국어 텍스트를 `t()` 함수 호출로 교체
+
 ---
 
 ## [1.1.2] - 2026-01-05

@@ -1,13 +1,7 @@
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Sheet } from "react-modal-sheet";
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter } from "next/router";
 import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/shared/enums/recipe";
@@ -18,6 +12,8 @@ import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import Image from "next/image";
+import { useFetchRecipeOverview } from "@/src/entities/recipe-overview/model/model";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export type RecipeCardEntryPoint =
   | "popular_normal"
@@ -63,7 +59,7 @@ function RecipeCardWrapperReady({
   const router = useRouter();
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <>
       <div
         onClick={() => {
           if (!recipeIsViewed) {
@@ -82,61 +78,134 @@ function RecipeCardWrapperReady({
       >
         {trigger}
       </div>
-      <DialogContent className="w-[96%] space-y-4">
-        <DialogTitle asChild>
-          <p className="line-clamp-1">{recipeTitle}</p>
-        </DialogTitle>
-        <DialogDescription asChild>
-          <CreatingDescription
-            creditCost={recipeCreditCost}
-            balance={balance.balance}
-          />
-        </DialogDescription>
-        <DialogClose asChild>
-          <CreateButton
-            creditCost={recipeCreditCost}
-            balance={balance.balance}
-            onCreate={() => {
-              if (!recipeIsViewed) {
-                track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
-                  entry_point: entryPoint,
-                  video_type: recipeVideoType,
-                });
-                create({
-                  youtubeUrl: recipeVideoUrl,
-                  targetCategoryId: null,
-                  recipeId: recipeId,
-                  videoType: recipeVideoType,
-                  recipeTitle: recipeTitle,
-                  _source: entryPoint,
-                  _creationMethod: "card",
-                });
-              }
-              setIsOpen(false);
-            }}
-            onRecharge={() => {
-              track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
-                source: "create_modal",
-              });
-              setIsOpen(false);
-            }}
-          />
-        </DialogClose>
-      </DialogContent>
-    </Dialog>
+      <Sheet isOpen={isOpen} onClose={() => setIsOpen(false)} detent="content">
+        <Sheet.Container
+          style={{
+            marginBottom: 40,
+            borderRadius: 20,
+            left: 8,
+            right: 8,
+            width: "auto",
+          }}
+        >
+          <Sheet.Content>
+            <Suspense fallback={<SheetContentSkeleton />}>
+              <SheetContentWithImage
+                recipeId={recipeId}
+                recipeTitle={recipeTitle}
+                recipeCreditCost={recipeCreditCost}
+                balance={balance.balance}
+                entryPoint={entryPoint}
+                recipeVideoType={recipeVideoType}
+                recipeVideoUrl={recipeVideoUrl}
+                recipeIsViewed={recipeIsViewed}
+                onCreate={() => {
+                  if (!recipeIsViewed) {
+                    track(AMPLITUDE_EVENT.RECIPE_CREATE_SUBMIT_CARD, {
+                      entry_point: entryPoint,
+                      video_type: recipeVideoType,
+                    });
+                    create({
+                      youtubeUrl: recipeVideoUrl,
+                      targetCategoryId: null,
+                      recipeId: recipeId,
+                      videoType: recipeVideoType,
+                      recipeTitle: recipeTitle,
+                      _source: entryPoint,
+                      _creationMethod: "card",
+                    });
+                  }
+                  setIsOpen(false);
+                }}
+                onRecharge={() => {
+                  track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
+                    source: "create_modal",
+                  });
+                  setIsOpen(false);
+                }}
+              />
+            </Suspense>
+          </Sheet.Content>
+        </Sheet.Container>
+        <Sheet.Backdrop onTap={() => setIsOpen(false)} />
+      </Sheet>
+    </>
   );
 }
 
 //이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
 export function RecipeCardWrapper(props: RecipeCardWrapperProps) {
   return (
-    <SSRSuspense fallback={<RecipeCardWrapperSkeleton trigger={props.trigger} />}>
+    <SSRSuspense
+      fallback={<RecipeCardWrapperSkeleton trigger={props.trigger} />}
+    >
       <RecipeCardWrapperReady {...props} />
     </SSRSuspense>
   );
 }
 
-const CreateButton = ({
+const SheetContentWithImage = ({
+  recipeId,
+  recipeTitle,
+  recipeCreditCost,
+  balance,
+  entryPoint,
+  recipeVideoType,
+  recipeVideoUrl,
+  recipeIsViewed,
+  onCreate,
+  onRecharge,
+}: {
+  recipeId: string;
+  recipeTitle: string;
+  recipeCreditCost: number;
+  balance: number;
+  entryPoint: RecipeCardEntryPoint;
+  recipeVideoType: VideoType;
+  recipeVideoUrl: string;
+  recipeIsViewed: boolean;
+  onCreate: () => void;
+  onRecharge: () => void;
+}) => {
+  const { data: recipeOverview } = useFetchRecipeOverview(recipeId);
+
+  return (
+    <div className="flex flex-col">
+      <div className="w-full aspect-video rounded-t-[20px] overflow-hidden">
+        <img
+          src={recipeOverview.videoThumbnailUrl}
+          alt={recipeTitle}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="pt-2 pb-3 px-4 space-y-4">
+        <h2 className="text-xl font-bold line-clamp-1">{recipeTitle}</h2>
+        <CreatingDescription creditCost={recipeCreditCost} balance={balance} />
+      </div>
+      <SplitButton
+        creditCost={recipeCreditCost}
+        balance={balance}
+        onCreate={onCreate}
+        onRecharge={onRecharge}
+      />
+    </div>
+  );
+};
+
+const SheetContentSkeleton = () => {
+  return (
+    <div className="flex flex-col">
+      <Skeleton className="w-full aspect-video rounded-t-[20px]" />
+      <div className="pt-4 pb-5 px-4 space-y-4">
+        <Skeleton className="h-7 w-3/4" />
+        <Skeleton className="h-16 w-full" />
+      </div>
+      <Skeleton className="h-12 mx-4 rounded-[8px]" />
+    </div>
+  );
+};
+
+const SplitButton = ({
   creditCost,
   balance,
   onCreate,
@@ -148,17 +217,35 @@ const CreateButton = ({
   onRecharge: () => void;
 }) => {
   const { t } = useTranslation("common");
+
   if (balance - creditCost < 0) {
     return (
-      <Button onClick={onRecharge} className="flex-1 text-lg py-5 font-bold">
-        {t("recipeCreating.berry.buttonRecharge")}
-      </Button>
+      <div className="flex rounded-b-[20px] overflow-hidden">
+        {/* <div
+          onClick={onRecharge}
+          className="flex-1 flex items-center justify-center py-3 text-lg font-bold bg-gray-100 text-gray-700 cursor-pointer"
+        >
+          나중에
+        </div> */}
+        <div
+          onClick={onRecharge}
+          className="flex-1 flex items-center justify-center py-3 text-lg font-bold bg-orange-500 text-white cursor-pointer"
+        >
+          충전하기
+        </div>
+      </div>
     );
   }
+
   return (
-    <Button onClick={onCreate} className="flex-1 text-lg py-5 font-bold">
-      {t("recipeCreating.berry.buttonCreate")}
-    </Button>
+    <div className="flex rounded-b-[20px] overflow-hidden justify-center px-3 pb-3">
+      <div
+        onClick={onCreate}
+        className="flex rounded-[10px] w-full items-center justify-center py-3 text-lg font-bold bg-orange-500 text-white cursor-pointer"
+      >
+        등록할게요
+      </div>
+    </div>
   );
 };
 
@@ -192,21 +279,19 @@ const CreatingDescription = ({
     );
   }
   return (
-    <div className="px-4 flex flex-col items-center gap-2">
-      <p className="text-lg text-gray-700 font-semibold">
+    <div className="px-4 flex flex-col items-center gap-2 text-sm text-gray-500">
+      <p className="flex items-center gap-1.5">
         {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
       </p>
       <div className="flex items-center gap-1.5">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
-          width={18}
-          height={18}
+          width={12}
+          height={12}
           className="object-contain"
         />
-        <p className="text-sm text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance })}
-        </p>
+        <p>{t("recipeCreating.berry.currentBalance", { balance })}</p>
       </div>
     </div>
   );

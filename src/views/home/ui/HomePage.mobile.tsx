@@ -13,6 +13,8 @@ import * as Toast from "@radix-ui/react-toast";
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { BalanceWithRecharge } from "./balanceWithRecharge";
+import { useState } from "react";
+import { Sheet } from "react-modal-sheet";
 
 /**
  * Home 페이지 - 모바일 버전 (0 ~ 767px)

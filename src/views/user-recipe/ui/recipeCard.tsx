@@ -8,7 +8,7 @@ import {
   ThumbnailReady,
 } from "@/src/entities/user-recipe/ui/thumbnail";
 import {
-  useFetchRecipeProgressWithToast,
+  useFetchRecipeProgressWithRefetch,
   useUpdateCategoryOfRecipe,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { TitleReady, TitleSkeleton } from "@/src/entities/user-recipe/ui/title";
@@ -44,13 +44,12 @@ const RecipeDetailsCardReady = ({
   userRecipe: UserRecipe;
   selectedCategoryId?: string;
 }) => {
-  const { recipeStatus } = useFetchRecipeProgressWithToast(userRecipe.recipeId);
+  const { recipeStatus } = useFetchRecipeProgressWithRefetch(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
   const userRouter = useRouter();
-  const progress = useFetchRecipeProgressWithToast(userRecipe.recipeId);
   const { handleTapStart } = useResolveLongClick(
     () => {
-      if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+      if (recipeStatus === RecipeStatus.SUCCESS) {
         userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
       }
     },

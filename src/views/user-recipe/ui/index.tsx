@@ -6,7 +6,7 @@ import { CategoryListSection } from "@/src/views/user-recipe/ui/categoryListSect
 import {
   RecipeAllListSectionReady,
   RecipeCategoryListSectionReady,
-  RecipeListSectionSkeleton
+  RecipeListSectionSkeleton,
 } from "@/src/views/user-recipe/ui/recipeCardListSection";
 import { useState } from "react";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -15,7 +15,7 @@ import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 
 export function UserRecipe() {
   const router = useRouter();
-  const {t} = useUserRecipeTranslation();
+  const { t } = useUserRecipeTranslation();
 
   useSafeArea({
     top: { color: "#FFFFFF", isExists: true },
@@ -34,7 +34,7 @@ export function UserRecipe() {
         leftContent={
           <BackButton
             onClick={() => {
-            router.back();
+              router.back();
             }}
           />
         }
@@ -45,7 +45,11 @@ export function UserRecipe() {
         setSelectedCategoryId={setSelectedCategoryId}
       />
       <SSRSuspense fallback={<RecipeListSectionSkeleton />}>
-        {selectedCategoryId===ALL_RECIPES ? <RecipeAllListSectionReady/>:<RecipeCategoryListSectionReady categoryId={selectedCategoryId}/>}
+        {selectedCategoryId === ALL_RECIPES ? (
+          <RecipeAllListSectionReady />
+        ) : (
+          <RecipeCategoryListSectionReady categoryId={selectedCategoryId} />
+        )}
       </SSRSuspense>
     </div>
   );

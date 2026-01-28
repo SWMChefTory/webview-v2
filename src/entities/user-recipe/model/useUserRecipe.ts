@@ -31,9 +31,9 @@ import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineR
 import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/useRecipeSearched";
 import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
 import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";
+import { useRecipeEnrollModalStore } from "@/src/widgets/recipe-creating-modal/recipeErollModalStore";
 
-export const QUERY_KEY = "categoryRecipes";
-export const ALL_RECIPE_QUERY_KEY = "uncategorizedRecipes";
+// export const QUERY_KEY = "categoryRecipes";
 
 export const ALL_RECIPES = "allRecipes";
 
@@ -139,11 +139,9 @@ export function useUpdateCategoryOfRecipe() {
       return updateCategory({ recipeId, targetCategoryId });
     },
     onSuccess: (data) => {
+      
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [ALL_RECIPE_QUERY_KEY],
+        queryKey: [ALL_RECIPES],
       });
       queryClient.invalidateQueries({
         queryKey: [CATEGORY_QUERY_KEY],
@@ -159,8 +157,7 @@ export function useUpdateCategoryOfRecipe() {
 
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
-  const { handleAddFakeCreating } = useFakeRecipeInCreatingStore();
-  const { handleOpenToast } = useRecipeCreateToastAction();
+  const { open } = useRecipeEnrollModalStore();
 
   const {
     mutate,
@@ -193,10 +190,6 @@ export function useCreateRecipe() {
       const recipeId = await createRecipe(standardUrl);
       if (targetCategoryId)
         await updateCategory({ recipeId, targetCategoryId });
-      handleAddFakeCreating({
-        recipeId: recipeId,
-        recipeTitle: recipeTitle ?? "",
-      });
       return { recipeId, standardUrl };
     },
     onMutate: async ({
@@ -205,12 +198,6 @@ export function useCreateRecipe() {
       videoType,
       recipeTitle,
     }) => {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.IN_PROGRESS,
-          recipeTitle: recipeTitle || "",
-        },
-      });
       if (!existingRecipeId) {
         return null;
       }
@@ -228,7 +215,6 @@ export function useCreateRecipe() {
           recipe_id: data.recipeId,
         });
       } else if (variables._creationMethod === "url") {
-        // URL 경로 성공
         track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_URL, {
           entry_point: variables._entryPoint,
           recipe_id: data.recipeId,
@@ -239,11 +225,7 @@ export function useCreateRecipe() {
       }
 
       queryClient.invalidateQueries({
-        queryKey: [QUERY_KEY],
-        type: "all",
-      });
-      queryClient.invalidateQueries({
-        queryKey: [ALL_RECIPE_QUERY_KEY],
+        queryKey: [ALL_RECIPES],
         type: "all",
       });
       queryClient.invalidateQueries({
@@ -266,6 +248,7 @@ export function useCreateRecipe() {
         queryKey: [RECOMMEND_RECIPE_QUERY_KEY],
         type: "all",
       });
+      open(data.recipeId);
     },
     onError: (error, _vars, ctx) => {
       const errorType = getErrorType(error);
@@ -286,13 +269,6 @@ export function useCreateRecipe() {
           video_id: _vars._videoId,
         });
       }
-
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.FAILED,
-          errorMessage: `url 주소 : ${_vars.youtubeUrl} 레시피 생성에 실패했어요`,
-        },
-      });
     },
   });
   return {
@@ -353,9 +329,7 @@ export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   };
 };
 
-export const useFetchRecipeProgressWithToast = (recipeId: string) => {
-  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
-  const { handleOpenToast } = useRecipeCreateToastAction();
+export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
   const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -374,23 +348,10 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
       setIsInProgressBefore(true);
     }
     if (progress.recipeStatus === RecipeStatus.FAILED) {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.FAILED,
-          errorMessage: "",
-        },
-      });
       clearInterval(timerRef.current);
       setIsInProgressBefore(false);
     }
     if (isInProgressBefore && progress.recipeStatus === RecipeStatus.SUCCESS) {
-      handleOpenToast({
-        toastInfo: {
-          status: RecipeCreateToastStatus.SUCCESS,
-          recipeId: recipeId,
-          recipeTitle: "test",
-        },
-      });
       clearInterval(timerRef.current);
       setIsInProgressBefore(false);
     }
@@ -402,6 +363,6 @@ export const useFetchRecipeProgressWithToast = (recipeId: string) => {
   }, [progress.recipeStatus, recipeId]);
 
   return {
-    recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
+    recipeStatus: progress.recipeStatus,
   };
 };

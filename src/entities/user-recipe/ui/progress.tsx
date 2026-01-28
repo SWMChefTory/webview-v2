@@ -1,7 +1,7 @@
 import { RecipeStatus } from "@/src/shared/enums/recipe";
 import { Spinner } from "@/components/ui/spinner";
 import { useQueryClient } from "@tanstack/react-query";
-import { ALL_RECIPE_QUERY_KEY,QUERY_KEY as CATEGORY_QUERY_KEY } from "../model/useUserRecipe";
+import { ALL_RECIPES } from "../model/useUserRecipe";
 import { useTranslation } from "next-i18next";
 
 export const ProgressDetailsCheckList = ({
@@ -24,10 +24,7 @@ export const ProgressDetailsCheckList = ({
           <div className="text-white font-bold text-lg"
           onClick={recipeStatus === RecipeStatus.FAILED ? () => {
             queryClient.invalidateQueries({
-              queryKey: [ALL_RECIPE_QUERY_KEY],
-            });
-            queryClient.invalidateQueries({
-              queryKey: [CATEGORY_QUERY_KEY],
+              queryKey: [ALL_RECIPES],
             });
           } : (() => {})}
           >

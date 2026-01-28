@@ -11,7 +11,6 @@ import {
   useDeleteCategory,
 } from "@/src/entities/category/model/useCategory";
 import {
-  // useFetchUserRecipes,
   ALL_RECIPES,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 
@@ -85,9 +84,6 @@ const CategoryListReady = ({
   setSelectedCategoryId?: (categoryId: string | typeof ALL_RECIPES) => void;
 }) => {
   const { data: categories } = useFetchCategories();
-  // const { totalElements } = useFetchUserRecipes(
-  //   categories?.find((category) => category.id === ALL_RECIPES) || ALL_RECIPES
-  // );
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(
     null
   );

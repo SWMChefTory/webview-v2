@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
 import {appWithTranslation} from 'next-i18next';
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
+import { AxiosError } from "axios";
 
 export default appWithTranslation(App);
 
@@ -139,8 +140,9 @@ function AppInner({ Component, pageProps }: AppProps) {
         {({ reset }) => (
           <ErrorBoundary
             onReset={reset}
-            fallbackRender={({ resetErrorBoundary }) => (
+            fallbackRender={({ error,resetErrorBoundary }) => (
               <NetworkFallback
+                error={error}
                 onRetry={async () => {
                   resetErrorBoundary();
                   reset();
@@ -164,9 +166,15 @@ function AppInner({ Component, pageProps }: AppProps) {
   );
 }
 
-export function NetworkFallback({ onRetry }: { onRetry: () => void }) {
+export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: () => void }) {
   const queryClient = useQueryClient();
   const router = useRouter();
+
+  console.log("error!!!!!!!!!!!!!!!!!!!!!!!!!!!!", JSON.stringify(error));
+  if (error instanceof AxiosError) {
+    console.log("error code!!!!!!!!!!!!!!!!!!!!!!!!!!!!", JSON.stringify(error.response?.data)
+  );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-[100vh] text-center px-4 py-10 bg-orange-50">

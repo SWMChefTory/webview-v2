@@ -8,12 +8,14 @@ function FormInput({
   isError,
   errorMessage,
   placeholder,
+  isDisabled = false,
 }: {
   value: string;
   onChange: (value: string) => void;
   isError: boolean;
   errorMessage: string;
   placeholder: string;
+  isDisabled?: boolean;
 }) {
   return (
     <>

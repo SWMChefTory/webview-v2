@@ -1,13 +1,13 @@
-import * as Dialog from "@radix-ui/react-dialog";
-
 import { useState, useEffect, useRef } from "react";
+import { Sheet } from "react-modal-sheet";
 import {
   useCreateRecipe,
   extractYouTubeVideoId,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { Loader2 } from "lucide-react";
 
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingFormOpenStore";
-import { FormInput, FormButton } from "@/src/shared/form/components";
+import { FormInput } from "@/src/shared/form/components";
 import { ShareTutorialModal } from "./shareTutorialModal";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import { HorizontalScrollArea } from "@/src/views/home/ui/horizontalScrollArea";
@@ -21,13 +21,14 @@ import { useTranslation } from "next-i18next";
 import Image from "next/image";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import RecipeErollModal from "../recipe-creating-modal/recipeErollModal";
 
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null
   );
-  const { create } = useCreateRecipe();
+  const { create, isLoading: isCreating } = useCreateRecipe();
   const {
     isOpen,
     videoUrl: url,
@@ -98,6 +99,7 @@ export function RecipeCreatingView() {
         _videoUrl: url.trim(),
         _videoId: videoId || undefined,
       });
+      // open(recipeId);
       setHasEverTyped(false);
       close();
     }
@@ -106,40 +108,62 @@ export function RecipeCreatingView() {
   return (
     <>
       <ShareTutorialModal />
-      <Dialog.Root open={isOpen} onOpenChange={setIsOpen}>
-        <Dialog.Portal>
-          <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[1500] " />
-          <Dialog.Content
-            data-tour="create-recipe"
-            className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-lg"
-          >
-            <div className="p-5">
-              <Title />
-            </div>
-            <CategoryChipListSection
-              selectedCategoryId={selectedCategoryId}
-              onSelect={({ selectedCategoryId }) => {
-                setSelectedCategoryId(selectedCategoryId);
-              }}
-            />
-            <div className="px-4 pb-5">
-              <FormInput
-                value={url}
-                onChange={handleUrlChange}
-                isError={isError()}
-                errorMessage={t("recipeCreating.form.invalidUrl")}
-                placeholder={t("recipeCreating.form.placeholder")}
+      <Sheet
+        isOpen={isOpen||isCreating}
+        onClose={() => {
+          setIsOpen(false);
+        }}
+        detent="content"
+        avoidKeyboard={false}
+      >
+        <Sheet.Container  
+          style={{
+            borderTopLeftRadius: 16,
+            borderTopRightRadius: 16,
+            overflow: "hidden",
+          }}
+        >
+          {/* <Sheet.Header /> */}
+          <Sheet.Content>
+            <div className="bg-white">
+              <div className="p-5">
+                <Title />
+              </div>
+              <CategoryChipListSection
+                selectedCategoryId={selectedCategoryId}
+                onSelect={({ selectedCategoryId }) => {
+                  setSelectedCategoryId(selectedCategoryId);
+                }}
               />
+              <div className="px-4 pb-5">
+                <FormInput
+                  value={url}
+                  onChange={handleUrlChange}
+                  isError={isError()}
+                  errorMessage={t("recipeCreating.form.invalidUrl")}
+                  placeholder={t("recipeCreating.form.placeholder")}
+                />
+              </div>
+              <div className="w-full flex justify-center items-center">
+              <div className="px-4 text-sm text-gray-500">등록 시 베리 1개가 소모돼요</div>
+              </div>
+              <div className="p-3">
+                <CreateFormButton
+                  isLoading={isCreating}
+                  onSubmit={handleSubmit}
+                  isValidUrl={isSubmittable()}
+                />
+              </div>
             </div>
-            <div className="p-3">
-              <CreateFormButton
-                onSubmit={handleSubmit}
-                isValidUrl={isSubmittable()}
-              />
-            </div>
-          </Dialog.Content>
-        </Dialog.Portal>
-      </Dialog.Root>
+          </Sheet.Content>
+        </Sheet.Container>
+        <Sheet.Backdrop
+          onTap={() => {
+            setIsOpen(false);
+          }}
+        />
+      </Sheet>
+      <RecipeErollModal />
     </>
   );
 }
@@ -147,7 +171,7 @@ export function RecipeCreatingView() {
 const TitleSkeleton = () => {
   const { t } = useTranslation("common");
   return (
-    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
+    <div className="text-xl font-bold flex justify-between items-center">
       <p>{t("recipeCreating.form.title")}</p>
       <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
         <Image
@@ -159,7 +183,7 @@ const TitleSkeleton = () => {
         />
         0
       </p>
-    </Dialog.Title>
+    </div>
   );
 };
 
@@ -167,8 +191,9 @@ const TitleReady = () => {
   const { data: balance } = useFetchBalance();
   const { t } = useTranslation("common");
   return (
-    <Dialog.Title className="text-xl font-bold flex justify-between items-center">
-      <p>{t("recipeCreating.form.title")}</p>
+    <div className="text-xl font-bold flex justify-between items-center">
+      {/* <p>{t("recipeCreating.form.title")}</p> */}
+      레시피 등록하기
       <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
         <Image
           src="/images/berry/berry.png"
@@ -179,7 +204,7 @@ const TitleReady = () => {
         />
         {balance.balance}
       </p>
-    </Dialog.Title>
+    </div>
   );
 };
 
@@ -262,15 +287,21 @@ function CategoryChip({
   );
 }
 
+const LoadingFormButton = () => {
+  return (
+    <button
+      disabled
+      type="button"
+      className="w-full h-14 rounded-full text-lg font-medium bg-[#FB6836] text-white flex items-center justify-center cursor-not-allowed"
+    >
+      <Loader2 className="size-6 animate-spin" />
+    </button>
+  );
+};
+
 const CreateFormButtonSkeleton = () => {
   const { t } = useTranslation("common");
-  return (
-    <FormButton
-      onSubmit={() => {}}
-      label={t("recipeCreating.berry.createWithOne")}
-      isSubmittable={false}
-    />
-  );
+  return <CreatePrimaryButton onSubmit={() => {}} isSubmittable={false} label={t("recipeCreating.berry.createWithOne")} />;
 };
 
 const CreateFormButtonReady = ({
@@ -289,14 +320,15 @@ const CreateFormButtonReady = ({
   // 잔액 부족 시 충전하기 버튼
   if (balance - creditCost < 0) {
     return (
-      <FormButton
+      <CreatePrimaryButton
         onSubmit={() => {
           track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
             source: "create_modal",
           });
           // TODO: 충전 기능이 백엔드에 구현되면 연결
         }}
-        label={t("recipeCreating.berry.buttonRecharge")}
+        // label={t("recipeCreating.berry.buttonRecharge")}
+        label="충전하기"
         isSubmittable={true}
       />
     );
@@ -304,23 +336,50 @@ const CreateFormButtonReady = ({
 
   // 잔액 충분 시 생성하기 버튼
   return (
-    <FormButton
-      onSubmit={onSubmit}
-      label={t("recipeCreating.berry.createWithOne")}
-      isSubmittable={isValidUrl}
-    />
+    <CreatePrimaryButton onSubmit={onSubmit} label="입력 완료" isSubmittable={isValidUrl} />
   );
 };
+
+function CreatePrimaryButton({
+  onSubmit,
+  isSubmittable,
+  label,
+}: {
+  onSubmit: () => void;
+  isSubmittable: boolean;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onSubmit}
+      disabled={!isSubmittable}
+      type="button"
+      className={`w-full h-14 rounded-full text-lg font-medium transition-colors ${
+        isSubmittable
+          ? "bg-[#FB6836] hover:bg-[#e55a2d] text-white"
+          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
 
 const CreateFormButton = ({
   onSubmit,
   isValidUrl,
+  isLoading,
 }: {
   onSubmit: () => void;
   isValidUrl: boolean;
+  isLoading: boolean;
 }) => {
   const { data: balance } = useFetchBalance();
   const creditCost = 1; // 기본 베리 비용
+
+  if (isLoading) {
+    return <LoadingFormButton />;
+  }
 
   return (
     <SSRSuspense fallback={<CreateFormButtonSkeleton />}>
@@ -331,29 +390,6 @@ const CreateFormButton = ({
         isValidUrl={isValidUrl}
       />
     </SSRSuspense>
-  );
-};
-
-const BalanceDescriptionSkeleton = () => {
-  const { t } = useTranslation("common");
-  return (
-    <div className="px-4 flex flex-col items-center gap-2">
-      <p className="text-lg text-gray-700 font-semibold">
-        {t("recipeCreating.berry.confirmCreate", { cost: 1 })}
-      </p>
-      <div className="flex items-center gap-1.5">
-        <Image
-          src="/images/berry/berry.png"
-          alt="berry"
-          width={18}
-          height={18}
-          className="object-contain"
-        />
-        <p className="text-sm text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance: 0 })}
-        </p>
-      </div>
-    </div>
   );
 };
 
@@ -409,21 +445,3 @@ const BalanceDescriptionReady = ({
   );
 };
 
-function BalanceDescriptionContent() {
-  const { data: balance } = useFetchBalance();
-  const creditCost = 1;
-  return (
-    <BalanceDescriptionReady
-      creditCost={creditCost}
-      balance={balance.balance}
-    />
-  );
-}
-
-const BalanceDescription = () => {
-  return (
-    <SSRSuspense fallback={<BalanceDescriptionSkeleton />}>
-      <BalanceDescriptionContent />
-    </SSRSuspense>
-  );
-};

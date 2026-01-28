@@ -30,6 +30,8 @@ export async function fetchAllRecipesSummary({
     return await client.get(path);
   })();
 
+  console.log("fetchAllRecipesSummary", JSON.stringify(response.data, null, 2));
+
   const data = response.data;
   return parseWithErrLog(PaginatedSchema, {
     ...data,
@@ -60,7 +62,6 @@ export async function fetchCategorizedRecipesSummary({
   })();
 
   const data = response.data;
-  console.log(JSON.stringify(data),"!!!!!!!!!!!!!!!");
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.categorizedRecipes

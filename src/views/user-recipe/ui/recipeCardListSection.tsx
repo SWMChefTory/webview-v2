@@ -64,7 +64,6 @@ export const RecipeCategoryListSectionReady = ({categoryId}:{categoryId:string})
   const {
     entities: recipes,
     fetchNextPage,
-    isFetchingNextPage,
   } = useFetchCategoryRecipes({id:category?.id || "" ,name:category?.name || ""});
 
   return (

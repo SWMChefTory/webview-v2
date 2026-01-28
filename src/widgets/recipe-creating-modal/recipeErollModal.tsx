@@ -9,6 +9,7 @@ import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
+import { useTranslation } from "next-i18next";
 
 const RecipeErollModal = () => {
   const { recipeId } = useRecipeEnrollModalStore();
@@ -97,6 +98,7 @@ const ContentTemplate = ({
   title: React.ReactNode;
   button: React.ReactNode;
 }) => {
+  const { t } = useTranslation("common");
   return (
     <div className="flex flex-col gap-3 relative bg-white rounded-[20px]">
       <div className="absolute top-[12px] left-[12px] px-2 py-2 flex items-center gap-2 bg-gray-500/40 rounded-md">
@@ -115,7 +117,7 @@ const ContentTemplate = ({
             />
           </svg>
         </div>
-        <span className="text-sm font-bold text-gray-600 text-white">등록 완료</span>
+        <span className="text-sm font-bold text-gray-600 text-white">{t("recipeCreating.modal.registered")}</span>
       </div>
       <div className="bg-white rounded-[20px] overflow-hidden">
         <div className="w-full aspect-video rounded-t-[20px] overflow-hidden">
@@ -162,6 +164,7 @@ const ContentInProgress = ({
   recipeId: string;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation("common");
   return (
     <div className="flex flex-col">
       <div className="mb-[-40px] z-10 ml-[20px]">
@@ -173,20 +176,20 @@ const ContentInProgress = ({
           className="object-contain"
         />
       </div>
-      
+
       <div className="bg-white rounded-[20px] pt-6 px-6 pb-4 w-full">
         <div className="flex items-center justify-center gap-2 pt-[16px]">
-          <p className="text-xl font-bold text-gray-900">레시피 생성중</p>
+          <p className="text-xl font-bold text-gray-900">{t("recipeCreating.modal.creating")}</p>
           <Spinner className="size-6 text-orange-500" />
         </div>
         <div className="text-sm text-gray-500 mt-2 text-center">
-          레시피 생성에 약간의 시간이 걸릴 수 있어요
+          {t("recipeCreating.modal.creatingMessage")}
         </div>
         {/* <button
           onClick={onClose}
           className="w-full mt-6 py-3 px-4 bg-gray-100 rounded-full text-gray-700 font-bold text-lg"
         >
-          나중에 확인하기
+          {t("recipeCreating.modal.confirmLater")}
         </button> */}
       </div>
     </div>
@@ -194,6 +197,7 @@ const ContentInProgress = ({
 };
 
 const ContentFailed = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useTranslation("common");
   return (
     <div className="flex flex-col">
       <div className="mb-[-40px] z-10 ml-[20px]">
@@ -205,19 +209,19 @@ const ContentFailed = ({ onClose }: { onClose: () => void }) => {
           className="object-contain"
         />
       </div>
-      
+
       <div className="bg-white rounded-[20px] pt-6 px-6 pb-4 w-full">
         <h2 className="text-xl font-bold text-gray-900 pt-[16px] text-center">
-          레시피 생성에 실패했어요...
+          {t("recipeCreating.modal.failed")}
         </h2>
         <div className="text-sm text-gray-500 mt-2 text-center">
-          요리 영상이 맞는지 확인해주세요
+          {t("recipeCreating.modal.failedMessage")}
         </div>
         {/* <button
           onClick={onClose}
           className="w-full mt-6 py-3 px-4 bg-gray-100 rounded-full text-gray-700 font-bold text-lg"
         >
-          닫기
+          {t("recipeCreating.modal.close")}
         </button> */}
       </div>
     </div>
@@ -234,6 +238,7 @@ const ContentReady = ({
 }) => {
   const { data: recipe } = useFetchRecipe(recipeId);
   const router = useRouter();
+  const { t } = useTranslation("common");
 
   const handleNavigate = () => {
     onClose();
@@ -260,7 +265,7 @@ const ContentReady = ({
             onClick={handleNavigate}
             className="flex rounded-[10px] w-full items-center justify-center py-3 text-lg font-bold bg-orange-500 text-white cursor-pointer"
           >
-            이동하기
+            {t("recipeCreating.modal.navigate")}
           </div>
         </div>
       }

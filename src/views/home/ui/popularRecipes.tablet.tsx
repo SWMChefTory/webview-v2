@@ -1,7 +1,7 @@
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
-import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { useEffect, useRef } from "react";
 import {
   PopularRecipesTitleReady,

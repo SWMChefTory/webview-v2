@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { useSearchOverlayTranslation } from "../hooks/useSearchOverlayTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import Trend from "@/src/views/home/ui/assets/trend.png";
 import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";

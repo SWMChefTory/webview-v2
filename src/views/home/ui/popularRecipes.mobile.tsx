@@ -2,7 +2,7 @@ import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
-import { RecipeCardWrapper } from "../../../widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import {
   PopularRecipesTitleReady,

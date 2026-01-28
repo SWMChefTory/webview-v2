@@ -5,7 +5,7 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlreadyEnrolledChip } from "@/src/shared/ui/chip/recipeCreatingStatusChip";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import { Viewport } from "@radix-ui/react-toast";
 import { useTranslation } from "next-i18next";

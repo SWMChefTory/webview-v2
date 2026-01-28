@@ -25,7 +25,7 @@ import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { Trans } from "next-i18next";
 import { useSearchResultsTranslation } from "../hooks/useSearchResultsTranslation";
 
-import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 
 export function SearchResultsSkeleton() {
   return (

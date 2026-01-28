@@ -17,7 +17,7 @@ import { useEffect, useRef } from "react";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 
 import {
   toCuisineType,

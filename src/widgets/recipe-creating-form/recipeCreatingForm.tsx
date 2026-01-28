@@ -145,7 +145,7 @@ export function RecipeCreatingView() {
                 />
               </div>
               <div className="w-full flex justify-center items-center">
-              <div className="px-4 text-sm text-gray-500">등록 시 베리 1개가 소모돼요</div>
+              <div className="px-4 text-sm text-gray-500">{t("recipeCreating.berry.usesOne")}</div>
               </div>
               <div className="p-3">
                 <CreateFormButton
@@ -192,8 +192,7 @@ const TitleReady = () => {
   const { t } = useTranslation("common");
   return (
     <div className="text-xl font-bold flex justify-between items-center">
-      {/* <p>{t("recipeCreating.form.title")}</p> */}
-      레시피 등록하기
+      {t("recipeCreating.modal.titleReady")}
       <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
         <Image
           src="/images/berry/berry.png"
@@ -327,8 +326,7 @@ const CreateFormButtonReady = ({
           });
           // TODO: 충전 기능이 백엔드에 구현되면 연결
         }}
-        // label={t("recipeCreating.berry.buttonRecharge")}
-        label="충전하기"
+        label={t("recipeCreating.modal.recharge")}
         isSubmittable={true}
       />
     );
@@ -336,7 +334,7 @@ const CreateFormButtonReady = ({
 
   // 잔액 충분 시 생성하기 버튼
   return (
-    <CreatePrimaryButton onSubmit={onSubmit} label="입력 완료" isSubmittable={isValidUrl} />
+    <CreatePrimaryButton onSubmit={onSubmit} label={t("recipeCreating.modal.submitReady")} isSubmittable={isValidUrl} />
   );
 };
 

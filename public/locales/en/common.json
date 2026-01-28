@@ -26,7 +26,20 @@
       "currentBalance": "Current berries: {{balance}}",
       "buttonCreate": "I will create",
       "buttonRecharge": "I will recharge",
-      "createWithOne": "Create with 1 berry"
+      "createWithOne": "Create with 1 berry",
+      "usesOne": "1 berry is consumed upon registration"
+    },
+    "modal": {
+      "registered": "Registration Complete",
+      "creating": "Creating Recipe",
+      "creatingMessage": "It may take some time to create recipe",
+      "failed": "Failed to create recipe...",
+      "failedMessage": "Please check if it's a cooking video",
+      "navigate": "Go to Recipe",
+      "register": "I'll Register",
+      "recharge": "Recharge",
+      "titleReady": "Register Recipe",
+      "submitReady": "Submit"
     }
   }
 }

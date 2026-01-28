@@ -221,17 +221,11 @@ const SplitButton = ({
   if (balance - creditCost < 0) {
     return (
       <div className="flex rounded-b-[20px] overflow-hidden">
-        {/* <div
-          onClick={onRecharge}
-          className="flex-1 flex items-center justify-center py-3 text-lg font-bold bg-gray-100 text-gray-700 cursor-pointer"
-        >
-          나중에
-        </div> */}
         <div
           onClick={onRecharge}
           className="flex-1 flex items-center justify-center py-3 text-lg font-bold bg-orange-500 text-white cursor-pointer"
         >
-          충전하기
+          {t("recipeCreating.modal.recharge")}
         </div>
       </div>
     );
@@ -243,7 +237,7 @@ const SplitButton = ({
         onClick={onCreate}
         className="flex rounded-[10px] w-full items-center justify-center py-3 text-lg font-bold bg-orange-500 text-white cursor-pointer"
       >
-        등록할게요
+        {t("recipeCreating.modal.register")}
       </div>
     </div>
   );

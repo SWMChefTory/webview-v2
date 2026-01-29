@@ -160,6 +160,7 @@ export function useCreateRecipe() {
   const { open } = useRecipeEnrollModalStore();
 
   const {
+    mutateAsync,
     mutate,
     data,
     isPending: isLoading,
@@ -276,6 +277,7 @@ export function useCreateRecipe() {
     isLoading,
     error,
     create: mutate,
+    createAsync: mutateAsync,
     validateUrl,
   };
 }

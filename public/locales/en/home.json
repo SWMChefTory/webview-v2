@@ -15,6 +15,7 @@
     "popularRecipes": "Popular Recipes",
     "shortsPopularRecipes": "Popular Shorts Recipes",
     "createRecipe":"Create recipe",
+    "viewMore": "View More",
     "accessibility": {
       "floatingButton": "Add recipe"
     }

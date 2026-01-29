@@ -1,5 +1,5 @@
 import { RecipeStep } from "../type/recipeSteps";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export function ProgressBar({
   steps,
@@ -33,10 +33,10 @@ export function ProgressBar({
       100;
   return (
     <div className="w-full">
-      <div className="h-2" />
-      <div className="relative bg-white/30 w-full h-[9px] ">
+      <div className="h-2 lg:h-3" />
+      <div className="relative bg-white/30 w-full h-[9px] lg:h-[12px]">
         <motion.div
-          className="bg-white/80 h-[9px]"
+          className="bg-white/80 h-[9px] lg:h-[12px]"
           initial={{ width: 0 }}
           animate={{ width: `${progressBarWidth}%` }}
           transition={{ duration: 0.2 }}
@@ -56,7 +56,7 @@ export function ProgressBar({
           })}
         </div>
       </div>
-      <div className="h-4" />
+      <div className="h-4 lg:h-5" />
     </div>
   );
 }

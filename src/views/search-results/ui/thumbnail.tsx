@@ -6,7 +6,7 @@ const ThumbnailBlocking = () => {
   return (
     <ThumbnailTemplate>
       <div className="flex items-center justify-center bg-gray-500 opacity-50">
-        <Loader2 className="size-[32] animate-spin text-stone-700" />
+        <Loader2 className="size-[32] md:size-[40] animate-spin text-stone-700" />
       </div>
     </ThumbnailTemplate>
   );
@@ -24,7 +24,7 @@ const ThumbnailEmpty = () => {
   return (
     <ThumbnailTemplate>
       <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
-        <IoMdAdd className="size-[32]" />
+        <IoMdAdd className="size-[32] md:size-[40]" />
       </div>
     </ThumbnailTemplate>
   );
@@ -43,7 +43,7 @@ const ThumbnailReady = ({ imgUrl }: { imgUrl: string }) => {
 
 const ThumbnailTemplate = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="h-[160px] w-full overflow-hidden rounded-lg">{children}</div>
+    <div className="h-[160px] md:h-[200px] lg:h-[240px] xl:h-[260px] 2xl:h-[280px] w-full overflow-hidden rounded-lg lg:rounded-xl">{children}</div>
   );
 };
 

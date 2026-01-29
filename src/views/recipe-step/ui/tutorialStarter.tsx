@@ -33,22 +33,22 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
       {hasSeenTutorial && (
         <Dialog.Root open={true}>
           <Dialog.Portal>
-            <Dialog.Content className="absolute inset-0 z-[1200] flex items-center justify-center bg-black/70 p-5 backdrop-blur-sm">
-              <div className="flex flex-col w-full w-[80vw] pb-[20] rounded-2xl bg-white shadow-2xl">
-                <Dialog.Title className="text-2xl pt-6 pb-2 font-bold pl-8">
+            <Dialog.Content className="absolute inset-0 z-[1200] flex items-center justify-center bg-black/70 p-5 lg:p-8 backdrop-blur-sm">
+              <div className="flex flex-col w-full w-[80vw] lg:max-w-[500px] xl:max-w-[560px] pb-[20] lg:pb-6 rounded-2xl lg:rounded-3xl bg-white shadow-2xl">
+                <Dialog.Title className="text-2xl lg:text-3xl pt-6 lg:pt-8 pb-2 lg:pb-3 font-bold pl-8 lg:pl-10">
                   {t("tutorial.title")}
                 </Dialog.Title>
-                <p className="text-gray-600 px-8 pb-8 text-lg font-semibold">
+                <p className="text-gray-600 px-8 lg:px-10 pb-8 lg:pb-10 text-lg lg:text-xl font-semibold">
                   {t("tutorial.description")}
                 </p>
 
-                <div className="w-full flex justify-evenly px-5 gap-2">
+                <div className="w-full flex justify-evenly px-5 lg:px-6 gap-2 lg:gap-3">
                   <button
                     onClick={() => {
                       track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_SKIP, { recipe_id: recipeId });
                       checkSeen();
                     }}
-                    className="flex-1 h-[20] bg-gray-500 py-6 flex items-center justify-center rounded-md font-bold text-lg"
+                    className="flex-1 h-[20] bg-gray-500 py-6 lg:py-7 flex items-center justify-center rounded-md lg:rounded-lg font-bold text-lg lg:text-xl lg:hover:bg-gray-600 lg:transition-colors"
                   >
                     {t("tutorial.btnSkip")}
                   </button>
@@ -58,7 +58,7 @@ export function TutorialStarter({ recipeId }: { recipeId: string }) {
                       start();
                       checkSeen();
                     }}
-                    className="flex-1 h-[20] bg-orange-500 py-6 flex items-center justify-center rounded-md font-bold text-white text-lg"
+                    className="flex-1 h-[20] bg-orange-500 py-6 lg:py-7 flex items-center justify-center rounded-md lg:rounded-lg font-bold text-white text-lg lg:text-xl lg:hover:bg-orange-600 lg:transition-colors"
                   >
                     {t("tutorial.btnStart")}
                   </button>

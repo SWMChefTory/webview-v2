@@ -19,18 +19,18 @@ import {
 export const PopularShortsRecipesTitleReady = () => {
   const { t } = useHomeTranslation();
   return (
-    <div className="pl-4 flex items-center gap-2">
-      <div className="text-xl font-semibold">{t("shortsPopularRecipes")}</div>
-      <img src={Fire.src} className="size-6" />
+    <div className="pl-4 md:pl-0 flex items-center gap-2 lg:gap-3">
+      <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("shortsPopularRecipes")}</div>
+      <img src={Fire.src} className="size-6 md:size-7 lg:size-7 xl:size-8" alt="fire" />
     </div>
   );
 };
 
 /**
  * Shorts 레시피 카드 컴포넌트
- * 세로형 (180x320)
- * 모바일: 180px 고정 width
- * 태블릿: w-full (Grid에 맞춤)
+ * 세로형 (9:16 비율)
+ * 모바일: 180x320 고정
+ * 태블릿: 130x231 고정 (가로 스크롤에 최적화)
  */
 export function ShortsRecipeCardReady({
   recipe,
@@ -49,9 +49,9 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-full aspect-[9/16]" : "w-[180px] h-[320px]"} overflow-hidden rounded-md`}
+      className={`relative ${isTablet ? "w-[130px] lg:w-full h-[231px] lg:h-auto lg:aspect-[9/16] rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group hover:-translate-y-1" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
     >
-      <div className="absolute top-[12] left-[8] z-10">
+      <div className="absolute top-2 left-2 z-10">
         <AlreadyEnrolledChip
           isEnrolled={recipe.isViewed && recipeStatus === RecipeStatus.SUCCESS}
         />
@@ -61,9 +61,12 @@ export function ShortsRecipeCardReady({
       </div>
       <img
         src={recipe.videoThumbnailUrl}
-        className="block w-full h-full object-cover"
+        className="block w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
-      <div className="absolute text-left bottom-[24] w-[90%] left-[10] font-bold text-white line-clamp-2">
+      {/* Gradient overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 lg:opacity-80 transition-opacity duration-300" />
+      
+      <div className={`absolute text-left w-[90%] left-2 font-bold text-white line-clamp-2 z-10 ${isTablet ? "bottom-4 text-xs lg:text-lg lg:leading-tight lg:bottom-6" : "bottom-[24] left-[10] text-base"}`}>
         {recipe.recipeTitle}
       </div>
     </div>
@@ -72,8 +75,8 @@ export function ShortsRecipeCardReady({
 
 /**
  * Shorts 레시피 카드 스켈레톤
- * 모바일: 180px 고정 width
- * 태블릿: w-full (Grid에 맞춤)
+ * 모바일: 180x320 고정
+ * 태블릿: 130x231 고정 (가로 스크롤에 최적화)
  */
 export function ShortsRecipeCardSkeleton({
   isTablet = false,
@@ -82,7 +85,7 @@ export function ShortsRecipeCardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`flex shrink-0 ${isTablet ? "w-full aspect-[9/16]" : "w-[180px] h-[320px]"} rounded-md`}
+      className={`flex shrink-0 ${isTablet ? "w-[130px] lg:w-full h-[231px] lg:h-auto lg:aspect-[9/16] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
     />
   );
 }

@@ -26,7 +26,7 @@ export const LoopSettingButton = ({
     <div className="flex flex-col justify-between items-center">
       <button
         className={[
-          "relative flex h-14 w-14 items-center justify-center rounded-full p-2 transition active:scale-95 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
+          "relative flex h-14 w-14 lg:h-16 lg:w-16 items-center justify-center rounded-full p-2 lg:p-2.5 transition active:scale-95 lg:hover:scale-105 shadow-[0_2px_16px_rgba(0,0,0,0.32)]",
           isRepeat
             ? "bg-gradient-to-b from-orange-600 to-orange-500 ring-2 ring-orange-300 shadow-orange-300/40"
             : "bg-gradient-to-b from-neutral-700 to-neutral-600",
@@ -48,6 +48,7 @@ export const LoopSettingButton = ({
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className="lg:w-8 lg:h-8"
         >
           <polyline points="17 1 21 5 17 9"></polyline>
           <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
@@ -77,7 +78,9 @@ export const LoopSettingButton = ({
           <span className="pointer-events-none absolute inset-0 rounded-full animate-[pulse_2.4s_ease-in-out_infinite] shadow-[0_0_0_0_rgba(251,146,60,0.45)]" />
         )}
       </button>
-      <div className="text-gray-500 pt-1">{t("loop.label")}</div>
+      <div className="text-gray-500 pt-1 lg:pt-1.5 lg:text-base">
+        {t("loop.label")}
+      </div>
     </div>
   );
 };

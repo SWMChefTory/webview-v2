@@ -1,7 +1,6 @@
-import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
+import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import {
@@ -58,14 +57,11 @@ const PopularRecipesTemplateMobile = ({
  */
 function RecipeCardSectionReady() {
   const {
-    entities: recipes,
+    data: recipes,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useFetchRecommendRecipes({
-    videoType: VideoType.NORMAL,
-    recommendType: RecommendType.POPULAR,
-  });
+  } = useFetchPopularRecipe(VideoType.NORMAL);
 
   const handleReachEnd = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -84,17 +80,17 @@ function RecipeCardSectionReady() {
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
           recipeIsViewed={recipe.isViewed}
-          recipeVideoType={VideoType.NORMAL}
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+          recipeVideoType={recipe.videoType}
+          recipeVideoUrl={recipe.videoUrl}
           entryPoint="popular_normal"
           trigger={
             <RecipeCardReady
               recipe={{
                 id: recipe.recipeId,
                 isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                recipeTitle: recipe.videoInfo.videoTitle,
-                isViewd: recipe.isViewed
+                videoThumbnailUrl: recipe.videoThumbnailUrl,
+                recipeTitle: recipe.recipeTitle,
+                isViewd: recipe.isViewed,
               }}
               isTablet={false}
             />
@@ -103,7 +99,6 @@ function RecipeCardSectionReady() {
       ))}
 
       {isFetchingNextPage && <RecipeCardSkeleton isTablet={false} />}
-      <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]"></div>
     </HorizontalScrollArea>
   );
 }
@@ -117,7 +112,6 @@ function RecipeCardSectionSkeleton() {
       {Array.from({ length: 3 }).map((_, index) => (
         <RecipeCardSkeleton key={index} isTablet={false} />
       ))}
-      <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]"></div>
     </HorizontalScrollArea>
   );
 }

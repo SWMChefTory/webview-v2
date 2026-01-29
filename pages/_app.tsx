@@ -26,9 +26,9 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-fo
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
-import {appWithTranslation} from 'next-i18next';
+import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
-import { AxiosError } from "axios";
+import { Agentation } from "agentation";
 
 export default appWithTranslation(App);
 
@@ -45,16 +45,19 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      })
+      }),
   );
 
   useInit();
   useAmplitude();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppInner {...props} />
-    </QueryClientProvider>
+    <>
+      <QueryClientProvider client={queryClient}>
+        <AppInner {...props} />
+      </QueryClientProvider>
+      {process.env.NODE_ENV === "development" && <Agentation />}
+    </>
   );
 }
 
@@ -70,8 +73,8 @@ function AppInner({ Component, pageProps }: AppProps) {
     string | undefined
   >(undefined);
 
-  function handleRecipeDeepLink({path}: {path: string}) {
-    const recipeId = path.split('/')[2];
+  function handleRecipeDeepLink({ path }: { path: string }) {
+    const recipeId = path.split("/")[2];
     if (!recipeId) return;
     if (router.asPath === `/recipe/${recipeId}/detail`) {
       return;
@@ -81,7 +84,6 @@ function AppInner({ Component, pageProps }: AppProps) {
     }
     setRecipeDetailLinkUrl(path);
   }
-
 
   useEffect(() => {
     request(MODE.BLOCKING, "CONSUME_INITIAL_DATA").then((result) => {
@@ -93,7 +95,7 @@ function AppInner({ Component, pageProps }: AppProps) {
           return;
         }
         if (message.type === "ROUTE") {
-          handleRecipeDeepLink({path: message.data.route});
+          handleRecipeDeepLink({ path: message.data.route });
         }
       }
     });
@@ -101,7 +103,7 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
   }
   useEffect(() => {
@@ -117,7 +119,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      }
+      },
     );
     return cleanup;
   }, []);
@@ -126,8 +128,8 @@ function AppInner({ Component, pageProps }: AppProps) {
     const cleanup = onUnblockingRequest(
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
-        handleRecipeDeepLink({path: payload.route});
-      }
+        handleRecipeDeepLink({ path: payload.route });
+      },
     );
     return () => {
       cleanup();
@@ -140,7 +142,7 @@ function AppInner({ Component, pageProps }: AppProps) {
         {({ reset }) => (
           <ErrorBoundary
             onReset={reset}
-            fallbackRender={({ error,resetErrorBoundary }) => (
+            fallbackRender={({ error, resetErrorBoundary }) => (
               <NetworkFallback
                 error={error}
                 onRetry={async () => {
@@ -166,7 +168,13 @@ function AppInner({ Component, pageProps }: AppProps) {
   );
 }
 
-export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: () => void }) {
+export function NetworkFallback({
+  error,
+  onRetry,
+}: {
+  error: unknown;
+  onRetry: () => void;
+}) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -203,7 +211,6 @@ export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: (
         whileTap={{ scale: 0.95 }}
         className="bg-orange-500 text-white font-semibold px-5 py-2 rounded-full shadow-md hover:bg-orange-600 transition"
         onClick={async () => {
-
           // 1) 바운더리 리셋
           onRetry?.();
 
@@ -266,7 +273,6 @@ function RouteDialog({
   );
 }
 
-
 const useInit = () => {
   useEffect(() => {
     // 웹 브라우저 환경에서만 URL 파라미터 추출
@@ -298,11 +304,10 @@ const useInit = () => {
     //사파리 전용
     window.addEventListener("message", communication);
     //크로미움 전용
-    document.addEventListener('message' as any, communication);
+    document.addEventListener("message" as any, communication);
     return () => {
       console.log("brigdeEnd");
       window.removeEventListener("message", communication);
     };
   }, []);
 };
-

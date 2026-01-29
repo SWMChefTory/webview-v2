@@ -5,7 +5,7 @@ import {
   useRecipeCreateToastAction,
 } from "../model/useToast";
 import { ReactElement } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useFetchRecipeOverview } from "../../recipe-overview/model/model";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -71,7 +71,7 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
     <>
       <Toast.Provider swipeDirection="right">
         {toastInfo && (
-          <Toast.Root className="z-1000 w-[300px]">
+          <Toast.Root className="z-1000 w-[300px] md:w-[400px] lg:w-[480px] xl:w-[520px]">
             <motion.div
               whileInView={{ x: 0 }}
               initial={{
@@ -97,11 +97,11 @@ export function RecipeCreateToast({ children }: { children: ViewportEl }) {
                 ease: "easeOut",
               }}
             >
-              <div className=" rounded-lg px-2 py-1 shadow bg-gray-800/80">
-                <Toast.Title className="text-white font-bold">
+                <div className=" rounded-lg px-2 py-1 shadow bg-gray-800/80">
+                <Toast.Title className="text-white font-bold md:text-lg">
                   {title}
                 </Toast.Title>
-                <Toast.Description className="text-white text-sm w-full">
+                <Toast.Description className="text-white text-sm md:text-base w-full">
                   <span className="block text-gray-200 truncate">
                     {description}
                   </span>

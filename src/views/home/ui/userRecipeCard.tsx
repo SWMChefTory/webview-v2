@@ -9,12 +9,11 @@ import {
   TitleSkeleton,
 } from "@/src/entities/user-recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { useFetchRecipeProgress, useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
+import { useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
-import { Loader2 } from "lucide-react";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
-import router, { useRouter } from "next/router";
+import router from "next/router";
 import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
@@ -24,32 +23,42 @@ import { useTranslation } from "next-i18next";
 
 export const UserRecipeCardReady = ({
   userRecipe,
-}:
-{
+  isTablet = false,
+}: {
   userRecipe: UserRecipe;
+  isTablet?: boolean;
 }) => {
-
   return (
-    <div className="relative flex flex-col w-[160px]">
+    <div className={`relative flex flex-col ${isTablet ? "w-[260px] lg:w-full group" : "w-40"}`}>
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady recipeId={userRecipe.recipeId} />
       </SSRSuspense>
-      <div className="relative w-[160] h-[90]">
-        <div className="absolute top-[12] right-[12] z-[10]">
+      <div
+        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1" : "w-40 h-[90px]"}`}
+      >
+        <div className="absolute top-3 right-3 z-10">
           <TimerTag
             recipeId={userRecipe.recipeId}
             recipeName={userRecipe.title}
           />
         </div>
-        <div className="absolute inset-[0]">
+        <div className="absolute inset-0">
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.thumbnailUrl}
-            size={{ width: 160, height: 90 }}
+            size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }}
+            className="group-hover:scale-105 transition-transform duration-500"
           />
         </div>
       </div>
-      <div className="w-full h-16">
-        <TitleReady title={userRecipe.title} />
+      <div className="w-full mt-3">
+        <TitleReady
+          title={userRecipe.title}
+          className={
+            isTablet
+              ? "lg:text-lg lg:leading-snug group-hover:text-black transition-colors"
+              : ""
+          }
+        />
         <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
       </div>
     </div>
@@ -167,11 +176,13 @@ const Tail = ({
   );
 };
 
-export const UserRecipeCardSkeleton = () => {
+export const UserRecipeCardSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
   return (
-    <div>
-      <ThumbnailSkeleton size={{ width: 160, height: 90 }} />
-      <div className="w-full h-16">
+    <div className={isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px]" : "w-40"}>
+      <div className={isTablet ? "rounded-lg overflow-hidden" : ""}>
+        <ThumbnailSkeleton size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }} />
+      </div>
+      <div className="w-full mt-2">
         <TitleSkeleton />
         <ElapsedViewTimeSkeleton />
       </div>

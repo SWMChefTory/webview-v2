@@ -1,126 +1,47 @@
-import { PopularRecipes } from "@/src/views/home/ui/popularRecipes";
-import Header, { ProfileButton } from "@/src/shared/ui/header/header";
-import { FloatingButton } from "@/src/views/home/ui/floatingButton";
-import { MyRecipes } from "@/src/views/home/ui/myRecipe";
-import { useRouter } from "next/router";
-import Link from "next/link";
-import { PiMagnifyingGlassBold } from "react-icons/pi";
-import { PopularShortsRecipes } from "./popularShortsRecipes";
-import { CategorySection } from "./categorySection";
-import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
-import * as Toast from "@radix-ui/react-toast";
-import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
-import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { ChallengeBanner } from "@/src/features/challenge";
-import { BalanceWithRecharge } from "./balanceWithRecharge";
+import Header from "@/src/shared/ui/header/header";
+import { useHomePageController, HomePageProps } from "./HomePage.controller";
 
-/**
- * Home 페이지 - 태블릿 버전 (768px ~)
- *
- * 태블릿 최적화:
- * - 최대 너비 1200px로 제한하고 중앙 정렬
- * - 좌우 패딩 증가 (px-6)
- * - SearchBar 크기 및 간격 조정
- * - 섹션 간 여백 증가
- * - Grid 레이아웃 (나중 Phase에서 섹션별로 적용)
- */
 export function HomePageTablet() {
-  const router = useRouter();
-  const { t } = useHomeTranslation();
-  const lang = useLangcode();
+  const props = useHomePageController("tablet");
+  return <HomePageTabletLayout {...props} />;
+}
 
-  useSafeArea({
-    top: { color: "transparent", isExists: true },
-    bottom: { color: "#FFFFFF", isExists: false },
-    left: { color: "#FFFFFF", isExists: true },
-    right: { color: "#FFFFFF", isExists: true },
-  });
-
+export function HomePageTabletLayout({
+  logo,
+  searchBar,
+  header,
+  sections,
+  floatingButton,
+  renderToast,
+}: HomePageProps) {
   return (
-    <div className="min-h-screen w-screen overflow-hidden">
-      {/* Header - 태블릿 최적화 */}
+    <div className="min-h-screen w-full bg-white">
       <Header
-        leftContent={<Logo />}
+        leftContent={logo}
         rightContent={
           <div className="flex flex-row items-center gap-3">
-            <BalanceWithRecharge />
-            <ProfileButton
-              onClick={() => {
-                router.push("/user/settings");
-              }}
-            />
+            {header.balance}
+            {header.profileButton}
           </div>
         }
         color="bg-white"
       />
 
-      {/* 메인 컨텐츠 컨테이너 - 최대 너비 제한 & 중앙 정렬 */}
-      <div className="w-full max-w-[1200px] mx-auto">
-        {/* SearchBar - 태블릿 최적화 */}
-        {lang === "ko" && (
-          <div className="pt-3 px-6">
-            <Link href="/search-recipe">
-              <div className="flex flex-row items-center justify-between px-5 w-full max-w-[600px] mx-auto h-[44px] text-gray-800 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">
-                <span className="text-base">{t("searchBarPlaceholder")}</span>
-                <PiMagnifyingGlassBold size={18} />
-              </div>
-            </Link>
-          </div>
-        )}
+      <div className="w-full max-w-[1024px] mx-auto">
+        {searchBar && <div className="pt-6 px-6">{searchBar}</div>}
 
-        {/* ChallengeBanner - 내부에서 패딩 관리 */}
-        <ChallengeBanner />
+        {sections.challengeBanner}
+        <div className="mt-8">{sections.categorySection}</div>
 
-        {/* CategorySection - 내부에서 패딩 관리 */}
-        <CategorySection />
+        <div className="mt-12">{sections.myRecipes}</div>
+        <div className="mt-16">{sections.popularRecipes}</div>
+        <div className="mt-16">{sections.popularShorts}</div>
 
-        {/* MyRecipes 섹션 */}
-        <div className="mt-2">
-          <MyRecipes />
-        </div>
-
-        {/* PopularRecipes 섹션 */}
-        <div className="mt-2">
-          <PopularRecipes />
-        </div>
-
-        {/* PopularShortsRecipes 섹션 */}
-        <div className="mt-2">
-          <PopularShortsRecipes />
-        </div>
-
-        {/* 하단 여백 */}
-        <div className="h-12" />
+        <div className="h-24" />
       </div>
 
-      {/* FloatingButton - 태블릿 위치 조정 */}
-      <FloatingButton />
-
-      {/* Toast - 태블릿 위치 조정 */}
-      <RecipeCreateToast>
-        <Toast.Viewport className="fixed right-6 top-2 z-1000 w-[360px]" />
-      </RecipeCreateToast>
+      {floatingButton}
+      {renderToast("fixed right-6 top-2 z-1000 w-[360px]")}
     </div>
   );
 }
-
-const Logo = () => {
-  const lang = useLangcode();
-  if (lang === "en") {
-    return (
-      <img
-        src="/logo-en.png"
-        alt="logo"
-        className="h-[22px] w-auto pl-3"
-      />
-    );
-  }
-  return (
-    <img
-      src="/logo.png"
-      alt="logo"
-      className="h-[22px] w-auto pl-3"
-    />
-  );
-};

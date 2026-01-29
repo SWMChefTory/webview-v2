@@ -6,7 +6,7 @@ import {
   RecipeStatusSchema,
 } from "@/src/shared/schema/recipeSchema";
 import { VideoInfoSchema } from "@/src/shared/schema/videoInfoSchema";
-import createPaginatedSchema from "@/src/shared/schema/paginatedSchema";
+import { createCursorPaginatedSchema } from "@/src/shared/schema/paginatedSchema";
 import { parseWithErrLog } from "@/src/shared/schema/zodErrorLogger";
 
 // API 원시 응답 데이터 스키마
@@ -21,7 +21,7 @@ const RawSearchRecipeSchema = z.object({
   videoId: z.string(),
   count: z.number(),
   videoUrl: z.string(),
-  videoType: z.enum(['SHORTS', 'NORMAL']),
+  videoType: z.enum(["SHORTS", "NORMAL"]),
   videoThumbnailUrl: z.string(),
   videoSeconds: z.number(),
   creditCost: z.number(),
@@ -41,7 +41,7 @@ const RecipeSchema = z.object({
 
 const RecipesSchema = z.array(RecipeSchema);
 
-const PaginatedRecipeSchema = createPaginatedSchema(RecipesSchema);
+const PaginatedRecipeSchema = createCursorPaginatedSchema(RecipesSchema);
 
 export type VideoInfoResponse = z.infer<typeof VideoInfoSchema>;
 export type RecipeTagResponse = z.infer<typeof RecipeTagSchema>;
@@ -49,23 +49,34 @@ export type Recipe = z.infer<typeof RecipeSchema>;
 export type PaginatedRecipeResponse = z.infer<typeof PaginatedRecipeSchema>;
 
 export const fetchRecipesSearched = async ({
-  page,
   query,
+  cursor,
 }: {
-  page: number;
   query: string;
+  cursor: string | undefined | null;
 }): Promise<PaginatedRecipeResponse> => {
-  const url = `/recipes/search?query=${query?encodeURIComponent(query):"''"}&page=${page}`;
+  const path = `/recipes/search?query=${
+    query ? encodeURIComponent(query) : "''"
+  }`;
 
-  const response = await client.get(url);
-  
-  // API 응답 데이터 파싱
-  const rawRecipes = z.array(RawSearchRecipeSchema).parse(response.data.searchedRecipes || []);
-  
+  const response = await (async () => {
+    if (cursor === undefined) {
+      return await client.get(path);
+    }
+    if (cursor === null) {
+      return await client.get(path, { params: { cursor: null } });
+    }
+    return await client.get(path, {
+      params: { cursor },
+    });
+  })();
+
+  const rawRecipes = z
+    .array(RawSearchRecipeSchema)
+    .parse(response.data.searchedRecipes || []);
+
   const data = {
-    currentPage: response.data.currentPage,
-    totalPages: response.data.totalPages,
-    totalElements: response.data.totalElements,
+    nextCursor: response.data.nextCursor,
     hasNext: response.data.hasNext,
     data: rawRecipes.map((recipe) => ({
       recipeId: recipe.recipeId,
@@ -86,9 +97,9 @@ export const fetchRecipesSearched = async ({
         servings: recipe.servings,
         cookingTime: recipe.cookingTime,
       },
-      creditCost: recipe.creditCost
+      creditCost: recipe.creditCost,
     })),
   };
-  
+
   return parseWithErrLog(PaginatedRecipeSchema, data);
 };

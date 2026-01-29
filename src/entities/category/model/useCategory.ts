@@ -10,7 +10,7 @@ import {
 } from "../api/api";
 import { ALL_RECIPES } from "@/src/entities/user-recipe/model/useUserRecipe";
 import {
-  QUERY_KEY as USER_RECIPE_QUERY_KEY,
+  ALL_RECIPES as USER_RECIPE_QUERY_KEY,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { Category as CategoryResponse } from "@/src/shared/schema/categorySchema";
 

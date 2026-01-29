@@ -1,43 +1,29 @@
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
 import { CategoryResultsSkeleton, CategoryResultsContent } from "./ui";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { CategoryType, getCategoryTypeFromString, isCuisineType } from "@/src/entities/category/type/cuisineType";
+import {
+  toCuisineType,
+} from "@/src/entities/category/type/cuisineType"
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 
 const CategoryResultsPage = () => {
   const router = useRouter();
-  const typeParam = router.query.type as string;
-  const [categoryType, setCategoryType] = useState<CategoryType | null>(null);
+  const typeParam = router.query.type;
   const { t: categoryT } = useCategoryTranslation();
 
-  const getCategoryLabel = (type: CategoryType) => {
-    if (isCuisineType(type)) {
+  if(!typeParam){
+    return <></>
+  }
+
+  const type = typeParam as string;
+
+  const getCategoryLabel = (type: string) => {
+    if (toCuisineType(type)) {
       return categoryT(`cuisine.${type}`);
     }
     return categoryT(`recommend.${type}`);
   };
-
-
-  useEffect(() => {
-    if (router.isReady) {
-      if (!typeParam || typeParam.trim() === "") {
-        router.replace("/");
-      } else {
-        const type = getCategoryTypeFromString(typeParam);
-        if (!type) {
-          router.replace("/");
-        } else {
-          setCategoryType(type);
-        }
-      }
-    }
-  }, [router.isReady, typeParam, router]);
-
-  if (!router.isReady || !typeParam || !categoryType) {
-    return null;
-  }
 
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
@@ -46,14 +32,14 @@ const CategoryResultsPage = () => {
           <div className="flex flex-row gap-3 w-full h-full items-center justify-start">
             <BackButton onClick={() => router.back()} />
             <h1 className="text-xl font-semibold text-gray-900 truncate">
-              {getCategoryLabel(categoryType)}
+              {getCategoryLabel(type)}
             </h1>
           </div>
         }
       />
       <div className="flex flex-col w-full h-full overflow-y-scroll">
         <SSRSuspense fallback={<CategoryResultsSkeleton />}>
-          <CategoryResultsContent categoryType={categoryType} />
+          <CategoryResultsContent categoryType={type} />
         </SSRSuspense>
       </div>
     </div>
@@ -61,4 +47,3 @@ const CategoryResultsPage = () => {
 };
 
 export default CategoryResultsPage;
-

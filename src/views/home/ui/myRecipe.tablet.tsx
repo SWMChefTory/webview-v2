@@ -3,11 +3,15 @@ import {
   UserRecipeCardEmpty,
   UserRecipeCardSkeleton,
 } from "@/src/views/home/ui/userRecipeCard";
-import { Category } from "@/src/entities/category/model/useCategory";
+import {
+  Category,
+  useFetchCategories,
+} from "@/src/entities/category/model/useCategory";
 import { useState, useEffect, useRef } from "react";
 import {
   ALL_RECIPES,
-  useFetchUserRecipes,
+  useFetchAllRecipes,
+  useFetchCategoryRecipes,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { UserRecipeCardReady } from "@/src/views/home/ui/userRecipeCard";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -16,7 +20,7 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
-
+import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
 /**
  * MyRecipes 섹션 - 태블릿 버전 (768px ~)
  *
@@ -80,22 +84,71 @@ const MyRecipesTemplateTablet = ({
   );
 };
 
-/**
- * 사용자 레시피 목록 섹션 (태블릿)
- * Grid 3열 + IntersectionObserver 무한 스크롤
- */
 const UserRecipesSection = ({
   selectedCategory,
 }: {
   selectedCategory: Category | typeof ALL_RECIPES;
 }) => {
+  if (selectedCategory === ALL_RECIPES) {
+    return <UserRecipesAllSection />;
+  }
+  return <UserRecipesCategorySection category={selectedCategory} />;
+};
+
+/**
+ * 사용자 레시피 목록 섹션 (태블릿)
+ * Grid 3열 + IntersectionObserver 무한 스크롤
+ */
+const UserRecipesAllSection = () => {
   const {
-    recipes: userRecipes,
+    entities: userRecipes,
     fetchNextPage,
     isFetchingNextPage,
     hasNextPage,
-  } = useFetchUserRecipes(selectedCategory);
+  } = useFetchAllRecipes();
 
+  return (
+    <UserRecipesSectionTemplate
+      userRecipes={userRecipes}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+    />
+  );
+};
+
+const UserRecipesCategorySection = ({ category }: { category: Category }) => {
+  const {
+    entities: userRecipes,
+    fetchNextPage,
+    isFetchingNextPage,
+    hasNextPage,
+  } = useFetchCategoryRecipes({
+    id: category?.id || "",
+    name: category?.name || "",
+  });
+
+  return (
+    <UserRecipesSectionTemplate
+      userRecipes={userRecipes}
+      fetchNextPage={fetchNextPage}
+      hasNextPage={hasNextPage}
+      isFetchingNextPage={isFetchingNextPage}
+    />
+  );
+};
+
+const UserRecipesSectionTemplate = ({
+  userRecipes,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+}: {
+  userRecipes: UserRecipe[];
+  fetchNextPage: () => void;
+  hasNextPage: boolean;
+  isFetchingNextPage: boolean;
+}) => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // IntersectionObserver로 무한 스크롤

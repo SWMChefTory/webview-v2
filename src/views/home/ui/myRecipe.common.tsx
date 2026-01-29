@@ -10,7 +10,6 @@ import {
 import { motion } from "motion/react";
 import {
   ALL_RECIPES,
-  useFetchUserRecipes,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import RecipeBook from "@/src/views/home/ui/assets/recipe-book.png";
 import { useRouter } from "next/router";
@@ -68,7 +67,6 @@ export const CategoryListReady = ({
   setSelectedCategory: (category: Category | typeof ALL_RECIPES) => void;
 }) => {
   const { data: categories } = useFetchCategories();
-  const { totalElements } = useFetchUserRecipes(ALL_RECIPES);
   const { t } = useTranslation("user-recipe");
 
   return (
@@ -78,7 +76,7 @@ export const CategoryListReady = ({
         props={{
           type: ChipType.FILTER,
           name: t("category.all"),
-          accessary: totalElements ?? 0,
+          accessary:  0,
           onClick: () => {
             setSelectedCategory?.(ALL_RECIPES);
           },

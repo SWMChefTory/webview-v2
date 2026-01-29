@@ -1,10 +1,15 @@
 import { useRouter } from "next/router";
 import {
-  CategoryType,
-  CuisineType,
   RecommendType,
-  isCuisineType,
-} from "@/src/entities/category/type/cuisineType";
+  toRecommendType,
+} from "@/src/entities/recommend-recipe/type/recommendType";
+// import {
+//   CuisineType,
+//   toCuisineType,
+// } from "@/src/entities/cuisine-recipe/type/cuisineType";
+import {
+  CuisineType,
+} from "@/src/entities/category/type/cuisineType"
 import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 
@@ -12,6 +17,8 @@ interface CategoryItem {
   type: CategoryType;
   image: string;
 }
+
+type CategoryType = CuisineType | RecommendType;
 
 const categories: CategoryItem[] = [
   {
@@ -62,10 +69,11 @@ export const CategorySection = () => {
   const { t: categoryT } = useCategoryTranslation();
 
   const getCategoryLabel = (type: CategoryType) => {
-    if (isCuisineType(type)) {
-      return categoryT(`cuisine.${type}`);
+    const recommendType = toRecommendType(type);
+    if (recommendType) {
+      return categoryT(`recommend.${type}`);
     }
-    return categoryT(`recommend.${type}`);
+    return categoryT(`cuisine.${type}`);
   };
 
   const handleCategoryClick = (category: CategoryItem) => {

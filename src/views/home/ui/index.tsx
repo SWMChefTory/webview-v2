@@ -11,9 +11,8 @@ import { HomePageTablet } from "./HomePage.tablet";
  * - Tablet/Desktop (768px ~): HomePageTablet
  */
 function HomePage() {
-  // const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
-  // return isMobile ? <HomePageMobile /> : <HomePageTablet />;
-  return <HomePageMobile />;
+  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
+  return isMobile ? <HomePageMobile /> : <HomePageTablet />;
 }
 
 export default HomePage;

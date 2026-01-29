@@ -1,6 +1,6 @@
 {
   "name": "webview-v2",
-  "version": "1.1.2",
+  "version": "1.1.4",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -9,7 +9,6 @@
     "lint": "eslint",
     "analyze": "cross-env ANALYZE=true next build --webpack"
   },
-  
   "dependencies": {
     "@amplitude/analytics-browser": "^2.32.2",
     "@amplitude/plugin-session-replay-browser": "^1.25.2",
@@ -41,6 +40,7 @@
     "react-error-boundary": "^6.0.0",
     "react-icons": "^5.5.0",
     "react-mobile-picker": "^1.2.0",
+    "react-modal-sheet": "^5.2.1",
     "react-youtube": "^10.1.0",
     "snakecase-keys": "^9.0.2",
     "sonner": "^2.0.7",

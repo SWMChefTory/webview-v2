@@ -1,18 +1,20 @@
 import { useEffect, useRef } from "react";
-import { useFetchTrendingRecipes } from "../entities/trend-recipe/model/useTrendRecipe";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { useSearchOverlayTranslation } from "../hooks/useSearchOverlayTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-create-dialog/recipeCardWrapper";
+import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import Trend from "@/src/views/home/ui/assets/trend.png";
+import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 
 const TrendRecipeGrid = () => {
   const {
-    data: recipes,
+    entities: recipes,
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useFetchTrendingRecipes();
+  } = useFetchRecommendRecipes({recommendType:RecommendType.TRENDING});
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { t } = useSearchOverlayTranslation();
 
@@ -57,11 +59,11 @@ const TrendRecipeGrid = () => {
           recipeCreditCost={recipe.creditCost}
           recipeIsViewed={recipe.isViewed}
           recipeTitle={recipe.recipeTitle}
-          recipeVideoType={recipe.videoType}
-          recipeVideoUrl={recipe.videoUrl}
+          recipeVideoType={VideoType.ALL}
+          recipeVideoUrl={recipe.videoInfo.videoId}
           trigger={
             <TrendRecipeCard
-              videoThumbnailUrl={recipe.videoThumbnailUrl}
+              videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
               recipeTitle={recipe.recipeTitle}
               isViewed={recipe.isViewed}
             />

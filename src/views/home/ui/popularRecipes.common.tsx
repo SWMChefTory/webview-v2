@@ -3,7 +3,6 @@ import Link from "next/link";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import {
@@ -40,12 +39,15 @@ export function RecipeCardReady({
   recipe,
   isTablet = false,
 }: {
-  recipe: PopularSummaryRecipeDto;
+  recipe: {
+    id:string;
+    isViewed:boolean;
+    videoThumbnailUrl:string;
+    recipeTitle:string;
+    isViewd:boolean;
+  };
   isTablet?: boolean;
 }) {
-  const { recipeStatus } = useFetchRecipeProgress({
-    recipeId: recipe.recipeId,
-  });
   return (
     <div className="flex flex-col">
       <div
@@ -55,11 +57,8 @@ export function RecipeCardReady({
           <div className="absolute top-[12] left-[12] bg-black/10 z-10 ">
             <AlreadyEnrolledChip
               isEnrolled={
-                recipeStatus === RecipeStatus.SUCCESS && recipe.isViewed
+                recipe.isViewed
               }
-            />
-            <CreatingStatusChip
-              isInCreating={recipeStatus === RecipeStatus.IN_PROGRESS}
             />
           </div>
           <img

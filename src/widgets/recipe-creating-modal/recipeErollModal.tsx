@@ -185,12 +185,6 @@ const ContentInProgress = ({
         <div className="text-sm text-gray-500 mt-2 text-center">
           {t("recipeCreating.modal.creatingMessage")}
         </div>
-        {/* <button
-          onClick={onClose}
-          className="w-full mt-6 py-3 px-4 bg-gray-100 rounded-full text-gray-700 font-bold text-lg"
-        >
-          {t("recipeCreating.modal.confirmLater")}
-        </button> */}
       </div>
     </div>
   );
@@ -217,12 +211,6 @@ const ContentFailed = ({ onClose }: { onClose: () => void }) => {
         <div className="text-sm text-gray-500 mt-2 text-center">
           {t("recipeCreating.modal.failedMessage")}
         </div>
-        {/* <button
-          onClick={onClose}
-          className="w-full mt-6 py-3 px-4 bg-gray-100 rounded-full text-gray-700 font-bold text-lg"
-        >
-          {t("recipeCreating.modal.close")}
-        </button> */}
       </div>
     </div>
   );

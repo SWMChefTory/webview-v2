@@ -9,6 +9,8 @@ function FormInput({
   errorMessage,
   placeholder,
   isDisabled = false,
+  isServerError = false,
+  serverErrorMessage = "",
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -16,6 +18,8 @@ function FormInput({
   errorMessage: string;
   placeholder: string;
   isDisabled?: boolean;
+  isServerError?: boolean;
+  serverErrorMessage?: string;
 }) {
   return (
     <>
@@ -27,12 +31,13 @@ function FormInput({
           onChange={(e) => {
             onChange(e.target.value);
           }}
+          disabled={isDisabled}
           onMouseDown={(e) => {
             e.preventDefault();
             e.currentTarget.focus({ preventScroll: true });
           }}
           className={`w-full px-4 py-3 border rounded-lg outline-none ${
-            isError
+            isError || isServerError
               ? "border-red-500 focus:border-red-600"
               : "border-gray-300 focus:border-black"
           }`}
@@ -52,6 +57,9 @@ function FormInput({
 
       {isError && (
         <div className="text-red-500 text-sm mt-2 ml-1">{errorMessage}</div>
+      )}
+      {isServerError && (
+        <div className="text-red-500 text-sm mt-2 ml-1">{serverErrorMessage}</div>
       )}
     </>
   );

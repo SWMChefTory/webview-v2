@@ -23,12 +23,14 @@ import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import RecipeErollModal from "../recipe-creating-modal/recipeErollModal";
 
+import { Skeleton } from "@/components/ui/skeleton";
+
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
-  const { create, isLoading: isCreating } = useCreateRecipe();
+  const { isLoading: isCreating, error, createAsync } = useCreateRecipe();
   const {
     isOpen,
     videoUrl: url,
@@ -67,6 +69,8 @@ export function RecipeCreatingView() {
     return error;
   };
 
+  const isServerError = !!error;
+
   const handleUrlChange = (url: string) => {
     setUrl(url);
     setHasEverTyped(true);
@@ -90,16 +94,19 @@ export function RecipeCreatingView() {
         video_id: videoId || undefined,
       });
 
-      create({
-        youtubeUrl: url,
-        targetCategoryId: selectedCategoryId,
-        _entryPoint: entryPoint || "floating_button",
-        _creationMethod: "url",
-        _hasTargetCategory: !!selectedCategoryId,
-        _videoUrl: url.trim(),
-        _videoId: videoId || undefined,
-      });
-      // open(recipeId);
+      try {
+        await createAsync({
+          youtubeUrl: url,
+          targetCategoryId: selectedCategoryId,
+          _entryPoint: entryPoint || "floating_button",
+          _creationMethod: "url",
+          _hasTargetCategory: !!selectedCategoryId,
+          _videoUrl: url.trim(),
+          _videoId: videoId || undefined,
+        });
+      } catch (error) {
+        return;
+      }
       setHasEverTyped(false);
       close();
     }
@@ -109,14 +116,14 @@ export function RecipeCreatingView() {
     <>
       <ShareTutorialModal />
       <Sheet
-        isOpen={isOpen||isCreating}
+        isOpen={isOpen || isCreating}
         onClose={() => {
           setIsOpen(false);
         }}
         detent="content"
         avoidKeyboard={false}
       >
-        <Sheet.Container  
+        <Sheet.Container
           style={{
             borderTopLeftRadius: 16,
             borderTopRightRadius: 16,
@@ -140,13 +147,22 @@ export function RecipeCreatingView() {
                   value={url}
                   onChange={handleUrlChange}
                   isError={isError()}
+                  isDisabled={isCreating}
+                  isServerError={isServerError}
+                  serverErrorMessage={"레시피 생성에 실패했어요."}
                   errorMessage={t("recipeCreating.form.invalidUrl")}
                   placeholder={t("recipeCreating.form.placeholder")}
                 />
               </div>
               <div className="w-full flex justify-center items-center">
-              <div className="px-4 text-sm text-gray-500">{t("recipeCreating.berry.usesOne")}</div>
+                <div className="px-4 text-sm text-gray-500">
+                  {t("recipeCreating.berry.usesOne")}
+                </div>
               </div>
+              <div className="p-0.5"/>
+              <SSRSuspense fallback={<BalanceDescriptionReadySkeleton />}>
+                <BalanceDescriptionReady />
+              </SSRSuspense>
               <div className="p-3">
                 <CreateFormButton
                   isLoading={isCreating}
@@ -188,21 +204,10 @@ const TitleSkeleton = () => {
 };
 
 const TitleReady = () => {
-  const { data: balance } = useFetchBalance();
   const { t } = useTranslation("common");
   return (
     <div className="text-xl font-bold flex justify-between items-center">
       {t("recipeCreating.modal.titleReady")}
-      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
-        <Image
-          src="/images/berry/berry.png"
-          alt="berry"
-          width={22}
-          height={22}
-          className="object-contain"
-        />
-        {balance.balance}
-      </p>
     </div>
   );
 };
@@ -300,7 +305,13 @@ const LoadingFormButton = () => {
 
 const CreateFormButtonSkeleton = () => {
   const { t } = useTranslation("common");
-  return <CreatePrimaryButton onSubmit={() => {}} isSubmittable={false} label={t("recipeCreating.berry.createWithOne")} />;
+  return (
+    <CreatePrimaryButton
+      onSubmit={() => {}}
+      isSubmittable={false}
+      label={t("recipeCreating.berry.createWithOne")}
+    />
+  );
 };
 
 const CreateFormButtonReady = ({
@@ -334,7 +345,11 @@ const CreateFormButtonReady = ({
 
   // 잔액 충분 시 생성하기 버튼
   return (
-    <CreatePrimaryButton onSubmit={onSubmit} label={t("recipeCreating.modal.submitReady")} isSubmittable={isValidUrl} />
+    <CreatePrimaryButton
+      onSubmit={onSubmit}
+      label={t("recipeCreating.modal.submitReady")}
+      isSubmittable={isValidUrl}
+    />
   );
 };
 
@@ -391,21 +406,14 @@ const CreateFormButton = ({
   );
 };
 
-const BalanceDescriptionReady = ({
-  creditCost,
-  balance,
-}: {
-  creditCost: number;
-  balance: number;
-}) => {
+const BalanceDescriptionReady = () => {
   const { t } = useTranslation("common");
+  const { data: balance } = useFetchBalance();
+  const creditCost = 1; // 기본 베리 비용
 
-  if (balance - creditCost < 0) {
+  if (balance.balance - 1 < 0) {
     return (
       <div className="px-4 flex flex-col items-center gap-2">
-        <p className="text-lg text-gray-700 font-semibold">
-          {t("recipeCreating.berry.insufficientMessage")}
-        </p>
         <div className="flex items-center gap-1.5">
           <Image
             src="/images/berry/berry.png"
@@ -415,7 +423,7 @@ const BalanceDescriptionReady = ({
             className="object-contain"
           />
           <p className="text-sm text-gray-500">
-            {t("recipeCreating.berry.currentBalance", { balance })}
+            {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
           </p>
         </div>
       </div>
@@ -424,10 +432,7 @@ const BalanceDescriptionReady = ({
 
   return (
     <div className="px-4 flex flex-col items-center gap-2">
-      <p className="text-lg text-gray-700 font-semibold">
-        {t("recipeCreating.berry.confirmCreate", { cost: creditCost })}
-      </p>
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
@@ -436,10 +441,21 @@ const BalanceDescriptionReady = ({
           className="object-contain"
         />
         <p className="text-sm text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance })}
+          {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
         </p>
       </div>
     </div>
   );
 };
 
+const BalanceDescriptionReadySkeleton = () => {
+  return (
+    <div className="px-4 flex flex-col items-center gap-2 animate-pulse">
+      <div className="h-6 w-60 rounded bg-gray-200" />
+      <div className="flex items-center gap-1.5">
+        <div className="h-[18px] w-[18px] rounded-full bg-gray-200" />
+        <div className="h-4 w-44 rounded bg-gray-200" />
+      </div>
+    </div>
+  );
+};

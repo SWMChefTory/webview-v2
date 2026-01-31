@@ -3,22 +3,24 @@ import { Button } from "@/components/ui/button";
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingFormOpenStore";
 import { MODE, request } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { X } from "lucide-react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useTranslation } from "next-i18next";
+import { useDragToClose } from "@/src/shared/hooks/useDragToClose";
 
 export function ShareTutorialModal() {
   const { isTutorialOpen, closeTutorial, openRecipeCreatingView, videoUrl, markTutorialAsSeen } =
     useRecipeCreatingViewOpenStore();
 
-  const [dragOffset, setDragOffset] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-  const startYRef = useRef(0);
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
-
   const { t } = useTranslation("common");
+
+  const { handlers: dragHandlers, style: dragStyle } = useDragToClose({
+    onClose: closeTutorial,
+    scrollAreaRef,
+  });
 
   const { guideVideoSrc, deviceType, deviceStyles } = useMemo(() => {
     if (typeof window === "undefined") {
@@ -102,79 +104,36 @@ export function ShareTutorialModal() {
     }
   };
 
-  const onTouchStart: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    if (!isTutorialOpen) return;
-    
-    startYRef.current = e.touches[0].clientY;
-    
-    const scrollTop = scrollAreaRef.current?.scrollTop ?? 0;
-    
-    if (scrollTop <= 0) {
-      setIsDragging(true);
-    }
-  };
-
-  const onTouchMove: React.TouchEventHandler<HTMLDivElement> = (e) => {
-    if (!isDragging) return;
-    
-    const currentY = e.touches[0].clientY;
-    const deltaY = currentY - startYRef.current;
-    const scrollTop = scrollAreaRef.current?.scrollTop ?? 0;
-
-    if (deltaY > 0 && scrollTop <= 0) {
-      setDragOffset(deltaY);
-      e.preventDefault();
-    } else if (scrollTop > 0) {
-      setIsDragging(false);
-      setDragOffset(0);
-    }
-  };
-
-  const onTouchEnd: React.TouchEventHandler<HTMLDivElement> = () => {
-    if (!isDragging) return;
-    
-    const viewportHeight = typeof window !== "undefined" ? window.innerHeight : 800;
-    const threshold = Math.min(240, viewportHeight * 0.25);
-    const shouldClose = dragOffset > threshold;
-    
-    setIsDragging(false);
-    setDragOffset(0);
-    
-    if (shouldClose) {
-      handleClose();
-    }
-  };
-
   return (
     <Dialog.Root open={isTutorialOpen} onOpenChange={handleOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1500] animate-in fade-in duration-300" />
         <Dialog.Content
-          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[92svh] flex flex-col shadow-2xl"
-          onTouchStart={onTouchStart}
-          onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
-          style={{ transform: `translateY(${dragOffset}px)`, transition: isDragging ? "none" : "transform 200ms ease" }}
+          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl lg:rounded-2xl animate-in slide-in-from-bottom duration-300 max-h-[92svh] lg:max-h-[85vh] flex flex-col shadow-2xl lg:max-w-[500px] xl:max-w-[560px] lg:mx-auto lg:bottom-6 xl:bottom-8"
+          onTouchStart={dragHandlers.onTouchStart}
+          onTouchMove={dragHandlers.onTouchMove}
+          onTouchEnd={dragHandlers.onTouchEnd}
+          style={dragStyle}
         >
           <div className="flex justify-center pt-2 pb-1 flex-shrink-0">
             <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
           </div>
 
-          <div className="px-6 pt-1 pb-2 border-b border-gray-100 flex-shrink-0 relative">
-            <Dialog.Title className="text-xl font-bold mb-1 text-gray-900 pr-8">
+          <div className="px-6 lg:px-8 pt-1 lg:pt-2 pb-2 lg:pb-3 border-b border-gray-100 flex-shrink-0 relative">
+            <Dialog.Title className="text-xl lg:text-2xl font-bold mb-1 lg:mb-2 text-gray-900 pr-8 lg:pr-10">
               {t("recipeCreating.tutorial.title")}
             </Dialog.Title>
-            <Dialog.Description className="text-xs text-gray-600">
+            <Dialog.Description className="text-xs lg:text-sm text-gray-600">
               {t("recipeCreating.tutorial.description")}
             </Dialog.Description>
             
             <Dialog.Close asChild>
               <button
                 onClick={handleClose}
-                className="absolute top-2 right-6 p-2 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                className="absolute top-2 right-6 lg:right-8 p-2 lg:p-2.5 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
                 aria-label={t("recipeCreating.accessibility.close")}
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5 lg:w-6 lg:h-6 text-gray-500" />
               </button>
             </Dialog.Close>
           </div>
@@ -183,10 +142,10 @@ export function ShareTutorialModal() {
             ref={scrollAreaRef} 
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
-            <div className="px-6 py-3 space-y-3">
+            <div className="px-6 lg:px-8 py-3 lg:py-4 space-y-3 lg:space-y-4">
               {guideVideoSrc && (
                 <div className="flex justify-center">
-                  <div className={`relative w-full max-w-[240px] ${deviceStyles.container}`}>
+                  <div className={`relative w-full max-w-[240px] md:max-w-[320px] lg:max-w-[360px] xl:max-w-[400px] ${deviceStyles.container}`}>
                     <div className={`relative p-1 shadow-2xl ${deviceStyles.frame}`}>
                       {deviceType === "android" && (
                         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-16 h-1 bg-gray-800 rounded-full z-10" />
@@ -217,33 +176,33 @@ export function ShareTutorialModal() {
                 </div>
               )}
               
-              <div className="text-center space-y-2">
+              <div className="text-center space-y-2 lg:space-y-3">
                 {/* 줄바꿈 처리를 위해 whitespace-pre-line 추가 */}
-                <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                <p className="text-sm lg:text-base text-gray-700 leading-relaxed whitespace-pre-line">
                   {t("recipeCreating.tutorial.instruction")}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="px-6 pt-3 pb-4 pb-safe border-t border-gray-100 bg-white flex-shrink-0 space-y-2">
+          <div className="px-6 lg:px-8 pt-3 lg:pt-4 pb-4 lg:pb-5 pb-safe border-t border-gray-100 bg-white flex-shrink-0 space-y-2 lg:space-y-3">
             <Button
               onClick={handleOpenYouTube}
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] transition-all duration-200"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 lg:py-4 lg:text-base rounded-xl shadow-md hover:shadow-lg active:scale-[0.98] lg:hover:-translate-y-0.5 transition-all duration-200"
             >
               {t("recipeCreating.tutorial.goCreate")}
             </Button>
             <Button
               onClick={handleDirectInput}
               variant="outline"
-              className="w-full border-2 border-gray-200 text-gray-700 font-semibold py-3 rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] transition-all duration-200"
+              className="w-full border-2 border-gray-200 text-gray-700 font-semibold py-3 lg:py-4 lg:text-base rounded-xl hover:bg-gray-50 hover:border-gray-300 active:scale-[0.98] lg:hover:-translate-y-0.5 transition-all duration-200"
             >
               {t("recipeCreating.tutorial.directInput")}
             </Button>
 
             <button
               onClick={handleDontShowAgain}
-              className="w-full text-xs text-gray-400 text-center py-1 hover:text-gray-600 active:text-gray-700 transition-colors font-medium"
+              className="w-full text-xs lg:text-sm text-gray-400 text-center py-1 lg:py-2 hover:text-gray-600 active:text-gray-700 transition-colors font-medium"
             >
               {t("recipeCreating.tutorial.dontShowAgain")}
             </button>

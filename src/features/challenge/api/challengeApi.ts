@@ -55,23 +55,23 @@ export async function fetchChallengeInfo(): Promise<ChallengeData> {
 // ============================================
 
 export async function fetchChallengeRecipes({
-                                              challengeId,
-                                              page,
-                                            }: {
+  challengeId,
+  page,
+}: {
   challengeId: string;
   page: number;
 }): Promise<ChallengeRecipesResponse> {
   if (USE_MOCK) {
     // Mock 모드: 나의 레시피 API를 호출하여 테스트 데이터로 활용
     await simulateNetworkDelay();
-    const myRecipes = await fetchAllRecipesSummary({ page });
+    const myRecipes = await fetchAllRecipesSummary({ cursor: null });
     return {
       completeRecipes: MOCK_COMPLETE_RECIPES,
       challengeRecipes: myRecipes.data.map(convertUserRecipeToChallengeRecipe),
-      currentPage: myRecipes.currentPage,
-      totalPages: myRecipes.totalPages,
-      totalElements: myRecipes.totalElements,
-      hasNext: myRecipes.hasNext,
+      currentPage: page,
+      totalPages: 1,
+      totalElements: myRecipes.data.length,
+      hasNext: false,
     };
   }
 

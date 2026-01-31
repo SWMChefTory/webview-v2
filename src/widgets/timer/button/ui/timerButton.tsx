@@ -4,14 +4,13 @@ import {
   TimerState,
   useHandleTimers,
   useTimers,
-} from "../../../../features/timer/useInProgressTimers";
-import { useProgressTimer } from "../../../../features/timer/useProgressTimer";
+} from "@/src/features/timer/useInProgressTimers";
+
+import { useProgressTimer } from "@/src/features/timer/useProgressTimer";
 import { filterActiveTimers } from "@/src/features/timer/utils/query";
 import { useImperativeHandle, useState } from "react";
 import { useAnimate } from "motion/react";
 import { useTimerTranslation } from "@/src/entities/timer/hooks/useTimerTranslation";
-import { HeaderIconButtonTemplate } from "@/src/shared/ui/header/header";
-import { LuTimer } from "react-icons/lu";
 
 export function TimerButton({
   recipeId,

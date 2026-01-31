@@ -43,9 +43,11 @@ export enum CategoryMode {
 export const CategoryListSection = ({
   selectedCategoryId,
   setSelectedCategoryId,
+  isTablet = false,
 }: {
   selectedCategoryId: string | typeof ALL_RECIPES;
   setSelectedCategoryId: (categoryId: string | typeof ALL_RECIPES) => void;
+  isTablet?: boolean;
 }) => {
   const { createCategory } = useCreateCategory();
   useEffect(() => {
@@ -61,8 +63,8 @@ export const CategoryListSection = ({
   }, []);
 
   return (
-    <div className="px-6 pt-2 flex flex-col flex-none items-center w-full pb-[12]">
-      <div className=" w-[100vw] overflow-x-auto no-scrollbar">
+    <div className={`pt-2 flex flex-col flex-none items-center w-full pb-3 ${isTablet ? "px-6 lg:px-8 xl:px-10" : "px-4"}`}>
+      <div className={`overflow-x-auto no-scrollbar ${isTablet ? "w-full max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px]" : "w-[100vw]"}`}>
         <SSRSuspense fallback={<CategoryListSkeleton />}>
           <CategoryListReady
             selectedCategoryId={selectedCategoryId}

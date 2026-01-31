@@ -15,13 +15,13 @@ export const ProgressDetailsCheckList = ({
     return <></>;
   }
   return (
-    <div className="flex flex-col gap-1 pt-[16] flex-start p-[8] bg-gray-800/80 rounded-md h-full justify-start w-full items-center z-999">
-      <div className="text-white font-bold text-lg">
+    <div className="flex flex-col gap-1 md:gap-1.5 lg:gap-2 pt-[16] md:pt-4 lg:pt-5 flex-start p-[8] md:p-2.5 lg:p-3 bg-gray-800/80 rounded-md md:rounded-md lg:rounded-lg h-full justify-start w-full items-center z-999">
+      <div className="text-white font-bold text-lg md:text-lg lg:text-xl">
         {recipeStatus !== RecipeStatus.FAILED && t("progress.creating")}
       </div>
       <div className="flex flex-1 w-full items-center justify-center">
         {recipeStatus === RecipeStatus.FAILED ? (
-          <div className="text-white font-bold text-lg"
+          <div className="text-white font-bold text-lg md:text-lg lg:text-xl"
           onClick={recipeStatus === RecipeStatus.FAILED ? () => {
             queryClient.invalidateQueries({
               queryKey: [ALL_RECIPES],
@@ -31,7 +31,7 @@ export const ProgressDetailsCheckList = ({
             {t("progress.failed")}
           </div>
         ) : (
-          <Spinner className="size-12 text-orange-500" />
+          <Spinner className="size-12 md:size-13 lg:size-14 text-orange-500" />
         )}
       </div>
     </div>

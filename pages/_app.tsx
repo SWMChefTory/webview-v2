@@ -10,7 +10,6 @@ import {
 } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { RecipeCreationInfoSchema } from "@/src/views/home/entities/creating_info/recipeCreationInfo";
-import { Toaster } from "sonner";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { WiCloud } from "react-icons/wi";
@@ -26,9 +25,11 @@ import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-fo
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
-import {appWithTranslation} from 'next-i18next';
+import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
-import { AxiosError } from "axios";
+import { Agentation } from "agentation";
+import { TokenRefreshFailedError } from "@/src/shared/client/main/client";
+import { isAxiosError } from "axios";
 
 export default appWithTranslation(App);
 
@@ -45,16 +46,17 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      })
+      }),
   );
-
-  useInit();
   useAmplitude();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppInner {...props} />
-    </QueryClientProvider>
+    <>
+      <QueryClientProvider client={queryClient}>
+        <AppInner {...props} />
+      </QueryClientProvider>
+      {process.env.NODE_ENV === "development" && <Agentation />}
+    </>
   );
 }
 
@@ -65,13 +67,14 @@ enum loadingRequestType {
 
 function AppInner({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  useInit();
   const { open } = useRecipeCreatingViewOpenStore();
   const [recipeDetailLinkUrl, setRecipeDetailLinkUrl] = useState<
     string | undefined
   >(undefined);
 
-  function handleRecipeDeepLink({path}: {path: string}) {
-    const recipeId = path.split('/')[2];
+  function handleRecipeDeepLink({ path }: { path: string }) {
+    const recipeId = path.split("/")[2];
     if (!recipeId) return;
     if (router.asPath === `/recipe/${recipeId}/detail`) {
       return;
@@ -81,7 +84,6 @@ function AppInner({ Component, pageProps }: AppProps) {
     }
     setRecipeDetailLinkUrl(path);
   }
-
 
   useEffect(() => {
     request(MODE.BLOCKING, "CONSUME_INITIAL_DATA").then((result) => {
@@ -93,7 +95,7 @@ function AppInner({ Component, pageProps }: AppProps) {
           return;
         }
         if (message.type === "ROUTE") {
-          handleRecipeDeepLink({path: message.data.route});
+          handleRecipeDeepLink({ path: message.data.route });
         }
       }
     });
@@ -101,9 +103,10 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
   }
+
   useEffect(() => {
     (async () => {
       await nextPaint();
@@ -117,7 +120,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      }
+      },
     );
     return cleanup;
   }, []);
@@ -126,13 +129,13 @@ function AppInner({ Component, pageProps }: AppProps) {
     const cleanup = onUnblockingRequest(
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
-        handleRecipeDeepLink({path: payload.route});
-      }
+        handleRecipeDeepLink({ path: payload.route });
+      },
     );
     return () => {
       cleanup();
     };
-  }, [router]);
+  }, []);
 
   return (
     <HydrationBoundary state={pageProps.dehydratedState}>
@@ -140,7 +143,7 @@ function AppInner({ Component, pageProps }: AppProps) {
         {({ reset }) => (
           <ErrorBoundary
             onReset={reset}
-            fallbackRender={({ error,resetErrorBoundary }) => (
+            fallbackRender={({ error, resetErrorBoundary }) => (
               <NetworkFallback
                 error={error}
                 onRetry={async () => {
@@ -150,7 +153,6 @@ function AppInner({ Component, pageProps }: AppProps) {
               />
             )}
           >
-            <Toaster />
             <Component {...pageProps} />
             <RecipeCreatingView />
             {recipeDetailLinkUrl && (
@@ -166,9 +168,82 @@ function AppInner({ Component, pageProps }: AppProps) {
   );
 }
 
-export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: () => void }) {
+function isAuthError(error: unknown): boolean {
+  if (error instanceof TokenRefreshFailedError) return true;
+  
+  if (isAxiosError(error)) {
+    const errorCode = error.response?.data?.errorCode;
+    if (typeof errorCode === 'string' && errorCode.startsWith('AUTH')) {
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+export function NetworkFallback({
+  error,
+  onRetry,
+}: {
+  error: unknown;
+  onRetry: () => void;
+}) {
   const queryClient = useQueryClient();
   const router = useRouter();
+
+  useEffect(() => {
+    if (isAuthError(error)) {
+      queryClient.clear();
+      if(window.ReactNativeWebView){
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: "LOGOUT",
+          data: {
+            error: error,
+          },
+        }));
+        return;
+      }
+      
+      onRetry();
+      
+      setTimeout(() => {
+        router.replace("/auth");
+      }, 100);
+    }
+  }, [error, queryClient, router, onRetry]);
+
+  if (isAuthError(error)) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[100vh] text-center px-4 py-10 bg-orange-50">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mb-4"
+        >
+          <WiCloud className="text-orange-400" size={80} />
+        </motion.div>
+
+        <motion.p
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-gray-600 text-xl mb-6 font-bold"
+        >
+          로그인이 필요합니다
+        </motion.p>
+
+        <motion.p
+          initial={{ y: 10, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.4 }}
+          className="text-gray-600 mb-6"
+        >
+          로그인 페이지로 이동 중...
+        </motion.p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-[100vh] text-center px-4 py-10 bg-orange-50">
@@ -203,17 +278,9 @@ export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: (
         whileTap={{ scale: 0.95 }}
         className="bg-orange-500 text-white font-semibold px-5 py-2 rounded-full shadow-md hover:bg-orange-600 transition"
         onClick={async () => {
-
-          // 1) 바운더리 리셋
           onRetry?.();
-
-          // 2) 쿼리 캐시/에러 상태 제거
-          queryClient.clear(); // 또는 queryClient.removeQueries();
-
-          // 3) 홈으로 이동 (필요시 하드 리로드)
+          queryClient.clear();
           await router.replace("/");
-          // 하드 리로드가 확실히 필요하면:
-          // window.location.href = "/";
         }}
       >
         다시 시도하기
@@ -266,43 +333,26 @@ function RouteDialog({
   );
 }
 
-
 const useInit = () => {
+  // const { user, isLoading, error } = useFetchUserModelNotSuspense();
+
   useEffect(() => {
-    // 웹 브라우저 환경에서만 URL 파라미터 추출
-    if (typeof window !== "undefined" && !window.ReactNativeWebView) {
-      const params = new URLSearchParams(window.location.search);
-      const accessToken = params.get("access_token");
-      const refreshToken = params.get("refresh_token");
-      const locale = params.get("locale");
-
-      // 토큰이 있으면 localStorage에 저장
-      if (accessToken && refreshToken) {
-        localStorage.setItem("MAIN_ACCESS_TOKEN", accessToken);
-        localStorage.setItem("MAIN_REFRESH_TOKEN", refreshToken);
-
-        // locale도 저장 (i18n 설정용)
-        if (locale) {
-          localStorage.setItem("locale", locale);
-        }
-
-        // 보안: URL에서 파라미터 제거 (브라우저 히스토리에 남지 않도록)
-        const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, document.title, cleanUrl);
-
-        console.log("[WebView] Tokens saved from URL parameters");
-      }
+    if (window.ReactNativeWebView) {
+      // Native bridge communication (기존 로직 유지)
+      //사파리 전용
+      window.addEventListener("message", communication);
+      //크로미움 전용
+      document.addEventListener("message" as any, communication);
     }
 
-    // Native bridge communication (기존 로직 유지)
-    //사파리 전용
-    window.addEventListener("message", communication);
-    //크로미움 전용
-    document.addEventListener('message' as any, communication);
     return () => {
       console.log("brigdeEnd");
-      window.removeEventListener("message", communication);
+      if (window.ReactNativeWebView) {
+        window.removeEventListener("message", communication);
+        document.removeEventListener("message" as any, communication);
+      }
     };
   }, []);
-};
 
+  // return { isAuthenticated: !!user, isLoading, error };
+};

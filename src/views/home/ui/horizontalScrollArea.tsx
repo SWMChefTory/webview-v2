@@ -1,44 +1,31 @@
-/**
- *
- * @param children - scrollarea에서 보여줄 컨텐츠
- * @param onReachEnd - 스크롤 영역 끝에 도달했을 때 호출될 함수. 스크롤 영역 끝이란 스크롤 컨텐츠의 전체 길이에 10px를 더한 값을 초과했을 때를 의미한다.
- */
+import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
+import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { HorizontalScrollAreaMobile } from "./horizontalScrollArea.mobile";
+import { HorizontalScrollAreaDesktop } from "./horizontalScrollArea.desktop";
+import { HorizontalScrollAreaTablet } from "./horizontalScrollArea.tablet";
 
-import { useEffect, useRef } from "react";
-
-export function HorizontalScrollArea({
-  children,
-  onReachEnd,
-}: {
+export type HorizontalScrollAreaProps = {
   children: React.ReactNode;
+  moreLink?: string;
+  gap?: string;
+  aspectRatio?: string;
   onReachEnd?: () => void;
-}) {
-  const calledRef = useRef(false);
-  return (
-    <div
-      className="whitespace-nowrap w-[100vw] overflow-x-scroll scrollbar-hide no-scrollbar"
-      onScroll={(e) => {
-        const el = e.currentTarget;
+};
 
-        const reachedEnd =
-          el.scrollLeft + el.clientWidth >= el.scrollWidth - 10; 
+/**
+ * Horizontal Scroll Area Router
+ * - Desktop: Grid layout
+ * - Tablet: Horizontal scroll layout
+ */
+export function HorizontalScrollArea(props: HorizontalScrollAreaProps) {
+  const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
+  const isDesktop = useMediaQuery(MEDIA_QUERIES.desktop);
 
-        if (reachedEnd) {
-          if (!calledRef.current) {
-            calledRef.current = true;
-            onReachEnd?.();
-          }
-        } else {
-          // 끝에서 벗어나면 다시 호출 가능하게 리셋
-          calledRef.current = false;
-        }
-      }}
-
-    >
-      <div className="pl-4 flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
-        {children}
-      </div>
-    </div>
+  if (isMobile) return <HorizontalScrollAreaMobile {...props} />;
+  return isDesktop ? (
+    <HorizontalScrollAreaDesktop {...props} />
+  ) : (
+    <HorizontalScrollAreaTablet {...props} />
   );
 }
 

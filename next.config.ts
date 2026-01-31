@@ -23,6 +23,9 @@ const nextConfig: NextConfig = {
 
   /* config options here */
   // reactStrictMode: true,
+
+  // Docker 배포를 위한 standalone 출력 설정
+  output: 'standalone',
 };
 
 export default withBundleAnalyzer({

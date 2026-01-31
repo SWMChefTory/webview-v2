@@ -100,12 +100,12 @@ function Step({
   return (
     <div
       id={`step-${i}`}
-      className={`relative px-3 pb-4 ${isLastChild && "min-h-full shrink-0"}`}
+      className={`relative px-3 lg:px-4 pb-4 lg:pb-5 ${isLastChild && "min-h-full shrink-0"}`}
     >
       <VoiceGuideStep
         trigger={
           <div
-            className="text-gray-400 font-bold text-base"
+            className="text-gray-400 font-bold text-base lg:text-lg"
             onClick={() => {
               onChangeStep({ stepIndex: i, stepDetailIndex: 0 });
             }}
@@ -116,8 +116,8 @@ function Step({
         isOpen={isSelected}
         recipeId={recipeId}
       />
-      <div className={`${isLandscape ? "h-2" : "h-5"}`} />
-      <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} px-2`}>
+      <div className={`${isLandscape ? "h-2" : "h-5"} lg:h-6`} />
+      <div className={`flex flex-col ${isLandscape ? "gap-1" : "gap-2"} lg:gap-3 px-2 lg:px-3`}>
         {step.details.map((detail, di) => {
           return isSelected ? (
             di >= currentdetailStepIndex && (
@@ -197,30 +197,31 @@ function VoiceGuideStep({
       <Popover.Trigger asChild>{trigger}</Popover.Trigger>
       <Popover.Portal>
         <Popover.Content
-          className="flex flex-col bg-white rounded-lg shadow-xl"
+          className="flex flex-col bg-white rounded-lg lg:rounded-xl shadow-xl lg:shadow-2xl"
           side="bottom"
           align="end"
           sideOffset={10}
           alignOffset={10}
         >
           <Popover.Arrow className="fill-white" />
-          <div className="w-[60vw] max-w-md px-4 py-4 pb-6">
-            <div className="flex justify-between item-center pb-2">
-              <div className="text-gray-500">
+          <div className="w-[60vw] max-w-md lg:max-w-lg lg:w-[400px] px-4 py-4 pb-6 lg:px-5 lg:py-5 lg:pb-7">
+            <div className="flex justify-between item-center pb-2 lg:pb-3">
+              <div className="text-gray-500 lg:text-base">
                 {currentStepIndex + 1}/{steps.length}
               </div>
               <Popover.Close onClick={handleTerminate}>
-                <div className="p-1">
-                  <IoMdClose className="text-gray-500" size={18} />
+                <div className="p-1 lg:p-1.5">
+                  <IoMdClose className="text-gray-500 lg:w-5 lg:h-5" size={18} />
                 </div>
               </Popover.Close>
             </div>
 
-            <p className="break-keep leading-relaxed font-semibold ">
-              {currentStep.when} {/* 언어별 문장 구조 처리 */}
+            <p className="break-keep leading-relaxed font-semibold lg:text-lg lg:leading-relaxed">
+              {currentStep.when}{" "}
+              {/* 언어별 문장 구조 처리 */}
               {lang === "ko" ? (
                 <>
-                  <span className="font-extrabold whitespace-nowrap text-lg">
+                  <span className="font-extrabold whitespace-nowrap text-lg lg:text-xl">
                     "{currentStep.command}"
                   </span>{" "}
                   라고 말해보세요!
@@ -228,21 +229,21 @@ function VoiceGuideStep({
               ) : (
                 <>
                   Say{" "}
-                  <span className="font-extrabold whitespace-nowrap text-lg">
+                  <span className="font-extrabold whitespace-nowrap text-lg lg:text-xl">
                     "{currentStep.command}"
                   </span>
                   !
                 </>
               )}
             </p>
-            <div className="flex w-full justify-center pt-2 pb-4 items-center gap-2 text-orange-500">
+            <div className="flex w-full justify-center pt-2 pb-4 lg:pt-3 lg:pb-5 items-center gap-2 text-orange-500 lg:text-base">
               {t("voice.listening")}
-              <Spinner />
+              <Spinner className="lg:w-5 lg:h-5" />
             </div>
             <div className="flex w-full justify-center">
               <Popover.Close
                 asChild
-                className="px-3 py-1 bg-gray-200 rounded font-semibold"
+                className="px-3 py-1 lg:px-4 lg:py-1.5 bg-gray-200 rounded lg:rounded-md font-semibold lg:text-base"
               >
                 <p
                   onClick={() => {
@@ -276,9 +277,9 @@ const Detail = ({
 }) => {
   return (
     <div
-      className={`relative flex flex-row gap-3 ${
+      className={`relative flex flex-row gap-3 lg:gap-4 ${
         isSelected ? "text-white" : "text-gray-400"
-      } ${isLandscape ? "text-base" : "text-xl"}`}
+      } ${isLandscape ? "text-base lg:text-lg" : "text-xl lg:text-2xl"}`}
       onClick={onClick}
     >
       <div>{alphabetIndex}.</div>

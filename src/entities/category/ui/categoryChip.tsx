@@ -101,13 +101,13 @@ function FilterChip({
     <motion.div
       className={`rounded-lg relative ${
         isSelected && "bg-gray-200"
-      } px-[12] py-[4] flex flex-row items-center whitespace-nowrap select-none gap-1`}
+      } px-[12] py-[4] md:px-4 md:py-2 lg:px-5 lg:py-2.5 xl:px-6 xl:py-3 flex flex-row items-center whitespace-nowrap select-none gap-1`}
       whileTap={isSelected ? undefined : { scale: 0.9 }}
       transition={isSelected ? undefined : { duration: 0.2 }}
       onTapStart={handleTapStart}
     >
       <div className={`text-transparent line-clamp-1`}>{name}</div>
-      <div className={`text-transparent text-xs flex-shrink-0`}>
+      <div className={`text-transparent text-xs md:text-sm lg:text-base flex-shrink-0`}>
         {accessary}
       </div>
       <div className="inline-flex items-center gap-1 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -121,7 +121,7 @@ function FilterChip({
         {/* <span
           className={`${
             isSelected ? "text-gray-800 font-bold" : "text-gray-600"
-          } text-xs flex-shrink-0`}
+          } text-xs md:text-sm lg:text-base flex-shrink-0`}
         >
           {accessary}
         </span> */}

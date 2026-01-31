@@ -39,8 +39,6 @@ export const SSRSuspense = (props: React.ComponentProps<typeof Suspense>) => {
   }
 
   return (
-    <ErrorBoundary fallback={fallback}>
       <Suspense fallback={fallback}>{children}</Suspense>
-    </ErrorBoundary>
   );
 };

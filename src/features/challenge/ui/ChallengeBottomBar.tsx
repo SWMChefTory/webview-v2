@@ -53,22 +53,23 @@ export function ChallengeBottomBar({ challengeType, startDate, endDate }: Challe
     <>
       {/* 하단 고정 바 */}
       <div
-        className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 pt-3 pb-safe"
+        className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 px-4 lg:px-6 pt-3 lg:pt-4 pb-safe"
         style={{
           boxShadow: "0 -4px 12px rgba(0, 0, 0, 0.05)",
         }}
       >
+        <div className="max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] mx-auto">
         {/* 메인 버튼 */}
         {isBefore ? (
           // 시작 전: 비활성 상태 버튼 (파란색 계열)
           <div
-            className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2.5
+            className="w-full py-3 lg:py-4 px-4 lg:px-6 rounded-xl flex items-center justify-center gap-2.5
               bg-blue-100 border border-blue-200"
           >
-            <span className="text-blue-500 font-semibold text-sm">
+            <span className="text-blue-500 font-semibold text-sm lg:text-base">
               {calculateDaysUntilStart(startDate)}
             </span>
-            <span className="text-blue-400 font-medium text-sm">
+            <span className="text-blue-400 font-medium text-sm lg:text-base">
               {BEFORE_START_MESSAGES.button(startDate)}
             </span>
           </div>
@@ -76,37 +77,37 @@ export function ChallengeBottomBar({ challengeType, startDate, endDate }: Challe
           // 종료: 다음 챌린지 참여 유도 버튼
           <button
             onClick={handleButtonClick}
-            className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2.5
+            className="w-full py-3 lg:py-4 px-4 lg:px-6 rounded-xl flex items-center justify-center gap-2.5
               transition-all duration-200
-              active:scale-[0.98]
+              active:scale-[0.98] lg:hover:shadow-lg lg:hover:-translate-y-0.5
               bg-orange-500 border border-orange-400"
             style={{
               boxShadow: "0 2px 8px -2px rgba(249, 115, 22, 0.4)",
             }}
           >
-            <span className="text-white font-semibold text-sm">
+            <span className="text-white font-semibold text-sm lg:text-base">
               다음 챌린지도 참여하고 싶어요
             </span>
-            <FiExternalLink size={12} className="text-white/70" />
+            <FiExternalLink size={12} className="text-white/70 lg:w-4 lg:h-4" />
           </button>
         ) : (
           // 진행 중: 카카오톡 인증 버튼
           <button
             onClick={handleButtonClick}
-            className="w-full py-3 px-4 rounded-xl flex items-center justify-center gap-2.5
+            className="w-full py-3 lg:py-4 px-4 lg:px-6 rounded-xl flex items-center justify-center gap-2.5
               transition-all duration-200
-              active:scale-[0.98]
+              active:scale-[0.98] lg:hover:shadow-lg lg:hover:-translate-y-0.5
               border border-yellow-400/50"
             style={{
               backgroundColor: "#FEE500",
               boxShadow: "0 2px 8px -2px rgba(254, 229, 0, 0.4)",
             }}
           >
-            <RiKakaoTalkFill size={20} className="text-black/85" />
-            <span className="text-black/85 font-semibold text-sm">
+            <RiKakaoTalkFill size={20} className="text-black/85 lg:w-6 lg:h-6" />
+            <span className="text-black/85 font-semibold text-sm lg:text-base">
               인증하고 선물받기
             </span>
-            <FiExternalLink size={12} className="text-black/60" />
+            <FiExternalLink size={12} className="text-black/60 lg:w-4 lg:h-4" />
           </button>
         )}
 
@@ -116,12 +117,13 @@ export function ChallengeBottomBar({ challengeType, startDate, endDate }: Challe
             track(AMPLITUDE_EVENT.CHALLENGE_GUIDE_CLICK);
             setIsGuideOpen(true);
           }}
-          className="flex items-center justify-center gap-1 w-full py-2.5 text-xs text-gray-500
-            transition-colors active:text-gray-700"
+          className="flex items-center justify-center gap-1 w-full py-2.5 lg:py-3 text-xs lg:text-sm text-gray-500
+            transition-colors active:text-gray-700 lg:hover:text-gray-700"
         >
           <span>챌린지 안내 보기</span>
           <FaChevronRight size={8} />
         </button>
+        </div>
       </div>
 
       {/* 챌린지 안내 시트 */}

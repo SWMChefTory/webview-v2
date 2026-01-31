@@ -1,0 +1,1 @@
+export { ViewMoreCard } from "./ViewMoreCard";

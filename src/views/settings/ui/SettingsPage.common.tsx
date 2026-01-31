@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Chef from "@/src/views/settings/assets/chef.png";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { motion } from "motion/react";
-import { fetchUserModel } from "@/src/views/settings/entities/user/model";
+import { useFetchUserModel } from "@/src/entities/user/model";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { setMainAccessToken } from "@/src/shared/client/main/client";
@@ -56,7 +56,7 @@ export const UserSectionTemplate = ({
  * 프로필 섹션 - Ready 상태
  */
 export const UserSectionReady = ({ isTablet = false }: { isTablet?: boolean }) => {
-  const { user } = fetchUserModel();
+  const { user } = useFetchUserModel();
 
   return (
     <UserSectionTemplate

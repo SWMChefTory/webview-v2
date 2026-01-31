@@ -25,10 +25,6 @@ export function ResponsiveSwitcher<P extends object>({
   const isMobile = useMediaQuery(MEDIA_QUERIES.mobile);
   const isDesktop = useMediaQuery(MEDIA_QUERIES.desktop);
 
-  // if (typeof window === "undefined") {
-  //   return <>{fallback}</>;
-  // }
-
   if (isMobile) return <Mobile {...props} />;
   if (isDesktop) return <Desktop {...props} />;
   return <Tablet {...props} />;

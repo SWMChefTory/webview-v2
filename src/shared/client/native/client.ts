@@ -2,6 +2,7 @@ import { UNBLOCKING_HANDLER_TYPE } from "./unblockingHandlerType";
 
 declare global {
   interface Window {
+    //네이티브 환경인지 확인할 수 있음.
     ReactNativeWebView?: {
       postMessage(message: string): void;
       getMessage(): unknown;
@@ -167,7 +168,7 @@ export function request<T = any>(
     return Promise.resolve(payload);
   }
   if (!window.ReactNativeWebView)
-    return Promise.reject(new Error("Bridge not ready"));
+    return Promise.resolve("native가 아니므로 request를 호출하지 않습니다." as T);
 
   if (mode === MODE.UNBLOCKING) {
     const req: RequestMsgUnblockingFromWebview = {

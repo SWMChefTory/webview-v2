@@ -1,6 +1,6 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { fetchUser, Gender } from "@/src/views/settings/entities/user/api";
-import { UserResponse } from "@/src/views/settings/entities/user/api";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { fetchUser, Gender } from "@/src/entities/user/api";
+import { UserResponse } from "@/src/entities/user/api";
 
 type User = {
   gender: Gender | null | undefined;
@@ -37,7 +37,7 @@ function createUser(user: UserResponse): User {
   };
 }
 
-function fetchUserModel() {
+function useFetchUserModel() {
   const { data: user } = useSuspenseQuery({
     queryKey: ["user"],
     queryFn: fetchUser,
@@ -48,4 +48,16 @@ function fetchUserModel() {
   };
 }
 
-export { fetchUserModel };
+function useFetchUserModelNotSuspense() {
+  const { data: user, isLoading, error } = useQuery({
+    queryKey: ["user"],
+    queryFn: fetchUser,
+  });
+  return {
+    user,
+    isLoading: isLoading,
+    error: error,
+  };
+}
+
+export { useFetchUserModel, useFetchUserModelNotSuspense };

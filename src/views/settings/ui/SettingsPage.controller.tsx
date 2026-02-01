@@ -52,7 +52,7 @@ export function useSettingsPageController(
     navigation: {
       goToPrivacyPolicy: () => router.push("/user/settings/privacy-policy"),
       goToTerms: () => router.push("/user/settings/terms-and-conditions"),
-    },
+    },  
     actionButtons: {
       logout: <LogoutButton isTablet={isTablet} />,
       withdrawal: <WithdrawalButton isTablet={isTablet} />,

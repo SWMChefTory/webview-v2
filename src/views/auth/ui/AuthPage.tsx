@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
-import GoogleLoginButton from "@/src/shared/ui/auth/GoogleLoginButton";
-import AppleLoginButton from "@/src/shared/ui/auth/AppleLoginButton";
+import GoogleLoginButton from "@/src/views/auth/ui/GoogleLoginButton";
+import AppleLoginButton from "@/src/views/auth/ui/AppleLoginButton";
 
 interface Character {
   title: string;

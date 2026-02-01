@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import { useFetchUserModel } from "@/src/entities/user/model";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { setMainAccessToken } from "@/src/shared/client/main/client";
+import { setMainAccessToken, setMainRefreshToken } from "@/src/shared/client/main/client";
 import { ReactNode } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
@@ -209,11 +209,13 @@ const LOGOUT = "LOGOUT";
  */
 export function LogoutButton({ isTablet = false }: { isTablet?: boolean }) {
   const { t } = useSettingsTranslation();
-
+  const router = useRouter();
   return (
     <motion.div
       onClick={() => {
         setMainAccessToken("");
+        setMainRefreshToken("");
+        router.push("/auth");
         request(MODE.UNBLOCKING, LOGOUT);
       }}
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}

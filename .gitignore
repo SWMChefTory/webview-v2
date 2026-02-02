@@ -45,3 +45,11 @@ next-env.d.ts
 /docs
 
 .serena
+
+# AI assistant directories
+.agents
+.opencode
+.agent
+.claude
+.gemini
+.cursor

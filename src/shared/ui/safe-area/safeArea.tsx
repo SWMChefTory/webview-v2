@@ -1,8 +1,8 @@
 function TopSafeArea() {
   return (
     <div
-      style={{ backgroundColor: "red", height: "env(safe-area-inset-top)" }}
-    ></div>
+      style={{ height: "env(safe-area-inset-top)" }}
+    />
   );
 }
 

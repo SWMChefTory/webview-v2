@@ -236,10 +236,12 @@ const ContentReady = ({
   return (
     <ContentTemplate
       thumbnail={
-        <img
-          src={recipe.videoInfo.thumbnailUrl}
-          alt={recipe.videoInfo.videoTitle}
-          className="w-full h-full object-cover"
+        <Image
+          src="/images/tory/tory_study.png"
+          alt="tory"
+          width={120}
+          height={120}
+          className="object-contain"
         />
       }
       title={

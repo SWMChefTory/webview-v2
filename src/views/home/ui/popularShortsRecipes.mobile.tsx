@@ -1,3 +1,4 @@
+import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
@@ -7,8 +8,6 @@ import {
   ShortsRecipeCardReady,
   ShortsRecipeCardSkeleton,
 } from "./popularShortsRecipes.common";
-import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
 import { useCallback } from "react";
 
 /**
@@ -58,50 +57,44 @@ const PopularShortsRecipesTemplateMobile = ({
  */
 const ShortPopularRecipesSectionReady = () => {
   const {
-    entities: recipes,
+    data: recipes,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useFetchRecommendRecipes({
-    videoType: VideoType.SHORTS,
-    recommendType: RecommendType.POPULAR,
-  });
+  } = useFetchPopularRecipe(VideoType.SHORTS);
+
   const handleReachEnd = useCallback(() => {
-    if (hasNextPage) {
+    if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  }, [hasNextPage, fetchNextPage]);
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
   return (
-    <HorizontalScrollArea
-      // onReachEnd={handleReachEnd}
-    >
-      <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
-        {recipes.map((recipe) => (
-          <RecipeCardWrapper
-            key={recipe.recipeId}
-            recipeId={recipe.recipeId}
-            recipeCreditCost={recipe.creditCost}
-            recipeTitle={recipe.recipeTitle}
-            recipeIsViewed={recipe.isViewed}
-            recipeVideoType={VideoType.SHORTS}
-            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-            entryPoint="popular_normal"
-            trigger={
-              <ShortsRecipeCardReady
-                recipe={{
-                  id: recipe.recipeId,
-                  isViewed: recipe.isViewed,
-                  videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                  recipeTitle: recipe.videoInfo.videoTitle,
-                }}
-                isTablet={false}
-              />
-            }
-          />
-        ))}
-        {isFetchingNextPage && <ShortsRecipeCardSkeleton isTablet={false} />}
-      </div>
+    <HorizontalScrollArea onReachEnd={handleReachEnd}>
+      {recipes.map((recipe) => (
+        <RecipeCardWrapper
+          key={recipe.recipeId}
+          recipeId={recipe.recipeId}
+          recipeCreditCost={recipe.creditCost}
+          recipeTitle={recipe.recipeTitle}
+          recipeIsViewed={recipe.isViewed}
+          recipeVideoType={recipe.videoType}
+          recipeVideoUrl={recipe.videoUrl}
+          entryPoint="popular_shorts"
+          trigger={
+            <ShortsRecipeCardReady
+              recipe={{
+                id: recipe.recipeId,
+                isViewed: recipe.isViewed,
+                videoThumbnailUrl: recipe.videoThumbnailUrl,
+                recipeTitle: recipe.recipeTitle,
+              }}
+              isTablet={false}
+            />
+          }
+        />
+      ))}
+      {isFetchingNextPage && <ShortsRecipeCardSkeleton isTablet={false} />}
     </HorizontalScrollArea>
   );
 };
@@ -112,11 +105,9 @@ const ShortPopularRecipesSectionReady = () => {
 const ShortPopularRecipesSectionSkeleton = () => {
   return (
     <HorizontalScrollArea>
-      <div className="flex flex-row gap-2 whitespace-normal min-w-[100.5vw]">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <ShortsRecipeCardSkeleton key={i} isTablet={false} />
-        ))}
-      </div>
+      {Array.from({ length: 3 }).map((_, i) => (
+        <ShortsRecipeCardSkeleton key={i} isTablet={false} />
+      ))}
     </HorizontalScrollArea>
   );
 };

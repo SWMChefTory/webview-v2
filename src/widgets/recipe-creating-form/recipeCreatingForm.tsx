@@ -17,6 +17,7 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { useTranslation } from "next-i18next";
+import { isValidYoutubeUrl } from "@/src/shared/utils/youtube";
 
 import Image from "next/image";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
@@ -58,11 +59,6 @@ export function RecipeCreatingView() {
       hasTrackedStartRef.current = false;
     }
   }, [isOpen, entryPoint, url]);
-
-  const isValidYoutubeUrl = (url: string) => {
-    const youtubeRegex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+/;
-    return youtubeRegex.test(url);
-  };
 
   const isError = () => {
     const error = hasEverTyped && url.length > 0 && !isValidYoutubeUrl(url);
@@ -133,9 +129,9 @@ export function RecipeCreatingView() {
           {/* <Sheet.Header /> */}
           <Sheet.Content>
             <div className="bg-white">
-              <div className="p-5">
-                <Title />
-              </div>
+            <div className="p-5 lg:p-6 xl:p-8">
+              <Title />
+            </div>
               <CategoryChipListSection
                 selectedCategoryId={selectedCategoryId}
                 onSelect={({ selectedCategoryId }) => {
@@ -189,13 +185,13 @@ const TitleSkeleton = () => {
   return (
     <div className="text-xl font-bold flex justify-between items-center">
       <p>{t("recipeCreating.form.title")}</p>
-      <p className="px-2 py-1 text-base text-red-500 font-base flex justify-center items-center gap-0.5">
+      <p className="px-2 py-1 lg:px-3 lg:py-1.5 text-base lg:text-lg text-red-500 font-base flex justify-center items-center gap-0.5 lg:gap-1">
         <Image
           src="/images/berry/berry.png"
           alt="berry"
           width={22}
           height={22}
-          className="object-contain"
+          className="object-contain lg:w-[26px] lg:h-[26px]"
         />
         0
       </p>
@@ -277,10 +273,10 @@ function CategoryChip({
 }) {
   return (
     <motion.div
-      className={`rounded-xl px-2 py-1 whitespace-nowrap font-semibold border ${
+      className={`rounded-xl px-2 py-1 lg:px-3 lg:py-1.5 whitespace-nowrap font-semibold border lg:text-base lg:cursor-pointer lg:hover:shadow-md lg:transition-shadow ${
         isSelected
           ? "border-black bg-black text-white"
-          : "border-gray-300 text-gray-500"
+          : "border-gray-300 text-gray-500 lg:hover:border-gray-400"
       }`}
       whileTap={{ scale: 0.9 }}
       transition={{ duration: 0.2 }}
@@ -420,8 +416,9 @@ const BalanceDescriptionReady = () => {
             alt="berry"
             width={18}
             height={18}
-            className="object-contain"
+            className="object-contain lg:w-[22px] lg:h-[22px]"
           />
+
           <p className="text-sm text-gray-500">
             {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
           </p>
@@ -438,10 +435,10 @@ const BalanceDescriptionReady = () => {
           alt="berry"
           width={18}
           height={18}
-          className="object-contain"
+          className="object-contain lg:w-[22px] lg:h-[22px]"
         />
-        <p className="text-sm text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
+        <p className="text-sm lg:text-base text-gray-500">
+          {t("recipeCreating.berry.currentBalance", { balance })}
         </p>
       </div>
     </div>

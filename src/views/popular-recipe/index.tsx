@@ -15,7 +15,6 @@ function PopularRecipePage() {
         }
         color="bg-white"
       />
-      {/* <HeaderSpacing/> */}
       <PopularRecipeContent />
     </div>
   );

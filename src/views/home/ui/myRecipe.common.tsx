@@ -30,17 +30,17 @@ export const MyRecipeTitleReady = () => {
   return (
     <div className="w-full h-full">
       <motion.div
-        className="h-[32px] flex flex-row items-center pl-4 text-xl font-semibold"
+        className="h-[32px] md:h-[36px] lg:h-[40px] flex flex-row items-center pl-4 md:pl-0 text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold"
         whileTap={{ opacity: 0.2 }}
         transition={{ duration: 0.2 }}
         onClick={() => {
           router.push("/user/recipes");
         }}
       >
-        <img src={RecipeBook.src} className="size-6" alt="Recipe Book" />
+        <img src={RecipeBook.src} className="size-6 md:size-7 lg:size-7 xl:size-8" alt="Recipe Book" />
         <div className="pr-1" />
         {t("myRecipe")}
-        <IoChevronForwardOutline className="size-6" color="black" />
+        <IoChevronForwardOutline className="size-6 md:size-7 lg:size-7 xl:size-8" color="black" />
       </motion.div>
     </div>
   );

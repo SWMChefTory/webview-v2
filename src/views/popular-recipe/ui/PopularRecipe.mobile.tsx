@@ -1,5 +1,6 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import {
   PopularRecipeCard,
   PopularRecipeCardSkeleton,
@@ -44,8 +45,10 @@ function PopularRecipesContent({
             recipeCreditCost={recipe.creditCost}
             recipeTitle={recipe.recipeTitle}
             recipeIsViewed={recipe.isViewed}
-            recipeVideoType={recipe.videoType}
-            recipeVideoUrl={recipe.videoUrl}
+            recipeVideoType={
+              recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+            }
+            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
             entryPoint="popular_normal"
             trigger={<PopularRecipeCard recipe={recipe} />}
           />

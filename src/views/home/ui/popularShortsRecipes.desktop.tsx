@@ -1,6 +1,7 @@
-import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
-import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
+import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import {
   PopularShortsRecipesTitleReady,
@@ -40,7 +41,10 @@ const PopularShortsRecipesTemplateDesktop = ({
 };
 
 const ShortPopularRecipesSectionReady = () => {
-  const { data: recipes } = useFetchPopularRecipe(VideoType.SHORTS);
+  const { entities: recipes } = useFetchRecommendRecipes({
+    recommendType: RecommendType.POPULAR,
+    videoType: VideoType.SHORTS,
+  });
 
   return (
     <HorizontalScrollAreaDesktop gap="gap-6" aspectRatio="aspect-[9/16]">
@@ -51,15 +55,15 @@ const ShortPopularRecipesSectionReady = () => {
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
           recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoType}
-          recipeVideoUrl={recipe.videoUrl}
+          recipeVideoType={VideoType.SHORTS}
+          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
           entryPoint="popular_shorts"
           trigger={
             <ShortsRecipeCardReady
               recipe={{
                 id: recipe.recipeId,
                 isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoThumbnailUrl,
+                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
                 recipeTitle: recipe.recipeTitle,
               }}
               isTablet={true}

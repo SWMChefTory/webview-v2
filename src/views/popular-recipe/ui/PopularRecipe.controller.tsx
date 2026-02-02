@@ -2,10 +2,11 @@ import React from "react";
 import { useTranslation } from "next-i18next";
 import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import { Viewport } from "@radix-ui/react-toast";
-import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
+import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { useInfiniteScroll } from "@/src/shared/hooks";
-import type { PopularSummaryRecipe } from "@/src/entities/popular-recipe/api/api";
+import type { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
 
 export type PopularRecipeVariant = "mobile" | "tablet" | "desktop";
 
@@ -15,7 +16,7 @@ export interface PopularRecipePageProps {
 }
 
 export interface PopularRecipeContentProps {
-  recipes: PopularSummaryRecipe[];
+  recipes: RecommendRecipe[];
   isFetchingNextPage: boolean;
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
@@ -41,11 +42,14 @@ export function usePopularRecipeContent(
   variant: PopularRecipeVariant
 ): Omit<PopularRecipeContentProps, "renderToast"> {
   const {
-    data: recipes,
+    entities: recipes,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useFetchPopularRecipe(VideoType.NORMAL);
+  } = useFetchRecommendRecipes({
+    recommendType: RecommendType.POPULAR,
+    videoType: VideoType.NORMAL,
+  });
 
   const { loadMoreRef } = useInfiniteScroll(
     fetchNextPage,

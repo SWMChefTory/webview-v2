@@ -1,6 +1,4 @@
-import {
-  fetchRecommendRecipes,
-} from "@/src/entities/recommend-recipe/api/api";
+import { fetchRecommendRecipes } from "@/src/entities/recommend-recipe/api/api";
 import { VideoType } from "../../recommend-recipe/type/videoType";
 import { RecommendType } from "../../recommend-recipe/type/recommendType";
 import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";

@@ -1,6 +1,5 @@
 import { Sheet } from "react-modal-sheet";
 import { useRecipeEnrollModalStore } from "./recipeErollModalStore";
-import { useFetchRecipeOverview } from "@/src/entities/recipe-overview/model/model";
 import { useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
@@ -236,12 +235,10 @@ const ContentReady = ({
   return (
     <ContentTemplate
       thumbnail={
-        <Image
-          src="/images/tory/tory_study.png"
+        <img
+          src={recipe.videoInfo.thumbnailUrl}
           alt="tory"
-          width={120}
-          height={120}
-          className="object-contain"
+          className="w-full h-full object-cover object-center"
         />
       }
       title={

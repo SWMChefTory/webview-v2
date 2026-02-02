@@ -24,8 +24,6 @@ import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import RecipeErollModal from "../recipe-creating-modal/recipeErollModal";
 
-import { Skeleton } from "@/components/ui/skeleton";
-
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
@@ -438,7 +436,7 @@ const BalanceDescriptionReady = () => {
           className="object-contain lg:w-[22px] lg:h-[22px]"
         />
         <p className="text-sm lg:text-base text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance })}
+          {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
         </p>
       </div>
     </div>

@@ -17,11 +17,6 @@ import { createRecipe } from "@/src/entities/user-recipe/model/api";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
-import { useFakeRecipeInCreatingStore } from "@/src/entities/user-recipe/model/useFakeRecipeInCreatingStore";
-import {
-  RecipeCreateToastStatus,
-  useRecipeCreateToastAction,
-} from "./useToast";
 import { VideoType } from "../../recommend-recipe/type/videoType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
@@ -317,8 +312,6 @@ const createInProress = (
 };
 
 export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
-  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
-
   const { data: progress } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -327,7 +320,7 @@ export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   });
 
   return {
-    recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
+    recipeStatus: progress.recipeStatus,
   };
 };
 

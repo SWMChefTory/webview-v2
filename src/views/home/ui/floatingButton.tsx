@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { FaPlus } from "react-icons/fa6";
+import { FaPlus, FaYoutube, FaPencil, FaXmark } from "react-icons/fa6";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
@@ -7,11 +7,24 @@ import * as Popover from "@radix-ui/react-popover";
 import { create } from "zustand";
 import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
+import { request } from "@/src/shared/client/native/client";
+import { MODE } from "@/src/shared/client/native/client";
+import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
+import { useEffect } from "react";
 
 export const FloatingButton = () => {
   const { open } = useRecipeCreatingViewOpenStore();
-  const { checkClicked } = usefloatingButtonStore();
+  const { checkClicked, isExpanded, toggleExpanded } = usefloatingButtonStore();
   const { t } = useHomeTranslation();
+
+  const handleClick = () => {
+    checkClicked();
+    if (usefloatingButtonStore.getState().hasEverClicked) {
+      toggleExpanded();
+    } else {
+      open("", "floating_button");
+    }
+  };
 
   return (
     <div className="fixed z-[100] bottom-[20] right-[20] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 xl:bottom-16 xl:right-16 pb-safe">
@@ -29,13 +42,12 @@ export const FloatingButton = () => {
               lg:cursor-pointer lg:hover:scale-105 lg:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
                   variant="outline"
                   aria-label={t("accessibility.floatingButton")}
-                  onClick={() => {
-                    checkClicked();
-                    open("", "floating_button");
-                  }}
+                  onClick={handleClick}
                 >
                   <FaPlus
-                    className="text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)] w-10 h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 xl:w-14 xl:h-14"
+                    className={`text-white drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)] w-10 h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 xl:w-14 xl:h-14
+                      transition-transform duration-300
+                      ${isExpanded ? "rotate-45" : "rotate-0"}`}
                   />
                 </Button>
               </div>
@@ -48,27 +60,144 @@ export const FloatingButton = () => {
 };
 
 function FloatingButtonPopover({ trigger }: { trigger: React.ReactNode }) {
-  const { hasEverClicked } = usefloatingButtonStore();
+  const { hasEverClicked, isExpanded, toggleExpanded, closeExpanded } = usefloatingButtonStore();
   const { t } = useHomeTranslation();
 
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isExpanded) {
+        closeExpanded();
+      }
+    };
+
+    if (isExpanded) {
+      window.addEventListener("keydown", handleEscape);
+      return () => window.removeEventListener("keydown", handleEscape);
+    }
+  }, [isExpanded, closeExpanded]);
+
+  const handleClick = () => {
+    if (!hasEverClicked) return;
+    toggleExpanded();
+  };
+
+  const handleOpenYouTube = () => {
+    request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE);
+    closeExpanded();
+  };
+
+  const handleDirectInput = () => {
+    open("", "floating_button");
+    closeExpanded();
+  };
+
   return (
-    <Popover.Root open={!hasEverClicked}>
-      <Popover.Trigger asChild>{trigger}</Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          className="flex flex-col bg-orange-500 rounded-lg lg:rounded-xl shadow-xl z-[2000] outline-none"
-          side="top"
-          align="end"
-          sideOffset={2}
-          alignOffset={10}
+    <>
+      <Popover.Root open={!hasEverClicked}>
+        <Popover.Trigger asChild>
+          <div onClick={handleClick}>{trigger}</div>
+        </Popover.Trigger>
+        <Popover.Portal>
+          <Popover.Content
+            className="flex flex-col bg-orange-500 rounded-lg lg:rounded-xl shadow-xl z-[2000] outline-none"
+            side="top"
+            align="end"
+            sideOffset={2}
+            alignOffset={10}
+          >
+            <Popover.Arrow fill="#f97316" />
+            <div className="px-4 py-2 lg:px-5 lg:py-3 text-white font-bold lg:text-base xl:text-lg">
+              {t("createRecipe")}
+            </div>
+          </Popover.Content>
+        </Popover.Portal>
+      </Popover.Root>
+
+      {hasEverClicked && (
+        <FloatingButtonExpandedMenu
+          isExpanded={isExpanded}
+          onClose={closeExpanded}
+          onOpenYouTube={handleOpenYouTube}
+          onDirectInput={handleDirectInput}
+        />
+      )}
+    </>
+  );
+}
+
+interface FloatingButtonExpandedMenuProps {
+  isExpanded: boolean;
+  onClose: () => void;
+  onOpenYouTube: () => void;
+  onDirectInput: () => void;
+}
+
+function FloatingButtonExpandedMenu({
+  isExpanded,
+  onClose,
+  onOpenYouTube,
+  onDirectInput,
+}: FloatingButtonExpandedMenuProps) {
+  return (
+    <>
+      {/* Background Overlay */}
+      <div
+        className={`fixed inset-0 bg-black/20 z-[99] transition-opacity duration-300 ${
+          isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Expanded Menu */}
+      <div
+        className={`fixed z-[100] bottom-[20] right-[20] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 xl:bottom-16 xl:right-16 pb-safe
+          flex flex-col-reverse gap-3 items-end
+          transition-all duration-300
+          ${isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+      >
+        {/* YouTube Button */}
+        <button
+          className={`
+            w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20
+            rounded-full
+            bg-[#FF0000]
+            shadow-lg hover:shadow-xl
+            transition-all duration-300
+            flex items-center justify-center
+            hover:scale-110 active:scale-95
+            ${isExpanded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
+          `}
+          style={{ transitionDelay: isExpanded ? "100ms" : "0ms" }}
+          onClick={onOpenYouTube}
+          aria-label="Open YouTube"
+          type="button"
         >
-          <Popover.Arrow fill="#f97316" />
-          <div className="px-4 py-2 lg:px-5 lg:py-3 text-white font-bold lg:text-base xl:text-lg">
-            {t("createRecipe")}
-          </div>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+          <FaYoutube className="text-white w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-10 xl:h-10" />
+        </button>
+
+        {/* Direct Input Button */}
+        <button
+          className={`
+            w-12 h-12 md:w-14 md:h-14 lg:w-16 lg:h-16 xl:w-20 xl:h-20
+            rounded-full
+            bg-white
+            border-4 border-orange-500
+            shadow-lg hover:shadow-xl
+            transition-all duration-300
+            flex items-center justify-center
+            hover:scale-110 active:scale-95
+            ${isExpanded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
+          `}
+          style={{ transitionDelay: isExpanded ? "200ms" : "0ms" }}
+          onClick={onDirectInput}
+          aria-label="Direct input"
+          type="button"
+        >
+          <FaPencil className="text-orange-500 w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+        </button>
+      </div>
+    </>
   );
 }
 
@@ -79,6 +208,9 @@ export function FloatingButtonSkeleton() {
 type FloatingButtonStoreType = {
   hasEverClicked: boolean;
   checkClicked: () => void;
+  isExpanded: boolean;
+  toggleExpanded: () => void;
+  closeExpanded: () => void;
 };
 const usefloatingButtonStore = create<FloatingButtonStoreType>()(
   persist(
@@ -87,12 +219,22 @@ const usefloatingButtonStore = create<FloatingButtonStoreType>()(
       checkClicked: () => {
         set({ hasEverClicked: true });
       },
+      isExpanded: false,
+      toggleExpanded: () => {
+        set({ isExpanded: !get().isExpanded });
+      },
+      closeExpanded: () => {
+        set({ isExpanded: false });
+      },
     }),
     {
       name: "step-tutorial-store",
       storage: createJSONStorage(() =>
         typeof window !== "undefined" ? localStorage : noopStorage
       ),
+      partialize: (state) => ({
+        hasEverClicked: state.hasEverClicked,
+      }),
     }
   )
 );

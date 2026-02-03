@@ -27,19 +27,20 @@ export const FloatingButton = () => {
   };
 
   return (
-    <div className="fixed z-[100] bottom-[20] right-[20] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 xl:bottom-16 xl:right-16 pb-safe">
-      <div className="h-[60] w-[60] md:h-[72] md:w-[72] lg:h-20 lg:w-20 xl:h-24 xl:w-24">
+    <div className="fixed z-[100] bottom-[20px] right-[20px] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 xl:bottom-16 xl:right-16 pb-safe">
+      <div className="h-[60px] w-[60px] md:h-[72] md:w-[72] lg:h-20 lg:w-20 xl:h-24 xl:w-24">
         <SSRSuspense fallback={<FloatingButtonSkeleton />}>
           <FloatingButtonPopover
             trigger={
-              <div className="h-[60] w-[60] md:h-[72] md:w-[72] lg:h-20 lg:w-20 xl:h-24 xl:w-24">
+              <div className="h-[60px] w-[60px] md:h-[72] md:w-[72] lg:h-20 lg:w-20 xl:h-24 xl:w-24">
                 <Button
                   className="relative w-full h-full rounded-full border-none
               bg-gradient-to-b from-orange-400 to-orange-600
               shadow-[0_4px_10px_rgba(0,0,0,0.25)]
               active:shadow-[inset_0_4px_8px_rgba(0,0,0,0.3)]
-              transition-all duration-150
-              lg:cursor-pointer lg:hover:scale-105 lg:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+              transition-transform duration-150 transition-shadow duration-150
+              lg:cursor-pointer lg:hover:scale-105 lg:hover:shadow-[0_8px_20px_rgba(0,0,0,0.35)]
+              focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
                   variant="outline"
                   aria-label={t("accessibility.floatingButton")}
                   onClick={handleClick}
@@ -119,6 +120,7 @@ function FloatingButtonPopover({ trigger }: { trigger: React.ReactNode }) {
           onClose={closeExpanded}
           onOpenYouTube={handleOpenYouTube}
           onDirectInput={handleDirectInput}
+          t={t}
         />
       )}
     </>
@@ -130,6 +132,7 @@ interface FloatingButtonExpandedMenuProps {
   onClose: () => void;
   onOpenYouTube: () => void;
   onDirectInput: () => void;
+  t: (key: string) => string;
 }
 
 function FloatingButtonExpandedMenu({
@@ -137,6 +140,7 @@ function FloatingButtonExpandedMenu({
   onClose,
   onOpenYouTube,
   onDirectInput,
+  t,
 }: FloatingButtonExpandedMenuProps) {
   return (
     <>
@@ -151,9 +155,9 @@ function FloatingButtonExpandedMenu({
 
       {/* Expanded Menu */}
       <div
-        className={`fixed z-[100] bottom-[20] right-[20] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 xl:bottom-16 xl:right-16 pb-safe
+        className={`fixed z-[101] bottom-[20px] right-[20px] md:bottom-10 md:right-10 lg:bottom-12 lg:right-12 xl:bottom-16 xl:right-16 pb-safe
           flex flex-col-reverse gap-3 items-end
-          transition-all duration-300
+          transition-opacity duration-300
           ${isExpanded ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       >
         {/* YouTube Button */}
@@ -163,17 +167,18 @@ function FloatingButtonExpandedMenu({
             rounded-full
             bg-[#FF0000]
             shadow-lg hover:shadow-xl
-            transition-all duration-300
+            transition-transform duration-300 transition-opacity duration-300
             flex items-center justify-center
             hover:scale-110 active:scale-95
+            focus-visible:ring-2 focus-visible:ring-red-400 focus-visible:ring-offset-2
             ${isExpanded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
           `}
           style={{ transitionDelay: isExpanded ? "100ms" : "0ms" }}
           onClick={onOpenYouTube}
-          aria-label="Open YouTube"
+          aria-label={t("accessibility.openYouTube")}
           type="button"
         >
-          <FaYoutube className="text-white w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-10 xl:h-10" />
+          <FaYoutube className="text-white w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-11 xl:h-11" />
         </button>
 
         {/* Direct Input Button */}
@@ -184,17 +189,18 @@ function FloatingButtonExpandedMenu({
             bg-white
             border-4 border-orange-500
             shadow-lg hover:shadow-xl
-            transition-all duration-300
+            transition-transform duration-300 transition-opacity duration-300
             flex items-center justify-center
             hover:scale-110 active:scale-95
+            focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
             ${isExpanded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"}
           `}
           style={{ transitionDelay: isExpanded ? "200ms" : "0ms" }}
           onClick={onDirectInput}
-          aria-label="Direct input"
+          aria-label={t("accessibility.directInput")}
           type="button"
         >
-          <FaPencil className="text-orange-500 w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8" />
+          <FaPencil className="text-orange-500 w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9" />
         </button>
       </div>
     </>

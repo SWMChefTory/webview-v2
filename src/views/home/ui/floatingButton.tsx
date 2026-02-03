@@ -62,6 +62,7 @@ export const FloatingButton = () => {
 
 function FloatingButtonPopover({ trigger }: { trigger: React.ReactNode }) {
   const { hasEverClicked, isExpanded, toggleExpanded, closeExpanded } = usefloatingButtonStore();
+  const { open } = useRecipeCreatingViewOpenStore();
   const { t } = useHomeTranslation();
 
   useEffect(() => {

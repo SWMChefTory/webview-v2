@@ -27,7 +27,7 @@ import RecipeErollModal from "../recipe-creating-modal/recipeErollModal";
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
+    null
   );
   const { isLoading: isCreating, error, createAsync } = useCreateRecipe();
   const {
@@ -127,9 +127,9 @@ export function RecipeCreatingView() {
           {/* <Sheet.Header /> */}
           <Sheet.Content>
             <div className="bg-white">
-            <div className="p-5 lg:p-6 xl:p-8">
-              <Title />
-            </div>
+              <div className="p-5 lg:p-6 xl:p-8">
+                <Title />
+              </div>
               <CategoryChipListSection
                 selectedCategoryId={selectedCategoryId}
                 onSelect={({ selectedCategoryId }) => {
@@ -153,7 +153,7 @@ export function RecipeCreatingView() {
                   {t("recipeCreating.berry.usesOne")}
                 </div>
               </div>
-              <div className="p-0.5"/>
+              <div className="p-0.5" />
               <SSRSuspense fallback={<BalanceDescriptionReadySkeleton />}>
                 <BalanceDescriptionReady />
               </SSRSuspense>
@@ -418,7 +418,9 @@ const BalanceDescriptionReady = () => {
           />
 
           <p className="text-sm text-gray-500">
-            {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
+            {t("recipeCreating.berry.currentBalance", {
+              balance: balance.balance,
+            })}
           </p>
         </div>
       </div>
@@ -436,7 +438,9 @@ const BalanceDescriptionReady = () => {
           className="object-contain lg:w-[22px] lg:h-[22px]"
         />
         <p className="text-sm lg:text-base text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
+          {t("recipeCreating.berry.currentBalance", {
+            balance: balance.balance,
+          })}
         </p>
       </div>
     </div>

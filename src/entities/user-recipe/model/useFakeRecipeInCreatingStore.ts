@@ -37,28 +37,3 @@ const _useRecipeInCreatingStore = create<{
   isInCreating: (recipeId) => get().recipeIdsInCreating.has(recipeId),
 }));
 
-export const useFakeRecipeInCreatingStore = () => {
-  const { isInCreating, addRecipeIdInCreating, deleteRecipeIdInCreating } =
-    _useRecipeInCreatingStore();
-
-  function handleAddFakeCreating({
-    recipeId,
-    recipeTitle,
-  }: {
-    recipeId: string;
-    recipeTitle: string;
-  }) {
-    // ✅ 안전장치: 너무 오래 남아있지 않게만 cleanup (예: 10분)
-    const timer = setTimeout(() => {
-      deleteRecipeIdInCreating(recipeId);
-    }, 10 * 60 * 1000);
-
-    addRecipeIdInCreating(recipeId, recipeTitle, timer);
-  }
-
-  return {
-    isInCreating,
-    handleAddFakeCreating,
-    deleteRecipeIdInCreating,
-  };
-};

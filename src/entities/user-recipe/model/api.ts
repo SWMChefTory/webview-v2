@@ -75,24 +75,6 @@ export async function fetchCategorizedRecipesSummary({
   });
 }
 
-// export async function fetchUnCategorizedRecipesSummary(params: {
-//   page: number;
-// }): Promise<PaginatedRecipes> {
-//   const { page } = params;
-//   const response = await client.get(`/recipes/uncategorized?page=${page}`);
-//   const data = response.data;
-
-//   return parseWithErrLog(PaginatedSchema, {
-//     currentPage: data.currentPage,
-//     hasNext: data.hasNext,
-//     totalElements: data.totalElements,
-//     totalPages: data.totalPages,
-//     data: data.unCategorizedRecipes.map((recipe: any) =>
-//       transformRecipe(recipe)
-//     ),
-//   });
-// }
-
 const transformRecipe = (recipe: any) => {
   return {
     recipeId: recipe.recipeId,

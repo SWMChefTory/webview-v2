@@ -18,5 +18,3 @@ export const createCursorPaginatedSchema = <T extends z.ZodTypeAny>(dataSchema: 
     data: dataSchema,
   });
 
-
-// export default createPaginatedSchema;

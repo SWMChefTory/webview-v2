@@ -10,7 +10,9 @@ export function useFetchPopularRecipe(videoType: VideoType) {
     queryFn: ({ pageParam }: { pageParam: number }) =>
       fetchPopularSummary({ page: pageParam, videoType }),
     getNextPageParam: (lastPage) =>
-      lastPage.hasNext ? lastPage.currentPage + 1 : undefined,
+      lastPage.hasNext && lastPage.currentPage !== undefined
+        ? lastPage.currentPage + 1
+        : undefined,
     initialPageParam: 0,
     select: (data) =>
       data.pages.flatMap((page) =>

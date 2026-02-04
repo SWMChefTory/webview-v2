@@ -15,10 +15,12 @@ export function useChallengeRecipes(challengeId: string) {
       return fetchChallengeRecipes({ challengeId, page: pageParam });
     },
     getNextPageParam: (lastPage) => {
-      return lastPage.hasNext ? lastPage.currentPage + 1 : undefined;
+      return lastPage.hasNext && lastPage.currentPage !== undefined
+        ? lastPage.currentPage + 1
+        : undefined;
     },
     initialPageParam: 0,
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: 5 * 60 * 1000, //5분
   });
 
   // challengeRecipes 배열 평탄화

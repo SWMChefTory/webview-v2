@@ -5,6 +5,8 @@ export default function Document() {
     <Html lang="en">
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" type="image/webp" href="/images/logo-optimized.webp" />
+        <link rel="apple-touch-icon" href="/images/logo-optimized.webp" />
       </Head>
       <body className="antialiased">
         <Main />

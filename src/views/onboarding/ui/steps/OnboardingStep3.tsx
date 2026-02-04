@@ -1,7 +1,7 @@
 import { useTranslation } from "next-i18next";
 import { StepContainer } from "../components/StepContainer";
-import { useOnboardingStore } from "../stores/useOnboardingStore";
-import { useOnboardingNavigation } from "../hooks/useOnboardingNavigation";
+import { useOnboardingStore } from "../../stores/useOnboardingStore";
+import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useRouter } from "next/router";
@@ -21,13 +21,13 @@ export function OnboardingStep3() {
   const handleStartCooking = () => {
     track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE);
     completeOnboarding();
-    router.push('/');
+    router.replace('/');
   };
   
   const handleSkip = () => {
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP);
     completeOnboarding();
-    router.push('/');
+    router.replace('/');
   };
   
   return (

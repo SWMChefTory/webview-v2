@@ -76,8 +76,9 @@ function AppInner({ Component, pageProps }: AppProps) {
   const { isOnboardingCompleted } = useOnboardingStore();
 
   useEffect(() => {
+    // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
     if (!isOnboardingCompleted && router.pathname !== '/onboarding') {
-      router.push('/onboarding');
+      router.replace('/onboarding');
     }
   }, [isOnboardingCompleted, router.pathname]);
 

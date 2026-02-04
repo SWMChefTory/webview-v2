@@ -26,8 +26,10 @@ export function CategoryResultsSkeletonDesktop() {
 
 export function CategoryResultsContentDesktop({
   categoryType,
+  videoType,
 }: {
   categoryType: string;
+  videoType?: string;
 }) {
   const {
     recipes,
@@ -39,7 +41,7 @@ export function CategoryResultsContentDesktop({
     getVideoType,
     getEntryPoint,
     getVideoUrl,
-  } = useCategoryResultsController(categoryType, "desktop");
+  } = useCategoryResultsController(categoryType, "desktop", videoType);
 
   if (recipes.length === 0) {
     return <EmptyState t={t} />;

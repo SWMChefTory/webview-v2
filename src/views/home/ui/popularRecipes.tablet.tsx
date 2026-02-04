@@ -16,7 +16,7 @@ import { HorizontalScrollArea } from "./horizontalScrollArea";
  *
  * 특징:
  * - 레시피 목록: 가로 스크롤 + 더보기 링크
- * - 더보기: /popular-recipe 페이지로 이동
+ * - 더보기: /recommend?recipeType=POPULAR&videoType=NORMAL 페이지로 이동
  */
 export function PopularRecipesTablet() {
   return (
@@ -72,7 +72,7 @@ function RecipeCardSectionReady() {
 
   return (
     <HorizontalScrollArea
-      moreLink="/popular-recipe"
+      moreLink="/recommend?recipeType=POPULAR&videoType=NORMAL"
       gap="gap-5"
       onReachEnd={handleReachEnd}
     >

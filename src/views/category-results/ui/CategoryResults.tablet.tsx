@@ -26,8 +26,10 @@ export function CategoryResultsSkeletonTablet() {
 
 export function CategoryResultsContentTablet({
   categoryType,
+  videoType,
 }: {
   categoryType: string;
+  videoType?: string;
 }) {
   const {
     recipes,
@@ -39,7 +41,7 @@ export function CategoryResultsContentTablet({
     getVideoType,
     getEntryPoint,
     getVideoUrl,
-  } = useCategoryResultsController(categoryType, "tablet");
+  } = useCategoryResultsController(categoryType, "tablet", videoType);
 
   if (recipes.length === 0) {
     return <EmptyState t={t} />;

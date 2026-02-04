@@ -26,15 +26,17 @@ export function CategoryResultsSkeleton() {
 
 export function CategoryResultsContent({
   categoryType,
+  videoType,
 }: {
   categoryType: string;
+  videoType?: string;
 }) {
   return (
     <ResponsiveSwitcher
       mobile={CategoryResultsContentMobile}
       tablet={CategoryResultsContentTablet}
       desktop={CategoryResultsContentDesktop}
-      props={{ categoryType }}
+      props={{ categoryType, videoType }}
     />
   );
 }

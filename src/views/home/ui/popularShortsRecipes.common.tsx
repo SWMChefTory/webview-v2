@@ -1,4 +1,4 @@
-import Fire from "./assets/fire.png";
+import { IoChevronForwardOutline } from "react-icons/io5";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
 // import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
@@ -19,10 +19,12 @@ import {
 export const PopularShortsRecipesTitleReady = () => {
   const { t } = useHomeTranslation();
   return (
-    <div className="pl-4 md:pl-0 flex items-center gap-2 lg:gap-3">
-      <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("shortsPopularRecipes")}</div>
-      <img src={Fire.src} className="size-6 md:size-7 lg:size-7 xl:size-8" alt="fire" />
-    </div>
+    <Link href="/recommend?recipeType=POPULAR&videoType=SHORTS">
+      <div className="pl-4 md:pl-0 flex items-center  lg:gap-3">
+        <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("shortsPopularRecipes")}</div>
+        <IoChevronForwardOutline className="size-6 md:size-7 lg:size-7 xl:size-8" color="black" />
+      </div>
+    </Link>
   );
 };
 
@@ -89,3 +91,4 @@ export function ShortsRecipeCardSkeleton({
     />
   );
 }
+import Link from "next/link";

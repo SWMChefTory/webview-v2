@@ -5,7 +5,7 @@ import {
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
-import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
+import { useCategoryResultsTranslation } from "@/src/views/category-results/hooks/useCategoryResultsTranslation";
 
 export type RecipeCardProps = {
   recipeTitle: string;

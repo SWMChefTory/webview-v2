@@ -1,10 +1,11 @@
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useSearchResultsController } from "./SearchResults.controller";
 import {
-  SearchedRecipeCard,
   RecipeCardSkeleton,
   EmptyState,
 } from "./SearchResults.common";
+import { RecipeCardsSectionMobile } from "@/src/widgets/recipe-cards-section";
+import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -51,26 +52,21 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
         </p>
       </div>
 
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {searchResults.map((recipe, index) => (
-            <SearchedRecipeCard
-              key={recipe.recipeId}
-              recipe={recipe}
-              position={index + 1}
-              variant="mobile"
-              translations={translations}
-              onRecipeClick={onRecipeClick}
-            />
-          ))}
-          {isFetchingNextPage && (
-            <>
-              <RecipeCardSkeleton variant="mobile" />
-              <RecipeCardSkeleton variant="mobile" />
-            </>
-          )}
-        </div>
-        <div ref={loadMoreRef} className="h-20" />
+      <div className="px-4 pb-28">
+        <RecipeCardsSectionMobile
+          recipes={searchResults}
+          loadMoreRef={loadMoreRef}
+          isFetchingNextPage={isFetchingNextPage}
+          entryPoint="search_result"
+          getVideoType={(recipe) =>
+            recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+          }
+          getVideoUrl={(recipe) => recipe.videoUrl}
+          cardBadge={translations.cardBadge}
+          cardServing={translations.cardServing}
+          cardMinute={translations.cardMinute}
+          defaultViewMode="grid"
+        />
       </div>
     </div>
   );

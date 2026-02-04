@@ -74,7 +74,7 @@ function RecipeCardSectionReady() {
           }
         />
       ))}
-      <ViewMoreCard href="/popular-recipe" />
+      <ViewMoreCard href="/recommend?recipeType=POPULAR&videoType=NORMAL" />
     </div>
   );
 }

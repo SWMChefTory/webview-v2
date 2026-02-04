@@ -29,6 +29,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
 import { Agentation } from "agentation";
+import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 
 export default appWithTranslation(App);
 
@@ -72,6 +73,13 @@ function AppInner({ Component, pageProps }: AppProps) {
   const [recipeDetailLinkUrl, setRecipeDetailLinkUrl] = useState<
     string | undefined
   >(undefined);
+  const { isOnboardingCompleted } = useOnboardingStore();
+
+  useEffect(() => {
+    if (!isOnboardingCompleted && router.pathname !== '/onboarding') {
+      router.push('/onboarding');
+    }
+  }, [isOnboardingCompleted, router.pathname]);
 
   function handleRecipeDeepLink({ path }: { path: string }) {
     const recipeId = path.split("/")[2];

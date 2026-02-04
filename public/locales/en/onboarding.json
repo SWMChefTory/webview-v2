@@ -1,0 +1,51 @@
+{
+  "common": {
+    "next": "Next",
+    "prev": "Previous",
+    "skip": "Skip Later"
+  },
+  "step1": {
+    "title": "Save Recipes from YouTube",
+    "subtitle": "Save your favorite recipes with a YouTube link",
+    "value": "Get your favorite recipes anytime, anywhere",
+    "arrowClick": "Enter YouTube URL to convert to recipe",
+    "arrowIcon": "🔗",
+    "highlight": "Input Field"
+  },
+  "step2": {
+    "title": "Hands-Free Cooking Mode",
+    "subtitle": "Cook hands-free, even with dirty hands",
+    "value": "Try voice commands with the mic button",
+    "micButton": "Mic Button",
+    "tryNow": "Try Now",
+    "instructions": {
+      "play": "Play",
+      "stop": "Stop",
+      "next": "Next Step",
+      "prev": "Previous Step",
+      "timestamp": "Timestamp"
+    },
+    "commands": {
+      "play": "Play video",
+      "stop": "Stop video",
+      "next": "Next step",
+      "prev": "Previous step",
+      "timestamp": "Go to timestamp"
+    },
+    "micTutorial": "Click the mic button to try"
+  },
+  "step3": {
+    "title": "Experience Complete!",
+    "subtitle": "Save recipes with YouTube links + Hands-free cooking",
+    "allFeatures": "You've tried all features",
+    "startButton": "Start Cooking Mode",
+    "motivation": "Start cooking mode now",
+    "success": "✅"
+  },
+  "progress": {
+    "step1": "1/3",
+    "step2": "2/3",
+    "step3": "3/3"
+  },
+  "close": "Close"
+}

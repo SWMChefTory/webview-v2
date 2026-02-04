@@ -156,6 +156,32 @@ export const enum AMPLITUDE_EVENT {
   COOKING_MODE_END = "cooking_mode_end",
 
   // ─────────────────────────────────────────────────────────────
+  // 온보딩 (Onboarding)
+  // 앱 설치 후 처음 기능을 안내하는 3단계 튜토리얼
+  // ─────────────────────────────────────────────────────────────
+
+  /** 온보딩 시작 */
+  ONBOARDING_START = "onboarding_start",
+
+  /** 온보딩 단계 변경 (step_from: 1, step_to: 2) */
+  ONBOARDING_STEP_CHANGE = "onboarding_step_change",
+
+  /** 온보딩 단계 완료 (step: 1, step_count: 3) */
+  ONBOARDING_STEP_COMPLETE = "onboarding_step_complete",
+
+  /** 온보딩 건너뛰기 ("나중에 다시 보기" 클릭) */
+  ONBOARDING_SKIP = "onboarding_skip",
+
+  /** 온보딩 완료 (Step 3 "시작하기" 클릭) */
+  ONBOARDING_COMPLETE = "onboarding_complete",
+
+  /** YouTube Step - 화살표 클릭 */
+  ONBOARDING_YOUTUBE_CLICK = "onboarding_youtube_click",
+
+  /** Hands-free Step - 마이크 버튼 클릭 */
+  ONBOARDING_HANDSFREE_CLICK = "onboarding_handsfree_click",
+
+  // ─────────────────────────────────────────────────────────────
   // 챌린지 (Challenge)
   // 집밥 챌린지 참여 및 인증 흐름 추적
   // ─────────────────────────────────────────────────────────────

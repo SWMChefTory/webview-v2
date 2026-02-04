@@ -1,6 +1,6 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { StepContainer } from "../components/StepContainer";
-import { MicButton, VoiceGuideModal } from "@/src/views/recipe-step/ui/micButton";
+import { OnboardingMicButton } from "../components/OnboardingMicButton";
 import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
@@ -16,24 +16,6 @@ export function OnboardingStep2() {
   
   // Prevent back button
   usePreventBack();
-  
-  const [isVoiceGuideOpen, setIsVoiceGuideOpen] = useState(false);
-  const [showMicTutorial, setShowMicTutorial] = useState(true);
-  const [hasClickedMic, setHasClickedMic] = useState(false);
-  
-  const handleMicButtonClick = () => {
-    setShowMicTutorial(false);
-    setHasClickedMic(true);
-    track(AMPLITUDE_EVENT.ONBOARDING_HANDSFREE_CLICK);
-    
-    setTimeout(() => {
-      setIsVoiceGuideOpen(true);
-    }, 3000);
-  };
-  
-  const handleVoiceGuideClose = () => {
-    setIsVoiceGuideOpen(false);
-  };
   
   const handleNext = () => {
     if (currentStep < 3) {
@@ -74,7 +56,7 @@ export function OnboardingStep2() {
     >
       <div className="text-center w-full max-w-md mx-auto">
         {/* Title */}
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">
           {t('step2.title')}
         </h1>
         <p className="text-xl text-gray-600 mb-6">
@@ -103,38 +85,21 @@ export function OnboardingStep2() {
           {/* Mic Button Positioned at Bottom Right (Simulating FAB) */}
           <div className="absolute bottom-6 right-6 flex flex-col items-center justify-center">
             {/* Pulse Animation Background */}
-            {!hasClickedMic && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-orange-500/40 rounded-full animate-ping pointer-events-none" />
-            )}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-orange-500/40 rounded-full animate-ping pointer-events-none" />
 
             {/* Mic Button */}
             <div className="relative z-10 transform scale-90">
-              <MicButton
-                isActive={hasClickedMic && !isVoiceGuideOpen}
-                onClick={handleMicButtonClick}
-                ref={undefined}
-              />
+              <OnboardingMicButton onNext={handleNext} />
             </div>
             
             {/* Tutorial Tooltip */}
-            {showMicTutorial && !hasClickedMic && (
-              <div className="absolute bottom-full mb-4 right-0 bg-orange-600 text-white px-3 py-1.5 rounded-lg shadow-lg animate-bounce whitespace-nowrap z-20">
-                <p className="font-bold text-xs">
-                  {t('step2.tryNow')} 👇
-                </p>
-                <div className="absolute -bottom-1 right-6 w-2 h-2 bg-orange-600 rotate-45" />
-              </div>
-            )}
-          </div>
-          
-          {/* Feedback Text Overlay */}
-          {hasClickedMic && !isVoiceGuideOpen && (
-            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
-              <p className="text-white font-bold text-xl animate-pulse">
-                듣고 있어요...
+            <div className="absolute bottom-full mb-4 right-0 bg-orange-600 text-white px-3 py-1.5 rounded-lg shadow-lg animate-bounce whitespace-nowrap z-20">
+              <p className="font-bold text-xs">
+                {t('step2.tryNow')} 👇
               </p>
+              <div className="absolute -bottom-1 right-6 w-2 h-2 bg-orange-600 rotate-45" />
             </div>
-          )}
+          </div>
         </div>
         
         {/* Voice Commands Info */}
@@ -148,11 +113,6 @@ export function OnboardingStep2() {
             </div>
           ))}
         </div>
-        
-        {/* Voice Guide Modal */}
-        {isVoiceGuideOpen && (
-          <VoiceGuideModal onClick={handleVoiceGuideClose} />
-        )}
       </div>
     </StepContainer>
   );

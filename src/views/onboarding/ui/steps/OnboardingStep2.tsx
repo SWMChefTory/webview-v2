@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { StepContainer } from "../components/StepContainer";
 import { MicButton, VoiceGuideModal } from "@/src/views/recipe-step/ui/micButton";
 import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
@@ -10,7 +10,7 @@ import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { usePreventBack } from "../../hooks/usePreventBack";
 
 export function OnboardingStep2() {
-  const { t } = useTranslation("onboarding");
+  const { t } = useOnboardingTranslation();
   const { nextStep, currentStep, goToStep, completeOnboarding } = useOnboardingStore();
   const router = useRouter();
   

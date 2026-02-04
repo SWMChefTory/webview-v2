@@ -1,5 +1,3 @@
-import { useTranslation } from "next-i18next";
+import { createTranslationHook } from "@/src/shared/translation/createTranslationHook";
 
-export function useOnboardingTranslation() {
-  return useTranslation("onboarding");
-}
+export const useOnboardingTranslation = createTranslationHook("onboarding");

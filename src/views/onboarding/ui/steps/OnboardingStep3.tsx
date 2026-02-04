@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { StepContainer } from "../components/StepContainer";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { useOnboardingNavigation } from "../../hooks/useOnboardingNavigation";
@@ -6,11 +6,10 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
-
 import { usePreventBack } from "../../hooks/usePreventBack";
 
 export function OnboardingStep3() {
-  const { t } = useTranslation("onboarding");
+  const { t } = useOnboardingTranslation();
   const { completeOnboarding, resetOnboarding } = useOnboardingStore();
   const { currentStep } = useOnboardingNavigation();
   const router = useRouter();

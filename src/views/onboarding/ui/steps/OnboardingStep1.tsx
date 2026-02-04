@@ -1,4 +1,4 @@
-import { useTranslation } from "next-i18next";
+import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { StepContainer } from "../components/StepContainer";
 import { CaptureOverlay } from "../components/CaptureOverlay";
 import { TutorialArrow } from "../components/TutorialArrow";
@@ -12,7 +12,7 @@ import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { usePreventBack } from "../../hooks/usePreventBack";
 
 export function OnboardingStep1() {
-  const { t } = useTranslation("onboarding");
+  const { t } = useOnboardingTranslation();
   const { nextStep, currentStep, goToStep, completeOnboarding } = useOnboardingStore();
   const router = useRouter();
   

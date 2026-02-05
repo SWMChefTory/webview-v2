@@ -4,18 +4,19 @@ import { motion } from "motion/react";
 
 interface OnboardingMicButtonProps {
   onNext: () => void;
+  onError?: () => void; // 음성 인식 실패 시 콜백
 }
 
-export function OnboardingMicButton({ onNext }: OnboardingMicButtonProps) {
+export function OnboardingMicButton({ onNext, onError }: OnboardingMicButtonProps) {
   const [isActive, setIsActive] = useState(false);
-  
+
   const { isListening, error } = useSimpleSpeech({
     recipeId: "onboarding-demo",
     onIntent: (intent) => {
       console.log("Detected intent:", intent);
       if (
-        intent === "next" || 
-        intent === "다음" || 
+        intent === "next" ||
+        intent === "다음" ||
         intent?.includes("다음") ||
         intent === "play" // 재생이라고 해도 일단 넘어가는 경험 제공 (유연성)
       ) {
@@ -26,10 +27,13 @@ export function OnboardingMicButton({ onNext }: OnboardingMicButtonProps) {
     onVoiceEnd: () => setIsActive(false),
   });
 
-  // 에러 발생 시 로그만 남기고 UI는 유지 (사용자 경험 보호)
+  // 에러 발생 시 콜백 호출
   useEffect(() => {
-    if (error) console.warn("Onboarding Speech Error:", error);
-  }, [error]);
+    if (error) {
+      console.warn("Onboarding Speech Error:", error);
+      onError?.();
+    }
+  }, [error, onError]);
 
   return (
     <button
@@ -59,7 +63,7 @@ export function OnboardingMicButton({ onNext }: OnboardingMicButtonProps) {
         <line x1="12" y1="19" x2="12" y2="23" />
         <line x1="8" y1="23" x2="16" y2="23" />
       </svg>
-      
+
       {(isActive || isListening) && (
         <>
           <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />

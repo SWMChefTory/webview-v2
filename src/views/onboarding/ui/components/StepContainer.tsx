@@ -17,7 +17,7 @@ export function StepContainer({
   onSkip
 }: StepContainerProps) {
   const { t } = useOnboardingTranslation();
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white p-6 relative">
       {/* Skip Button (Top Right) */}
@@ -29,26 +29,36 @@ export function StepContainer({
       </button>
 
       <div className="max-w-md mx-auto pt-12 h-full flex flex-col min-h-[80vh]">
-        {/* Progress Indicator */}
-        <div className="flex justify-center gap-2 mb-8">
-          {[1, 2, 3].map((step) => (
-            <div
-              key={step}
-              className={cn(
-                "h-2 rounded-full transition-all duration-300",
-                step <= currentStep
-                  ? "bg-orange-500 w-8" // Active/Passed steps are wider
-                  : "bg-gray-200 w-2"
-              )}
-            />
-          ))}
+        {/* Progress Section with Text Indicator */}
+        <div className="mb-8">
+          {/* Progress Text */}
+          <div className="text-center mb-3">
+            <span className="text-sm text-gray-500 font-medium">
+              단계 {currentStep}/3
+            </span>
+          </div>
+
+          {/* Progress Dots */}
+          <div className="flex justify-center gap-2">
+            {[1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  step <= currentStep
+                    ? "bg-orange-500 w-8" // Active/Passed steps are wider
+                    : "bg-gray-200 w-2"
+                )}
+              />
+            ))}
+          </div>
         </div>
-        
+
         {/* Main Content */}
         <div className="flex-1 flex items-center justify-center w-full">
           {children}
         </div>
-        
+
         {/* Navigation (Bottom) */}
         <div className="mt-8 flex items-center justify-between w-full pb-8">
           <button
@@ -63,7 +73,7 @@ export function StepContainer({
           >
             {t('common.prev')}
           </button>
-          
+
           <button
             onClick={onNext}
             className={cn(

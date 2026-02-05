@@ -27,6 +27,19 @@ const scaleInVariants = {
   exit: { opacity: 0, scale: 0.98 },
 };
 
+// 슬라이드 애니메이션 variants (방향성 있음)
+const slideXVariants = {
+  hidden: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? 50 : -50,
+  }),
+  visible: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? -50 : 50,
+  }),
+};
+
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step2State, string> = {
   summary: '/images/onboarding/app-detail_1.png',
@@ -44,8 +57,19 @@ export function OnboardingStep2() {
 
   const [step2State, setStep2State] = useState<Step2State>('summary');
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
+  const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
+  const prevIndex = prevStep2State !== null ? STEP_ORDER.indexOf(prevStep2State) : 0;
+  // 방향: 1 = forward, -1 = backward, 0 = initial
+  const direction = prevStep2State === null ? 0 : currentIndex > prevIndex ? 1 : currentIndex < prevIndex ? -1 : 0;
+
+  // 햅틱 피드백
+  const triggerHaptic = useCallback(() => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+  }, []);
 
   // 타이틀 텍스트 - 간소화
   const getTitle = useCallback((): string => {
@@ -58,6 +82,20 @@ export function OnboardingStep2() {
         return t('step2.steps.title');
       case 'cooking':
         return t('step2.cooking.title');
+    }
+  }, [step2State, t]);
+
+  // 서브타이틀 텍스트
+  const getSubtitle = useCallback((): string => {
+    switch (step2State) {
+      case 'summary':
+        return t('step2.summary.guide');
+      case 'ingredients':
+        return t('step2.ingredients.guide');
+      case 'steps':
+        return t('step2.steps.guide');
+      case 'cooking':
+        return t('step2.cooking.guide');
     }
   }, [step2State, t]);
 
@@ -77,6 +115,7 @@ export function OnboardingStep2() {
 
   // 다음 상태로 이동
   const moveToNextState = useCallback(() => {
+    triggerHaptic();
     track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
       step: currentStep,
       step_count: 3,
@@ -84,21 +123,23 @@ export function OnboardingStep2() {
       voice_method: 'manual_click',
     });
 
+    setPrevStep2State(step2State);
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep2State(STEP_ORDER[currentIndex + 1]);
     } else {
       nextStep();
     }
-  }, [currentIndex, currentStep, nextStep]);
+  }, [currentIndex, step2State, currentStep, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {
+    setPrevStep2State(step2State);
     if (currentIndex > 0) {
       setStep2State(STEP_ORDER[currentIndex - 1]);
     } else {
       prevStep();
     }
-  }, [currentIndex, prevStep]);
+  }, [currentIndex, step2State, prevStep]);
 
   // 음성 인식 성공 시 다음 단계로 이동
   const handleVoiceNext = useCallback(() => {
@@ -130,37 +171,58 @@ export function OnboardingStep2() {
       onSkip={nextStep}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
-        {/* Title - 간소화 */}
-        <AnimatePresence mode="wait">
+        {/* Title */}
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.h1
             key={`title-${step2State}`}
-            variants={fadeInVariants}
+            variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{ duration: 0.15 }}
+            custom={direction}
+            transition={{ duration: 0.25 }}
             className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
           >
             {getTitle()}
           </motion.h1>
         </AnimatePresence>
 
-        {/* Image Area - 크기 축소 */}
+        {/* Subtitle */}
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.p
+            key={`subtitle-${step2State}`}
+            variants={slideXVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            custom={direction}
+            transition={{ duration: 0.25 }}
+            className="text-sm text-gray-500 text-center px-4"
+          >
+            {getSubtitle()}
+          </motion.p>
+        </AnimatePresence>
+
+        {/* Image Area */}
         <motion.button
           onClick={!isCookingState ? moveToNextState : undefined}
-          className="relative w-[200px] cursor-pointer active:scale-[0.98] transition-transform"
+          whileHover={!isCookingState ? { scale: 1.02 } : undefined}
+          whileTap={!isCookingState ? { scale: 0.96 } : undefined}
+          className={`relative w-[280px] h-[580px] cursor-pointer transition-transform rounded-2xl ${
+            !isCookingState && currentIndex < STEP_ORDER.length - 1 ? 'ring-2 ring-orange-500/50 animate-pulse' : ''
+          }`}
           aria-label="다음 단계로 이동"
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={step2State}
-              variants={scaleInVariants}
+              variants={slideXVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={{ duration: 0.15 }}
-              className="relative w-full"
-              style={{ aspectRatio: '9/19.5' }}
+              custom={direction}
+              transition={{ duration: 0.3 }}
+              className="relative w-full h-full rounded-2xl overflow-hidden"
             >
               <Image
                 src={STEP_IMAGES[step2State]}
@@ -173,15 +235,21 @@ export function OnboardingStep2() {
           </AnimatePresence>
         </motion.button>
 
-        {/* 현재 단계 표시 - 동그라미 */}
-        <div className="flex gap-1.5">
+        {/* 현재 단계 표시 - 번호 있는 인디케이터 */}
+        <div className="flex gap-2">
           {STEP_ORDER.map((_, idx) => (
             <div
               key={idx}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'bg-orange-500 w-4' : 'bg-gray-200 w-1.5'
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${
+                idx === currentIndex
+                  ? 'bg-orange-500 text-white'
+                  : idx < currentIndex
+                    ? 'bg-orange-200 text-orange-700'
+                    : 'bg-gray-200 text-gray-400'
               }`}
-            />
+            >
+              {idx + 1}
+            </div>
           ))}
         </div>
 

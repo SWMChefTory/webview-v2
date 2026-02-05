@@ -23,6 +23,19 @@ const scaleInVariants = {
   exit: { opacity: 0, scale: 0.98 },
 };
 
+// 슬라이드 애니메이션 variants (방향성 있음)
+const slideXVariants = {
+  hidden: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? 50 : -50,
+  }),
+  visible: { opacity: 1, x: 0 },
+  exit: (direction: number) => ({
+    opacity: 0,
+    x: direction > 0 ? -50 : 50,
+  }),
+};
+
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step1State, string> = {
   youtube: '/images/onboarding/app-share_1.png',
@@ -39,7 +52,18 @@ export function OnboardingStep1() {
   const { nextStep, prevStep, currentStep } = useOnboardingStore();
 
   const [step1State, setStep1State] = useState<Step1State>('youtube');
+  const [prevStep1State, setPrevStep1State] = useState<Step1State | null>(null);
   const currentIndex = STEP_ORDER.indexOf(step1State);
+  const prevIndex = prevStep1State !== null ? STEP_ORDER.indexOf(prevStep1State) : 0;
+  // 방향: 1 = forward, -1 = backward, 0 = initial
+  const direction = prevStep1State === null ? 0 : currentIndex > prevIndex ? 1 : currentIndex < prevIndex ? -1 : 0;
+
+  // 햅틱 피드백
+  const triggerHaptic = useCallback(() => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(10);
+    }
+  }, []);
 
   // 타이틀 텍스트 - 간소화
   const getTitle = useCallback((): string => {
@@ -55,29 +79,46 @@ export function OnboardingStep1() {
     }
   }, [step1State, t]);
 
+  // 서브타이틀 텍스트
+  const getSubtitle = useCallback((): string => {
+    switch (step1State) {
+      case 'youtube':
+        return t('step1.youtube.guide');
+      case 'share_sheet':
+        return t('step1.share_sheet.guide');
+      case 'create_confirm':
+        return t('step1.create_confirm.guide');
+      case 'home_saved':
+        return t('step1.home_saved.guide');
+    }
+  }, [step1State, t]);
+
   // 다음 상태로 이동
   const moveToNextState = useCallback(() => {
+    triggerHaptic();
     track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
       step: currentStep,
       step_count: 3,
       sub_step: step1State,
     });
 
+    setPrevStep1State(step1State);
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep1State(STEP_ORDER[currentIndex + 1]);
     } else {
       setTimeout(() => nextStep(), 200);
     }
-  }, [currentIndex, step1State, currentStep, nextStep]);
+  }, [currentIndex, step1State, currentStep, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {
+    setPrevStep1State(step1State);
     if (currentIndex > 0) {
       setStep1State(STEP_ORDER[currentIndex - 1]);
     } else {
       prevStep();
     }
-  }, [currentIndex, prevStep]);
+  }, [currentIndex, step1State, prevStep]);
 
   return (
     <StepContainer
@@ -86,38 +127,59 @@ export function OnboardingStep1() {
       onPrev={moveToPrevState}
       onSkip={nextStep}
     >
-      <div className="w-full flex flex-col items-center justify-center gap-3">
-        {/* Title - 간소화 */}
-        <AnimatePresence mode="wait">
+      <div className="w-full flex flex-col items-center justify-center gap-2">
+        {/* Title */}
+        <AnimatePresence mode="wait" custom={direction}>
           <motion.h1
             key={`title-${step1State}`}
-            variants={fadeInVariants}
+            variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            transition={{ duration: 0.15 }}
+            custom={direction}
+            transition={{ duration: 0.25 }}
             className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
           >
             {getTitle()}
           </motion.h1>
         </AnimatePresence>
 
-        {/* Image Area - 크기 축소 */}
+        {/* Subtitle */}
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.p
+            key={`subtitle-${step1State}`}
+            variants={slideXVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            custom={direction}
+            transition={{ duration: 0.25 }}
+            className="text-sm text-gray-500 text-center px-4"
+          >
+            {getSubtitle()}
+          </motion.p>
+        </AnimatePresence>
+
+        {/* Image Area */}
         <motion.button
           onClick={moveToNextState}
-          className="relative w-[200px] cursor-pointer active:scale-[0.98] transition-transform"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.96 }}
+          className={`relative w-[280px] h-[580px] cursor-pointer transition-transform rounded-2xl ${
+            currentIndex < STEP_ORDER.length - 1 ? 'ring-2 ring-orange-500/50 animate-pulse' : ''
+          }`}
           aria-label="다음 단계로 이동"
         >
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={step1State}
-              variants={scaleInVariants}
+              variants={slideXVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={{ duration: 0.15 }}
-              className="relative w-full"
-              style={{ aspectRatio: '9/19.5' }}
+              custom={direction}
+              transition={{ duration: 0.3 }}
+              className="relative w-full h-full rounded-2xl overflow-hidden"
             >
               <Image
                 src={STEP_IMAGES[step1State]}
@@ -130,15 +192,21 @@ export function OnboardingStep1() {
           </AnimatePresence>
         </motion.button>
 
-        {/* 현재 단계 표시 - 동그라미 */}
-        <div className="flex gap-1.5">
+        {/* 현재 단계 표시 - 번호 있는 인디케이터 */}
+        <div className="flex gap-2">
           {STEP_ORDER.map((_, idx) => (
             <div
               key={idx}
-              className={`h-1.5 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'bg-orange-500 w-4' : 'bg-gray-200 w-1.5'
+              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${
+                idx === currentIndex
+                  ? 'bg-orange-500 text-white'
+                  : idx < currentIndex
+                    ? 'bg-orange-200 text-orange-700'
+                    : 'bg-gray-200 text-gray-400'
               }`}
-            />
+            >
+              {idx + 1}
+            </div>
           ))}
         </div>
       </div>

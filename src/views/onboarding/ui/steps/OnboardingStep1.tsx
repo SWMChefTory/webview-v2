@@ -18,9 +18,9 @@ const fadeInVariants = {
 };
 
 const scaleInVariants = {
-  hidden: { opacity: 0, scale: 0.95 },
+  hidden: { opacity: 0, scale: 0.98 },
   visible: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.95 },
+  exit: { opacity: 0, scale: 0.98 },
 };
 
 // 각 상태별 이미지 경로
@@ -31,11 +31,17 @@ const STEP_IMAGES: Record<Step1State, string> = {
   home_saved: '/images/onboarding/app-home.png',
 };
 
+// 상태 순서 (이전/다음 네비게이션용)
+const STEP_ORDER: Step1State[] = ['youtube', 'share_sheet', 'create_confirm', 'home_saved'];
+
 export function OnboardingStep1() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, currentStep } = useOnboardingStore();
+  const { nextStep, prevStep, currentStep } = useOnboardingStore();
 
   const [step1State, setStep1State] = useState<Step1State>('youtube');
+
+  // 현재 상태 인덱스
+  const currentIndex = STEP_ORDER.indexOf(step1State);
 
   // 타이틀 텍스트
   const getTitle = useCallback((): string => {
@@ -73,36 +79,40 @@ export function OnboardingStep1() {
       sub_step: step1State,
     });
 
-    switch (step1State) {
-      case 'youtube':
-        setStep1State('share_sheet');
-        break;
-      case 'share_sheet':
-        setStep1State('create_confirm');
-        break;
-      case 'create_confirm':
-        setStep1State('home_saved');
-        break;
-      case 'home_saved':
-        // 홈 상태에서 터치 시 Step 2로 이동
-        setTimeout(() => {
-          nextStep();
-        }, 300);
-        break;
+    if (currentIndex < STEP_ORDER.length - 1) {
+      setStep1State(STEP_ORDER[currentIndex + 1]);
+    } else {
+      // 마지막 상태에서는 Step 2로 이동
+      setTimeout(() => {
+        nextStep();
+      }, 300);
     }
-  }, [step1State, currentStep, nextStep]);
+  }, [currentIndex, step1State, currentStep, nextStep]);
+
+  // 이전 상태로 이동
+  const moveToPrevState = useCallback(() => {
+    if (currentIndex > 0) {
+      setStep1State(STEP_ORDER[currentIndex - 1]);
+    } else {
+      // 첫 상태에서는 Step 이동
+      prevStep();
+    }
+  }, [currentIndex, prevStep]);
 
   return (
     <StepContainer
       currentStep={currentStep}
       onNext={moveToNextState}
-      onPrev={() => {}}
+      onPrev={moveToPrevState}
       onSkip={nextStep}
     >
-      <div className="w-full max-w-md mx-auto relative min-h-[600px] flex flex-col items-center">
+      <div className="w-full max-w-md mx-auto flex flex-col items-center">
 
-        {/* Title & Guide Text */}
+        {/* Title & Guide Text + 현재 단계 표시 */}
         <div className="text-center mb-6 z-10">
+          <div className="text-xs text-gray-400 mb-2">
+            {currentIndex + 1} / {STEP_ORDER.length}
+          </div>
           <AnimatePresence mode="wait">
             <motion.div
               key={`title-${step1State}`}
@@ -122,10 +132,10 @@ export function OnboardingStep1() {
           </AnimatePresence>
         </div>
 
-        {/* Device Mockup Area - 전체 화면 터치 가능 */}
+        {/* Image Area - 목업 프레임 제거 */}
         <motion.button
           onClick={moveToNextState}
-          className="relative w-72 h-[500px] bg-black rounded-[2.5rem] shadow-2xl border-4 border-gray-100 overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
+          className="relative w-full max-w-sm mx-auto cursor-pointer active:scale-[0.98] transition-transform"
           aria-label="다음 단계로 이동"
         >
           <AnimatePresence mode="wait">
@@ -135,19 +145,25 @@ export function OnboardingStep1() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={{ duration: 0.3 }}
-              className="absolute inset-0"
+              transition={{ duration: 0.2 }}
+              className="relative w-full"
+              style={{ aspectRatio: '9/19.5' }} // iPhone 비율
             >
               <Image
                 src={STEP_IMAGES[step1State]}
                 alt={`Step ${step1State}`}
                 fill
-                className="object-cover"
-                priority={step1State === 'youtube'}
+                className="object-contain"
+                priority // 모든 이미지 프리로딩
               />
             </motion.div>
           </AnimatePresence>
         </motion.button>
+
+        {/* 터치 가이드 */}
+        <p className="text-xs text-gray-400 mt-4">
+          화면을 터치하거나 아래 버튼을 눌러주세요
+        </p>
 
       </div>
     </StepContainer>

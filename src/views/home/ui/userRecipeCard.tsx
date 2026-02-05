@@ -10,9 +10,9 @@ import {
 } from "@/src/entities/user-recipe/ui/title";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { UserRecipe } from "@/src/entities/user-recipe";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe";
 import router from "next/router";
 import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
@@ -39,12 +39,12 @@ export const UserRecipeCardReady = ({
         <div className="absolute top-3 right-3 z-10">
           <TimerTag
             recipeId={userRecipe.recipeId}
-            recipeName={userRecipe.title}
+            recipeName={userRecipe.videoInfo.videoTitle}
           />
         </div>
         <div className="absolute inset-0">
           <ThumbnailReady
-            imgUrl={userRecipe.videoInfo.thumbnailUrl}
+            imgUrl={userRecipe.videoInfo.videoThumbnailUrl}
             size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }}
             className="group-hover:scale-105 transition-transform duration-500"
           />
@@ -52,14 +52,14 @@ export const UserRecipeCardReady = ({
       </div>
       <div className="w-full mt-3">
         <TitleReady
-          title={userRecipe.title}
+          title={userRecipe.videoInfo.videoTitle}
           className={
             isTablet
               ? "lg:text-lg lg:leading-snug group-hover:text-black transition-colors"
               : ""
           }
         />
-        <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
+        <ElapsedViewTimeReady viewedAt={userRecipe.viewStatus?.viewedAt||new Date()} />
       </div>
     </div>
   );

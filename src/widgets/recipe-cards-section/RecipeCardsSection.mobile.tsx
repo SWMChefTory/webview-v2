@@ -3,9 +3,9 @@ import { useMemo, useState } from "react";
 import { LayoutGrid, List } from "lucide-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import type { RecipeCardEntryPoint } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+import { VideoType } from "@/src/entities/schema";
 
 type Tag = { name: string };
 
@@ -28,7 +28,9 @@ export type RecipeCardsSectionRecipe = {
 
 type ViewMode = "list" | "grid";
 
-export function RecipeCardsSectionMobile<TRecipe extends RecipeCardsSectionRecipe>({
+export function RecipeCardsSectionMobile<
+  TRecipe extends RecipeCardsSectionRecipe
+>({
   recipes,
   loadMoreRef,
   isFetchingNextPage,
@@ -121,37 +123,26 @@ export function RecipeCardsSectionMobile<TRecipe extends RecipeCardsSectionRecip
         <div className="flex flex-wrap justify-between gap-y-6 w-full">
           {recipes.map((recipe) => (
             <div key={recipe.recipeId} className="w-[48%]">
-              <RecipeCardWrapper
-                recipeCreditCost={recipe.creditCost}
-                recipeId={recipe.recipeId}
-                recipeTitle={recipe.recipeTitle}
-                recipeIsViewed={recipe.isViewed ?? false}
-                recipeVideoType={getVideoType(recipe)}
-                entryPoint={entryPoint}
-                recipeVideoUrl={getVideoUrl(recipe)}
-                trigger={
-                  recipe.videoInfo.videoType === "SHORTS" ? (
-                    <RecipeGridCardShorts
-                      cardServing={cardServing}
-                      cardMinute={cardMinute}
-                      recipeTitle={recipe.recipeTitle}
-                      videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                      servings={recipe.detailMeta?.servings ?? 0}
-                      cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                    />
-                  ) : (
-                    <RecipeGridCardNormal
-                      cardServing={cardServing}
-                      cardMinute={cardMinute}
-                      recipeTitle={recipe.recipeTitle}
-                      videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                      servings={recipe.detailMeta?.servings ?? 0}
-                      cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                      tags={recipe.tags ?? []}
-                    />
-                  )
-                }
-              />
+              {recipe.videoInfo.videoType === "SHORTS" ? (
+                <RecipeGridCardShorts
+                  cardServing={cardServing}
+                  cardMinute={cardMinute}
+                  recipeTitle={recipe.recipeTitle}
+                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                  servings={recipe.detailMeta?.servings ?? 0}
+                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+                />
+              ) : (
+                <RecipeGridCardNormal
+                  cardServing={cardServing}
+                  cardMinute={cardMinute}
+                  recipeTitle={recipe.recipeTitle}
+                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                  servings={recipe.detailMeta?.servings ?? 0}
+                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+                  tags={recipe.tags ?? []}
+                />
+              )}
             </div>
           ))}
 
@@ -350,7 +341,7 @@ function RecipeGridCardShorts({
   );
 }
 
-function RecipeListCardShorts({
+export function RecipeListCardShorts({
   cardBadge,
   cardServing,
   cardMinute,
@@ -414,7 +405,7 @@ function RecipeListCardShorts({
   );
 }
 
-function RecipeListCardNormal({
+export function RecipeListCardNormal({
   cardBadge,
   cardServing,
   cardMinute,

@@ -3,7 +3,7 @@ import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
 // import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
 import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe";
 import {
   AlreadyEnrolledChip,
   CreatingStatusChip,

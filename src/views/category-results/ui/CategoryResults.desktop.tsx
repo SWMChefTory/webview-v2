@@ -6,6 +6,7 @@ import {
   RecipeCardSkeleton,
   EmptyState,
 } from "./CategoryResults.common";
+import { VideoType } from "@/src/entities/schema";
 
 export function CategoryResultsSkeletonDesktop() {
   return (
@@ -73,7 +74,7 @@ export function CategoryResultsContentDesktop({
               recipeId={recipe.recipeId}
               recipeTitle={recipe.recipeTitle}
               recipeIsViewed={recipe.isViewed ?? false}
-              recipeVideoType={getVideoType(recipe)}
+              recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
               entryPoint={getEntryPoint()}
               recipeVideoUrl={getVideoUrl(recipe)}
               trigger={

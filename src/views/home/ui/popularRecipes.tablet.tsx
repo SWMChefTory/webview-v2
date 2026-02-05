@@ -1,7 +1,7 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/schema";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { useCallback } from "react";
 import {
@@ -61,7 +61,7 @@ function RecipeCardSectionReady() {
     fetchNextPage,
   } = useFetchRecommendRecipes({
     recommendType: RecommendType.POPULAR,
-    videoType: VideoType.NORMAL,
+    videoType: VideoTypeQuery.NORMAL,
   });
 
   const handleReachEnd = useCallback(() => {

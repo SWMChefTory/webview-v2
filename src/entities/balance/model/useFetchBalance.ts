@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { fetchBalance } from "../api/api";
+import { fetchBalance } from "./api/api";
 
 export const BALANCE_QUERY_KEY = "BALANCE_QUERY_KEY";
 

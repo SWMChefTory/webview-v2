@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlreadyEnrolledChip } from "@/src/shared/ui/chip/recipeCreatingStatusChip";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import type { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
+import type { RecommendRecipe } from "@/src/entities/recommend-recipe";
 
 interface PopularRecipeCardProps {
   recipe: RecommendRecipe;

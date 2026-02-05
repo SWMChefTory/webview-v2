@@ -2,7 +2,7 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { IconType } from "react-icons";
-import { RecipeTag } from "@/src/entities/recipe/model/useRecipe";
+import type { RecipeTagResponse as RecipeTag } from "@/src/entities/recipe/model/api/api";
 import {
   ThumbnailSkeleton,
   ThumbnailReady,
@@ -16,9 +16,9 @@ import {
   CategoryChip,
   ChipType,
 } from "@/src/entities/category/ui/categoryChip";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
-import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
 import { motion } from "motion/react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
@@ -84,11 +84,11 @@ const RecipeDetailsCardReady = ({
         <div className="absolute top-1 right-1 z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
-            recipeName={userRecipe.title}
+            recipeName={userRecipe.videoInfo.videoTitle}
           />
         </div>
         <ThumbnailReady
-          imgUrl={userRecipe.videoInfo.thumbnailUrl}
+          imgUrl={userRecipe.videoInfo.videoThumbnailUrl}
           size={
             isDesktop
               ? { width: "100%", height: "100%" }
@@ -102,14 +102,14 @@ const RecipeDetailsCardReady = ({
           isDesktop ? "w-full gap-2" : "lg:gap-1.5 overflow-x-hidden"
         }`}
       >
-        <TitleReady title={userRecipe.title} />
+        <TitleReady title={userRecipe.videoInfo.videoTitle} />
         <DetailSectionReady
           tags={userRecipe.tags || []}
           cookTime={userRecipe.recipeDetailMeta?.cookingTime ?? 0}
           servings={userRecipe.recipeDetailMeta?.servings ?? 0}
           desrciption={userRecipe.recipeDetailMeta?.description ?? ""}
         />
-        <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
+        <ElapsedViewTimeReady viewedAt={userRecipe.viewStatus?.viewedAt ?? new Date()} />
         <CategorySelect
           recipeId={userRecipe.recipeId}
           isCategorySelectOpen={isCategorySelectOpen}

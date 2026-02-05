@@ -1,6 +1,6 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { VideoTypeQuery } from "@/src/entities/recipe-searched";
 import {
   PopularRecipeCard,
   PopularRecipeCardSkeleton,
@@ -11,28 +11,27 @@ import {
   PopularRecipePageProps,
   PopularRecipeContentProps,
 } from "./PopularRecipe.controller";
+import { VideoType } from "@/src/entities/schema";
 
 export function PopularRecipeTablet() {
   const props = usePopularRecipeController("tablet");
   return <PopularRecipeTabletLayout {...props} />;
 }
 
-function PopularRecipeTabletLayout({ title, renderToast }: PopularRecipePageProps) {
+function PopularRecipeTabletLayout({ title }: PopularRecipePageProps) {
   return (
     <div className="w-full max-w-[1024px] mx-auto px-8">
       <div className="h-10" />
       <div className="text-4xl font-bold text-gray-900 tracking-tight">{title}</div>
       <div className="h-10" />
       <SSRSuspense fallback={<PopularRecipesSkeleton />}>
-        <PopularRecipesContent renderToast={renderToast} />
+        <PopularRecipesContent />
       </SSRSuspense>
     </div>
   );
 }
 
-function PopularRecipesContent({
-  renderToast,
-}: Pick<PopularRecipeContentProps, "renderToast">) {
+function PopularRecipesContent() {
   const { recipes, isFetchingNextPage, loadMoreRef } = usePopularRecipeContent("tablet");
 
   return (
@@ -62,7 +61,6 @@ function PopularRecipesContent({
         )}
       </div>
       <div ref={loadMoreRef} className="h-24 w-full" />
-      {renderToast("fixed right-6 top-2 z-1000 w-[360px]")}
     </div>
   );
 }

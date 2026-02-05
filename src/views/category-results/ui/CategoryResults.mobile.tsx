@@ -8,6 +8,7 @@ import { FaRegClock } from "react-icons/fa";
 import { useCategoryResultsController } from "./CategoryResults.controller";
 import { RecipeCardSkeleton, EmptyState } from "./CategoryResults.common";
 import { RecipeCardsSectionMobile } from "@/src/widgets/recipe-cards-section";
+import { VideoType } from "@/src/entities/schema";
 
 export function CategoryResultsSkeletonMobile() {
   return (
@@ -80,7 +81,7 @@ export function CategoryResultsContentMobile({
                 recipeId={recipe.recipeId}
                 recipeTitle={recipe.recipeTitle}
                 recipeIsViewed={recipe.isViewed ?? false}
-                recipeVideoType={getVideoType(recipe)}
+                recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
                 entryPoint={getEntryPoint()}
                 recipeVideoUrl={getVideoUrl(recipe)}
                 trigger={
@@ -138,7 +139,7 @@ export function CategoryResultsContentMobile({
                 recipeId={recipe.recipeId}
                 recipeTitle={recipe.recipeTitle}
                 recipeIsViewed={recipe.isViewed ?? false}
-                recipeVideoType={getVideoType(recipe)}
+                recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
                 entryPoint={getEntryPoint()}
                 recipeVideoUrl={getVideoUrl(recipe)}
                 trigger={
@@ -198,7 +199,9 @@ export function CategoryResultsContentMobile({
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
           entryPoint={getEntryPoint()}
-          getVideoType={getVideoType}
+          getVideoType={(recipe) =>
+            recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+          }
           getVideoUrl={getVideoUrl}
           cardBadge={t("card.badge")}
           cardServing={(count) => t("card.serving", { count })}

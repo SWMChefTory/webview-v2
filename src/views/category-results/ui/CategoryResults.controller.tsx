@@ -5,12 +5,12 @@ import {
 import {
   useFetchRecommendRecipes,
 } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import type { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
+import type { RecommendRecipe } from "@/src/entities/recommend-recipe";
 import { CuisineType, toCuisineType } from "@/src/entities/category/type/cuisineType";
-import { RecommendType, toRecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
+import { RecommendType, toRecommendType } from "@/src/entities/recommend-recipe";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 import { useCategoryResultsTranslation } from "@/src/views/category-results/hooks/useCategoryResultsTranslation";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { VideoType } from "@/src/entities/recommend-recipe";
 import { RecipeCardEntryPoint } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { useInfiniteScroll } from "@/src/shared/hooks";
 

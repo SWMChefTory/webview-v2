@@ -1,15 +1,14 @@
-import { fetchRecommendRecipes } from "@/src/entities/recommend-recipe/api/api";
-import { VideoType } from "../../recommend-recipe/type/videoType";
-import { RecommendType } from "../../recommend-recipe/type/recommendType";
+import { fetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/api/api";
+import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe/model/api/schema/enum";
 import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";
 
 export const RECOMMEND_RECIPE_QUERY_KEY = "recommendRecipeQueryKey";
 
 export const useFetchRecommendRecipes = ({
-  videoType = VideoType.ALL,
+  videoType = VideoTypeQuery.ALL,
   recommendType,
 }: {
-  videoType?: VideoType;
+  videoType?: VideoTypeQuery;
   recommendType: RecommendType;
 }) => {
   const data = useCursorPaginationQuery({

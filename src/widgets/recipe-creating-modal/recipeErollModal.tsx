@@ -2,7 +2,7 @@ import { Sheet } from "react-modal-sheet";
 import { useRecipeEnrollModalStore } from "./recipeErollModalStore";
 import { useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe";
 import { useRouter } from "next/router";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -236,7 +236,7 @@ const ContentReady = ({
     <ContentTemplate
       thumbnail={
         <img
-          src={recipe.videoInfo.thumbnailUrl}
+          src={recipe.videoInfo.videoThumbnailUrl}
           alt="tory"
           className="w-full h-full object-cover object-center"
         />

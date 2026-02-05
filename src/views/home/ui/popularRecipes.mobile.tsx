@@ -1,15 +1,17 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/schema";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
+import { RecipeListCardNormal } from "@/src/widgets/recipe-cards-section/RecipeCardsSection.mobile";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
 import { useCallback } from "react";
+import Link from "next/link";
 
 /**
  * PopularRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -64,7 +66,7 @@ function RecipeCardSectionReady() {
     fetchNextPage,
   } = useFetchRecommendRecipes({
     recommendType: RecommendType.POPULAR,
-    videoType: VideoType.NORMAL,
+    videoType: VideoTypeQuery.NORMAL,
   });
 
   const handleReachEnd = useCallback(() => {
@@ -74,34 +76,20 @@ function RecipeCardSectionReady() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <HorizontalScrollArea
-      onReachEnd={handleReachEnd}
-    >
+    <HorizontalScrollArea onReachEnd={handleReachEnd}>
       {recipes.map((recipe) => (
-        <RecipeCardWrapper
-          key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeTitle={recipe.recipeTitle}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={
-            recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
-          }
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          entryPoint="popular_normal"
-          trigger={
-            <RecipeCardReady
-              recipe={{
-                id: recipe.recipeId,
-                isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                recipeTitle: recipe.recipeTitle,
-                isViewd: recipe.isViewed,
-              }}
-              isTablet={false}
-            />
-          }
-        />
+        <Link href={`/recipe/${recipe.recipeId}/detail`} key={recipe.recipeId}>
+          <RecipeCardReady
+            recipe={{
+              id: recipe.recipeId,
+              isViewed: recipe.isViewed,
+              videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+              recipeTitle: recipe.recipeTitle,
+              isViewd: recipe.isViewed,
+            }}
+            isTablet={false}
+          />{" "}
+        </Link>
       ))}
 
       {isFetchingNextPage && <RecipeCardSkeleton isTablet={false} />}

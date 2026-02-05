@@ -46,7 +46,7 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      }),
+      })
   );
   useAmplitude();
 
@@ -103,7 +103,7 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     );
   }
 
@@ -120,7 +120,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      },
+      }
     );
     return cleanup;
   }, []);
@@ -130,7 +130,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
         handleRecipeDeepLink({ path: payload.route });
-      },
+      }
     );
     return () => {
       cleanup();
@@ -170,14 +170,14 @@ function AppInner({ Component, pageProps }: AppProps) {
 
 function isAuthError(error: unknown): boolean {
   if (error instanceof TokenRefreshFailedError) return true;
-  
+
   if (isAxiosError(error)) {
     const errorCode = error.response?.data?.errorCode;
-    if (typeof errorCode === 'string' && errorCode.startsWith('AUTH')) {
+    if (typeof errorCode === "string" && errorCode.startsWith("AUTH")) {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -194,18 +194,20 @@ export function NetworkFallback({
   useEffect(() => {
     if (isAuthError(error)) {
       queryClient.clear();
-      if(window.ReactNativeWebView){
-        window.ReactNativeWebView.postMessage(JSON.stringify({
-          type: "LOGOUT",
-          data: {
-            error: error,
-          },
-        }));
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({
+            type: "LOGOUT",
+            data: {
+              error: error,
+            },
+          })
+        );
         return;
       }
-      
+
       onRetry();
-      
+
       setTimeout(() => {
         router.replace("/auth");
       }, 100);

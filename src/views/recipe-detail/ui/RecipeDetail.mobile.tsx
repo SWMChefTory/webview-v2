@@ -13,7 +13,11 @@ import {
   type RecipeTag,
   type RecipeBriefing,
   type RecipeMeta,
+  StepDetail,
 } from "./RecipeDetail.controller";
+import Image from "next/image";
+import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
+import { ChevronLeft } from "lucide-react";
 
 /** ---- Skeleton ---- */
 export const RecipeDetailPageSkeletonMobile = () => (
@@ -30,6 +34,414 @@ export const RecipeDetailPageSkeletonMobile = () => (
 );
 
 export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
+  const {
+    videoInfo,
+    recipeSummary,
+    ingredients,
+    steps,
+    tags,
+    briefings,
+    viewStatus,
+    onBack,
+    onCookingStart,
+    routeToStep,
+    onTimeClick,
+    onTabClick,
+    onStepClick,
+    onTimerClick,
+    onMeasurementClick,
+    t,
+    lang,
+    formatTime,
+  } = useRecipeDetailController(id, "mobile");
+
+  useSafeArea({
+    top: { color: "#FFFFFF", isExists: true },
+    bottom: { color: "#FFFFFF", isExists: false },
+    left: { color: "#FFFFFF", isExists: true },
+    right: { color: "#FFFFFF", isExists: true },
+  });
+
+  // 높이 측정용
+  const headerWrapRef = useRef<HTMLDivElement | null>(null);
+  const videoWrapRef = useRef<HTMLDivElement | null>(null);
+
+  // 시트 위치 기준값
+  const [expandedTop, setExpandedTop] = useState<number>(56); // 헤더 높이
+  const [collapsedTop, setCollapsedTop] = useState<number>(0); // 헤더+영상
+
+  // YouTube 플레이어 ref
+  const playerRef = useRef<YT.Player | null>(null);
+
+  useEffect(() => {
+    const measure = () => {
+      const headerH =
+        headerWrapRef.current?.getBoundingClientRect().height ?? 56;
+      const videoH =
+        videoWrapRef.current?.getBoundingClientRect().height ??
+        (window.innerWidth * 9) / 16;
+
+      setExpandedTop(Math.round(headerH)); // 헤더 하단까지만 올라가도록
+      setCollapsedTop(Math.round(headerH + videoH)); // 접힘 위치
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
+
+  const handleTimeClick = (sec: number) => {
+    onTimeClick(sec, playerRef);
+  };
+
+  return (
+    <div className="relative w-full h-[100dvh] overflow-scroll overscroll-y-none bg-white">
+      <div className="fixed top-[0px] left-0 right-0 z-10">
+        <YoutubeVideo
+          videoId={videoInfo.videoId}
+          title={videoInfo?.videoTitle}
+          containerRef={videoWrapRef as React.RefObject<HTMLDivElement>}
+          onPlayerReady={(p) => (playerRef.current = p)}
+        />
+      </div>
+
+      <div className="w-full">
+        <VideoPadding />
+        <RecipeSummary
+          title={videoInfo?.videoTitle}
+          description={recipeSummary?.description}
+          cookTime={recipeSummary?.cookingTime}
+          servings={recipeSummary?.servings}
+          ingredientCount={ingredients.length}
+        />
+        <BriefingSummary briefings={briefings} />
+        <Ingredients ingredients={ingredients} />
+        <Steps isEnrolled={viewStatus !== null} steps={steps} />
+      </div>
+      {viewStatus !== null && (
+        <div className="fixed bottom-14 right-10 z-10">
+          <ButtonStartCooking />
+        </div>
+      )}
+      <div className="fixed bottom-14 left-10 z-10">
+        <ButtonBack />
+      </div>
+    </div>
+  );
+};
+
+const ButtonStartCooking = () => {
+  return (
+    <div className="flex h-14 w-36 gap-2 items-center justify-center bg-orange-500 rounded-xl shadow-xl shadow-gray-500/40 text-white font-bold text-xl">
+      <span className="text-white font-bold text-xl">요리하기</span>
+      <Image
+        src="/images/cook-pot.png"
+        alt="Cooking Pot"
+        width={24}
+        height={20}
+      />
+    </div>
+  );
+};
+
+const ButtonBack = () => {
+  return (
+    <button
+      type="button"
+      aria-label="Back"
+      className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500/80 text-white font-bold text-base shadow-xl shadow-gray-500/40"
+    >
+      <ChevronLeft className=" opacity-90" />
+    </button>
+  );
+};
+
+const Steps = ({
+  steps,
+  isEnrolled,
+}: {
+  steps: RecipeStep[];
+  isEnrolled: boolean;
+}) => {
+  const numberToUpperAlpha = (n: number) => {
+    return String.fromCharCode(64 + n);
+  };
+
+  const StepTitle = ({
+    index,
+    stepTitle,
+  }: {
+    index: number;
+    stepTitle: string;
+  }) => {
+    const Order = () => {
+      return (
+        <div className="text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
+          {numberToUpperAlpha(index + 1)}
+        </div>
+      );
+    };
+
+    return (
+      <div className="flex items-center gap-2">
+        <Order />
+        <p className="text-base font-bold">{stepTitle}</p>
+      </div>
+    );
+  };
+
+  const StepDetails = ({ stepDetails }: { stepDetails: StepDetail[] }) => {
+    return (
+      <div className="p-2 rounded-md bg-gray-100 flex flex-col gap-2">
+        {stepDetails.map((detail, index) => (
+          <div
+            key={index}
+            className="text-sm font-bold shadow-lg bg-white p-2 rounded-md"
+          >
+            {detail.text}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  if (!isEnrolled) {
+    return (
+      <div className="relative pt-6 px-4 gap-2 h-120 overflow-hidden">
+        <div className="absolute z-[10] flex items-center justify-center inset-0 bg-gradient-to-t from-[#FDBD78] to-[#D9D9D9]/3">
+          <div className="flex flex-col items-center justify-end h-full pb-16 gap-2">
+            <div className="w-[110px] h-[100px]">
+              <Image
+                src="/images/tory/polite-tory.png"
+                alt="Recipe Detail BG"
+                width={110}
+                height={100}
+                className="object-cover object-center"
+              />
+            </div>
+            <div className="h-3" />
+            <div className="text-lg font-bold text-center">
+              <span className="block">토리에게 베리 1개를 주면</span>
+              <span className="block">레시피를 볼 수 있어요.</span>
+            </div>
+            <div className="flex flex-row items-center justify-center gap-1 ">
+              <div className="pb-1">
+                <div className="w-[20px] h-[24px]">
+                  <Image
+                    src="/images/berry/berry.png"
+                    alt="Berry"
+                    width={20}
+                    height={24}
+                  />
+                </div>
+              </div>
+              <div className="text text-gray-600 ">{`현재 베리 : ${1}개`}</div>
+            </div>
+            <div className="px-5 py-1.5 bg-orange-500 rounded-xl text-white font-bold text-lg">
+              레시피 보기
+            </div>
+          </div>
+        </div>
+        <div className=" gap-1 text text-lg font-bold">레시피</div>
+        <div className="h-2" />
+        <div className="flex flex-col gap-4">
+          {steps.slice(0, 2).map((step, index) => (
+            <div key={index} className="p-2 rounded-md bg-gray-100">
+              <StepTitle index={index} stepTitle={step.subtitle} />
+              <div className="h-2" />
+              <StepDetails stepDetails={step.details} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="pt-6 px-4 gap-2">
+      <div className=" gap-1 text text-lg font-bold">레시피</div>
+      <div className="h-2" />
+      <div className="flex flex-col gap-4">
+        {steps.map((step, index) => (
+          <div key={index} className="p-2 rounded-md bg-gray-100">
+            <StepTitle index={index} stepTitle={step.subtitle} />
+            <div className="h-2" />
+            <StepDetails stepDetails={step.details} />
+          </div>
+        ))}
+      </div>
+      <div className="h-24" />
+    </div>
+  );
+};
+
+const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
+  const Point = () => {
+    return (
+      <div className="w-1 h-1 mt-2.5 rounded-full bg-orange-500 flex-shrink-0" />
+    );
+  };
+  return (
+    <div className="pt-6 px-4 gap-2">
+      <div className="text text-lg font-bold">실제 사용자 후기</div>
+      <div className="h-2" />
+      <div className="flex flex-col gap-2">
+        {briefings.slice(0, 2).map((briefing, index) => (
+          <div key={index} className="flex items-start gap-2">
+            <Point />
+            <div className="">{briefing.content}</div>
+          </div>
+        ))}
+      </div>
+      <div className="w-full flex justify-center px-2 py-2">
+        <div className="px-6 py-1 bg-gray-300  rounded-md ">더보기</div>
+      </div>
+      <div className="h-1" />
+      <HorizontalLine />
+    </div>
+  );
+};
+
+const Ingredients = ({ ingredients }: { ingredients: Ingredient[] }) => {
+  return (
+    <div className="pt-6 px-3 gap-2">
+      <div className="text text-lg font-bold px-1">재료</div>
+      <div className="h-2" />
+      <div className="flex flex-wrap gap-1">
+        {ingredients.map((ingredient, index) => (
+          <div
+            className="inline-flex w-fit shrink-0 rounded-md border px-3 py-2"
+            key={index}
+          >
+            <div className="text-center">
+              <div className="font-semibold">{ingredient.name}</div>
+              <div className="text-gray-500 text-sm">
+                {ingredient.amount || "영상참고"}
+                {`${ingredient.unit ? ` ${ingredient.unit}` : ""}`}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="w-full flex justify-center px-2 py-4">
+        <div className="px-6 py-1 bg-gray-300  rounded-md ">
+          영상 속 재료 바로 구매하기
+        </div>
+      </div>
+      <div className="h-1" />
+      <HorizontalLine />
+    </div>
+  );
+};
+
+type RecipeSummaryProps = {
+  title?: string;
+  description?: string;
+  cookTime?: number;
+  servings?: number;
+  ingredientCount?: number;
+};
+
+const RecipeSummary = ({
+  title,
+  description,
+  cookTime,
+  servings,
+  ingredientCount,
+}: RecipeSummaryProps) => {
+  const CookingTime = () => {
+    return (
+      <div className="flex gap-2 items-center">
+        <div className="w-[30px] h-[30px]">
+          <Image
+            src="/images/description/cooking-time.png"
+            alt="Cooking Time"
+            className="object-cover object-center"
+            width={30}
+            height={30}
+          />
+        </div>
+        <div className="flex flex-col">
+          <div className="text-xl font-bold">{cookTime}분</div>
+          <div className="text-gray-500">요리시간</div>
+        </div>
+      </div>
+    );
+  };
+
+  const Servings = () => {
+    return (
+      <div className="flex gap-1 items-center">
+        <div className="w-[44px] h-[28px] ">
+          <Image
+            src="/images/description/serving-counts.png"
+            alt="Cooking Time"
+            width={44}
+            height={28}
+          />
+        </div>
+        <div className="flex flex-col">
+          <div className="text-xl font-bold">{servings}인분</div>
+          <div className="text-gray-500">인원</div>
+        </div>
+      </div>
+    );
+  };
+
+  const IngredientCount = () => {
+    return (
+      <div className="flex gap-1 items-center">
+        <div className="w-[36px] h-[26px]">
+          <Image
+            src="/images/description/ingredient-count.png"
+            alt="Cooking Time"
+            className="object-cover object-center"
+            width={36}
+            height={26}
+          />
+        </div>
+        <div className="flex flex-col">
+          <div className="text-xl font-bold">{ingredientCount}개</div>
+          <div className="text-gray-500">재료</div>
+        </div>
+      </div>
+    );
+  };
+  return (
+    <div className="pt-6 px-4">
+      <div className="text-xl font-bold line-clamp-2">{title}</div>
+      <div className="text-sm text-gray-500 line-clamp-2">{description}</div>
+      <div className="pt-4 flex flex-col">
+        <HorizontalLine />
+        <div className="flex py-4 h-[92px] justify-center items-center">
+          <CookingTime />
+          <div className="px-2" />
+          <VerticalLine />
+          <div className="px-2" />
+          <Servings />
+          <div className="px-2" />
+          <VerticalLine />
+          <div className="px-2" />
+          <IngredientCount />
+        </div>
+        <HorizontalLine />
+      </div>
+    </div>
+  );
+};
+
+const HorizontalLine = () => {
+  return <div className="w-full h-[1px] bg-gray-300"></div>;
+};
+
+const VerticalLine = () => {
+  return <div className="w-[1px] h-full bg-gray-300"></div>;
+};
+
+export const RecipeDetailPageReadyMobileDepredcated = ({
+  id,
+}: {
+  id: string;
+}) => {
   const {
     videoInfo,
     recipeSummary,
@@ -97,23 +509,23 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
               overflow-hidden text-ellipsis whitespace-nowrap
               max-w-[calc(100vw-144px)] break-keep break-words
             "
-              title={videoInfo?.videoTitle}
+              title={videoInfo.videoTitle}
             >
-              {videoInfo?.videoTitle}
+              {videoInfo.videoTitle}
             </div>
           }
           rightContent={
             <TimerButton
               recipeId={id}
-              recipeName={videoInfo?.videoTitle ?? ""}
+              recipeName={videoInfo.videoTitle ?? ""}
               onTimerClick={onTimerClick}
             />
           }
         />
       </div>
 
-      <StickyVideo
-        videoId={videoInfo?.id}
+      <YoutubeVideo
+        videoId={videoInfo.videoId}
         title={videoInfo?.videoTitle}
         containerRef={videoWrapRef as React.RefObject<HTMLDivElement>}
         onPlayerReady={(p) => (playerRef.current = p)}
@@ -145,7 +557,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
 /** ---- YouTube (react-youtube 동적 로딩) ---- */
 const ReactYouTube = dynamic(() => import("react-youtube"), { ssr: false });
 
-const StickyVideo = ({
+const YoutubeVideo = ({
   videoId,
   title,
   containerRef,
@@ -187,6 +599,10 @@ const StickyVideo = ({
   );
 };
 
+const VideoPadding = () => {
+  return <div className="w-full aspect-video" />;
+};
+
 /** ---- Bottom Sheet ---- */
 const RecipeBottomSheetMobile = ({
   steps,
@@ -218,7 +634,12 @@ const RecipeBottomSheetMobile = ({
   expandedTopPx: number;
   recipeId: string;
   onTabClick?: (tabName: TabName) => void;
-  onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number, detailIndex: number) => void;
+  onStepClick?: (
+    stepOrder: number,
+    stepTitle: string,
+    videoTime: number,
+    detailIndex: number
+  ) => void;
   onMeasurementClick?: () => void;
   onCookingStart?: (selectedIngredientCount: number) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -309,7 +730,7 @@ const RecipeBottomSheetMobile = ({
   if (!isMeasured) return null;
 
   // 유틸
-  const cookTime = recipe_summary?.cookTime ?? 0;
+  const cookTime = recipe_summary?.cookingTime ?? 0;
   const description = recipe_summary?.description ?? "";
   const servings = Math.max(0, Number(recipe_summary?.servings ?? 0));
   const allSel = selected.size === ingredients.length;
@@ -531,7 +952,12 @@ const RecipeBottomSheetMobile = ({
                           onClick={() => {
                             onTimeClick(d.start);
                             setTopPx(minCollapseTop);
-                            onStepClick?.(step.stepOrder, step.subtitle, d.start, di);
+                            onStepClick?.(
+                              step.stepOrder,
+                              step.subtitle,
+                              d.start,
+                              di
+                            );
                           }}
                         >
                           <div className="flex items-start gap-3">
@@ -570,7 +996,7 @@ const RecipeBottomSheetMobile = ({
                     <span className="text-neutral-900">
                       {t("ingredients.prepared", {
                         count: selected.size,
-                        total: ingredients.length
+                        total: ingredients.length,
                       })}
                     </span>
                   ) : (
@@ -579,58 +1005,62 @@ const RecipeBottomSheetMobile = ({
                     </span>
                   )}
                 </div>
-                {lang == "ko" && <button
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm"
-                  onClick={() => {
-                    setMeasurementOpen(true);
-                    onMeasurementClick?.();
-                  }}
-                >
-                  <span>{t("ingredients.measure")}</span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="#4B4B4B"
-                      strokeWidth="2"
-                    />
-                  </svg>
-                </button> }
+                {lang == "ko" && (
+                  <button
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 text-sm"
+                    onClick={() => {
+                      setMeasurementOpen(true);
+                      onMeasurementClick?.();
+                    }}
+                  >
+                    <span>{t("ingredients.measure")}</span>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="#4B4B4B"
+                        strokeWidth="2"
+                      />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               {/* 재료 구매 배너 */}
-              {lang == "ko" && <div
-                className="relative overflow-hidden rounded-md border border-gray-200 bg-gradient-to-r from-orange-50 to-white cursor-pointer hover:shadow-md transition-shadow"
-                onClick={() => setPurchaseModalOpen(true)}
-              >
-                <div className="flex items-center justify-between px-4 py-2.5">
-                  <div className="flex items-center gap-2.5">
-                    {/* 왼쪽 아이콘 */}
-                    <div className="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center">
-                      <div className="text-xl">🛒</div>
+              {lang == "ko" && (
+                <div
+                  className="relative overflow-hidden rounded-md border border-gray-200 bg-gradient-to-r from-orange-50 to-white cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setPurchaseModalOpen(true)}
+                >
+                  <div className="flex items-center justify-between px-4 py-2.5">
+                    <div className="flex items-center gap-2.5">
+                      {/* 왼쪽 아이콘 */}
+                      <div className="w-10 h-10 rounded-lg bg-white border border-gray-100 flex items-center justify-center">
+                        <div className="text-xl">🛒</div>
+                      </div>
+
+                      {/* 텍스트 */}
+                      <span className="text-base font-semibold text-neutral-900">
+                        {t("ingredients.purchase")}
+                      </span>
                     </div>
 
-                    {/* 텍스트 */}
-                    <span className="text-base font-semibold text-neutral-900">
-                      {t("ingredients.purchase")}
-                    </span>
+                    {/* 오른쪽 화살표 */}
+                    <svg
+                      className="w-5 h-5 text-gray-400 flex-shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                   </div>
-
-                  {/* 오른쪽 화살표 */}
-                  <svg
-                    className="w-5 h-5 text-gray-400 flex-shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                  >
-                    <path
-                      d="M9 18L15 12L9 6"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
                 </div>
-              </div>}
+              )}
 
               <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2">
                 {ingredients.map((ing, i) => {

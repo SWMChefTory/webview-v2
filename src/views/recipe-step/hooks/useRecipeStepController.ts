@@ -13,7 +13,7 @@ export function useRecipeStepController({ recipeId }: { recipeId: string }) {
   const [currentDetailIndex, setCurrentDetailIndex] = useState(0);
 
   const steps: RecipeStep[] = useMemo(() => {
-    const _steps = recipe.steps?.map((step) => {
+    const _steps = recipe.recipeSteps?.map((step) => {
       return {
         id: step.id,
         stepOrder: step.stepOrder,

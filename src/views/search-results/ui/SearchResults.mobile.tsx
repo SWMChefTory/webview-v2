@@ -5,7 +5,8 @@ import {
   EmptyState,
 } from "./SearchResults.common";
 import { RecipeCardsSectionMobile } from "@/src/widgets/recipe-cards-section";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { VideoTypeQuery } from "@/src/entities/recipe-searched";
+import { VideoType } from "@/src/entities/schema";
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -27,11 +28,9 @@ export function SearchResultsSkeletonMobile() {
 export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
   const {
     searchResults,
-    totalElements,
     loadMoreRef,
     isFetchingNextPage,
     translations,
-    onRecipeClick,
   } = useSearchResultsController(keyword);
 
   if (searchResults.length === 0) {
@@ -47,9 +46,6 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
             {translations.headerSuffix}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
-          {translations.headerTotalCount(totalElements)}
-        </p>
       </div>
 
       <div className="px-4 pb-28">

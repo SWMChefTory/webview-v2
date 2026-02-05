@@ -7,7 +7,7 @@ import { RecipeStatus } from "@/src/shared/enums/recipe";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useTranslation } from "next-i18next";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { VideoType  } from "@/src/entities/schema";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import Image from "next/image";

@@ -94,7 +94,7 @@ export const RecipeDetailPageReadyTablet = ({ id }: { id: string }) => {
         <div className="flex flex-col gap-10">
           <div className="w-full">
             <VideoPlayer
-              videoId={videoInfo?.id}
+              videoId={videoInfo?.videoId}
               title={videoInfo?.videoTitle}
               onPlayerReady={(p) => (playerRef.current = p)}
             />
@@ -206,7 +206,7 @@ const RecipeContentTablet = ({
   const [measurementOpen, setMeasurementOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
 
-  const cookTime = recipe_summary?.cookTime ?? 0;
+  const cookTime = recipe_summary?.cookingTime ?? 0;
   const description = recipe_summary?.description ?? "";
   const servings = Math.max(0, Number(recipe_summary?.servings ?? 0));
   const allSel = selected.size === ingredients.length;

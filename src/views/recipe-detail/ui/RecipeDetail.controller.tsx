@@ -6,6 +6,7 @@ import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { type ViewStatus } from "@/src/entities/recipe";
 
 export type RecipeDetailVariant = "mobile" | "tablet" | "desktop";
 export type TabName = "summary" | "recipe" | "ingredients";
@@ -23,16 +24,17 @@ export type RecipeBriefing = { content: string };
 export type RecipeMeta = {
   description?: string;
   servings?: number;
-  cookTime?: number;
+  cookingTime?: number;
 };
 
 export interface RecipeDetailControllerProps {
-  videoInfo: { id?: string; videoTitle?: string };
+  videoInfo: { videoId?: string; videoTitle?: string };
   recipeSummary: RecipeMeta;
   ingredients: Ingredient[];
   steps: RecipeStep[];
   tags: RecipeTag[];
   briefings: RecipeBriefing[];
+  viewStatus: ViewStatus | null;
   onBack: () => void;
   onCookingStart: (selectedIngredientCount: number) => void;
   routeToStep: () => void;
@@ -62,13 +64,13 @@ export function useRecipeDetailController(
     left: { color: safeAreaColor, isExists: true },
     right: { color: safeAreaColor, isExists: true },
   });
-
   const videoInfo = data?.videoInfo ?? {};
-  const recipeSummary = data?.detailMeta ?? {};
-  const ingredients = data?.ingredients ?? [];
-  const steps = data?.steps ?? [];
-  const tags = data?.tags ?? [];
-  const briefings = data?.briefings ?? [];
+  const recipeSummary = data?.recipeDetailMeta ?? {};
+  const ingredients = data?.recipeIngredient ?? [];
+  const steps = data?.recipeSteps ?? [];
+  const tags = data?.recipeTags ?? [];
+  const briefings = data?.recipeBriefings ?? [];
+  const viewStatus = data.viewStatus === undefined ? null : data.viewStatus;
 
   const pageStartTime = useRef(Date.now());
   const tabSwitchCount = useRef(0);
@@ -100,7 +102,7 @@ export function useRecipeDetailController(
       total_steps: steps.length,
       total_details: totalDetails,
       total_ingredients: ingredients.length,
-      has_video: !!videoInfo?.id,
+      has_video: !!videoInfo?.videoId,
     });
 
     return () => {
@@ -212,6 +214,7 @@ export function useRecipeDetailController(
     steps,
     tags,
     briefings,
+    viewStatus,
     onBack: () => router.back(),
     onCookingStart,
     routeToStep: () => router.push(`/recipe/${id}/step`),

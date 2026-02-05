@@ -95,7 +95,7 @@ export const RecipeDetailPageReadyDesktop = ({ id }: { id: string }) => {
           <div className="col-span-8 space-y-8">
             <div className="sticky top-28 rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5">
               <VideoPlayer
-                videoId={videoInfo?.id}
+                videoId={videoInfo.videoId}
                 title={videoInfo?.videoTitle}
                 onPlayerReady={(p) => (playerRef.current = p)}
               />
@@ -208,7 +208,7 @@ const RecipeContentDesktop = ({
   const [measurementOpen, setMeasurementOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
 
-  const cookTime = recipe_summary?.cookTime ?? 0;
+  const cookTime = recipe_summary?.cookingTime ?? 0;
   const description = recipe_summary?.description ?? "";
   const servings = Math.max(0, Number(recipe_summary?.servings ?? 0));
   const allSel = selected.size === ingredients.length;

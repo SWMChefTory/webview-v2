@@ -1,6 +1,5 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import {
   PopularRecipeCard,
   PopularRecipeCardSkeleton,
@@ -11,28 +10,27 @@ import {
   PopularRecipePageProps,
   PopularRecipeContentProps,
 } from "./PopularRecipe.controller";
+import { VideoType } from "@/src/entities/schema";
 
 export function PopularRecipeMobile() {
   const props = usePopularRecipeController("mobile");
   return <PopularRecipeMobileLayout {...props} />;
 }
 
-function PopularRecipeMobileLayout({ title, renderToast }: PopularRecipePageProps) {
+function PopularRecipeMobileLayout({ title}: PopularRecipePageProps) {
   return (
     <div className="px-4">
       <div className="h-4" />
       <div className="text-2xl font-semibold">{title}</div>
       <div className="h-4" />
       <SSRSuspense fallback={<PopularRecipesSkeleton />}>
-        <PopularRecipesContent renderToast={renderToast} />
+        <PopularRecipesContent />
       </SSRSuspense>
     </div>
   );
 }
 
-function PopularRecipesContent({
-  renderToast,
-}: Pick<PopularRecipeContentProps, "renderToast">) {
+function PopularRecipesContent() {
   const { recipes, isFetchingNextPage, onScroll } = usePopularRecipeContent("mobile");
 
   return (
@@ -60,7 +58,6 @@ function PopularRecipesContent({
           </>
         )}
       </div>
-      {renderToast("fixed right-3 top-2 z-1000 w-[300px]")}
     </div>
   );
 }

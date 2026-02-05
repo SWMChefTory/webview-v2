@@ -13,7 +13,6 @@ export function HomePageMobileLayout({
   header,
   sections,
   floatingButton,
-  renderToast,
 }: HomePageProps) {
   return (
     <div className="min-h-screen w-screen w-full overflow-hidden">
@@ -35,7 +34,6 @@ export function HomePageMobileLayout({
       {sections.popularShorts}
 
       {floatingButton}
-      {renderToast("fixed right-3 top-2 z-1000 w-[300px]")}
 
       <div className="h-8" />
     </div>

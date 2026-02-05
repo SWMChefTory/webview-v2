@@ -3,27 +3,27 @@ import {
   fetchAllRecipesSummary,
   fetchRecipeProgress,
   updateCategory,
-} from "@/src/entities/user-recipe/model/api";
+} from "@/src/entities/user-recipe/model/api/api";
 import {
   RecipeStatus,
   RecipeProgressDetail,
-} from "@/src/entities/user-recipe/type/type";
+} from "@/src/entities/user-recipe/model/api/enum";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { RecipeCreateStatusResponse } from "@/src/entities/user-recipe/model/api";
+import { RecipeCreateStatusResponse } from "@/src/entities/user-recipe/model/api/api";
 
 import { useMutation } from "@tanstack/react-query";
-import { createRecipe } from "@/src/entities/user-recipe/model/api";
+import { createRecipe } from "@/src/entities/user-recipe/model/api/api";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
-import { VideoType } from "../../recommend-recipe/type/videoType";
+import { VideoType } from "@/src/entities/schema";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { BALANCE_QUERY_KEY } from "../../balance/model/useFetchBalance";
 import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineRecipe";
-import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/useRecipeSearched";
+import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/model/useRecipeSearched";
 import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
 import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";
 import { useRecipeEnrollModalStore } from "@/src/widgets/recipe-creating-modal/recipeErollModalStore";

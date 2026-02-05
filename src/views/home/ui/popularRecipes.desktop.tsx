@@ -1,6 +1,9 @@
-import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import {
+  useFetchRecommendRecipes,
+  RecommendType,
+  VideoTypeQuery,
+} from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/schema";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { ViewMoreCard } from "@/src/shared/ui/card";
@@ -43,7 +46,7 @@ const PopularRecipesTemplateDesktop = ({
 function RecipeCardSectionReady() {
   const { entities: recipes } = useFetchRecommendRecipes({
     recommendType: RecommendType.POPULAR,
-    videoType: VideoType.NORMAL,
+    videoType: VideoTypeQuery.NORMAL,
   });
 
   return (
@@ -56,7 +59,9 @@ function RecipeCardSectionReady() {
           recipeTitle={recipe.recipeTitle}
           recipeIsViewed={recipe.isViewed}
           recipeVideoType={
-            recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+            recipe.videoInfo.videoType === "SHORTS"
+              ? VideoType.SHORTS
+              : VideoType.NORMAL
           }
           recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
           entryPoint="popular_normal"

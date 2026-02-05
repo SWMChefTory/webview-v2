@@ -1,282 +1,263 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { StepContainer } from "../components/StepContainer";
 import { OnboardingMicButton } from "../components/OnboardingMicButton";
+import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useState, useCallback } from "react";
-import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "motion/react";
-import { useOnboardingStore } from "../../stores/useOnboardingStore";
-import { usePreventBack } from "../../hooks/usePreventBack";
 import Image from "next/image";
 
-// 애니메이션 variants
-const fadeInOutVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -10 },
-};
-
-const scaleInVariants = {
-  hidden: { scale: 0, opacity: 0 },
-  visible: { scale: 1, opacity: 1 },
-};
-
-const zoomOutVariants = {
-  hidden: { opacity: 0, scale: 1.1 },
-  visible: { opacity: 1, scale: 1 },
-};
-
-const buttonFloatVariants = {
-  hidden: { scale: 0, y: 50 },
-  visible: { scale: 1, y: 0 },
-};
+// Step 2 상태 타입
+type Step2State = 'summary' | 'ingredients' | 'steps' | 'cooking';
 
 // 음성 인식 상태
 type VoiceStatus = 'idle' | 'listening' | 'recognized' | 'failed';
 
+// 애니메이션 variants
+const fadeInVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
+};
+
+const scaleInVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1 },
+  exit: { opacity: 0, scale: 0.95 },
+};
+
+// 각 상태별 이미지 경로
+const STEP_IMAGES: Record<Step2State, string> = {
+  summary: '/images/onboarding/app-detail_1.png',
+  ingredients: '/images/onboarding/app-detail_2.png',
+  steps: '/images/onboarding/app-detail_3.png',
+  cooking: '/images/onboarding/app-cooking_home.png',
+};
+
 export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, currentStep, completeOnboarding } = useOnboardingStore();
-  const router = useRouter();
+  const { nextStep, currentStep } = useOnboardingStore();
 
-  // Prevent back button
-  usePreventBack();
-
-  // State: 'result' (Recipe Detail) -> 'voice_mode' (Cooking Mode)
-  const [viewState, setViewState] = useState<'result' | 'voice_mode'>('result');
-  const [isMicAnimating, setIsMicAnimating] = useState(false);
+  const [step2State, setStep2State] = useState<Step2State>('summary');
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
 
-  const handleStartCookingClick = () => {
-    // Transition to Voice Mode
-    setViewState('voice_mode');
-    setVoiceStatus('idle');
-  };
+  // 타이틀 텍스트
+  const getTitle = useCallback((): string => {
+    switch (step2State) {
+      case 'summary':
+        return t('step2.summary.title');
+      case 'ingredients':
+        return t('step2.ingredients.title');
+      case 'steps':
+        return t('step2.steps.title');
+      case 'cooking':
+        return t('step2.cooking.title');
+    }
+  }, [step2State, t]);
 
-  const moveToNextStep = useCallback(() => {
+  // 가이드 텍스트
+  const getGuide = useCallback((): string => {
+    switch (step2State) {
+      case 'summary':
+        return t('step2.summary.guide');
+      case 'ingredients':
+        return t('step2.ingredients.guide');
+      case 'steps':
+        return t('step2.steps.guide');
+      case 'cooking':
+        return t('step2.cooking.guide');
+    }
+  }, [step2State, t]);
+
+  // 음성 인식 상태 텍스트
+  const getVoiceStatusText = useCallback((): string => {
+    switch (voiceStatus) {
+      case 'listening':
+        return t('step2.cooking.listening');
+      case 'recognized':
+        return t('step2.cooking.recognized');
+      case 'failed':
+        return t('step2.cooking.failed');
+      default:
+        return '';
+    }
+  }, [t]);
+
+  // 다음 상태로 이동 (터치/클릭 시)
+  const moveToNextState = useCallback(() => {
     track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
       step: currentStep,
       step_count: 3,
-      voice_method: 'voice'
+      sub_step: step2State,
+      voice_method: 'manual_click',
     });
-    nextStep();
-  }, [currentStep, nextStep]);
 
-  const handleMicClick = () => {
-    setIsMicAnimating(true);
+    switch (step2State) {
+      case 'summary':
+        setStep2State('ingredients');
+        break;
+      case 'ingredients':
+        setStep2State('steps');
+        break;
+      case 'steps':
+        setStep2State('cooking');
+        break;
+      case 'cooking':
+        // cooking 상태에서는 음성 인식 또는 수동 클릭 모두 동작
+        nextStep();
+        break;
+    }
+  }, [step2State, currentStep, nextStep]);
+
+  // 음성 인식 성공 시 다음 단계로 이동
+  const handleVoiceNext = useCallback(() => {
     setVoiceStatus('recognized');
-
-    // Simulate recognition and move to next step
-    setTimeout(() => {
-      moveToNextStep();
-    }, 600);
-  };
-
-  // Fallback: 클릭으로도 다음 단계 진행 가능
-  const handleManualNext = useCallback(() => {
-    setIsMicAnimating(true);
-    setVoiceStatus('recognized');
-
     track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
       step: currentStep,
       step_count: 3,
-      voice_method: 'manual_click'
+      sub_step: step2State,
+      voice_method: 'voice',
     });
 
     setTimeout(() => {
       nextStep();
-    }, 600);
-  }, [currentStep, nextStep]);
+    }, 800);
+  }, [step2State, currentStep, nextStep]);
 
-  // 음성 인식 실패 시 처리 (OnboardingMicButton에서 에러 발생 시 호출)
+  // 음성 인식 실패 시 처리
   const handleVoiceError = useCallback(() => {
     setVoiceStatus('failed');
   }, []);
 
-  const handleSkip = () => {
-    track(AMPLITUDE_EVENT.ONBOARDING_SKIP);
-    completeOnboarding();
-    router.replace('/');
-  };
+  // 음성 인식 시작
+  const handleVoiceStart = useCallback(() => {
+    setVoiceStatus('listening');
+  }, []);
 
-  const getVoiceStatusText = () => {
-    switch (voiceStatus) {
-      case 'listening': return '듣고 있습니다...';
-      case 'recognized': return '"다음"을 인식했습니다! ✅';
-      case 'failed': return '클릭해서 진행하기';
-      default: return '';
+  // 음성 인식 종료
+  const handleVoiceEnd = useCallback(() => {
+    if (voiceStatus === 'listening') {
+      setVoiceStatus('idle');
     }
-  };
+  }, [voiceStatus]);
+
+  // cooking 상태인지 확인
+  const isCookingState = step2State === 'cooking';
 
   return (
     <StepContainer
       currentStep={currentStep}
-      onNext={() => {}}
+      onNext={moveToNextState}
       onPrev={() => {}}
-      onSkip={handleSkip}
+      onSkip={nextStep}
     >
-      <div className="text-center w-full max-w-md mx-auto min-h-[600px] flex flex-col items-center">
+      <div className="w-full max-w-md mx-auto relative min-h-[600px] flex flex-col items-center">
 
-        {/* Dynamic Title */}
-        <div className="mb-6 h-20">
+        {/* Title & Guide Text */}
+        <div className="text-center mb-6 z-10">
           <AnimatePresence mode="wait">
-            {viewState === 'result' ? (
-              <motion.div
-                key="title-result"
-                variants={fadeInOutVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('step2.result.title')}</h1>
-                <p className="text-gray-600">{t('step2.result.subtitle')}</p>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="title-voice"
-                variants={fadeInOutVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('step2.title')}</h1>
-                <p className="text-gray-600">{t('step2.subtitle')}</p>
-              </motion.div>
-            )}
+            <motion.div
+              key={`title-${step2State}`}
+              variants={fadeInVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.2 }}
+            >
+              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
+                {getTitle()}
+              </h1>
+              <p className="text-gray-600 text-sm lg:text-base">
+                {getGuide()}
+              </p>
+            </motion.div>
           </AnimatePresence>
         </div>
 
-        {/* Device Mockup */}
-        <div className="relative w-72 h-[500px] rounded-[2.5rem] shadow-2xl border-4 border-gray-100 overflow-hidden bg-white">
+        {/* Device Mockup Area */}
+        <div className="relative w-72 h-[500px] bg-black rounded-[2.5rem] shadow-2xl border-4 border-gray-100 overflow-hidden">
           <AnimatePresence mode="wait">
+            <motion.button
+              key={step2State}
+              variants={scaleInVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.3 }}
+              onClick={!isCookingState ? moveToNextState : undefined}
+              className="absolute inset-0 cursor-pointer active:scale-[0.98] transition-transform"
+              aria-label="다음 단계로 이동"
+            >
+              <Image
+                src={STEP_IMAGES[step2State]}
+                alt={`Step ${step2State}`}
+                fill
+                className="object-cover"
+                priority={step2State === 'summary'}
+              />
+            </motion.button>
+          </AnimatePresence>
 
-            {/* View 1: Recipe Detail (The Result) */}
-            {viewState === 'result' && (
-              <motion.div
-                key="view-result"
-                variants={zoomOutVariants}
-                initial="hidden"
-                animate="visible"
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 flex flex-col"
-              >
-                <Image
-                  src="/images/onboarding/app-recipe-detail.png"
-                  alt="Recipe Detail"
-                  fill
-                  className="object-cover"
-                  priority
-                />
-
-                {/* Floating Action Button to Trigger Voice Mode */}
-                <div className="absolute bottom-8 inset-x-0 flex justify-center">
-                  <motion.button
-                    variants={buttonFloatVariants}
-                    initial="hidden"
-                    animate="visible"
-                    transition={{ delay: 0.5, type: "spring" }}
-                    onClick={handleStartCookingClick}
-                    className="bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-lg flex items-center gap-2 hover:bg-orange-700 active:scale-95"
-                  >
-                    <span>{t('step2.result.button')}</span>
-                    <span>🍳</span>
-                  </motion.button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* View 2: Cooking Mode (The Utility) */}
-            {viewState === 'voice_mode' && (
-              <motion.div
-                key="view-voice"
-                variants={zoomOutVariants}
-                initial="hidden"
-                animate="visible"
-                className="absolute inset-0"
-              >
-                <Image
-                  src="/images/onboarding/app-cooking.png"
-                  alt="Cooking Mode"
-                  fill
-                  className="object-cover"
-                />
-
-                {/* Spotlight Overlay */}
-                <div className="absolute inset-0 bg-black/60 transition-opacity duration-1000" />
-
-                {/* Mic Interaction Area */}
-                <div className="absolute bottom-8 right-6 z-20 flex flex-col items-center">
-
-                  {/* Voice Status Feedback */}
-                  <AnimatePresence>
-                    {voiceStatus !== 'idle' && (
-                      <motion.div
-                        key="voice-status"
-                        variants={fadeInOutVariants}
-                        initial="hidden"
-                        animate="visible"
-                        exit="exit"
-                        className="absolute bottom-full mb-4 right-0 bg-white/95 backdrop-blur px-4 py-2 rounded-lg shadow-lg whitespace-nowrap"
-                      >
-                        <p className={`font-bold text-sm ${
-                          voiceStatus === 'failed' ? 'text-orange-600' : 'text-green-600'
-                        }`}>
-                          {getVoiceStatusText()}
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Tooltip */}
+          {/* Cooking 상태: 음성 인식 UI */}
+          {isCookingState && (
+            <>
+              {/* 음성 상태 피드백 */}
+              {voiceStatus !== 'idle' && (
+                <AnimatePresence>
                   <motion.div
-                    variants={fadeInOutVariants}
+                    key={`voice-status-${voiceStatus}`}
+                    variants={fadeInVariants}
                     initial="hidden"
                     animate="visible"
-                    transition={{ delay: 0.3 }}
-                    className="absolute bottom-full mb-3 right-0 bg-white text-orange-600 px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
+                    exit="exit"
+                    className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20"
                   >
-                    <p className="font-bold text-xs">{t('step2.voice.tooltip')}</p>
-                    <div className="absolute -bottom-1 right-6 w-2 h-2 bg-white rotate-45" />
+                    <div
+                      className={`px-4 py-2 rounded-lg shadow-lg whitespace-nowrap ${
+                        voiceStatus === 'failed'
+                          ? 'bg-orange-100 text-orange-600'
+                          : voiceStatus === 'recognized'
+                            ? 'bg-green-100 text-green-600'
+                            : 'bg-blue-100 text-blue-600'
+                      }`}
+                    >
+                      <p className="font-bold text-sm">{getVoiceStatusText()}</p>
+                    </div>
                   </motion.div>
+                </AnimatePresence>
+              )}
 
-                  {/* Mic Button & Ripple */}
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-orange-500/40 rounded-full animate-ping" />
-                    <OnboardingMicButton
-                      onNext={handleMicClick}
-                      onError={handleVoiceError}
-                    />
+              {/* Mic Button */}
+              <div className="absolute bottom-8 right-6 z-20 flex flex-col items-center">
+                <div className="relative">
+                  {/* Pulse animation */}
+                  <div className="absolute inset-0 bg-orange-500/40 rounded-full animate-ping" />
 
-                    {/* Success Ripple */}
-                    {isMicAnimating && (
-                      <motion.div
-                        initial={{ scale: 1, opacity: 0.8 }}
-                        animate={{ scale: 3, opacity: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="absolute inset-0 bg-white rounded-full z-[-1]"
-                      />
-                    )}
-                  </div>
+                  {/* Actual Mic Button with Speech Recognition */}
+                  <OnboardingMicButton
+                    onNext={handleVoiceNext}
+                    onError={handleVoiceError}
+                  />
+                </div>
 
-                  {/* Fallback Button (음성 인식 실패 시 또는 수동 진행용) */}
+                {/* Fallback Button */}
+                {voiceStatus === 'failed' && (
                   <motion.button
-                    variants={scaleInVariants}
+                    variants={fadeInVariants}
                     initial="hidden"
                     animate="visible"
-                    transition={{ delay: 0.5 }}
-                    onClick={handleManualNext}
+                    onClick={moveToNextState}
                     className="mt-4 text-xs text-white/80 hover:text-white underline decoration-dotted"
                   >
-                    클릭해서 다음으로
+                    {t('step2.cooking.fallback')}
                   </motion.button>
-                </div>
-              </motion.div>
-            )}
-
-          </AnimatePresence>
+                )}
+              </div>
+            </>
+          )}
         </div>
+
       </div>
     </StepContainer>
   );

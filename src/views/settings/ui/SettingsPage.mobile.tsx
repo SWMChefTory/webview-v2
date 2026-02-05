@@ -51,6 +51,18 @@ export function SettingsPageMobileLayout({
           </div>
         </div>
 
+        <div className="h-[16px]" />
+
+        {/* 온보딩 다시보기 */}
+        <div className="flex flex-row justify-between items-center px-4 py-3 rounded-xl bg-orange-50 cursor-pointer active:bg-orange-100 transition-colors"
+             onClick={navigation.resetOnboarding}>
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🔄</span>
+            <div className="text-lg text-orange-600 font-medium">{t("section.onboarding.reset")}</div>
+          </div>
+          <GoChevronRight className="size-4 text-orange-400" />
+        </div>
+
         <div className="h-[32px]" />
 
         <div className="flex flex-row gap-6 items-center justify-center">

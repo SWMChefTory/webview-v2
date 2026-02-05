@@ -1,0 +1,51 @@
+{
+  "common": {
+    "next": "다음",
+    "prev": "이전",
+    "skip": "나중에 다시 보기"
+  },
+  "step1": {
+    "title": "유튜브로 레시피 저장하기",
+    "subtitle": "좋아하는 요리사의 레시피를 바로 저장해보세요",
+    "value": "언제 어디서든 좋아하는 레시피를 바로 가져올 수 있어요",
+    "arrowClick": "유튜브 URL을 입력하면 레시피로 바로 변환해요",
+    "arrowIcon": "🔗",
+    "highlight": "입력란"
+  },
+  "step2": {
+    "title": "핸즈프리 요리 모드",
+    "subtitle": "요리 중에 손이 더러워져도 편하게 조작해보세요",
+    "value": "마이크 버튼으로 음성 명령을 해보세요",
+    "micButton": "마이크 버튼",
+    "tryNow": "지금 시도해보세요",
+    "instructions": {
+      "play": "재생",
+      "stop": "멈춤",
+      "next": "다음 단계",
+      "prev": "이전 단계",
+      "timestamp": "타임스탬프"
+    },
+    "commands": {
+      "play": "영상 틀어",
+      "stop": "영상 멈춰",
+      "next": "다음 단계",
+      "prev": "이전 단계",
+      "timestamp": "타임스탬프로 이동"
+    },
+    "micTutorial": "마이크 버튼을 클릭해보세요"
+  },
+  "step3": {
+    "title": "체험 완료!",
+    "subtitle": "유튜브 링크로 레시피 저장 + 요리 중 핸즈프리 조작",
+    "allFeatures": "모든 기능을 체험했습니다",
+    "startButton": "요리 모드로 바로 시작",
+    "motivation": "지금 바로 요리 모드를 시작해보세요",
+    "success": "✅"
+  },
+  "progress": {
+    "step1": "1/3",
+    "step2": "2/3",
+    "step3": "3/3"
+  },
+  "close": "닫기"
+}

@@ -7,7 +7,7 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { usePreventBack } from "../../hooks/usePreventBack";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 export function OnboardingStep3() {
@@ -21,30 +21,33 @@ export function OnboardingStep3() {
 
   // Prevent back button
   usePreventBack();
-  
+
+  // 온보딩 완료 후 라우팅 처리 (통합 함수)
+  const handleFinish = useCallback(() => {
+    completeOnboarding();
+    router.replace('/');
+  }, [completeOnboarding, router]);
+
   const handleSave = async () => {
     if (!url.trim()) return;
 
     setIsSaving(true);
     track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type: 'with_url', url });
-    
+
     // Mock save delay (1.5s)
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    completeOnboarding();
-    router.replace('/');
+
+    handleFinish();
   };
-  
+
   const handleExplore = () => {
     track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type: 'explore' });
-    completeOnboarding();
-    router.replace('/');
+    handleFinish();
   };
-  
+
   const handleSkip = () => {
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP);
-    completeOnboarding();
-    router.replace('/');
+    handleFinish();
   };
   
   return (
@@ -124,7 +127,7 @@ export function OnboardingStep3() {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="{t(step3.input.placeholder)}"
+            placeholder={t('step3.input.placeholder')}
             className="w-full px-5 py-4 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition outline-none text-gray-800 placeholder:text-gray-400 bg-gray-50/50 text-center"
             disabled={isSaving}
           />
@@ -147,11 +150,11 @@ export function OnboardingStep3() {
           {isSaving ? (
             <>
               <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span>{t(''step3.button.saving')}</span>
+              <span>{t('step3.button.saving')}</span>
             </>
           ) : (
             <>
-              <span>{t(''step3.button.save')}</span>
+              <span>{t('step3.button.save')}</span>
               <span>💾</span>
             </>
           )}
@@ -166,7 +169,7 @@ export function OnboardingStep3() {
           disabled={isSaving}
           className="py-2 px-4 text-gray-500 font-medium hover:text-orange-600 transition-colors text-sm border-b border-transparent hover:border-orange-200"
         >
-          {t(''step3.button.explore')}
+          {t('step3.button.explore')}
         </motion.button>
 
       </div>

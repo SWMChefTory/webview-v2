@@ -10,7 +10,18 @@
     "value": "언제 어디서든 좋아하는 레시피를 바로 가져올 수 있어요",
     "arrowClick": "유튜브 URL을 입력하면 레시피로 바로 변환해요",
     "arrowIcon": "🔗",
-    "highlight": "입력란"
+    "highlight": "입력란",
+    "simulation": {
+      "selectApp": "Cheftory를 선택하세요!",
+      "analyzing": "AI가 레시피를 분석 중...",
+      "guide": {
+        "initial": "유튜브 보다가 이 버튼만 누르면 끝!",
+        "sheet": "공유 시트에서 쉐프토리를 찾아주세요.",
+        "analyzing": "영상에서 재료와 조리법을 추출하고 있어요.",
+        "clicked": "✨ 링크를 클릭해주세요!"
+      },
+      "tooltip": "공유하기로 저장!"
+    }
   },
   "step2": {
     "title": "핸즈프리 요리 모드",
@@ -18,6 +29,14 @@
     "value": "마이크 버튼으로 음성 명령을 해보세요",
     "micButton": "마이크 버튼",
     "tryNow": "지금 시도해보세요",
+    "result": {
+      "title": "짜잔! 레시피북 완성 ✨",
+      "subtitle": "AI가 영상 내용을 깔끔하게 정리했어요.",
+      "button": "요리 시작하기"
+    },
+    "voice": {
+      "tooltip": "\"다음 단계!\"라고 말해보세요"
+    },
     "instructions": {
       "play": "재생",
       "stop": "멈춤",
@@ -40,7 +59,15 @@
     "allFeatures": "모든 기능을 체험했습니다",
     "startButton": "요리 모드로 바로 시작",
     "motivation": "지금 바로 요리 모드를 시작해보세요",
-    "success": "✅"
+    "success": "✅",
+    "input": {
+      "placeholder": "유튜브 링크를 붙여넣으세요"
+    },
+    "button": {
+      "saving": "저장 중...",
+      "save": "레시피 저장하고 시작하기",
+      "explore": "인기 레시피 둘러보기"
+    }
   },
   "progress": {
     "step1": "1/3",

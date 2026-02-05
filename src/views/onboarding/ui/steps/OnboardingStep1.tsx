@@ -39,11 +39,9 @@ export function OnboardingStep1() {
   const { nextStep, prevStep, currentStep } = useOnboardingStore();
 
   const [step1State, setStep1State] = useState<Step1State>('youtube');
-
-  // 현재 상태 인덱스
   const currentIndex = STEP_ORDER.indexOf(step1State);
 
-  // 타이틀 텍스트
+  // 타이틀 텍스트 - 간소화
   const getTitle = useCallback((): string => {
     switch (step1State) {
       case 'youtube':
@@ -54,20 +52,6 @@ export function OnboardingStep1() {
         return t('step1.create_confirm.title');
       case 'home_saved':
         return t('step1.home_saved.title');
-    }
-  }, [step1State, t]);
-
-  // 가이드 텍스트
-  const getGuide = useCallback((): string => {
-    switch (step1State) {
-      case 'youtube':
-        return t('step1.youtube.guide');
-      case 'share_sheet':
-        return t('step1.share_sheet.guide');
-      case 'create_confirm':
-        return t('step1.create_confirm.guide');
-      case 'home_saved':
-        return t('step1.home_saved.guide');
     }
   }, [step1State, t]);
 
@@ -82,10 +66,7 @@ export function OnboardingStep1() {
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep1State(STEP_ORDER[currentIndex + 1]);
     } else {
-      // 마지막 상태에서는 Step 2로 이동
-      setTimeout(() => {
-        nextStep();
-      }, 300);
+      setTimeout(() => nextStep(), 200);
     }
   }, [currentIndex, step1State, currentStep, nextStep]);
 
@@ -94,7 +75,6 @@ export function OnboardingStep1() {
     if (currentIndex > 0) {
       setStep1State(STEP_ORDER[currentIndex - 1]);
     } else {
-      // 첫 상태에서는 Step 이동
       prevStep();
     }
   }, [currentIndex, prevStep]);
@@ -106,36 +86,26 @@ export function OnboardingStep1() {
       onPrev={moveToPrevState}
       onSkip={nextStep}
     >
-      <div className="w-full max-w-md mx-auto flex flex-col items-center">
+      <div className="w-full flex flex-col items-center justify-center gap-3">
+        {/* Title - 간소화 */}
+        <AnimatePresence mode="wait">
+          <motion.h1
+            key={`title-${step1State}`}
+            variants={fadeInVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.15 }}
+            className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
+          >
+            {getTitle()}
+          </motion.h1>
+        </AnimatePresence>
 
-        {/* Title & Guide Text + 현재 단계 표시 */}
-        <div className="text-center mb-6 z-10">
-          <div className="text-xs text-gray-400 mb-2">
-            {currentIndex + 1} / {STEP_ORDER.length}
-          </div>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={`title-${step1State}`}
-              variants={fadeInVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.2 }}
-            >
-              <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                {getTitle()}
-              </h1>
-              <p className="text-gray-600 text-sm lg:text-base">
-                {getGuide()}
-              </p>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
-        {/* Image Area - 목업 프레임 제거 */}
+        {/* Image Area - 크기 축소 */}
         <motion.button
           onClick={moveToNextState}
-          className="relative w-full max-w-sm mx-auto cursor-pointer active:scale-[0.98] transition-transform"
+          className="relative w-[200px] cursor-pointer active:scale-[0.98] transition-transform"
           aria-label="다음 단계로 이동"
         >
           <AnimatePresence mode="wait">
@@ -145,26 +115,32 @@ export function OnboardingStep1() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15 }}
               className="relative w-full"
-              style={{ aspectRatio: '9/19.5' }} // iPhone 비율
+              style={{ aspectRatio: '9/19.5' }}
             >
               <Image
                 src={STEP_IMAGES[step1State]}
                 alt={`Step ${step1State}`}
                 fill
                 className="object-contain"
-                priority // 모든 이미지 프리로딩
+                priority
               />
             </motion.div>
           </AnimatePresence>
         </motion.button>
 
-        {/* 터치 가이드 */}
-        <p className="text-xs text-gray-400 mt-4">
-          화면을 터치하거나 아래 버튼을 눌러주세요
-        </p>
-
+        {/* 현재 단계 표시 - 동그라미 */}
+        <div className="flex gap-1.5">
+          {STEP_ORDER.map((_, idx) => (
+            <div
+              key={idx}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                idx === currentIndex ? 'bg-orange-500 w-4' : 'bg-gray-200 w-1.5'
+              }`}
+            />
+          ))}
+        </div>
       </div>
     </StepContainer>
   );

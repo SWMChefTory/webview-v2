@@ -5,7 +5,7 @@ import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useState, useCallback } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
 
 // Step 2 상태 타입
@@ -28,15 +28,20 @@ const scaleInVariants = {
 };
 
 // 슬라이드 애니메이션 variants (방향성 있음)
+interface SlideCustom {
+  direction: number;
+  shouldAnimate: boolean;
+}
+
 const slideXVariants = {
-  hidden: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? 50 : -50,
+  hidden: (custom: SlideCustom) => ({
+    opacity: custom.shouldAnimate ? 0 : 1,
+    x: custom.shouldAnimate ? (custom.direction > 0 ? 50 : -50) : 0,
   }),
   visible: { opacity: 1, x: 0 },
-  exit: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? -50 : 50,
+  exit: (custom: SlideCustom) => ({
+    opacity: custom.shouldAnimate ? 0 : 1,
+    x: custom.shouldAnimate ? (custom.direction > 0 ? -50 : 50) : 0,
   }),
 };
 
@@ -63,6 +68,16 @@ export function OnboardingStep2() {
   const prevIndex = prevStep2State !== null ? STEP_ORDER.indexOf(prevStep2State) : 0;
   // 방향: 1 = forward, -1 = backward, 0 = initial
   const direction = prevStep2State === null ? 0 : currentIndex > prevIndex ? 1 : currentIndex < prevIndex ? -1 : 0;
+
+  // 접근성: reduced-motion 체크
+  const prefersReducedMotion = useReducedMotion();
+  const shouldAnimate = !prefersReducedMotion;
+
+  // 애니메이션 설정 (reduced-motion 고려)
+  const transitionConfig = {
+    duration: shouldAnimate ? 0.25 : 0,
+    ease: shouldAnimate ? [0.25, 0.1, 0.25, 1] as const : undefined,
+  };
 
   // 햅틱 피드백
   const triggerHaptic = useCallback(() => {
@@ -172,15 +187,15 @@ export function OnboardingStep2() {
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
         {/* Title */}
-        <AnimatePresence mode="wait" custom={direction}>
+        <AnimatePresence mode="sync" initial={false}>
           <motion.h1
             key={`title-${step2State}`}
             variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            custom={direction}
-            transition={{ duration: 0.25 }}
+            custom={{ direction, shouldAnimate }}
+            transition={transitionConfig}
             className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
           >
             {getTitle()}
@@ -188,15 +203,15 @@ export function OnboardingStep2() {
         </AnimatePresence>
 
         {/* Subtitle */}
-        <AnimatePresence mode="wait" custom={direction}>
+        <AnimatePresence mode="sync" initial={false}>
           <motion.p
             key={`subtitle-${step2State}`}
             variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            custom={direction}
-            transition={{ duration: 0.25 }}
+            custom={{ direction, shouldAnimate }}
+            transition={transitionConfig}
             className="text-sm text-gray-500 text-center px-4"
           >
             {getSubtitle()}
@@ -206,23 +221,25 @@ export function OnboardingStep2() {
         {/* Image Area */}
         <motion.button
           onClick={!isCookingState ? moveToNextState : undefined}
-          whileHover={!isCookingState ? { scale: 1.02 } : undefined}
-          whileTap={!isCookingState ? { scale: 0.96 } : undefined}
-          className={`relative w-[280px] h-[580px] cursor-pointer transition-transform rounded-2xl ${
-            !isCookingState && currentIndex < STEP_ORDER.length - 1 ? 'ring-2 ring-orange-500/50 animate-pulse' : ''
+          whileHover={!isCookingState && shouldAnimate ? { scale: 1.02 } : undefined}
+          whileTap={!isCookingState && shouldAnimate ? { scale: 0.96 } : undefined}
+          className={`relative w-[280px] h-[580px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
+            !isCookingState && currentIndex < STEP_ORDER.length - 1 ? 'ring-1 ring-orange-500/30' : ''
           }`}
-          aria-label="다음 단계로 이동"
+          aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. ${!isCookingState ? '터치하여 다음으로 이동.' : '음성으로 다음으로 이동.'}`}
+          aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >
-          <AnimatePresence mode="wait" custom={direction}>
+          <AnimatePresence mode="sync" initial={false}>
             <motion.div
               key={step2State}
               variants={slideXVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              custom={direction}
-              transition={{ duration: 0.3 }}
+              custom={{ direction, shouldAnimate }}
+              transition={{ ...transitionConfig, duration: shouldAnimate ? 0.3 : 0 }}
               className="relative w-full h-full rounded-2xl overflow-hidden"
+              style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
             >
               <Image
                 src={STEP_IMAGES[step2State]}
@@ -236,7 +253,7 @@ export function OnboardingStep2() {
         </motion.button>
 
         {/* 현재 단계 표시 - 번호 있는 인디케이터 */}
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
           {STEP_ORDER.map((_, idx) => (
             <div
               key={idx}
@@ -247,6 +264,8 @@ export function OnboardingStep2() {
                     ? 'bg-orange-200 text-orange-700'
                     : 'bg-gray-200 text-gray-400'
               }`}
+              aria-label={`${idx + 1}단계 ${idx === currentIndex ? '현재' : idx < currentIndex ? '완료' : '미진행'}`}
+              aria-current={idx === currentIndex ? 'true' : undefined}
             >
               {idx + 1}
             </div>

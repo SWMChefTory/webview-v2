@@ -25,7 +25,7 @@ const RecipeCardSkeleton = () => (
 
 export function OnboardingStep3() {
   const { t } = useOnboardingTranslation();
-  const { completeOnboarding } = useOnboardingStore();
+  const { completeOnboarding, prevStep } = useOnboardingStore();
   const { currentStep } = useOnboardingNavigation();
   const router = useRouter();
 
@@ -68,7 +68,7 @@ export function OnboardingStep3() {
     <StepContainer
       currentStep={currentStep}
       onNext={() => {}} // Custom handling in button
-      onPrev={() => {}}
+      onPrev={prevStep}
       onSkip={handleExplore}
       hideNextButton={true}
     >
@@ -232,6 +232,11 @@ export function OnboardingStep3() {
             <span>인기 레시피 더보기</span>
             <span aria-hidden="true">→</span>
           </Link>
+
+          {/* Tutorial Notice */}
+          <p className="text-[10px] text-gray-400 text-center mt-1">
+            나중에 설정 &gt; 튜토리얼에서 다시 볼 수 있어요
+          </p>
         </motion.div>
 
       </div>

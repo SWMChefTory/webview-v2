@@ -30,7 +30,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
                 isActive
                   ? 'bg-orange-500 text-white'
                   : isCompleted
-                    ? 'bg-green-500 text-white'
+                    ? 'bg-orange-200 text-orange-600'
                     : 'bg-gray-200 text-gray-500'
               }`}
               aria-current={isActive ? 'step' : undefined}
@@ -42,7 +42,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
             {/* Step label */}
             <span
               className={`ml-2 text-sm font-medium ${
-                isActive ? 'text-orange-600' : isCompleted ? 'text-green-600' : 'text-gray-400'
+                isActive ? 'text-orange-600' : isCompleted ? 'text-orange-500' : 'text-gray-400'
               }`}
             >
               {t(step.labelKey)}
@@ -52,7 +52,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
             {index < steps.length - 1 && (
               <div
                 className={`flex-1 h-0.5 mx-2 ${
-                  index < currentIndex ? 'bg-green-500' : 'bg-gray-200'
+                  index < currentIndex ? 'bg-orange-300' : 'bg-gray-200'
                 }`}
                 aria-hidden="true"
               />

@@ -23,10 +23,9 @@ export function ClipboardStep() {
   // 표시용 링크 (홈페이지)
   const displayLink = "https://www.cheftories.com";
 
-  // 실제 복사될 콘텐츠 (서비스 소개 + 초대 링크)
+  // 실제 복사될 콘텐츠 (서비스 소개 + 홈페이지 링크)
   const getShareContent = () => {
-    const inviteLink = `https://chef.co.kr/invite/${userId}`;
-    return `🍳 셰프토리에서 레시피 공유하고 맛있는 요리를 만들어보세요!\n\n나만의 레시피를 정리하고, 친구들과 공유하며 요리 실력을 UP!\n\n지금 바로 시작해보세요 👇\n${inviteLink}`;
+    return `🍳 셰프토리에서 레시피 공유하고 맛있는 요리를 만들어보세요!\n\n나만의 레시피를 정리하고, 친구들과 공유하며 요리 실력을 UP!\n\n지금 바로 시작해보세요 👇\nhttps://www.cheftories.com`;
   };
 
   // 남은 충전 횟수

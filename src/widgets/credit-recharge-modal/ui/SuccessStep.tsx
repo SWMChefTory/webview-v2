@@ -65,15 +65,13 @@ export function SuccessStep() {
           <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
-          <Image
-            src="/images/tory/tory_welcome.png"
-            alt="토리 캐릭터"
-            width={64}
-            height={64}
-            className="object-contain"
-          />
-        </div>
+        <Image
+          src="/images/tory/tory_welcome.png"
+          alt="토리 캐릭터"
+          width={64}
+          height={64}
+          className="object-contain"
+        />
       )}
 
       {/* Title */}
@@ -97,8 +95,8 @@ export function SuccessStep() {
             </div>
           </div>
         ) : (
-          <>
-            <div className="flex items-center justify-center gap-2 p-3 bg-red-50 rounded-xl">
+          <div className="text-center">
+            <div className="flex items-center justify-center gap-2">
               <Image
                 src="/images/berry/berry.png"
                 alt="베리"
@@ -106,21 +104,12 @@ export function SuccessStep() {
                 height={24}
                 className="object-contain"
               />
-              <div>
-                {/* 동적 충전량 표시 */}
-                <p className="text-xl lg:text-2xl font-bold text-red-500">
-                  +{rechargeResult?.amount ?? 10}
-                </p>
-                <p className="text-xs text-gray-600">{t('success.creditAdded')}</p>
-              </div>
-            </div>
-
-            <div className="mt-2 text-center">
-              <p className="text-sm text-gray-600">
-                {t('success.currentBalance', { balance: data?.balance ?? 0 })}
+              <p className="text-lg text-gray-700">
+                <span className="font-bold text-orange-500">+{rechargeResult?.amount ?? 10}</span>
+                {t('success.creditAdded')} {t('success.currentBalance', { balance: data?.balance ?? 0 })}
               </p>
             </div>
-          </>
+          </div>
         )}
       </div>
 

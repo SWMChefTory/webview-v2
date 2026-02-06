@@ -60,7 +60,7 @@ export function ClipboardStep() {
   return (
     <div className="flex flex-col items-center justify-center h-full space-y-5">
       {/* Icon */}
-      <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+      <div className="w-16 h-16 flex items-center justify-center">
         <Image
           src="/images/tory/tory_welcome.png"
           alt="토리 캐릭터"

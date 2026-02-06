@@ -65,24 +65,15 @@ export function SuccessStep() {
           <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center justify-center gap-2">
           <Image
-            src="/images/tory/tory_welcome.png"
-            alt="토리 캐릭터"
-            width={64}
-            height={64}
+            src="/images/berry/berry.png"
+            alt="베리"
+            width={32}
+            height={32}
             className="object-contain"
           />
-          <div className="flex items-center gap-1.5">
-            <Image
-              src="/images/berry/berry.png"
-              alt="베리"
-              width={28}
-              height={28}
-              className="object-contain"
-            />
-            <span className="text-2xl font-bold text-red-500">+10</span>
-          </div>
+          <span className="text-2xl font-bold text-red-500">+10</span>
         </div>
       )}
 
@@ -108,7 +99,7 @@ export function SuccessStep() {
           </div>
         ) : (
           <div className="text-center">
-            <p className="text-base text-gray-700">
+            <p className="text-sm text-gray-600">
               {rechargeResult?.amount ?? 10}베리가 충전되었어요 현재 베리: {data?.balance ?? 0}
             </p>
           </div>

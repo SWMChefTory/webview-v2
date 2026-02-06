@@ -85,9 +85,9 @@ export function SuccessStep() {
         {isLoading ? (
           <div className="flex items-center justify-center gap-3 p-5 bg-orange-50 rounded-xl">
             <div className="w-7 h-7 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-xl font-bold text-orange-500">충전 처리 중...</p>
-              <p className="text-sm text-gray-600">카카오톡에서 공유를 완료하면 자동으로 충전됩니다</p>
+              <p className="text-sm text-gray-600 truncate">카카오톡 공유 완료 시 자동 충전됩니다</p>
             </div>
           </div>
         ) : (
@@ -96,8 +96,8 @@ export function SuccessStep() {
               <Image
                 src="/images/berry/berry.png"
                 alt="베리"
-                width={44}
-                height={44}
+                width={32}
+                height={32}
                 className="object-contain"
               />
               <div>
@@ -108,24 +108,6 @@ export function SuccessStep() {
                 <p className="text-sm text-gray-600">{t('success.creditAdded')}</p>
               </div>
             </div>
-
-            {/* 남은 충전 횟수 표시 */}
-            {rechargeResult && rechargeResult.remainingCount > 0 && (
-              <div className="mt-3 text-center">
-                <p className="text-gray-600">
-                  {t('success.remainingCount', { count: rechargeResult.remainingCount })}
-                </p>
-              </div>
-            )}
-
-            {/* 횟수 소진 시 메시지 */}
-            {rechargeResult && rechargeResult.remainingCount === 0 && (
-              <div className="mt-3 text-center">
-                <p className="text-orange-500 font-medium">
-                  {t('success.noRemainingCount')}
-                </p>
-              </div>
-            )}
 
             <div className="mt-3 text-center">
               <p className="text-gray-600">

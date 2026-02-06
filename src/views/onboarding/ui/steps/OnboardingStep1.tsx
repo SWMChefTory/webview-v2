@@ -6,6 +6,7 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 // Step 1 상태 타입
 type Step1State = 'youtube' | 'share_sheet' | 'create_confirm' | 'home_saved';
@@ -54,7 +55,8 @@ const STEP_ORDER: Step1State[] = ['youtube', 'share_sheet', 'create_confirm', 'h
 
 export function OnboardingStep1() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, prevStep, currentStep } = useOnboardingStore();
+  const { nextStep, prevStep, currentStep, completeOnboarding } = useOnboardingStore();
+  const router = useRouter();
 
   const [step1State, setStep1State] = useState<Step1State>('youtube');
   const [prevStep1State, setPrevStep1State] = useState<Step1State | null>(null);
@@ -67,9 +69,9 @@ export function OnboardingStep1() {
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
-  // 애니메이션 설정 (reduced-motion 고려)
+  // 애니메이션 설정 (Step 1: 빠른 전환)
   const transitionConfig = {
-    duration: shouldAnimate ? 0.25 : 0,
+    duration: shouldAnimate ? 0.15 : 0,
     ease: shouldAnimate ? [0.25, 0.1, 0.25, 1] as const : undefined,
   };
 
@@ -79,6 +81,16 @@ export function OnboardingStep1() {
       navigator.vibrate(10);
     }
   }, []);
+
+  // 건너락기: 바로 온보딩 완료
+  const handleSkip = useCallback(() => {
+    track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
+      step: currentStep,
+      step_count: 3,
+    });
+    completeOnboarding();
+    router.replace('/');
+  }, [currentStep, completeOnboarding, router]);
 
   // 타이틀 텍스트 - 간소화
   const getTitle = useCallback((): string => {
@@ -140,7 +152,7 @@ export function OnboardingStep1() {
       currentStep={currentStep}
       onNext={moveToNextState}
       onPrev={moveToPrevState}
-      onSkip={nextStep}
+      onSkip={handleSkip}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
         {/* Title */}
@@ -194,7 +206,7 @@ export function OnboardingStep1() {
               animate="visible"
               exit="exit"
               custom={{ direction, shouldAnimate }}
-              transition={{ ...transitionConfig, duration: shouldAnimate ? 0.3 : 0 }}
+              transition={transitionConfig}
               className="relative w-full h-full rounded-2xl overflow-hidden"
               style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
             >

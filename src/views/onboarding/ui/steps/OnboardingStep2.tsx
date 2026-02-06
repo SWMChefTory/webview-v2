@@ -7,6 +7,7 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 // Step 2 상태 타입
 type Step2State = 'summary' | 'ingredients' | 'steps' | 'cooking';
@@ -58,7 +59,8 @@ const STEP_ORDER: Step2State[] = ['summary', 'ingredients', 'steps', 'cooking'];
 
 export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, prevStep, currentStep } = useOnboardingStore();
+  const { nextStep, prevStep, currentStep, completeOnboarding } = useOnboardingStore();
+  const router = useRouter();
 
   const [step2State, setStep2State] = useState<Step2State>('summary');
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
@@ -75,7 +77,7 @@ export function OnboardingStep2() {
 
   // 애니메이션 설정 (reduced-motion 고려)
   const transitionConfig = {
-    duration: shouldAnimate ? 0.25 : 0,
+    duration: shouldAnimate ? 0.35 : 0,
     ease: shouldAnimate ? [0.25, 0.1, 0.25, 1] as const : undefined,
   };
 
@@ -85,6 +87,16 @@ export function OnboardingStep2() {
       navigator.vibrate(10);
     }
   }, []);
+
+  // 건너락기: 바로 온보딩 완료
+  const handleSkip = useCallback(() => {
+    track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
+      step: currentStep,
+      step_count: 3,
+    });
+    completeOnboarding();
+    router.replace('/');
+  }, [currentStep, completeOnboarding, router]);
 
   // 타이틀 텍스트 - 간소화
   const getTitle = useCallback((): string => {
@@ -183,11 +195,11 @@ export function OnboardingStep2() {
       currentStep={currentStep}
       onNext={moveToNextState}
       onPrev={moveToPrevState}
-      onSkip={nextStep}
+      onSkip={handleSkip}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
         {/* Title */}
-        <AnimatePresence mode="sync" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.h1
             key={`title-${step2State}`}
             variants={slideXVariants}
@@ -203,7 +215,7 @@ export function OnboardingStep2() {
         </AnimatePresence>
 
         {/* Subtitle */}
-        <AnimatePresence mode="sync" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.p
             key={`subtitle-${step2State}`}
             variants={slideXVariants}
@@ -229,7 +241,7 @@ export function OnboardingStep2() {
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. ${!isCookingState ? '터치하여 다음으로 이동.' : '음성으로 다음으로 이동.'}`}
           aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >
-          <AnimatePresence mode="sync" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={step2State}
               variants={slideXVariants}
@@ -237,7 +249,7 @@ export function OnboardingStep2() {
               animate="visible"
               exit="exit"
               custom={{ direction, shouldAnimate }}
-              transition={{ ...transitionConfig, duration: shouldAnimate ? 0.3 : 0 }}
+              transition={transitionConfig}
               className="relative w-full h-full rounded-2xl overflow-hidden"
               style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
             >

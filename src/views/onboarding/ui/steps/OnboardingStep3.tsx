@@ -153,7 +153,7 @@ export function OnboardingStep3() {
           {t('step3.subtitle')}
         </motion.p>
 
-        {/* 100 Berries Promotion Badge */}
+        {/* 50 Berries Promotion Badge */}
         <motion.div
           variants={fadeInUpVariants}
           initial="hidden"
@@ -162,7 +162,7 @@ export function OnboardingStep3() {
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-300"
         >
           <span className="text-xl">🎁</span>
-          <span className="text-sm font-semibold text-amber-800">100 베리를 드려요!</span>
+          <span className="text-sm font-semibold text-amber-800">50 베리를 드려요!</span>
         </motion.div>
 
         {/* Primary CTA: Start Cooking Mode */}
@@ -173,10 +173,10 @@ export function OnboardingStep3() {
           transition={{ delay: 0.5 }}
           onClick={handleStartCooking}
           className="w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
-          aria-label="요리 모드를 시작하고 홈으로 이동"
+          aria-label="바로 이용해보기"
         >
           <span aria-hidden="true">🍳</span>
-          <span>요리 모드 시작</span>
+          <span>바로 이용해보기</span>
         </motion.button>
 
         {/* Divider */}
@@ -256,6 +256,22 @@ export function OnboardingStep3() {
             <span aria-hidden="true">→</span>
           </Link>
         </motion.div>
+
+        {/* Skip Button - 설정 페이지 스타일 참고 */}
+        <motion.button
+          variants={fadeInUpVariants}
+          initial="hidden"
+          animate="visible"
+          transition={{ delay: 0.8 }}
+          onClick={handleExplore}
+          className="w-full max-w-[280px] flex items-center justify-between px-4 py-3 rounded-xl bg-orange-50 hover:bg-orange-100 active:bg-orange-100 transition-colors"
+          aria-label="나중에 하기"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-lg" aria-hidden="true">🏠</span>
+            <span className="text-base text-orange-600 font-medium">나중에 하기</span>
+          </div>
+        </motion.button>
 
       </div>
     </StepContainer>

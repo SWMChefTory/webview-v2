@@ -47,7 +47,7 @@ export function KakaoShareStep() {
       <div className="w-full">
         <button
           onClick={handleBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 -ml-3 text-gray-600 hover:text-gray-900 transition-colors"
           aria-label={t('kakao.backButton')}
         >
           <ArrowLeft size={18} />

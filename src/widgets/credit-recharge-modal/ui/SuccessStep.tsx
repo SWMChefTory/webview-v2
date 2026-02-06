@@ -50,7 +50,17 @@ export function SuccessStep() {
     }
 
     // 주기적 체크 (복귀 후 업데이트를 위해)
-    const interval = setInterval(checkResult, 1500);
+    const maxPollingTime = 5 * 60 * 1000; // 5 minutes
+    const startTime = Date.now();
+
+    const interval = setInterval(() => {
+      if (Date.now() - startTime > maxPollingTime) {
+        clearInterval(interval);
+        console.log('[Dev] Polling timeout - 5 minutes elapsed');
+        return;
+      }
+      checkResult();
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [isDev]);
@@ -99,9 +109,13 @@ export function SuccessStep() {
             </div>
           </div>
         ) : (
-          <div className="text-center">
+          <div className="text-center space-y-1">
             <p className="text-sm text-gray-600">
-              {rechargeResult?.amount ?? 10}베리가 충전되었어요 현재 베리: {data?.balance ?? 0}
+              <span className="font-semibold text-orange-500">{rechargeResult?.amount ?? 10}</span>
+              <span>베리가 충전되었어요</span>
+            </p>
+            <p className="text-xs text-gray-500">
+              현재 베리: <span className="font-semibold text-gray-900">{data?.balance ?? 0}</span>
             </p>
           </div>
         )}

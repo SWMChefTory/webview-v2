@@ -30,7 +30,7 @@ export function CreditRechargeModal() {
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1500] animate-in fade-in duration-300" />
         <Dialog.Content
-          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl lg:rounded-2xl animate-in slide-in-from-bottom duration-300 max-h-[92svh] lg:max-h-[85vh] flex flex-col shadow-2xl lg:max-w-[500px] lg:mx-auto lg:bottom-6"
+          className="fixed left-0 right-0 bottom-0 z-[2000] bg-white w-full rounded-t-3xl md:rounded-t-xl lg:rounded-2xl animate-in slide-in-from-bottom duration-300 max-h-[92svh] lg:max-h-[85vh] flex flex-col shadow-2xl md:max-w-[500px] lg:max-w-[560px] md:mx-auto md:bottom-4 lg:bottom-6"
           onTouchStart={dragHandlers.onTouchStart}
           onTouchMove={dragHandlers.onTouchMove}
           onTouchEnd={dragHandlers.onTouchEnd}
@@ -53,7 +53,7 @@ export function CreditRechargeModal() {
             <Dialog.Close asChild>
               <button
                 onClick={close}
-                className="absolute top-2 right-6 lg:right-8 p-2 lg:p-2.5 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                className="absolute top-2 right-6 lg:right-8 p-3 lg:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
                 aria-label={t('modal.close')}
               >
                 <X className="w-5 h-5 lg:w-6 lg:h-6 text-gray-500" />

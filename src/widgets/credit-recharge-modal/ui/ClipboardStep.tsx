@@ -8,6 +8,8 @@ import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import Image from "next/image";
 
+const DEFAULT_RECHARGE_COUNT = 10;
+
 export function ClipboardStep() {
   const { setStep } = useCreditRechargeModalStore();
   const [isCopying, setIsCopying] = useState(false);
@@ -16,7 +18,6 @@ export function ClipboardStep() {
 
   // Get actual user ID from user model
   const { user } = fetchUserModel();
-  const userId = user.tag; // Use user's 4-digit tag as ID
 
   // 표시용 링크 (홈페이지)
   const displayLink = "https://www.cheftories.com";
@@ -27,7 +28,7 @@ export function ClipboardStep() {
   };
 
   // 남은 충전 횟수
-  const remainingCount = data?.remainingRechargeCount ?? 10;
+  const remainingCount = data?.remainingRechargeCount ?? DEFAULT_RECHARGE_COUNT;
   const isDisabled = remainingCount <= 0;
 
   const handleCopy = useCallback(async () => {
@@ -85,7 +86,7 @@ export function ClipboardStep() {
           <button
             onClick={handleCopy}
             disabled={isCopying || isDisabled}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl font-semibold text-sm transition-colors ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl font-semibold text-sm transition-colors active:bg-orange-700 active:scale-95 ${
               isDisabled
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white'
@@ -93,7 +94,7 @@ export function ClipboardStep() {
             aria-label={t('clipboard.copyButton')}
             aria-disabled={isDisabled}
           >
-            <Copy size={14} />
+            <Copy size={16} />
             <span>{isCopying ? t('clipboard.copying') : t('clipboard.copyButton')}</span>
           </button>
         </div>

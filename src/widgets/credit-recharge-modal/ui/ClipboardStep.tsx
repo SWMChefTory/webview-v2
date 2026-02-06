@@ -2,8 +2,6 @@ import { useState, useCallback } from "react";
 import { Copy } from "lucide-react";
 import { useCreditRechargeModalStore } from "../creditRechargeModalStore";
 import { copyToClipboard } from "../utils/clipboard";
-import { track } from "@/src/shared/analytics/amplitude";
-import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { toast } from "sonner";
 import { fetchUserModel } from "@/src/views/settings/entities/user/model";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
@@ -43,10 +41,6 @@ export function ClipboardStep() {
     const shareContent = getShareContent();
     const result = await copyToClipboard(shareContent);
 
-    track(AMPLITUDE_EVENT.RECHARGE_CLIPBOARD_COPY, {
-      success: result.success
-    });
-
     if (result.success) {
       toast.success(t('clipboard.copySuccess'), { duration: 1500 });
       setTimeout(() => setStep('kakao'), 500);
@@ -55,7 +49,7 @@ export function ClipboardStep() {
     }
 
     setIsCopying(false);
-  }, [setStep, t, isDisabled, userId]);
+  }, [setStep, t, isDisabled]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full space-y-5">

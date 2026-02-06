@@ -210,12 +210,6 @@ export const enum AMPLITUDE_EVENT {
   // 친구 초대 크레딧 충전 흐름 추적
   // ─────────────────────────────────────────────────────────────
 
-  /** 충전 모달 열림 */
-  RECHARGE_MODAL_OPEN = "recharge_modal_open",
-
-  /** 클립보드 복사 버튼 클릭 */
-  RECHARGE_CLIPBOARD_COPY = "recharge_clipboard_copy",
-
   /** 카카오톡 공유 버튼 클릭 */
   RECHARGE_KAKAO_CLICK = "recharge_kakao_click",
 

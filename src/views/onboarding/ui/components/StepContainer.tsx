@@ -7,6 +7,7 @@ interface StepContainerProps {
   onNext: () => void;
   onPrev: () => void;
   onSkip: () => void;
+  hideNextButton?: boolean; // 마지막 단계에서 "다음" 버튼 숨기기
 }
 
 export function StepContainer({
@@ -14,7 +15,8 @@ export function StepContainer({
   currentStep,
   onNext,
   onPrev,
-  onSkip
+  onSkip,
+  hideNextButton,
 }: StepContainerProps) {
   const { t } = useOnboardingTranslation();
 
@@ -63,12 +65,14 @@ export function StepContainer({
           {t('common.prev')}
         </button>
 
-        <button
-          onClick={onNext}
-          className="px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
-        >
-          {t('common.next')}
-        </button>
+        {!hideNextButton && (
+          <button
+            onClick={onNext}
+            className="px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
+          >
+            {t('common.next')}
+          </button>
+        )}
       </div>
     </div>
   );

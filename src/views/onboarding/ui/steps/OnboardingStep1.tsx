@@ -24,22 +24,11 @@ const scaleInVariants = {
   exit: { opacity: 0, scale: 0.98 },
 };
 
-// 슬라이드 애니메이션 variants (방향성 있음)
-interface SlideCustom {
-  direction: number;
-  shouldAnimate: boolean;
-}
-
-const slideXVariants = {
-  hidden: (custom: SlideCustom) => ({
-    opacity: custom.shouldAnimate ? 0 : 1,
-    x: custom.shouldAnimate ? (custom.direction > 0 ? 50 : -50) : 0,
-  }),
-  visible: { opacity: 1, x: 0 },
-  exit: (custom: SlideCustom) => ({
-    opacity: custom.shouldAnimate ? 0 : 1,
-    x: custom.shouldAnimate ? (custom.direction > 0 ? -50 : 50) : 0,
-  }),
+// fade-only variants (Step 1: 빠르고 부드러운 전환)
+const fadeOnlyVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
 // 각 상태별 이미지 경로
@@ -159,11 +148,10 @@ export function OnboardingStep1() {
         <AnimatePresence mode="sync" initial={false}>
           <motion.h1
             key={`title-${step1State}`}
-            variants={slideXVariants}
+            variants={fadeOnlyVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
             className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
           >
@@ -175,11 +163,10 @@ export function OnboardingStep1() {
         <AnimatePresence mode="sync" initial={false}>
           <motion.p
             key={`subtitle-${step1State}`}
-            variants={slideXVariants}
+            variants={fadeOnlyVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
             className="text-sm text-gray-500 text-center px-4"
           >
@@ -201,14 +188,13 @@ export function OnboardingStep1() {
           <AnimatePresence mode="sync" initial={false}>
             <motion.div
               key={step1State}
-              variants={slideXVariants}
+              variants={fadeOnlyVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
-              custom={{ direction, shouldAnimate }}
               transition={transitionConfig}
               className="relative w-full h-full rounded-2xl overflow-hidden"
-              style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
+              style={{ willChange: shouldAnimate ? 'opacity' : 'auto' }}
             >
               <Image
                 src={STEP_IMAGES[step1State]}

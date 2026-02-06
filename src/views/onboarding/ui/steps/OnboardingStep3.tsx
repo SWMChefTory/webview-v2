@@ -79,6 +79,7 @@ export function OnboardingStep3() {
       onNext={() => {}} // Custom handling in button
       onPrev={() => {}}
       onSkip={handleExplore}
+      hideNextButton={true}
     >
       <div className="w-full max-w-sm mx-auto flex flex-col items-center gap-3 px-2">
 

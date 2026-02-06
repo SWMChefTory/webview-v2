@@ -53,14 +53,17 @@ export function SettingsPageMobileLayout({
 
         <div className="h-[16px]" />
 
-        {/* 온보딩 다시보기 */}
-        <div className="flex flex-row justify-between items-center px-4 py-3 rounded-xl bg-orange-50 cursor-pointer active:bg-orange-100 transition-colors"
-             onClick={navigation.resetOnboarding}>
-          <div className="flex items-center gap-2">
-            <span className="text-xl">🔄</span>
-            <div className="text-lg text-orange-600 font-medium">{t("section.onboarding.reset")}</div>
+        {/* 튜토리얼 섹션 - 온보딩 다시보기 포함 */}
+        <div className="flex flex-col gap-2 px-2">
+          <div className="text-gray-500 pb-2">튜토리얼</div>
+          <div className="flex flex-col gap-1 px-2">
+            <div
+              className="flex flex-row justify-between items-center px-2 py-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+              onClick={navigation.resetOnboarding}
+            >
+              <div className="text-base text-gray-700">온보딩 다시 하기</div>
+            </div>
           </div>
-          <GoChevronRight className="size-4 text-orange-400" />
         </div>
 
         <div className="h-[32px]" />

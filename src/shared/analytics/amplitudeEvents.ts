@@ -204,4 +204,18 @@ export const enum AMPLITUDE_EVENT {
   // ─────────────────────────────────────────────────────────────
 
   RECHARGE_CLICK = "recharge_click",
+
+  // ─────────────────────────────────────────────────────────────
+  // 크레딧 충전 (Credit Recharge)
+  // 친구 초대 크레딧 충전 흐름 추적
+  // ─────────────────────────────────────────────────────────────
+
+  /** 카카오톡 공유 버튼 클릭 */
+  RECHARGE_KAKAO_CLICK = "recharge_kakao_click",
+
+  /** 충전 완료 (카카오톡 복귀 후) */
+  RECHARGE_COMPLETE = "recharge_complete",
+
+  /** 충전 오류 발생 */
+  RECHARGE_ERROR = "recharge_error",
 }

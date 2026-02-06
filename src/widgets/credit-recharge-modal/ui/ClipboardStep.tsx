@@ -19,7 +19,15 @@ export function ClipboardStep() {
   // Get actual user ID from user model
   const { user } = fetchUserModel();
   const userId = user.tag; // Use user's 4-digit tag as ID
-  const inviteLink = `https://chef.co.kr/invite/${userId}`;
+
+  // 표시용 링크 (홈페이지)
+  const displayLink = "https://www.cheftories.com";
+
+  // 실제 복사될 콘텐츠 (서비스 소개 + 초대 링크)
+  const getShareContent = () => {
+    const inviteLink = `https://chef.co.kr/invite/${userId}`;
+    return `🍳 셰프토리에서 레시피 공유하고 맛있는 요리를 만들어보세요!\n\n나만의 레시피를 정리하고, 친구들과 공유하며 요리 실력을 UP!\n\n지금 바로 시작해보세요 👇\n${inviteLink}`;
+  };
 
   // 남은 충전 횟수
   const remainingCount = data?.remainingRechargeCount ?? 10;
@@ -33,7 +41,8 @@ export function ClipboardStep() {
     }
 
     setIsCopying(true);
-    const result = await copyToClipboard(inviteLink);
+    const shareContent = getShareContent();
+    const result = await copyToClipboard(shareContent);
 
     track(AMPLITUDE_EVENT.RECHARGE_CLIPBOARD_COPY, {
       success: result.success
@@ -47,43 +56,43 @@ export function ClipboardStep() {
     }
 
     setIsCopying(false);
-  }, [inviteLink, setStep, t, isDisabled]);
+  }, [setStep, t, isDisabled, userId]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-8">
+    <div className="flex flex-col items-center justify-center h-full space-y-5">
       {/* Icon */}
-      <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+      <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
         <Image
           src="/images/tory/tory_welcome.png"
           alt="토리 캐릭터"
-          width={80}
-          height={80}
+          width={64}
+          height={64}
           className="object-contain"
         />
       </div>
 
       {/* Title */}
-      <div className="text-center space-y-2">
-        <h2 className="text-xl lg:text-2xl font-bold">{t('clipboard.title')}</h2>
-        <p className="text-gray-600 whitespace-pre-line">
+      <div className="text-center space-y-1">
+        <h2 className="text-lg lg:text-xl font-bold">{t('clipboard.title')}</h2>
+        <p className="text-sm text-gray-600 whitespace-pre-line">
           {t('clipboard.description')}
         </p>
       </div>
 
       {/* Invite Link */}
       <div className="w-full">
-        <div className="flex items-center gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200">
+        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
           <input
             type="text"
-            value={inviteLink}
+            value={displayLink}
             readOnly
-            className="flex-1 bg-transparent text-base text-gray-700 outline-none"
+            className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
             aria-label={t('clipboard.inviteLinkLabel')}
           />
           <button
             onClick={handleCopy}
             disabled={isCopying || isDisabled}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-colors ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
               isDisabled
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white'
@@ -91,14 +100,9 @@ export function ClipboardStep() {
             aria-label={t('clipboard.copyButton')}
             aria-disabled={isDisabled}
           >
-            <Copy size={16} />
+            <Copy size={14} />
             <span>{isCopying ? t('clipboard.copying') : t('clipboard.copyButton')}</span>
           </button>
-        </div>
-
-        {/* 남은 횟수 표시 */}
-        <div className="mt-3 text-center text-gray-500">
-          {t('clipboard.remainingCount', { count: remainingCount })}
         </div>
       </div>
     </div>

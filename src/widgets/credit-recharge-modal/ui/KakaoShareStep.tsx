@@ -42,7 +42,7 @@ export function KakaoShareStep() {
   }, [setStep]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-8">
+    <div className="flex flex-col items-center justify-center h-full space-y-5">
       {/* Back Button */}
       <div className="w-full">
         <button
@@ -50,20 +50,20 @@ export function KakaoShareStep() {
           className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
           aria-label={t('kakao.backButton')}
         >
-          <ArrowLeft size={20} />
+          <ArrowLeft size={18} />
           <span className="text-sm font-medium">{t('kakao.backButton')}</span>
         </button>
       </div>
 
       {/* Icon */}
-      <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center">
-        <RiKakaoTalkFill size={48} className="text-yellow-500" />
+      <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+        <RiKakaoTalkFill size={40} className="text-yellow-500" />
       </div>
 
       {/* Title */}
-      <div className="text-center space-y-2">
-        <h2 className="text-xl lg:text-2xl font-bold">{t('kakao.title')}</h2>
-        <p className="text-gray-600 whitespace-pre-line">
+      <div className="text-center space-y-1">
+        <h2 className="text-lg lg:text-xl font-bold">{t('kakao.title')}</h2>
+        <p className="text-sm text-gray-600 whitespace-pre-line">
           {t('kakao.description')}
         </p>
       </div>
@@ -71,12 +71,12 @@ export function KakaoShareStep() {
       {/* Kakao Share Button */}
       <button
         onClick={handleKakaoShare}
-        className="w-full max-w-[320px] py-4 rounded-xl flex items-center justify-center gap-3 transition-transform active:scale-95"
+        className="w-full max-w-[260px] py-3 rounded-xl flex items-center justify-center gap-2 transition-transform active:scale-95"
         style={{ backgroundColor: '#FEE500' }}
         aria-label={t('kakao.shareButton')}
       >
-        <RiKakaoTalkFill size={24} className="text-black/85" />
-        <span className="text-lg font-semibold text-black/85">{t('kakao.shareButton')}</span>
+        <RiKakaoTalkFill size={20} className="text-black/85" />
+        <span className="text-base font-semibold text-black/85">{t('kakao.shareButton')}</span>
       </button>
     </div>
   );

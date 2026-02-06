@@ -58,59 +58,65 @@ export function SuccessStep() {
   const isLoading = !rechargeResult;
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-6">
+    <div className="flex flex-col items-center justify-center h-full space-y-5">
       {/* Icon */}
-      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${isLoading ? 'bg-orange-100' : 'bg-green-100'}`}>
-        {isLoading ? (
-          <div className="w-7 h-7 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
-        ) : (
-          <div className="text-4xl flex items-center justify-center" role="img" aria-label="체크마크">
-            ✓
-          </div>
-        )}
-      </div>
+      {isLoading ? (
+        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-orange-100">
+          <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : (
+        <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center">
+          <Image
+            src="/images/tory/tory_welcome.png"
+            alt="토리 캐릭터"
+            width={64}
+            height={64}
+            className="object-contain"
+          />
+        </div>
+      )}
 
       {/* Title */}
-      <div className="text-center space-y-2">
-        <h2 className="text-xl lg:text-2xl font-bold">
+      <div className="text-center space-y-1">
+        <h2 className="text-lg lg:text-xl font-bold">
           {isLoading ? '공유 처리 중...' : t('success.title')}
         </h2>
-        <p className="text-gray-600">
-          {isLoading ? '카카오톡에서 공유를 완료해주세요' : t('success.description')}
+        <p className="text-sm text-gray-600">
+          {isLoading ? '카카오톡 공유 완료 시 자동 충전됩니다' : t('success.description')}
         </p>
       </div>
 
       {/* Credit Display */}
       <div className="w-full">
         {isLoading ? (
-          <div className="flex items-center justify-center gap-3 p-5 bg-orange-50 rounded-xl">
-            <div className="w-7 h-7 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex items-center justify-center gap-2 p-3 bg-orange-50 rounded-xl">
+            <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
             <div className="min-w-0 flex-1">
-              <p className="text-xl font-bold text-orange-500">충전 처리 중...</p>
-              <p className="text-sm text-gray-600 truncate">카카오톡 공유 완료 시 자동 충전됩니다</p>
+              <p className="text-lg font-bold text-orange-500">충전 처리 중...</p>
+              <p className="text-xs text-gray-600 truncate">카카오톡 공유 완료 시 자동 충전됩니다</p>
             </div>
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-center gap-3 p-5 bg-red-50 rounded-xl">
+            <div className="flex items-center justify-center gap-2 p-3 bg-red-50 rounded-xl">
               <Image
                 src="/images/berry/berry.png"
                 alt="베리"
-                width={32}
-                height={32}
+                width={24}
+                height={24}
                 className="object-contain"
               />
               <div>
                 {/* 동적 충전량 표시 */}
-                <p className="text-2xl lg:text-3xl font-bold text-red-500">
+                <p className="text-xl lg:text-2xl font-bold text-red-500">
                   +{rechargeResult?.amount ?? 10}
                 </p>
-                <p className="text-sm text-gray-600">{t('success.creditAdded')}</p>
+                <p className="text-xs text-gray-600">{t('success.creditAdded')}</p>
               </div>
             </div>
 
-            <div className="mt-3 text-center">
-              <p className="text-gray-600">
+            <div className="mt-2 text-center">
+              <p className="text-sm text-gray-600">
                 {t('success.currentBalance', { balance: data?.balance ?? 0 })}
               </p>
             </div>
@@ -122,7 +128,7 @@ export function SuccessStep() {
       {!isLoading && (
         <button
           onClick={close}
-          className="w-full max-w-[280px] py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-colors active:scale-95"
+          className="w-full max-w-[260px] py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-colors active:scale-95"
           aria-label={t('success.confirmButton')}
         >
           {t('success.confirmButton')}

@@ -23,6 +23,7 @@ import {
 } from "@tanstack/react-query";
 import { RecipeCreatingView } from "@/src/widgets/recipe-creating-form/recipeCreatingForm";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
+import { CreditRechargeModal, useRechargeSession } from "@/src/widgets/credit-recharge-modal/ui";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
@@ -74,6 +75,9 @@ function AppInner({ Component, pageProps }: AppProps) {
     string | undefined
   >(undefined);
   const { isOnboardingCompleted } = useOnboardingStore();
+
+  // Recharge session hook - handles return from KakaoTalk
+  useRechargeSession();
 
   useEffect(() => {
     // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
@@ -164,6 +168,7 @@ function AppInner({ Component, pageProps }: AppProps) {
             <Toaster />
             <Component {...pageProps} />
             <RecipeCreatingView />
+            <CreditRechargeModal />
             {recipeDetailLinkUrl && (
               <RouteDialog
                 deepLinkUrl={recipeDetailLinkUrl}
@@ -290,6 +295,7 @@ const useInit = () => {
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
       const locale = params.get("locale");
+      const isRecharge = params.get("recharge");
 
       // 토큰이 있으면 localStorage에 저장
       if (accessToken && refreshToken) {
@@ -306,6 +312,13 @@ const useInit = () => {
         window.history.replaceState({}, document.title, cleanUrl);
 
         console.log("[WebView] Tokens saved from URL parameters");
+      }
+
+      // 충전 복귀 처리
+      if (isRecharge === "true") {
+        window.dispatchEvent(new CustomEvent('rechargeComplete'));
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, '', cleanUrl);
       }
     }
 

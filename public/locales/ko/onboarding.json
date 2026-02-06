@@ -5,6 +5,7 @@
     "skip": "건너뛰기"
   },
   "step1": {
+    "sectionLabel": "레시피 저장",
     "title": "유튜브로 레시피 저장하기",
     "subtitle": "좋아하는 요리사의 레시피를 바로 저장해보세요",
     "value": "언제 어디서든 좋아하는 레시피를 바로 가져올 수 있어요",
@@ -40,6 +41,7 @@
     }
   },
   "step2": {
+    "sectionLabel": "레시피 활용",
     "title": "핸즈프리 요리 모드",
     "subtitle": "요리 중에 손이 더러워져도 편하게 조작해보세요",
     "value": "마이크 버튼으로 음성 명령을 해보세요",
@@ -68,10 +70,11 @@
     "cooking": {
       "title": "핸즈프리 요리 모드",
       "guide": "\"다음\"이라고 말해보세요!",
-      "listening": "듣고 있습니다...",
-      "recognized": "\"다음\"을 인식했습니다!",
-      "failed": "클릭해서 다음으로",
-      "fallback": "클릭해서 다음으로"
+      "idle": "말해보세요",
+      "listening": "듣고 있어요...",
+      "recognized": "인식 완료!",
+      "failed": "다시 시도해주세요",
+      "fallback": "터치해서 넘기기"
     },
     "instructions": {
       "play": "재생",
@@ -87,7 +90,35 @@
       "prev": "이전 단계",
       "timestamp": "타임스탬프로 이동"
     },
-    "micTutorial": "마이크 버튼을 클릭해보세요"
+    "micTutorial": "마이크 버튼을 클릭해보세요",
+    "tooltip": {
+      "title": "핸즈프리 요리모드",
+      "description": "요리 중 손이 더러워도 음성 명령으로 자유롭게 조작할 수 있는 기능입니다.",
+      "closeHint": "다른 곳을 누르면 닫혀요",
+      "features": {
+        "voiceCommand": {
+          "title": "음성 명령",
+          "description": "\u201C다음 단계\u201D, \u201C이전 단계\u201D, \u201C동영상 재생/정지\u201D"
+        },
+        "sceneSearch": {
+          "title": "장면 검색",
+          "description": "\u201C양파 써는 장면으로 가줘\u201D - 자연어로 이동"
+        },
+        "timerControl": {
+          "title": "타이머 제어",
+          "description": "\u201C타이머 3분 시작\u201D - 음성으로 시간 설정"
+        },
+        "ingredientCheck": {
+          "title": "재료 확인",
+          "description": "\u201C양파 2개 필요해\u201D - 재료 정보 확인"
+        },
+        "loopMode": {
+          "title": "루프 모드",
+          "description": "현재 단계 자동 반복"
+        }
+      },
+      "ariaLabel": "핸즈프리 요리모드 기능 설명 보기"
+    }
   },
   "step3": {
     "title": "체험 완료!",
@@ -103,7 +134,8 @@
       "saving": "저장 중...",
       "save": "레시피 저장하고 시작하기",
       "explore": "인기 레시피 둘러보기"
-    }
+    },
+    "tutorialNotice": "나중에 설정 > 온보딩에서 다시 볼 수 있어요"
   },
   "progress": {
     "step1": "1/3",

@@ -5,6 +5,7 @@
     "skip": "Skip Later"
   },
   "step1": {
+    "sectionLabel": "Save Recipe",
     "title": "Save Recipes from YouTube",
     "subtitle": "Save your favorite recipes with a YouTube link",
     "value": "Get your favorite recipes anytime, anywhere",
@@ -13,6 +14,7 @@
     "highlight": "Input Field"
   },
   "step2": {
+    "sectionLabel": "Use Recipe",
     "title": "Hands-Free Cooking Mode",
     "subtitle": "Cook hands-free, even with dirty hands",
     "value": "Try voice commands with the mic button",
@@ -32,7 +34,47 @@
       "prev": "Previous step",
       "timestamp": "Go to timestamp"
     },
-    "micTutorial": "Click the mic button to try"
+    "micTutorial": "Click the mic button to try",
+    "summary": {
+      "title": "Recipe Summary",
+      "guide": "Check the recipe information"
+    },
+    "ingredients": {
+      "title": "Ingredients",
+      "guide": "Check the required ingredients"
+    },
+    "steps": {
+      "title": "Cooking Steps",
+      "guide": "Follow the step-by-step cooking instructions"
+    },
+    "tooltip": {
+      "title": "Hands-Free Cooking Mode",
+      "description": "Control hands-free with voice commands even when your hands are dirty.",
+      "closeHint": "Tap elsewhere to close",
+      "features": {
+        "voiceCommand": {
+          "title": "Voice Commands",
+          "description": "\u201CNext step\u201D, \u201CPrevious step\u201D, \u201CPlay/Pause video\u201D"
+        },
+        "sceneSearch": {
+          "title": "Scene Search",
+          "description": "\u201CGo to onion chopping scene\u201D - Navigate with natural language"
+        },
+        "timerControl": {
+          "title": "Timer Control",
+          "description": "\u201CStart timer for 3 minutes\u201D - Set time with voice"
+        },
+        "ingredientCheck": {
+          "title": "Check Ingredients",
+          "description": "\u201CI need 2 onions\u201D - Check ingredient info"
+        },
+        "loopMode": {
+          "title": "Loop Mode",
+          "description": "Auto-repeat current step"
+        }
+      },
+      "ariaLabel": "View hands-free cooking mode features"
+    }
   },
   "step3": {
     "title": "Experience Complete!",
@@ -40,7 +82,8 @@
     "allFeatures": "You've tried all features",
     "startButton": "Start Cooking Mode",
     "motivation": "Start cooking mode now",
-    "success": "✅"
+    "success": "✅",
+    "tutorialNotice": "You can view this again later in Settings > Onboarding"
   },
   "progress": {
     "step1": "1/3",

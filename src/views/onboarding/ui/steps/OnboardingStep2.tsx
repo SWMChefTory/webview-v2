@@ -1,16 +1,16 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { StepContainer } from "../components/StepContainer";
-import { StepProgressDots } from "../components/StepProgressDots";
 import { OnboardingMicButton } from "../components/OnboardingMicButton";
+import { HandsFreeModeTooltipCompact } from "../components/HandsFreeModeTooltip";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import { slideXVariants, SlideCustom, createSlideTransition, fadeOnlyVariants } from "../shared/animations";
+import { cn } from "@/lib/utils";
+import { slideXVariants, createSlideTransition } from "../shared/animations";
 import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
 
 // Step 2 상태 타입
@@ -27,83 +27,74 @@ const STEP_IMAGES: Record<Step2State, string> = {
   cooking: '/images/onboarding/app-cooking_home.png',
 };
 
+// 각 상태별 이미지 alt 텍스트
+const STEP_ALT: Record<Step2State, string> = {
+  summary: '레시피 요약 화면',
+  ingredients: '재료 목록 화면',
+  steps: '조리 단계 화면',
+  cooking: '쿠킹 모드 홈 화면',
+};
+
 // 상태 순서
 const STEP_ORDER: Step2State[] = ['summary', 'ingredients', 'steps', 'cooking'];
 
 export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, prevStep, currentStep, completeOnboarding } = useOnboardingStore();
-  const router = useRouter();
+  const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection } = useOnboardingStore();
   const { triggerHaptic } = useHapticFeedback();
 
-  const [step2State, setStep2State] = useState<Step2State>('summary');
+  const [step2State, setStep2State] = useState<Step2State>(
+    navigationDirection === 'backward' ? 'cooking' : 'summary'
+  );
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
-  const [isListening, setIsListening] = useState<boolean>(false);
+  const [isListening, setIsListening] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
   const prevIndex = prevStep2State !== null ? STEP_ORDER.indexOf(prevStep2State) : 0;
-  // 방향: 1 = forward, -1 = backward, 0 = initial
   const direction = prevStep2State === null ? 0 : currentIndex > prevIndex ? 1 : currentIndex < prevIndex ? -1 : 0;
+
+  // cleanup setTimeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   // 접근성: reduced-motion 체크
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
-  // 애니메이션 설정 (공통)
   const transitionConfig = createSlideTransition(shouldAnimate);
 
-  // 건너락기: 바로 온보딩 완료
+  // 건너뛰기: 온보딩 완료 (index.tsx의 useEffect가 '/'로 리다이렉트)
   const handleSkip = useCallback(() => {
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
       step: currentStep,
       step_count: 3,
     });
     completeOnboarding();
-    router.replace('/');
-  }, [currentStep, completeOnboarding, router]);
+  }, [currentStep, completeOnboarding]);
 
-  // 타이틀 텍스트 - 간소화
-  const getTitle = useCallback((): string => {
+  // 타이틀/서브타이틀 텍스트
+  const title = useMemo((): string => {
     switch (step2State) {
-      case 'summary':
-        return t('step2.summary.title');
-      case 'ingredients':
-        return t('step2.ingredients.title');
-      case 'steps':
-        return t('step2.steps.title');
-      case 'cooking':
-        return t('step2.cooking.title');
+      case 'summary': return t('step2.summary.title');
+      case 'ingredients': return t('step2.ingredients.title');
+      case 'steps': return t('step2.steps.title');
+      case 'cooking': return t('step2.cooking.title');
     }
   }, [step2State, t]);
 
-  // 서브타이틀 텍스트
-  const getSubtitle = useCallback((): string => {
+  const subtitle = useMemo((): string => {
     switch (step2State) {
-      case 'summary':
-        return t('step2.summary.guide');
-      case 'ingredients':
-        return t('step2.ingredients.guide');
-      case 'steps':
-        return t('step2.steps.guide');
-      case 'cooking':
-        return t('step2.cooking.guide');
+      case 'summary': return t('step2.summary.guide');
+      case 'ingredients': return t('step2.ingredients.guide');
+      case 'steps': return t('step2.steps.guide');
+      case 'cooking': return t('step2.cooking.guide');
     }
   }, [step2State, t]);
-
-  // 음성 인식 상태 텍스트
-  const getVoiceStatusText = useCallback((): string => {
-    switch (voiceStatus) {
-      case 'listening':
-        return t('step2.cooking.listening');
-      case 'recognized':
-        return t('step2.cooking.recognized');
-      case 'failed':
-        return t('step2.cooking.failed');
-      default:
-        return '';
-    }
-  }, [t]);
 
   // 다음 상태로 이동
   const moveToNextState = useCallback(() => {
@@ -143,10 +134,10 @@ export function OnboardingStep2() {
       voice_method: 'voice',
     });
 
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       nextStep();
     }, TIMING.VOICE_SUCCESS_DELAY_MS);
-  }, [currentStep, nextStep]);
+  }, [currentStep, nextStep, step2State]);
 
   // 음성 인식 실패 시 처리
   const handleVoiceError = useCallback(() => {
@@ -155,6 +146,47 @@ export function OnboardingStep2() {
 
   const isCookingState = step2State === 'cooking';
 
+  // 쿠킹 상태에서 하단 네비게이션 가운데에 표시할 마이크 UI
+  const micBottomCenter = isCookingState ? (
+    <div className="flex flex-col items-center gap-1">
+      {/* 음성 상태 텍스트 */}
+      <p className={cn(
+        "text-xs font-medium",
+        isListening ? "text-blue-600 animate-pulse" :
+        voiceStatus === 'recognized' ? "text-green-600" :
+        voiceStatus === 'failed' ? "text-orange-600" :
+        "text-gray-500"
+      )}>
+        {isListening ? t('step2.cooking.listening') :
+         voiceStatus === 'recognized' ? t('step2.cooking.recognized') :
+         voiceStatus === 'failed' ? t('step2.cooking.failed') :
+         t('step2.cooking.idle')}
+      </p>
+
+      {/* 마이크 버튼 */}
+      <div className="relative">
+        {isListening && shouldAnimate && (
+          <div className="absolute inset-0 bg-orange-500/40 rounded-full animate-ping" />
+        )}
+        <OnboardingMicButton
+          onNext={handleVoiceNext}
+          onError={handleVoiceError}
+          onListeningChange={setIsListening}
+        />
+      </div>
+
+      {/* 음성 실패 시 터치 대안 */}
+      {voiceStatus === 'failed' && (
+        <button
+          onClick={moveToNextState}
+          className="text-[10px] text-gray-500 hover:text-orange-600 underline"
+        >
+          {t('step2.cooking.fallback')}
+        </button>
+      )}
+    </div>
+  ) : undefined;
+
   return (
     <StepContainer
       currentStep={currentStep}
@@ -162,11 +194,18 @@ export function OnboardingStep2() {
       onPrev={moveToPrevState}
       onSkip={handleSkip}
       innerStateIndex={currentIndex}
+      hideNextButton={isCookingState}
+      bottomCenter={micBottomCenter}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
+        {/* Section Label */}
+        <span className="text-[11px] font-semibold text-orange-500 tracking-wide">
+          STEP 2 · {t('step2.sectionLabel')}
+        </span>
+
         {/* Title */}
         <AnimatePresence mode="wait" initial={false}>
-          <motion.h1
+          <motion.div
             key={`title-${step2State}`}
             variants={slideXVariants}
             initial="hidden"
@@ -174,10 +213,13 @@ export function OnboardingStep2() {
             exit="exit"
             custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
-            className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
+            className="flex items-center justify-center gap-1.5"
           >
-            {getTitle()}
-          </motion.h1>
+            <h1 className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4">
+              {title}
+            </h1>
+            {isCookingState && <HandsFreeModeTooltipCompact />}
+          </motion.div>
         </AnimatePresence>
 
         {/* Subtitle */}
@@ -190,21 +232,20 @@ export function OnboardingStep2() {
             exit="exit"
             custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
-            className="text-sm text-gray-500 text-center px-4"
+            className="text-sm text-gray-600 text-center px-4"
           >
-            {getSubtitle()}
+            {subtitle}
           </motion.p>
         </AnimatePresence>
 
-        {/* Image Area */}
+        {/* Image Area - always tappable for navigation */}
         <motion.button
-          onClick={!isCookingState ? moveToNextState : undefined}
-          whileHover={!isCookingState && shouldAnimate ? { scale: 1.02 } : undefined}
-          whileTap={!isCookingState && shouldAnimate ? { scale: 0.96 } : undefined}
+          onClick={moveToNextState}
+          whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+          whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
           className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
           style={{ width: PREVIEW_BUTTON.WIDTH, height: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL }}
-          aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. ${!isCookingState ? '터치하여 다음으로 이동.' : '음성으로 다음으로 이동.'}`}
-          aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
+          aria-label={`${STEP_ALT[step2State]}. ${isCookingState ? '터치하거나 음성으로 다음 이동.' : '터치하여 다음으로 이동.'}`}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -220,83 +261,20 @@ export function OnboardingStep2() {
             >
               <Image
                 src={STEP_IMAGES[step2State]}
-                alt={`Step ${step2State}`}
+                alt={STEP_ALT[step2State]}
                 fill
                 className="object-contain"
-                priority
               />
             </motion.div>
           </AnimatePresence>
         </motion.button>
 
-        {/* 터치 안내 - cooking 상태가 아닐 때만 표시 */}
+        {/* 터치 안내 - cooking 상태가 아닐 때만 */}
         {!isCookingState && (
-          <p className="text-xs text-gray-400 flex items-center gap-1">
-            <span>터치하여 다음</span>
-            <span>→</span>
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <span>화면을 터치하여 다음</span>
+            <span aria-hidden="true">→</span>
           </p>
-        )}
-
-        {/* 현재 단계 표시 - 점 인디케이터 */}
-        <StepProgressDots currentIndex={currentIndex} totalCount={STEP_ORDER.length} />
-
-        {/* Cooking 상태: 음성 인식 UI - 간소화 */}
-        {isCookingState && (
-          <div className="flex flex-col items-center gap-2">
-            {/* 음성 안내 메시지 - 항상 표시 */}
-            <AnimatePresence>
-              <motion.div
-                key="voice-guide"
-                variants={fadeOnlyVariants}
-                initial="hidden"
-                animate="visible"
-                className="text-center"
-              >
-                {isListening ? (
-                  <p className="text-sm font-medium text-blue-600 animate-pulse">
-                    듣고 있어요... 말해보세요!
-                  </p>
-                ) : voiceStatus === 'recognized' ? (
-                  <p className="text-sm font-medium text-green-600">
-                    인식 완료!
-                  </p>
-                ) : voiceStatus === 'failed' ? (
-                  <p className="text-sm font-medium text-orange-600">
-                    다시 시도해주세요
-                  </p>
-                ) : (
-                  <p className="text-sm text-gray-500">
-                    마이크를 누르고 말해보세요
-                  </p>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Mic Button - 소형 */}
-            <div className="flex flex-col items-center gap-2">
-              <div className="relative">
-                <div className="absolute inset-0 bg-orange-500/40 rounded-full animate-ping" />
-                <OnboardingMicButton
-                  onNext={handleVoiceNext}
-                  onError={handleVoiceError}
-                  onListeningChange={setIsListening}
-                />
-              </div>
-
-              {/* Fallback */}
-              {voiceStatus === 'failed' && (
-                <motion.button
-                  variants={fadeOnlyVariants}
-                  initial="hidden"
-                  animate="visible"
-                  onClick={moveToNextState}
-                  className="text-xs text-gray-500 hover:text-orange-600 underline"
-                >
-                  터치해서 다음으로
-                </motion.button>
-              )}
-            </div>
-          </div>
         )}
       </div>
     </StepContainer>

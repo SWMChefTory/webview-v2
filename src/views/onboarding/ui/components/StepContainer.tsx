@@ -1,14 +1,20 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { cn } from "@/lib/utils";
 
+/** 각 스텝의 내부 하위 스텝 수 (그룹핑용) */
+const STEP_GROUPS = [4, 4, 1] as const;
+const TOTAL_STEPS = STEP_GROUPS.reduce((a, b) => a + b, 0); // 9
+
 interface StepContainerProps {
   children: React.ReactNode;
   currentStep: number;
   onNext: () => void;
   onPrev: () => void;
   onSkip: () => void;
-  hideNextButton?: boolean; // 마지막 단계에서 "다음" 버튼 숨기기
-  innerStateIndex?: number; // 내부 상태 인덱스 (0-based): 전역 하위 스텝 계산용
+  hideNextButton?: boolean;
+  innerStateIndex?: number;
+  /** 하단 네비게이션 가운데에 표시할 커스텀 콘텐츠 (예: 마이크 버튼) */
+  bottomCenter?: React.ReactNode;
 }
 
 /**
@@ -18,9 +24,9 @@ interface StepContainerProps {
  * - Step 3: 1개 하위 스텝 → 9
  */
 const getGlobalStepIndex = (currentStep: number, innerIndex?: number): number => {
-  if (currentStep === 1) return (innerIndex ?? 0) + 1; // 1~4
-  if (currentStep === 2) return (innerIndex ?? 0) + 5; // 5~8
-  return 9; // Step 3
+  if (currentStep === 1) return (innerIndex ?? 0) + 1;
+  if (currentStep === 2) return (innerIndex ?? 0) + 5;
+  return 9;
 };
 
 export function StepContainer({
@@ -31,67 +37,96 @@ export function StepContainer({
   onSkip,
   hideNextButton,
   innerStateIndex,
+  bottomCenter,
 }: StepContainerProps) {
   const { t } = useOnboardingTranslation();
 
-  // 전역 하위 스텝 인덱스 (1~9) - 첫 번째 스텝에서만 "이전" 버튼 숨김
   const globalStepIndex = getGlobalStepIndex(currentStep, innerStateIndex);
   const isFirstGlobalStep = globalStepIndex === 1;
 
   return (
-    <div className="h-screen bg-gradient-to-b from-orange-50 via-white to-white p-4 relative flex flex-col">
+    <div className="h-dvh bg-gradient-to-b from-orange-50 via-white to-white p-4 relative flex flex-col">
       {/* Skip Button (Top Right) */}
       <button
         onClick={onSkip}
-        className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xs font-medium transition-colors px-2 py-1 rounded-full hover:bg-gray-100 z-50"
+        className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 z-50"
+        aria-label="온보딩 건너뛰기"
       >
         {t('common.skip')}
       </button>
 
-      {/* Progress Dots - 간소화 */}
-      <div className="flex justify-center gap-2 pt-2 pb-2">
-        {[1, 2, 3].map((step) => (
-          <div
-            key={step}
-            className={cn(
-              "h-2 rounded-full transition-all duration-300",
-              step <= currentStep
-                ? "bg-orange-500 w-6"
-                : "bg-gray-200 w-2"
-            )}
-          />
-        ))}
+      {/* Segmented Progress Bar (4+4+1 그룹핑) */}
+      <div
+        className="flex justify-center items-center gap-3 pt-2 pb-2"
+        role="progressbar"
+        aria-label="온보딩 진행률"
+        aria-valuemin={1}
+        aria-valuemax={TOTAL_STEPS}
+        aria-valuenow={globalStepIndex}
+      >
+        {STEP_GROUPS.map((count, groupIdx) => {
+          const groupStart = STEP_GROUPS.slice(0, groupIdx).reduce((a, b) => a + b, 0);
+          return (
+            <div key={groupIdx} className="flex gap-1">
+              {Array.from({ length: count }).map((_, segIdx) => {
+                const globalIdx = groupStart + segIdx;
+                return (
+                  <div
+                    key={globalIdx}
+                    className={cn(
+                      "h-1 rounded-full transition-all duration-300 w-5",
+                      globalIdx < globalStepIndex
+                        ? "bg-orange-500"
+                        : "bg-gray-200"
+                    )}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
 
-      {/* Main Content - flex-1로 중앙 정렬 */}
+      {/* Main Content */}
       <div className="flex-1 flex items-center justify-center w-full overflow-hidden">
         {children}
       </div>
 
-      {/* Navigation (Bottom) - 고정 위치 */}
-      <div className="flex items-center justify-between w-full py-3 border-t border-gray-100">
+      {/* Navigation (Bottom) */}
+      <div className="flex items-center justify-between w-full py-3">
         <button
           onClick={onPrev}
           disabled={isFirstGlobalStep}
           className={cn(
-            "px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95",
+            "min-h-[44px] min-w-[44px] px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95",
             isFirstGlobalStep
               ? "opacity-0 pointer-events-none"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
           )}
           aria-label={isFirstGlobalStep ? "첫 번째 단계입니다" : "이전 단계로 이동"}
         >
           {t('common.prev')}
         </button>
 
-        {!hideNextButton && (
+        {/* Center: 커스텀 콘텐츠 (마이크 등) 또는 빈 공간 */}
+        {bottomCenter && (
+          <div className="flex flex-col items-center">
+            {bottomCenter}
+          </div>
+        )}
+
+        {!hideNextButton && !bottomCenter && (
           <button
             onClick={onNext}
-            className="px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
+            className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
+            aria-label="다음 단계로 이동"
           >
             {t('common.next')}
           </button>
         )}
+
+        {/* hideNextButton && !bottomCenter: 빈 공간으로 이전 버튼만 보이게 */}
+        {hideNextButton && !bottomCenter && <div className="min-w-[44px]" />}
       </div>
     </div>
   );

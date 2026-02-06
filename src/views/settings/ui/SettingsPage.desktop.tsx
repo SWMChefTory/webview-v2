@@ -56,6 +56,23 @@ export function SettingsPageDesktopLayout({
             </div>
           </div>
 
+          <div className="h-14" />
+
+          <div className="flex flex-col gap-4">
+            <div className="text-gray-900 text-lg font-bold pb-2 pl-2">
+              {t("section.onboarding.title")}
+            </div>
+            <div
+              className="flex flex-row justify-between items-center py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 cursor-pointer active:scale-[0.99] transition-all duration-200 group"
+              onClick={navigation.resetOnboarding}
+            >
+              <div className="text-xl font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+                {t("section.onboarding.reset")}
+              </div>
+              <GoChevronRight className="size-6 text-gray-400 group-hover:text-gray-600 transition-colors group-hover:translate-x-1 duration-200" />
+            </div>
+          </div>
+
           <div className="h-16" />
 
           <div className="flex flex-row gap-10 items-center justify-center">

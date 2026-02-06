@@ -1,15 +1,13 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { StepContainer } from "../components/StepContainer";
-import { StepProgressDots } from "../components/StepProgressDots";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import { useRouter } from "next/router";
-import { slideXVariants, SlideCustom, createSlideTransition } from "../shared/animations";
+import { slideXVariants, createSlideTransition } from "../shared/animations";
 import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
 
 // Step 1 상태 타입
@@ -23,64 +21,70 @@ const STEP_IMAGES: Record<Step1State, string> = {
   home_saved: '/images/onboarding/app-home.png',
 };
 
+// 각 상태별 이미지 alt 텍스트
+const STEP_ALT: Record<Step1State, string> = {
+  youtube: '유튜브에서 레시피 영상 공유하기',
+  share_sheet: '공유 시트에서 Cheftory 선택하기',
+  create_confirm: '레시피 생성 확인 화면',
+  home_saved: '홈 화면에 저장된 레시피',
+};
+
 // 상태 순서 (이전/다음 네비게이션용)
 const STEP_ORDER: Step1State[] = ['youtube', 'share_sheet', 'create_confirm', 'home_saved'];
 
 export function OnboardingStep1() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, prevStep, currentStep, completeOnboarding } = useOnboardingStore();
-  const router = useRouter();
+  const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection } = useOnboardingStore();
   const { triggerHaptic } = useHapticFeedback();
 
-  const [step1State, setStep1State] = useState<Step1State>('youtube');
+  const [step1State, setStep1State] = useState<Step1State>(
+    navigationDirection === 'backward' ? 'home_saved' : 'youtube'
+  );
   const [prevStep1State, setPrevStep1State] = useState<Step1State | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const currentIndex = STEP_ORDER.indexOf(step1State);
   const prevIndex = prevStep1State !== null ? STEP_ORDER.indexOf(prevStep1State) : 0;
-  // 방향: 1 = forward, -1 = backward, 0 = initial
   const direction = prevStep1State === null ? 0 : currentIndex > prevIndex ? 1 : currentIndex < prevIndex ? -1 : 0;
+
+  // cleanup setTimeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   // 접근성: reduced-motion 체크
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
-  // 애니메이션 설정 (공통)
   const transitionConfig = createSlideTransition(shouldAnimate);
 
-  // 건너락기: 바로 온보딩 완료
+  // 건너뛰기: 온보딩 완료 (index.tsx의 useEffect가 '/'로 리다이렉트)
   const handleSkip = useCallback(() => {
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
       step: currentStep,
       step_count: 3,
     });
     completeOnboarding();
-    router.replace('/');
-  }, [currentStep, completeOnboarding, router]);
+  }, [currentStep, completeOnboarding]);
 
-  // 타이틀 텍스트 - 간소화
-  const getTitle = useCallback((): string => {
+  // 타이틀/서브타이틀 텍스트
+  const title = useMemo((): string => {
     switch (step1State) {
-      case 'youtube':
-        return t('step1.youtube.title');
-      case 'share_sheet':
-        return t('step1.share_sheet.title');
-      case 'create_confirm':
-        return t('step1.create_confirm.title');
-      case 'home_saved':
-        return t('step1.home_saved.title');
+      case 'youtube': return t('step1.youtube.title');
+      case 'share_sheet': return t('step1.share_sheet.title');
+      case 'create_confirm': return t('step1.create_confirm.title');
+      case 'home_saved': return t('step1.home_saved.title');
     }
   }, [step1State, t]);
 
-  // 서브타이틀 텍스트
-  const getSubtitle = useCallback((): string => {
+  const subtitle = useMemo((): string => {
     switch (step1State) {
-      case 'youtube':
-        return t('step1.youtube.guide');
-      case 'share_sheet':
-        return t('step1.share_sheet.guide');
-      case 'create_confirm':
-        return t('step1.create_confirm.guide');
-      case 'home_saved':
-        return t('step1.home_saved.guide');
+      case 'youtube': return t('step1.youtube.guide');
+      case 'share_sheet': return t('step1.share_sheet.guide');
+      case 'create_confirm': return t('step1.create_confirm.guide');
+      case 'home_saved': return t('step1.home_saved.guide');
     }
   }, [step1State, t]);
 
@@ -97,7 +101,7 @@ export function OnboardingStep1() {
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep1State(STEP_ORDER[currentIndex + 1]);
     } else {
-      setTimeout(() => nextStep(), TIMING.NEXT_STEP_DELAY_MS);
+      timerRef.current = setTimeout(() => nextStep(), TIMING.NEXT_STEP_DELAY_MS);
     }
   }, [currentIndex, step1State, currentStep, nextStep, triggerHaptic]);
 
@@ -120,6 +124,11 @@ export function OnboardingStep1() {
       innerStateIndex={currentIndex}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
+        {/* Section Label */}
+        <span className="text-[11px] font-semibold text-orange-500 tracking-wide">
+          STEP 1 · {t('step1.sectionLabel')}
+        </span>
+
         {/* Title */}
         <AnimatePresence mode="wait" initial={false}>
           <motion.h1
@@ -132,7 +141,7 @@ export function OnboardingStep1() {
             transition={transitionConfig}
             className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
           >
-            {getTitle()}
+            {title}
           </motion.h1>
         </AnimatePresence>
 
@@ -146,9 +155,9 @@ export function OnboardingStep1() {
             exit="exit"
             custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
-            className="text-sm text-gray-500 text-center px-4"
+            className="text-sm text-gray-600 text-center px-4"
           >
-            {getSubtitle()}
+            {subtitle}
           </motion.p>
         </AnimatePresence>
 
@@ -159,8 +168,7 @@ export function OnboardingStep1() {
           whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
           className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
           style={{ width: PREVIEW_BUTTON.WIDTH, height: PREVIEW_BUTTON.HEIGHT_NORMAL }}
-          aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. 터치하여 다음으로 이동.`}
-          aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
+          aria-label={`${STEP_ALT[step1State]}. 터치하여 다음으로 이동.`}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -176,23 +184,19 @@ export function OnboardingStep1() {
             >
               <Image
                 src={STEP_IMAGES[step1State]}
-                alt={`Step ${step1State}`}
+                alt={STEP_ALT[step1State]}
                 fill
                 className="object-contain"
-                priority
               />
             </motion.div>
           </AnimatePresence>
         </motion.button>
 
         {/* 터치 안내 */}
-        <p className="text-xs text-gray-400 flex items-center gap-1">
-          <span>터치하여 다음</span>
-          <span>→</span>
+        <p className="text-xs text-gray-500 flex items-center gap-1">
+          <span>화면을 터치하여 다음</span>
+          <span aria-hidden="true">→</span>
         </p>
-
-        {/* 현재 단계 표시 - 점 인디케이터 */}
-        <StepProgressDots currentIndex={currentIndex} totalCount={STEP_ORDER.length} />
       </div>
     </StepContainer>
   );

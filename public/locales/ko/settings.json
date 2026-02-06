@@ -6,7 +6,8 @@
       "service_terms": "서비스 이용약관"
     },
     "onboarding": {
-      "reset": "온보딩 다시보기"
+      "title": "튜토리얼",
+      "reset": "온보딩"
     }
   },
   "button": {

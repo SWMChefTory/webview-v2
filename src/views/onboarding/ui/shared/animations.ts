@@ -2,7 +2,7 @@ import type { Transition } from "motion/react";
 import { ANIMATION } from "./constants";
 
 // 슬라이드 애니메이션 variants 커스텀 타입
-export interface SlideCustom {
+interface SlideCustom {
   direction: number;
   shouldAnimate: boolean;
 }
@@ -45,8 +45,3 @@ export const fadeInUpVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-// cardScale variants (Step 3에서 사용)
-export const cardScaleVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1 },
-};

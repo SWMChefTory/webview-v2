@@ -9,21 +9,12 @@ import { motion, useReducedMotion } from "motion/react";
 import { useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { fadeInUpVariants, cardScaleVariants } from "../shared/animations";
+import { TORY_IMAGE } from "../shared/constants";
 
 // 인기 레시피 API
 import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
-
-// 애니메이션 variants
-const fadeInUpVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const cardScaleVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1 },
-};
 
 // 스켈레톤 로딩 컴포넌트
 const RecipeCardSkeleton = () => (
@@ -110,8 +101,8 @@ export function OnboardingStep3() {
           <Image
             src="/images/onboarding/tory-cooking.png"
             alt="Tory cooking character"
-            width={180}
-            height={180}
+            width={TORY_IMAGE.WIDTH}
+            height={TORY_IMAGE.HEIGHT}
             className="relative z-10 drop-shadow-xl"
             priority
           />

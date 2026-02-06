@@ -1,5 +1,7 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
+import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { StepContainer } from "../components/StepContainer";
+import { StepProgressDots } from "../components/StepProgressDots";
 import { OnboardingMicButton } from "../components/OnboardingMicButton";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
@@ -8,43 +10,14 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { slideXVariants, SlideCustom, createSlideTransition, fadeOnlyVariants } from "../shared/animations";
+import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
 
 // Step 2 상태 타입
 type Step2State = 'summary' | 'ingredients' | 'steps' | 'cooking';
 
 // 음성 인식 상태
 type VoiceStatus = 'idle' | 'listening' | 'recognized' | 'failed';
-
-// 애니메이션 variants
-const fadeInVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-const scaleInVariants = {
-  hidden: { opacity: 0, scale: 0.98 },
-  visible: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.98 },
-};
-
-// 슬라이드 애니메이션 variants (방향성 있음)
-interface SlideCustom {
-  direction: number;
-  shouldAnimate: boolean;
-}
-
-const slideXVariants = {
-  hidden: (custom: SlideCustom) => ({
-    opacity: custom.shouldAnimate ? 0 : 1,
-    x: custom.shouldAnimate ? (custom.direction > 0 ? 50 : -50) : 0,
-  }),
-  visible: { opacity: 1, x: 0 },
-  exit: (custom: SlideCustom) => ({
-    opacity: custom.shouldAnimate ? 0 : 1,
-    x: custom.shouldAnimate ? (custom.direction > 0 ? -50 : 50) : 0,
-  }),
-};
 
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step2State, string> = {
@@ -61,11 +34,12 @@ export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
   const { nextStep, prevStep, currentStep, completeOnboarding } = useOnboardingStore();
   const router = useRouter();
+  const { triggerHaptic } = useHapticFeedback();
 
   const [step2State, setStep2State] = useState<Step2State>('summary');
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
-  const [isListening, setIsListening] = useState(false);
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
+  const [isListening, setIsListening] = useState<boolean>(false);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
   const prevIndex = prevStep2State !== null ? STEP_ORDER.indexOf(prevStep2State) : 0;
@@ -76,18 +50,8 @@ export function OnboardingStep2() {
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
-  // 애니메이션 설정 (reduced-motion 고려)
-  const transitionConfig = {
-    duration: shouldAnimate ? 0.35 : 0,
-    ease: shouldAnimate ? [0.25, 0.1, 0.25, 1] as const : undefined,
-  };
-
-  // 햅틱 피드백
-  const triggerHaptic = useCallback(() => {
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate(10);
-    }
-  }, []);
+  // 애니메이션 설정 (공통)
+  const transitionConfig = createSlideTransition(shouldAnimate);
 
   // 건너락기: 바로 온보딩 완료
   const handleSkip = useCallback(() => {
@@ -181,7 +145,7 @@ export function OnboardingStep2() {
 
     setTimeout(() => {
       nextStep();
-    }, 600);
+    }, TIMING.VOICE_SUCCESS_DELAY_MS);
   }, [currentStep, nextStep]);
 
   // 음성 인식 실패 시 처리
@@ -197,6 +161,7 @@ export function OnboardingStep2() {
       onNext={moveToNextState}
       onPrev={moveToPrevState}
       onSkip={handleSkip}
+      innerStateIndex={currentIndex}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
         {/* Title */}
@@ -236,9 +201,9 @@ export function OnboardingStep2() {
           onClick={!isCookingState ? moveToNextState : undefined}
           whileHover={!isCookingState && shouldAnimate ? { scale: 1.02 } : undefined}
           whileTap={!isCookingState && shouldAnimate ? { scale: 0.96 } : undefined}
-          className={`relative w-[280px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
+          className={`relative w-[${PREVIEW_BUTTON.WIDTH}px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
             !isCookingState && currentIndex < STEP_ORDER.length - 1 ? 'ring-1 ring-orange-500/30' : ''
-          } ${isCookingState ? 'h-[520px]' : 'h-[580px]'}`}
+          } ${isCookingState ? `h-[${PREVIEW_BUTTON.HEIGHT_COOKING}px]` : `h-[${PREVIEW_BUTTON.HEIGHT_NORMAL}px]`}`}
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. ${!isCookingState ? '터치하여 다음으로 이동.' : '음성으로 다음으로 이동.'}`}
           aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >
@@ -266,22 +231,7 @@ export function OnboardingStep2() {
         </motion.button>
 
         {/* 현재 단계 표시 - 점 인디케이터 */}
-        <div className="flex gap-1.5" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
-          {STEP_ORDER.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                idx === currentIndex
-                  ? 'bg-orange-500 w-6'
-                  : idx < currentIndex
-                    ? 'bg-orange-500 w-2.5'
-                    : 'bg-gray-300 w-2.5'
-              }`}
-              aria-label={`${idx + 1}단계 ${idx === currentIndex ? '현재' : idx < currentIndex ? '완료' : '미진행'}`}
-              aria-current={idx === currentIndex ? 'true' : undefined}
-            />
-          ))}
-        </div>
+        <StepProgressDots currentIndex={currentIndex} totalCount={STEP_ORDER.length} />
 
         {/* Cooking 상태: 음성 인식 UI - 간소화 */}
         {isCookingState && (
@@ -290,7 +240,7 @@ export function OnboardingStep2() {
             <AnimatePresence>
               <motion.div
                 key="voice-guide"
-                variants={fadeInVariants}
+                variants={fadeOnlyVariants}
                 initial="hidden"
                 animate="visible"
                 className="text-center"
@@ -329,7 +279,7 @@ export function OnboardingStep2() {
               {/* Fallback */}
               {voiceStatus === 'failed' && (
                 <motion.button
-                  variants={fadeInVariants}
+                  variants={fadeOnlyVariants}
                   initial="hidden"
                   animate="visible"
                   onClick={moveToNextState}

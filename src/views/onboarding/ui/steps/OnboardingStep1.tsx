@@ -1,5 +1,7 @@
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
+import { useHapticFeedback } from "../../hooks/useHapticFeedback";
 import { StepContainer } from "../components/StepContainer";
+import { StepProgressDots } from "../components/StepProgressDots";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
@@ -7,27 +9,11 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
 import { useRouter } from "next/router";
+import { slideXVariants, SlideCustom, createSlideTransition } from "../shared/animations";
+import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
 
 // Step 1 상태 타입
 type Step1State = 'youtube' | 'share_sheet' | 'create_confirm' | 'home_saved';
-
-// 슬라이드 애니메이션 variants (방향성 있음)
-interface SlideCustom {
-  direction: number;
-  shouldAnimate: boolean;
-}
-
-const slideXVariants = {
-  hidden: (custom: SlideCustom) => ({
-    opacity: custom.shouldAnimate ? 0 : 1,
-    x: custom.shouldAnimate ? (custom.direction > 0 ? 50 : -50) : 0,
-  }),
-  visible: { opacity: 1, x: 0 },
-  exit: (custom: SlideCustom) => ({
-    opacity: custom.shouldAnimate ? 0 : 1,
-    x: custom.shouldAnimate ? (custom.direction > 0 ? -50 : 50) : 0,
-  }),
-};
 
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step1State, string> = {
@@ -44,6 +30,7 @@ export function OnboardingStep1() {
   const { t } = useOnboardingTranslation();
   const { nextStep, prevStep, currentStep, completeOnboarding } = useOnboardingStore();
   const router = useRouter();
+  const { triggerHaptic } = useHapticFeedback();
 
   const [step1State, setStep1State] = useState<Step1State>('youtube');
   const [prevStep1State, setPrevStep1State] = useState<Step1State | null>(null);
@@ -56,18 +43,8 @@ export function OnboardingStep1() {
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
-  // 애니메이션 설정 (Step 1: Step 2와 동일)
-  const transitionConfig = {
-    duration: shouldAnimate ? 0.35 : 0,
-    ease: shouldAnimate ? [0.25, 0.1, 0.25, 1] as const : undefined,
-  };
-
-  // 햅틱 피드백
-  const triggerHaptic = useCallback(() => {
-    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate(10);
-    }
-  }, []);
+  // 애니메이션 설정 (공통)
+  const transitionConfig = createSlideTransition(shouldAnimate);
 
   // 건너락기: 바로 온보딩 완료
   const handleSkip = useCallback(() => {
@@ -120,7 +97,7 @@ export function OnboardingStep1() {
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep1State(STEP_ORDER[currentIndex + 1]);
     } else {
-      setTimeout(() => nextStep(), 200);
+      setTimeout(() => nextStep(), TIMING.NEXT_STEP_DELAY_MS);
     }
   }, [currentIndex, step1State, currentStep, nextStep, triggerHaptic]);
 
@@ -140,6 +117,7 @@ export function OnboardingStep1() {
       onNext={moveToNextState}
       onPrev={moveToPrevState}
       onSkip={handleSkip}
+      innerStateIndex={currentIndex}
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
         {/* Title */}
@@ -179,7 +157,7 @@ export function OnboardingStep1() {
           onClick={moveToNextState}
           whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
-          className={`relative w-[280px] h-[580px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
+          className={`relative w-[${PREVIEW_BUTTON.WIDTH}px] h-[${PREVIEW_BUTTON.HEIGHT_NORMAL}px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
             currentIndex < STEP_ORDER.length - 1 ? 'ring-1 ring-orange-500/30' : ''
           }`}
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. 터치하여 다음으로 이동.`}
@@ -209,22 +187,7 @@ export function OnboardingStep1() {
         </motion.button>
 
         {/* 현재 단계 표시 - 점 인디케이터 */}
-        <div className="flex gap-1.5" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
-          {STEP_ORDER.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
-                idx === currentIndex
-                  ? 'bg-orange-500 w-6'
-                  : idx < currentIndex
-                    ? 'bg-orange-500 w-2.5'
-                    : 'bg-gray-300 w-2.5'
-              }`}
-              aria-label={`${idx + 1}단계 ${idx === currentIndex ? '현재' : idx < currentIndex ? '완료' : '미진행'}`}
-              aria-current={idx === currentIndex ? 'true' : undefined}
-            />
-          ))}
-        </div>
+        <StepProgressDots currentIndex={currentIndex} totalCount={STEP_ORDER.length} />
       </div>
     </StepContainer>
   );

@@ -90,9 +90,6 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
           stepCount={steps.length}
           scrollContainerRef={scrollContainerRef}
         />
-        <div className="px-4">
-          <HorizontalLine />
-        </div>
         <div className="h-2" />
         {briefings && briefings.length > 0 && (
           <>

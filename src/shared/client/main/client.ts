@@ -77,6 +77,7 @@ client.interceptors.response.use(
     ) {
       originalRequest.isSecondRequest = true;
 
+      console.log("실행1");
       if (!window) {
         console.warn("서버 환경에서 외부 호출 시도");
         return Promise.reject(new Error("REFRESH_TOKEN_ERROR"));
@@ -99,6 +100,7 @@ client.interceptors.response.use(
       // Web browser: Backend API 호출
       return tokenRefreshManager.refreshToken().then(() => {
         return clientResolvingError(originalRequest);
+        console.log("실행2");
       }).catch((error) => {
         return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
       });
@@ -135,10 +137,6 @@ class TokenRefreshManager {
   private async executeRefresh(): Promise<string> {
     try {
       const refreshToken = getMainRefreshToken();
-      console.log(
-        "token을 갱신하기 위해 refreshToken을 가져옵니다.",
-        refreshToken
-      );
       if (!refreshToken) {
         throw new Error("No refresh token");
       }

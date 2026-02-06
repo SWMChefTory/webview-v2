@@ -152,59 +152,44 @@ export function OnboardingStep1() {
           </motion.p>
         </AnimatePresence>
 
-        {/* Image Area with Speech Bubble */}
-        <div className="relative flex items-center justify-center">
-          {/* Speech Bubble */}
-          <motion.div
-            key={`bubble-${step1State}`}
-            variants={slideXVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            custom={{ direction, shouldAnimate }}
-            transition={transitionConfig}
-            className="absolute -right-4 top-1/2 -translate-y-1/2 bg-white px-3 py-2 rounded-2xl rounded-tr-sm shadow-lg border border-gray-100 z-10"
-            style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
-          >
-            <p className="text-xs font-medium text-gray-600 whitespace-nowrap">
-              터치해주세요!
-            </p>
-            {/* Speech bubble tail */}
-            <div className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-white rotate-45 border-l border-b border-gray-100" style={{ marginLeft: '-4px' }} />
-          </motion.div>
+        {/* Image Area */}
+        <motion.button
+          onClick={moveToNextState}
+          whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+          whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
+          className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+          style={{ width: PREVIEW_BUTTON.WIDTH, height: PREVIEW_BUTTON.HEIGHT_NORMAL }}
+          aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. 터치하여 다음으로 이동.`}
+          aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={step1State}
+              variants={slideXVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              custom={{ direction, shouldAnimate }}
+              transition={transitionConfig}
+              className="relative w-full h-full rounded-2xl overflow-hidden"
+              style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
+            >
+              <Image
+                src={STEP_IMAGES[step1State]}
+                alt={`Step ${step1State}`}
+                fill
+                className="object-contain"
+                priority
+              />
+            </motion.div>
+          </AnimatePresence>
+        </motion.button>
 
-          <motion.button
-            onClick={moveToNextState}
-            whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
-            whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
-            className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
-            style={{ width: PREVIEW_BUTTON.WIDTH, height: PREVIEW_BUTTON.HEIGHT_NORMAL }}
-            aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. 터치하여 다음으로 이동.`}
-            aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={step1State}
-                variants={slideXVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-                custom={{ direction, shouldAnimate }}
-                transition={transitionConfig}
-                className="relative w-full h-full rounded-2xl overflow-hidden"
-                style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
-              >
-                <Image
-                  src={STEP_IMAGES[step1State]}
-                  alt={`Step ${step1State}`}
-                  fill
-                  className="object-contain"
-                  priority
-                />
-              </motion.div>
-            </AnimatePresence>
-          </motion.button>
-        </div>
+        {/* 터치 안내 */}
+        <p className="text-xs text-gray-400 flex items-center gap-1">
+          <span>터치하여 다음</span>
+          <span>→</span>
+        </p>
 
         {/* 현재 단계 표시 - 점 인디케이터 */}
         <StepProgressDots currentIndex={currentIndex} totalCount={STEP_ORDER.length} />

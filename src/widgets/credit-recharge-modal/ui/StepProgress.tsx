@@ -17,7 +17,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="flex items-center justify-between gap-1">
+    <div className="flex items-center justify-between gap-1 pb-4 border-b border-gray-100">
       {steps.map((step, index) => {
         const isActive = step.key === currentStep;
         const isCompleted = index < currentIndex;

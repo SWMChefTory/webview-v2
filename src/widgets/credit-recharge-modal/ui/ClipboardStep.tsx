@@ -53,50 +53,52 @@ export function ClipboardStep() {
   }, [setStep, t, isDisabled]);
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-5">
-      {/* Icon */}
-      <div className="w-16 h-16 flex items-center justify-center">
-        <Image
-          src="/images/tory/tory_welcome.png"
-          alt="토리 캐릭터"
-          width={64}
-          height={64}
-          className="object-contain"
-        />
-      </div>
-
-      {/* Title */}
-      <div className="text-center space-y-1">
-        <h2 className="text-lg lg:text-xl font-bold">{t('clipboard.title')}</h2>
-        <p className="text-sm text-gray-600 whitespace-pre-line">
-          {t('clipboard.description')}
-        </p>
-      </div>
-
-      {/* Invite Link */}
-      <div className="w-full">
-        <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl border border-gray-200">
-          <input
-            type="text"
-            value={displayLink}
-            readOnly
-            className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
-            aria-label={t('clipboard.inviteLinkLabel')}
+    <div className="flex flex-col items-center justify-center min-h-[280px] h-full">
+      <div className="flex-1 flex flex-col items-center justify-center space-y-4">
+        {/* Icon */}
+        <div className="w-16 h-16 flex items-center justify-center">
+          <Image
+            src="/images/tory/tory_welcome.png"
+            alt="토리 캐릭터"
+            width={64}
+            height={64}
+            className="object-contain"
           />
-          <button
-            onClick={handleCopy}
-            disabled={isCopying || isDisabled}
-            className={`flex items-center gap-2 px-3 py-2 rounded-xl font-semibold text-sm transition-colors active:bg-orange-700 active:scale-95 ${
-              isDisabled
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white'
-            }`}
-            aria-label={t('clipboard.copyButton')}
-            aria-disabled={isDisabled}
-          >
-            <Copy size={16} />
-            <span>{isCopying ? t('clipboard.copying') : t('clipboard.copyButton')}</span>
-          </button>
+        </div>
+
+        {/* Title */}
+        <div className="text-center space-y-1">
+          <h2 className="text-lg lg:text-xl font-bold">{t('clipboard.title')}</h2>
+          <p className="text-sm text-gray-600 whitespace-pre-line">
+            {t('clipboard.description')}
+          </p>
+        </div>
+
+        {/* Invite Link */}
+        <div className="w-full max-w-md">
+          <div className="flex flex-col gap-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <input
+              type="text"
+              value={displayLink}
+              readOnly
+              className="w-full bg-transparent text-sm text-gray-700 outline-none"
+              aria-label={t('clipboard.inviteLinkLabel')}
+            />
+            <button
+              onClick={handleCopy}
+              disabled={isCopying || isDisabled}
+              className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-colors active:scale-95 ${
+                isDisabled
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white active:bg-orange-700'
+              }`}
+              aria-label={t('clipboard.copyButton')}
+              aria-disabled={isDisabled}
+            >
+              <Copy size={16} />
+              <span>{isCopying ? t('clipboard.copying') : t('clipboard.copyButton')}</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

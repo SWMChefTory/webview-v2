@@ -69,13 +69,15 @@ export function CreditRechargeModal() {
           {/* Step Content */}
           <div
             ref={scrollAreaRef}
-            className="flex-1 overflow-y-auto overflow-x-hidden"
+            className="flex-1 overflow-y-auto overflow-x-hidden min-h-[340px]"
           >
-            <div className="px-6 lg:px-8 py-6 pb-safe">
+            <div className="px-6 lg:px-8 pt-6 pb-8 h-full">
               {step === 'clipboard' && <ClipboardStep />}
               {step === 'kakao' && <KakaoShareStep />}
               {step === 'success' && <SuccessStep />}
             </div>
+            {/* Safe area spacer for iOS */}
+            <div className="pb-safe flex-shrink-0" aria-hidden="true" />
           </div>
         </Dialog.Content>
       </Dialog.Portal>

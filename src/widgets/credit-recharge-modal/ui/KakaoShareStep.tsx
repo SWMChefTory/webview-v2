@@ -14,7 +14,7 @@ const KAKAO_TALK_SCHEME = "kakaolink://";
 const KAKAO_FALLBACK_URL = "https://open.kakao.com/o/xxx";
 
 export function KakaoShareStep() {
-  const { setStep, close } = useCreditRechargeModalStore();
+  const { setStep } = useCreditRechargeModalStore();
   const { t } = useRechargeTranslation();
 
   const handleBack = useCallback(() => {
@@ -30,16 +30,16 @@ export function KakaoShareStep() {
     // 2. 복귀용 URL 생성
     const returnUrl = generateRechargeUrl();
 
-    // 3. 카카오톡 실행 (기존 OPEN_EXTERNAL_URL 핸들러 활용)
+    // 3. 카카오톡 실행
     request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_EXTERNAL_URL, {
       url: KAKAO_TALK_SCHEME,
       fallbackUrl: KAKAO_FALLBACK_URL,
       returnUrl,
     });
 
-    // 4. 모달 닫기
-    close();
-  }, [close]);
+    // 4. 바로 SuccessStep으로 이동 (모달은 닫지 않음)
+    setStep('success');
+  }, [setStep]);
 
   return (
     <div className="flex flex-col items-center justify-center h-full space-y-8">

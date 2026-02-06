@@ -51,11 +51,11 @@ export function useRechargeSession() {
       open('settings'); // source는 상관없음, 이미 모달이 열려있으면 상태만 변경됨
       setStep('success');
 
-      toast.success(`${result.amount}베리가 충전되었어요!`);
+      toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
     } catch (error) {
       console.error('Recharge complete failed:', error);
       track(AMPLITUDE_EVENT.RECHARGE_ERROR, { error: String(error) });
-      toast.error(t('success.error'));
+      toast.error(t('success.error'), { duration: 3000 });
     }
 
     // 5. 세션 정리

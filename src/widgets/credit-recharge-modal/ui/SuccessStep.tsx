@@ -2,6 +2,7 @@ import { useCreditRechargeModalStore } from "../creditRechargeModalStore";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function SuccessStep() {
   const { close } = useCreditRechargeModalStore();
@@ -76,9 +77,13 @@ export function SuccessStep() {
         ) : (
           <>
             <div className="flex items-center justify-center gap-4 p-6 bg-red-50 rounded-xl">
-              <div className="text-4xl" role="img" aria-label="딸기 이모지">
-
-              </div>
+              <Image
+                src="/images/berry/berry.png"
+                alt="베리"
+                width={48}
+                height={48}
+                className="object-contain"
+              />
               <div>
                 {/* 동적 충전량 표시 */}
                 <p className="text-3xl lg:text-4xl font-bold text-red-500">
@@ -91,7 +96,7 @@ export function SuccessStep() {
             {/* 남은 충전 횟수 표시 */}
             {rechargeResult && rechargeResult.remainingCount > 0 && (
               <div className="mt-4 text-center">
-                <p className="text-gray-500">
+                <p className="text-gray-600">
                   {t('success.remainingCount', { count: rechargeResult.remainingCount })}
                 </p>
               </div>
@@ -107,7 +112,7 @@ export function SuccessStep() {
             )}
 
             <div className="mt-2 text-center">
-              <p className="text-gray-500">
+              <p className="text-gray-600">
                 {t('success.currentBalance', { balance: data?.balance ?? 0 })}
               </p>
             </div>

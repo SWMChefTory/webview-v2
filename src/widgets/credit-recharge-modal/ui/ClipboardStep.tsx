@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { fetchUserModel } from "@/src/views/settings/entities/user/model";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
+import Image from "next/image";
 
 export function ClipboardStep() {
   const { setStep } = useCreditRechargeModalStore();
@@ -27,7 +28,7 @@ export function ClipboardStep() {
   const handleCopy = useCallback(async () => {
     // 횟수 소진 시 체크
     if (isDisabled) {
-      toast.error(t('clipboard.noRemainingCount'));
+      toast.error(t('clipboard.noRemainingCount'), { duration: 2000 });
       return;
     }
 
@@ -39,10 +40,10 @@ export function ClipboardStep() {
     });
 
     if (result.success) {
-      toast.success(t('clipboard.copySuccess'));
+      toast.success(t('clipboard.copySuccess'), { duration: 1500 });
       setTimeout(() => setStep('kakao'), 500);
     } else {
-      toast.error(t('clipboard.copyError'));
+      toast.error(t('clipboard.copyError'), { duration: 2000 });
     }
 
     setIsCopying(false);
@@ -52,9 +53,13 @@ export function ClipboardStep() {
     <div className="flex flex-col items-center justify-center h-full space-y-8">
       {/* Icon */}
       <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
-        <div className="text-4xl" role="img" aria-label="편지 이모지">
-
-        </div>
+        <Image
+          src="/images/tory/tory_welcome.png"
+          alt="토리 캐릭터"
+          width={80}
+          height={80}
+          className="object-contain"
+        />
       </div>
 
       {/* Title */}
@@ -72,7 +77,7 @@ export function ClipboardStep() {
             type="text"
             value={inviteLink}
             readOnly
-            className="flex-1 bg-transparent text-sm text-gray-700 outline-none"
+            className="flex-1 bg-transparent text-base text-gray-700 outline-none"
             aria-label={t('clipboard.inviteLinkLabel')}
           />
           <button
@@ -92,7 +97,7 @@ export function ClipboardStep() {
         </div>
 
         {/* 남은 횟수 표시 */}
-        <div className="mt-3 text-center text-sm text-gray-500">
+        <div className="mt-3 text-center text-gray-500">
           {t('clipboard.remainingCount', { count: remainingCount })}
         </div>
       </div>

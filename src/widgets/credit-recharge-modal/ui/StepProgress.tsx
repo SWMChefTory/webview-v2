@@ -17,16 +17,16 @@ export function StepProgress({ currentStep }: StepProgressProps) {
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-between gap-1">
       {steps.map((step, index) => {
         const isActive = step.key === currentStep;
         const isCompleted = index < currentIndex;
 
         return (
-          <div key={step.key} className="flex items-center flex-1">
+          <div key={step.key} className="flex items-center flex-1 min-w-0">
             {/* Step circle */}
             <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
+              className={`flex items-center justify-center w-7 h-7 rounded-full text-xs font-semibold flex-shrink-0 ${
                 isActive
                   ? 'bg-orange-500 text-white'
                   : isCompleted
@@ -41,7 +41,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
 
             {/* Step label */}
             <span
-              className={`ml-2 text-sm font-medium ${
+              className={`ml-1.5 text-xs font-medium truncate ${
                 isActive ? 'text-orange-600' : isCompleted ? 'text-orange-500' : 'text-gray-400'
               }`}
             >
@@ -51,7 +51,7 @@ export function StepProgress({ currentStep }: StepProgressProps) {
             {/* Connector line */}
             {index < steps.length - 1 && (
               <div
-                className={`flex-1 h-0.5 mx-2 ${
+                className={`flex-1 h-0.5 mx-1.5 flex-shrink-0 ${
                   index < currentIndex ? 'bg-orange-300' : 'bg-gray-200'
                 }`}
                 aria-hidden="true"

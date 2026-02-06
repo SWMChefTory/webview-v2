@@ -59,28 +59,40 @@ export function SuccessStep() {
 
   return (
     <div className="flex flex-col items-center justify-center h-full space-y-5">
-      {/* Icon */}
+      {/* Icon + Berry + Amount */}
       {isLoading ? (
         <div className="w-16 h-16 rounded-full flex items-center justify-center bg-orange-100">
           <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <Image
-          src="/images/tory/tory_welcome.png"
-          alt="토리 캐릭터"
-          width={64}
-          height={64}
-          className="object-contain"
-        />
+        <div className="flex items-center justify-center gap-3">
+          <Image
+            src="/images/tory/tory_welcome.png"
+            alt="토리 캐릭터"
+            width={64}
+            height={64}
+            className="object-contain"
+          />
+          <div className="flex items-center gap-1.5">
+            <Image
+              src="/images/berry/berry.png"
+              alt="베리"
+              width={28}
+              height={28}
+              className="object-contain"
+            />
+            <span className="text-2xl font-bold text-red-500">+10</span>
+          </div>
+        </div>
       )}
 
       {/* Title */}
       <div className="text-center space-y-1">
         <h2 className="text-lg lg:text-xl font-bold">
-          {isLoading ? '공유 처리 중...' : t('success.title')}
+          {isLoading ? '공유 처리 중...' : '공유가 완료되었어요!'}
         </h2>
         <p className="text-sm text-gray-600">
-          {isLoading ? '카카오톡 공유 완료 시 자동 충전됩니다' : t('success.description')}
+          {isLoading ? '카카오톡 공유 완료 시 자동 충전됩니다' : '친구에게 공유해주셔서 감사해요'}
         </p>
       </div>
 
@@ -96,19 +108,9 @@ export function SuccessStep() {
           </div>
         ) : (
           <div className="text-center">
-            <div className="flex items-center justify-center gap-2">
-              <Image
-                src="/images/berry/berry.png"
-                alt="베리"
-                width={24}
-                height={24}
-                className="object-contain"
-              />
-              <p className="text-lg text-gray-700">
-                <span className="font-bold text-orange-500">+{rechargeResult?.amount ?? 10}</span>
-                {t('success.creditAdded')} {t('success.currentBalance', { balance: data?.balance ?? 0 })}
-              </p>
-            </div>
+            <p className="text-base text-gray-700">
+              {rechargeResult?.amount ?? 10}베리가 충전되었어요 현재 베리: {data?.balance ?? 0}
+            </p>
           </div>
         )}
       </div>

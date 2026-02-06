@@ -3,6 +3,7 @@ import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SuccessStep() {
   const { close } = useCreditRechargeModalStore();
@@ -49,7 +50,7 @@ export function SuccessStep() {
     }
 
     // 주기적 체크 (복귀 후 업데이트를 위해)
-    const interval = setInterval(checkResult, 500);
+    const interval = setInterval(checkResult, 1500);
 
     return () => clearInterval(interval);
   }, [isDev]);
@@ -62,7 +63,7 @@ export function SuccessStep() {
       {/* Icon + Berry + Amount */}
       {isLoading ? (
         <div className="w-16 h-16 rounded-full flex items-center justify-center bg-orange-100">
-          <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <Spinner className="size-6 text-orange-500" />
         </div>
       ) : (
         <div className="flex items-center justify-center gap-2">
@@ -73,17 +74,17 @@ export function SuccessStep() {
             height={32}
             className="object-contain"
           />
-          <span className="text-2xl font-bold text-red-500">+10</span>
+          <span className="text-2xl font-bold text-red-500">+{rechargeResult?.amount ?? 10}</span>
         </div>
       )}
 
       {/* Title */}
       <div className="text-center space-y-1">
         <h2 className="text-lg lg:text-xl font-bold">
-          {isLoading ? '공유 처리 중...' : '공유가 완료되었어요!'}
+          {isLoading ? t('success.loadingTitle') : t('success.title')}
         </h2>
         <p className="text-sm text-gray-600">
-          {isLoading ? '카카오톡 공유 완료 시 자동 충전됩니다' : '친구에게 공유해주셔서 감사해요'}
+          {isLoading ? t('success.loadingDescription') : t('success.description')}
         </p>
       </div>
 
@@ -91,10 +92,10 @@ export function SuccessStep() {
       <div className="w-full">
         {isLoading ? (
           <div className="flex items-center justify-center gap-2 p-3 bg-orange-50 rounded-xl">
-            <div className="w-6 h-6 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+            <Spinner className="size-6 text-orange-500 flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <p className="text-lg font-bold text-orange-500">충전 처리 중...</p>
-              <p className="text-xs text-gray-600 truncate">카카오톡 공유 완료 시 자동 충전됩니다</p>
+              <p className="text-lg font-bold text-orange-500">{t('success.loadingTitle')}</p>
+              <p className="text-xs text-gray-600 truncate">{t('success.loadingDescription')}</p>
             </div>
           </div>
         ) : (

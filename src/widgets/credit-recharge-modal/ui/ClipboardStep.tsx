@@ -91,7 +91,7 @@ export function ClipboardStep() {
           <button
             onClick={handleCopy}
             disabled={isCopying || isDisabled}
-            className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold text-sm transition-colors ${
+            className={`flex items-center gap-2 px-3 py-2 rounded-xl font-semibold text-sm transition-colors ${
               isDisabled
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white'

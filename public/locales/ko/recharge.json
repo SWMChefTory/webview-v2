@@ -1,6 +1,7 @@
 {
   "modal": {
     "title": "크레딧 충전하기",
+    "description": "친구에게 쉐프토리를 공유하고 크레딧을 받아보세요",
     "close": "닫기"
   },
   "steps": {
@@ -27,7 +28,9 @@
   },
   "success": {
     "title": "공유가 완료되었어요!",
+    "loadingTitle": "공유 처리 중...",
     "description": "친구에게 공유해주셔서 감사해요",
+    "loadingDescription": "카카오톡 공유 완료 시 자동 충전됩니다",
     "creditAdded": "베리가 충전되었어요",
     "currentBalance": "현재 베리: {{balance}}",
     "remainingCount": "이번 달 남은 횟수: {{count}}회",

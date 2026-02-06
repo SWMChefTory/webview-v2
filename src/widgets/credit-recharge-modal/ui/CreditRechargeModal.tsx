@@ -46,6 +46,9 @@ export function CreditRechargeModal() {
             <Dialog.Title className="text-xl lg:text-2xl font-bold mb-1 lg:mb-2 text-gray-900 pr-8 lg:pr-10">
               {t('modal.title')}
             </Dialog.Title>
+            <Dialog.Description className="text-xs lg:text-sm text-gray-600">
+              {t('modal.description')}
+            </Dialog.Description>
 
             <Dialog.Close asChild>
               <button
@@ -68,7 +71,7 @@ export function CreditRechargeModal() {
             ref={scrollAreaRef}
             className="flex-1 overflow-y-auto overflow-x-hidden"
           >
-            <div className="px-6 lg:px-8 py-6">
+            <div className="px-6 lg:px-8 py-6 pb-safe">
               {step === 'clipboard' && <ClipboardStep />}
               {step === 'kakao' && <KakaoShareStep />}
               {step === 'success' && <SuccessStep />}

@@ -13,6 +13,7 @@ export async function getStaticProps({ locale }: { locale: string }) {
         "category",
         "shared.recipe-creating-status-chip",
         "common",
+        "recharge",
       ])),
     },
   };

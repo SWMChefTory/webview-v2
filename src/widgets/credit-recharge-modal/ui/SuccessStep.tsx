@@ -15,6 +15,9 @@ export function SuccessStep() {
     remainingCount: number;
   } | null>(null);
 
+  // 개발 모드 자동 완료 시뮬레이션
+  const isDev = process.env.NODE_ENV === 'development';
+
   // sessionStorage에서 결과 읽기 및 주기적 체크
   useEffect(() => {
     const checkResult = () => {
@@ -32,24 +35,37 @@ export function SuccessStep() {
     // 초기 체크
     checkResult();
 
+    // 개발 모드: 2초 후 자동 완료 시뮬레이션
+    if (isDev && !rechargeResult) {
+      const timer = setTimeout(() => {
+        const mockResult = {
+          amount: 10,
+          remainingCount: 9,
+        };
+        setRechargeResult(mockResult);
+        console.log('[Dev] 충전 완료 시뮬레이션:', mockResult);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+
     // 주기적 체크 (복귀 후 업데이트를 위해)
     const interval = setInterval(checkResult, 500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isDev]);
 
   // 로딩 상태 여부
   const isLoading = !rechargeResult;
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-8">
+    <div className="flex flex-col items-center justify-center h-full space-y-6">
       {/* Icon */}
-      <div className={`w-20 h-20 rounded-full flex items-center justify-center ${isLoading ? 'bg-orange-100' : 'bg-green-100'}`}>
+      <div className={`w-16 h-16 rounded-full flex items-center justify-center ${isLoading ? 'bg-orange-100' : 'bg-green-100'}`}>
         {isLoading ? (
-          <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-7 h-7 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
         ) : (
-          <div className="text-4xl" role="img" aria-label="체크마크 이모지">
-
+          <div className="text-4xl flex items-center justify-center" role="img" aria-label="체크마크">
+            ✓
           </div>
         )}
       </div>
@@ -67,27 +83,27 @@ export function SuccessStep() {
       {/* Credit Display */}
       <div className="w-full">
         {isLoading ? (
-          <div className="flex items-center justify-center gap-4 p-6 bg-orange-50 rounded-xl">
-            <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="flex items-center justify-center gap-3 p-5 bg-orange-50 rounded-xl">
+            <div className="w-7 h-7 border-4 border-orange-500 border-t-transparent rounded-full animate-spin" />
             <div>
-              <p className="text-2xl font-bold text-orange-500">충전 처리 중...</p>
+              <p className="text-xl font-bold text-orange-500">충전 처리 중...</p>
               <p className="text-sm text-gray-600">카카오톡에서 공유를 완료하면 자동으로 충전됩니다</p>
             </div>
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-center gap-4 p-6 bg-red-50 rounded-xl">
+            <div className="flex items-center justify-center gap-3 p-5 bg-red-50 rounded-xl">
               <Image
                 src="/images/berry/berry.png"
                 alt="베리"
-                width={48}
-                height={48}
+                width={44}
+                height={44}
                 className="object-contain"
               />
               <div>
                 {/* 동적 충전량 표시 */}
-                <p className="text-3xl lg:text-4xl font-bold text-red-500">
-                  +{rechargeResult?.amount ?? 100}
+                <p className="text-2xl lg:text-3xl font-bold text-red-500">
+                  +{rechargeResult?.amount ?? 10}
                 </p>
                 <p className="text-sm text-gray-600">{t('success.creditAdded')}</p>
               </div>
@@ -95,7 +111,7 @@ export function SuccessStep() {
 
             {/* 남은 충전 횟수 표시 */}
             {rechargeResult && rechargeResult.remainingCount > 0 && (
-              <div className="mt-4 text-center">
+              <div className="mt-3 text-center">
                 <p className="text-gray-600">
                   {t('success.remainingCount', { count: rechargeResult.remainingCount })}
                 </p>
@@ -104,14 +120,14 @@ export function SuccessStep() {
 
             {/* 횟수 소진 시 메시지 */}
             {rechargeResult && rechargeResult.remainingCount === 0 && (
-              <div className="mt-4 text-center">
+              <div className="mt-3 text-center">
                 <p className="text-orange-500 font-medium">
                   {t('success.noRemainingCount')}
                 </p>
               </div>
             )}
 
-            <div className="mt-2 text-center">
+            <div className="mt-3 text-center">
               <p className="text-gray-600">
                 {t('success.currentBalance', { balance: data?.balance ?? 0 })}
               </p>
@@ -124,7 +140,7 @@ export function SuccessStep() {
       {!isLoading && (
         <button
           onClick={close}
-          className="w-full max-w-[320px] py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-colors active:scale-95"
+          className="w-full max-w-[280px] py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold transition-colors active:scale-95"
           aria-label={t('success.confirmButton')}
         >
           {t('success.confirmButton')}

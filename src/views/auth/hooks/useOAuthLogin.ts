@@ -88,12 +88,8 @@ export function useOAuthLogin() {
         provider,
       });
 
-      console.log("response", response);
-
       const { accessToken, refreshToken } = response;
       if (typeof window !== "undefined") {
-        console.log("accessToken", accessToken);
-        console.log("refreshToken", refreshToken);
         setMainAccessToken(accessToken);
         setMainRefreshToken(refreshToken);
       }

@@ -235,9 +235,9 @@ export function OnboardingStep2() {
           onClick={!isCookingState ? moveToNextState : undefined}
           whileHover={!isCookingState && shouldAnimate ? { scale: 1.02 } : undefined}
           whileTap={!isCookingState && shouldAnimate ? { scale: 0.96 } : undefined}
-          className={`relative w-[280px] h-[580px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
+          className={`relative w-[280px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
             !isCookingState && currentIndex < STEP_ORDER.length - 1 ? 'ring-1 ring-orange-500/30' : ''
-          }`}
+          } ${isCookingState ? 'h-[520px]' : 'h-[580px]'}`}
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. ${!isCookingState ? '터치하여 다음으로 이동.' : '음성으로 다음으로 이동.'}`}
           aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >
@@ -264,23 +264,21 @@ export function OnboardingStep2() {
           </AnimatePresence>
         </motion.button>
 
-        {/* 현재 단계 표시 - 번호 있는 인디케이터 */}
-        <div className="flex gap-2" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
+        {/* 현재 단계 표시 - 점 인디케이터 */}
+        <div className="flex gap-1.5" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
           {STEP_ORDER.map((_, idx) => (
             <div
               key={idx}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${
+              className={`h-2.5 rounded-full transition-all duration-300 ${
                 idx === currentIndex
-                  ? 'bg-orange-500 text-white'
+                  ? 'bg-orange-500 w-6'
                   : idx < currentIndex
-                    ? 'bg-orange-200 text-orange-700'
-                    : 'bg-gray-200 text-gray-400'
+                    ? 'bg-orange-500 w-2.5'
+                    : 'bg-gray-300 w-2.5'
               }`}
               aria-label={`${idx + 1}단계 ${idx === currentIndex ? '현재' : idx < currentIndex ? '완료' : '미진행'}`}
               aria-current={idx === currentIndex ? 'true' : undefined}
-            >
-              {idx + 1}
-            </div>
+            />
           ))}
         </div>
 

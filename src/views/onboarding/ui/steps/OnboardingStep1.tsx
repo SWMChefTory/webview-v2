@@ -11,24 +11,22 @@ import { useRouter } from "next/router";
 // Step 1 상태 타입
 type Step1State = 'youtube' | 'share_sheet' | 'create_confirm' | 'home_saved';
 
-// 애니메이션 variants
-const fadeInVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-};
+// 슬라이드 애니메이션 variants (방향성 있음)
+interface SlideCustom {
+  direction: number;
+  shouldAnimate: boolean;
+}
 
-const scaleInVariants = {
-  hidden: { opacity: 0, scale: 0.98 },
-  visible: { opacity: 1, scale: 1 },
-  exit: { opacity: 0, scale: 0.98 },
-};
-
-// fade-only variants (Step 1: 빠르고 부드러운 전환)
-const fadeOnlyVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
+const slideXVariants = {
+  hidden: (custom: SlideCustom) => ({
+    opacity: custom.shouldAnimate ? 0 : 1,
+    x: custom.shouldAnimate ? (custom.direction > 0 ? 50 : -50) : 0,
+  }),
+  visible: { opacity: 1, x: 0 },
+  exit: (custom: SlideCustom) => ({
+    opacity: custom.shouldAnimate ? 0 : 1,
+    x: custom.shouldAnimate ? (custom.direction > 0 ? -50 : 50) : 0,
+  }),
 };
 
 // 각 상태별 이미지 경로
@@ -58,9 +56,9 @@ export function OnboardingStep1() {
   const prefersReducedMotion = useReducedMotion();
   const shouldAnimate = !prefersReducedMotion;
 
-  // 애니메이션 설정 (Step 1: 빠른 전환)
+  // 애니메이션 설정 (Step 1: Step 2와 동일)
   const transitionConfig = {
-    duration: shouldAnimate ? 0.15 : 0,
+    duration: shouldAnimate ? 0.35 : 0,
     ease: shouldAnimate ? [0.25, 0.1, 0.25, 1] as const : undefined,
   };
 
@@ -145,13 +143,14 @@ export function OnboardingStep1() {
     >
       <div className="w-full flex flex-col items-center justify-center gap-2">
         {/* Title */}
-        <AnimatePresence mode="sync" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.h1
             key={`title-${step1State}`}
-            variants={fadeOnlyVariants}
+            variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
+            custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
             className="text-lg lg:text-xl font-bold text-gray-900 text-center px-4"
           >
@@ -160,13 +159,14 @@ export function OnboardingStep1() {
         </AnimatePresence>
 
         {/* Subtitle */}
-        <AnimatePresence mode="sync" initial={false}>
+        <AnimatePresence mode="wait" initial={false}>
           <motion.p
             key={`subtitle-${step1State}`}
-            variants={fadeOnlyVariants}
+            variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
+            custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
             className="text-sm text-gray-500 text-center px-4"
           >
@@ -185,16 +185,17 @@ export function OnboardingStep1() {
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. 터치하여 다음으로 이동.`}
           aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >
-          <AnimatePresence mode="sync" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={step1State}
-              variants={fadeOnlyVariants}
+              variants={slideXVariants}
               initial="hidden"
               animate="visible"
               exit="exit"
+              custom={{ direction, shouldAnimate }}
               transition={transitionConfig}
               className="relative w-full h-full rounded-2xl overflow-hidden"
-              style={{ willChange: shouldAnimate ? 'opacity' : 'auto' }}
+              style={{ willChange: shouldAnimate ? 'transform, opacity' : 'auto' }}
             >
               <Image
                 src={STEP_IMAGES[step1State]}
@@ -207,23 +208,21 @@ export function OnboardingStep1() {
           </AnimatePresence>
         </motion.button>
 
-        {/* 현재 단계 표시 - 번호 있는 인디케이터 */}
-        <div className="flex gap-2" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
+        {/* 현재 단계 표시 - 점 인디케이터 */}
+        <div className="flex gap-1.5" role="progressbar" aria-label="온보딩 진행률" aria-valuemin={1} aria-valuemax={STEP_ORDER.length} aria-valuenow={currentIndex + 1}>
           {STEP_ORDER.map((_, idx) => (
             <div
               key={idx}
-              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 ${
+              className={`h-2.5 rounded-full transition-all duration-300 ${
                 idx === currentIndex
-                  ? 'bg-orange-500 text-white'
+                  ? 'bg-orange-500 w-6'
                   : idx < currentIndex
-                    ? 'bg-orange-200 text-orange-700'
-                    : 'bg-gray-200 text-gray-400'
+                    ? 'bg-orange-500 w-2.5'
+                    : 'bg-gray-300 w-2.5'
               }`}
               aria-label={`${idx + 1}단계 ${idx === currentIndex ? '현재' : idx < currentIndex ? '완료' : '미진행'}`}
               aria-current={idx === currentIndex ? 'true' : undefined}
-            >
-              {idx + 1}
-            </div>
+            />
           ))}
         </div>
       </div>

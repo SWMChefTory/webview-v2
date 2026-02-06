@@ -5,9 +5,10 @@ import { motion } from "motion/react";
 interface OnboardingMicButtonProps {
   onNext: () => void;
   onError?: () => void; // 음성 인식 실패 시 콜백
+  onListeningChange?: (isListening: boolean) => void; // 리스닝 상태 변경 콜백
 }
 
-export function OnboardingMicButton({ onNext, onError }: OnboardingMicButtonProps) {
+export function OnboardingMicButton({ onNext, onError, onListeningChange }: OnboardingMicButtonProps) {
   const [isActive, setIsActive] = useState(false);
 
   const { isListening, error } = useSimpleSpeech({
@@ -34,6 +35,11 @@ export function OnboardingMicButton({ onNext, onError }: OnboardingMicButtonProp
       onError?.();
     }
   }, [error, onError]);
+
+  // 리스닝 상태 변경 콜백
+  useEffect(() => {
+    onListeningChange?.(isListening);
+  }, [isListening, onListeningChange]);
 
   return (
     <button

@@ -64,6 +64,7 @@ export function OnboardingStep2() {
 
   const [step2State, setStep2State] = useState<Step2State>('summary');
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
+  const [isListening, setIsListening] = useState(false);
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
@@ -285,31 +286,34 @@ export function OnboardingStep2() {
         {/* Cooking 상태: 음성 인식 UI - 간소화 */}
         {isCookingState && (
           <div className="flex flex-col items-center gap-2">
-            {/* 음성 상태 피드백 */}
-            {voiceStatus !== 'idle' && (
-              <AnimatePresence>
-                <motion.div
-                  key={`voice-status-${voiceStatus}`}
-                  variants={fadeInVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  className="text-xs font-medium"
-                >
-                  <span
-                    className={
-                      voiceStatus === 'failed'
-                        ? 'text-orange-600'
-                        : voiceStatus === 'recognized'
-                          ? 'text-green-600'
-                          : 'text-blue-600'
-                    }
-                  >
-                    {getVoiceStatusText()}
-                  </span>
-                </motion.div>
-              </AnimatePresence>
-            )}
+            {/* 음성 안내 메시지 - 항상 표시 */}
+            <AnimatePresence>
+              <motion.div
+                key="voice-guide"
+                variants={fadeInVariants}
+                initial="hidden"
+                animate="visible"
+                className="text-center"
+              >
+                {isListening ? (
+                  <p className="text-sm font-medium text-blue-600 animate-pulse">
+                    듣고 있어요... 말해보세요!
+                  </p>
+                ) : voiceStatus === 'recognized' ? (
+                  <p className="text-sm font-medium text-green-600">
+                    인식 완료!
+                  </p>
+                ) : voiceStatus === 'failed' ? (
+                  <p className="text-sm font-medium text-orange-600">
+                    다시 시도해주세요
+                  </p>
+                ) : (
+                  <p className="text-sm text-gray-500">
+                    마이크를 누르고 말해보세요
+                  </p>
+                )}
+              </motion.div>
+            </AnimatePresence>
 
             {/* Mic Button - 소형 */}
             <div className="flex flex-col items-center gap-2">
@@ -318,6 +322,7 @@ export function OnboardingStep2() {
                 <OnboardingMicButton
                   onNext={handleVoiceNext}
                   onError={handleVoiceError}
+                  onListeningChange={setIsListening}
                 />
               </div>
 

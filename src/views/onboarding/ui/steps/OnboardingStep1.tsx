@@ -157,9 +157,10 @@ export function OnboardingStep1() {
           onClick={moveToNextState}
           whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
-          className={`relative w-[${PREVIEW_BUTTON.WIDTH}px] h-[${PREVIEW_BUTTON.HEIGHT_NORMAL}px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
+          className={`relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
             currentIndex < STEP_ORDER.length - 1 ? 'ring-1 ring-orange-500/30' : ''
           }`}
+          style={{ width: PREVIEW_BUTTON.WIDTH, height: PREVIEW_BUTTON.HEIGHT_NORMAL }}
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. 터치하여 다음으로 이동.`}
           aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >

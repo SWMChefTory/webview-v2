@@ -201,9 +201,10 @@ export function OnboardingStep2() {
           onClick={!isCookingState ? moveToNextState : undefined}
           whileHover={!isCookingState && shouldAnimate ? { scale: 1.02 } : undefined}
           whileTap={!isCookingState && shouldAnimate ? { scale: 0.96 } : undefined}
-          className={`relative w-[${PREVIEW_BUTTON.WIDTH}px] cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
+          className={`relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 ${
             !isCookingState && currentIndex < STEP_ORDER.length - 1 ? 'ring-1 ring-orange-500/30' : ''
-          } ${isCookingState ? `h-[${PREVIEW_BUTTON.HEIGHT_COOKING}px]` : `h-[${PREVIEW_BUTTON.HEIGHT_NORMAL}px]`}`}
+          }`}
+          style={{ width: PREVIEW_BUTTON.WIDTH, height: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL }}
           aria-label={`온보딩 ${currentIndex + 1}단계: ${getTitle()}. ${!isCookingState ? '터치하여 다음으로 이동.' : '음성으로 다음으로 이동.'}`}
           aria-current={currentIndex === STEP_ORDER.length - 1 ? 'step' : undefined}
         >

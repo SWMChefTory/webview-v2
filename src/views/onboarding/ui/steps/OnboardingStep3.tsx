@@ -139,7 +139,7 @@ export function OnboardingStep3() {
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-300"
         >
           <span className="text-xl">🎁</span>
-          <span className="text-sm font-semibold text-amber-800">50 베리가 지급되었습니다!</span>
+          <span className="text-sm font-semibold text-amber-800">보상으로 50개가 지급되었습니다!</span>
         </motion.div>
 
         {/* Primary CTA: Start Cooking Mode */}
@@ -149,7 +149,9 @@ export function OnboardingStep3() {
           animate="visible"
           transition={{ delay: 0.5 }}
           onClick={handleStartCooking}
-          className="w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.97 }}
+          className="w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-lg bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_0_rgb(180,83,9),0_6px_20px_rgba(234,88,12,0.4)] hover:shadow-[0_4px_0_rgb(180,83,9),0_8px_25px_rgba(234,88,12,0.5)] active:shadow-[0_2px_0_rgb(180,83,9),0_4px_10px_rgba(234,88,12,0.3)] active:translate-y-[2px] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 border-b-4 border-orange-700"
           aria-label="바로 이용해보기"
         >
           <span aria-hidden="true">🍳</span>

@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import type { TabName, RecipeStep, Ingredient } from "../ui/RecipeDetail.controller";
+import type { TabName, RecipeStep, Ingredient } from "../../common/hook/useRecipeDetailController";
 
 export interface RecipeDetailUIState {
   activeTab: TabName;

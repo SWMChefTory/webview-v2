@@ -1,7 +1,16 @@
+import { ResponsiveSwitcher } from "@/src/shared/ui/responsive";
 import {
-  RecipeDetailPageReady,
-  RecipeDetailPageSkeleton,
-} from "@/src/views/recipe-detail/ui";
+  RecipeDetailPageReadyMobile,
+  RecipeDetailPageSkeletonMobile,
+} from "./mobile/index.mobile";
+import {
+  RecipeDetailPageReadyTablet,
+  RecipeDetailPageSkeletonTablet,
+} from "./tablet/index.tablet";
+import {
+  RecipeDetailPageReadyDesktop,
+  RecipeDetailPageSkeletonDesktop,
+} from "./desktop/index.desktop";
 import { SSRErrorBoundary } from "@/src/shared/boundary/SSRErrorBoundary";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import axios from "axios";
@@ -10,7 +19,7 @@ import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { ShieldAlert, Home, RefreshCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
+import { useRecipeDetailTranslation } from "./common/hook/useRecipeDetailTranslation";
 
 const RecipeDetailPage = () => {
   const router = useRouter();
@@ -28,6 +37,28 @@ const RecipeDetailPage = () => {
         </SSRSuspense>
       </ConditionalBoundary>
     </div>
+  );
+};
+
+export const RecipeDetailPageSkeleton = () => {
+  return (
+    <ResponsiveSwitcher
+      mobile={RecipeDetailPageSkeletonMobile}
+      tablet={RecipeDetailPageSkeletonTablet}
+      desktop={RecipeDetailPageSkeletonDesktop}
+      props={{}}
+    />
+  );
+};
+
+export const RecipeDetailPageReady = ({ id }: { id: string }) => {
+  return (
+    <ResponsiveSwitcher
+      mobile={RecipeDetailPageReadyMobile}
+      tablet={RecipeDetailPageReadyTablet}
+      desktop={RecipeDetailPageReadyDesktop}
+      props={{ id }}
+    />
   );
 };
 

@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
-import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
+import { useRecipeDetailTranslation } from "./useRecipeDetailTranslation";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { type ViewStatus } from "@/src/entities/recipe";

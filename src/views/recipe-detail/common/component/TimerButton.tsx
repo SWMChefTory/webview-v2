@@ -6,7 +6,7 @@ import {
 import { LuTimer } from "react-icons/lu";
 import { HeaderIconButtonTemplate } from "@/src/shared/ui/header/header";
 
-export const HeaderTimerButton = ({
+export const TimerButton = ({
   recipeId,
   recipeName,
   onTimerClick,
@@ -35,8 +35,6 @@ export const HeaderTimerButton = ({
     </div>
   );
 };
-
-export const TimerButton = HeaderTimerButton;
 
 
 const TimerButtonDefault = ({

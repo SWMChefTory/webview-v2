@@ -123,26 +123,37 @@ export function RecipeCardsSectionMobile<
         <div className="flex flex-wrap justify-between gap-y-6 w-full">
           {recipes.map((recipe) => (
             <div key={recipe.recipeId} className="w-[48%]">
-              {recipe.videoInfo.videoType === "SHORTS" ? (
-                <RecipeGridCardShorts
-                  cardServing={cardServing}
-                  cardMinute={cardMinute}
-                  recipeTitle={recipe.recipeTitle}
-                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                  servings={recipe.detailMeta?.servings ?? 0}
-                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                />
-              ) : (
-                <RecipeGridCardNormal
-                  cardServing={cardServing}
-                  cardMinute={cardMinute}
-                  recipeTitle={recipe.recipeTitle}
-                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                  servings={recipe.detailMeta?.servings ?? 0}
-                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                  tags={recipe.tags ?? []}
-                />
-              )}
+              <RecipeCardWrapper
+                recipeCreditCost={recipe.creditCost}
+                recipeId={recipe.recipeId}
+                recipeTitle={recipe.recipeTitle}
+                recipeIsViewed={recipe.isViewed ?? false}
+                recipeVideoType={getVideoType(recipe)}
+                entryPoint={entryPoint}
+                recipeVideoUrl={getVideoUrl(recipe)}
+                trigger={
+                  recipe.videoInfo.videoType === "SHORTS" ? (
+                    <RecipeGridCardShorts
+                      cardServing={cardServing}
+                      cardMinute={cardMinute}
+                      recipeTitle={recipe.recipeTitle}
+                      videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                      servings={recipe.detailMeta?.servings ?? 0}
+                      cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+                    />
+                  ) : (
+                    <RecipeGridCardNormal
+                      cardServing={cardServing}
+                      cardMinute={cardMinute}
+                      recipeTitle={recipe.recipeTitle}
+                      videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                      servings={recipe.detailMeta?.servings ?? 0}
+                      cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+                      tags={recipe.tags ?? []}
+                    />
+                  )
+                }
+              />
             </div>
           ))}
 

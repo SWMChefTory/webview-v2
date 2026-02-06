@@ -2,9 +2,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
-import { IngredientPurchaseModal } from "./IngredientPurchaseModal";
-import { MeasurementOverlay } from "./MeasurementOverlay";
-import { TimerButton } from "./timerButton";
+import { IngredientPurchaseModal } from "../common/component/IngredientPurchaseModal";
+import { MeasurementOverlay } from "../common/component/MeasurementOverlay";
+import { TimerButton } from "../common/component/TimerButton";
 import {
   useRecipeDetailController,
   type TabName,
@@ -13,7 +13,7 @@ import {
   type RecipeTag,
   type RecipeBriefing,
   type RecipeMeta,
-} from "./RecipeDetail.controller";
+} from "../common/hook/useRecipeDetailController";
 
 export const RecipeDetailPageSkeletonDesktop = () => (
   <div className="min-h-screen bg-gray-50">
@@ -195,7 +195,12 @@ const RecipeContentDesktop = ({
   briefings?: RecipeBriefing[];
   recipeId: string;
   onTabClick?: (tabName: TabName) => void;
-  onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number, detailIndex: number) => void;
+  onStepClick?: (
+    stepOrder: number,
+    stepTitle: string,
+    videoTime: number,
+    detailIndex: number
+  ) => void;
   onMeasurementClick?: () => void;
   onCookingStart?: (selectedIngredientCount: number) => void;
   t: (key: string, options?: Record<string, unknown>) => string;
@@ -203,7 +208,9 @@ const RecipeContentDesktop = ({
   formatTime: (min: number) => string;
 }) => {
   const [activeTab, setActiveTab] = useState<TabName>("summary");
-  const [expanded, setExpanded] = useState<Set<number>>(new Set(steps.map((_, idx) => idx)));
+  const [expanded, setExpanded] = useState<Set<number>>(
+    new Set(steps.map((_, idx) => idx))
+  );
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [measurementOpen, setMeasurementOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
@@ -223,7 +230,9 @@ const RecipeContentDesktop = ({
               <button
                 key={tab}
                 className={`flex-1 py-5 text-lg font-bold transition-all relative ${
-                  active ? "text-neutral-900 bg-gray-50/50" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50/30"
+                  active
+                    ? "text-neutral-900 bg-gray-50/50"
+                    : "text-gray-400 hover:text-gray-600 hover:bg-gray-50/30"
                 }`}
                 onClick={() => {
                   setActiveTab(tab);
@@ -246,16 +255,33 @@ const RecipeContentDesktop = ({
           {activeTab === "summary" && (
             <div className="flex flex-col gap-8">
               <div className="flex items-center gap-4 p-5 rounded-xl border border-orange-200 bg-orange-50/50">
-                <svg className="w-6 h-6 text-orange-500 shrink-0" viewBox="0 0 24 24" fill="none">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} stroke="currentColor" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-6 h-6 text-orange-500 shrink-0"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
-                <span className="text-base text-gray-700 font-medium">{t("summary.aiWarning")}</span>
+                <span className="text-base text-gray-700 font-medium">
+                  {t("summary.aiWarning")}
+                </span>
               </div>
 
-              {(!!description || cookTime > 0 || servings > 0 || (tags?.length ?? 0) > 0) && (
+              {(!!description ||
+                cookTime > 0 ||
+                servings > 0 ||
+                (tags?.length ?? 0) > 0) && (
                 <section className="p-6 rounded-2xl border border-gray-200 bg-gray-50/30 hover:border-gray-300 transition-colors">
                   {!!description && (
-                    <p className="text-lg leading-8 text-neutral-900">{description}</p>
+                    <p className="text-lg leading-8 text-neutral-900">
+                      {description}
+                    </p>
                   )}
 
                   {(cookTime > 0 || servings > 0) && (
@@ -279,7 +305,10 @@ const RecipeContentDesktop = ({
                         const name = tag?.name ?? "";
                         if (!name) return null;
                         return (
-                          <span key={`${name}-${i}`} className="inline-flex items-center px-4 py-2 rounded-full bg-orange-50 text-base font-semibold text-orange-600 hover:bg-orange-100 transition-colors cursor-pointer">
+                          <span
+                            key={`${name}-${i}`}
+                            className="inline-flex items-center px-4 py-2 rounded-full bg-orange-50 text-base font-semibold text-orange-600 hover:bg-orange-100 transition-colors cursor-pointer"
+                          >
                             #{name}
                           </span>
                         );
@@ -291,10 +320,18 @@ const RecipeContentDesktop = ({
 
               {Array.isArray(briefings) && briefings.length > 0 && (
                 <section className="p-6 rounded-2xl border border-gray-200 bg-gray-50/30 hover:border-gray-300 transition-colors">
-                  <h4 className="text-xl font-bold text-neutral-900 mb-5">{t("summary.reviews")}</h4>
+                  <h4 className="text-xl font-bold text-neutral-900 mb-5">
+                    {t("summary.reviews")}
+                  </h4>
                   <p className="text-sm text-gray-500 mb-5 flex gap-2 items-center">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} stroke="currentColor" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        stroke="currentColor"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     {t("summary.reviewSource")}
                   </p>
@@ -303,9 +340,14 @@ const RecipeContentDesktop = ({
                       const text = b?.content ?? "";
                       if (!text) return null;
                       return (
-                        <li key={`${i}-${text.slice(0, 12)}`} className="flex gap-4 items-start">
+                        <li
+                          key={`${i}-${text.slice(0, 12)}`}
+                          className="flex gap-4 items-start"
+                        >
                           <span className="w-2.5 h-2.5 mt-2.5 rounded-full bg-orange-500 shrink-0 shadow-sm" />
-                          <span className="text-lg leading-8 text-neutral-900">{text}</span>
+                          <span className="text-lg leading-8 text-neutral-900">
+                            {text}
+                          </span>
                         </li>
                       );
                     })}
@@ -318,7 +360,10 @@ const RecipeContentDesktop = ({
           {activeTab === "recipe" && (
             <div className="flex flex-col gap-6">
               {steps.map((step, idx) => (
-                <div key={step.id} className="bg-gray-50/30 rounded-2xl p-5 border border-gray-200 hover:border-gray-300 transition-colors">
+                <div
+                  key={step.id}
+                  className="bg-gray-50/30 rounded-2xl p-5 border border-gray-200 hover:border-gray-300 transition-colors"
+                >
                   <div
                     className="flex items-center gap-5 cursor-pointer select-none group"
                     onClick={() =>
@@ -333,14 +378,24 @@ const RecipeContentDesktop = ({
                       {String.fromCharCode(65 + idx)}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-neutral-900 group-hover:text-orange-600 transition-colors">{step.subtitle}</h3>
+                      <h3 className="text-xl font-bold text-neutral-900 group-hover:text-orange-600 transition-colors">
+                        {step.subtitle}
+                      </h3>
                     </div>
                     <svg
-                      className={`w-7 h-7 transition-transform duration-300 text-gray-400 group-hover:text-orange-500 ${expanded.has(idx) ? "rotate-180" : ""}`}
+                      className={`w-7 h-7 transition-transform duration-300 text-gray-400 group-hover:text-orange-500 ${
+                        expanded.has(idx) ? "rotate-180" : ""
+                      }`}
                       viewBox="0 0 24 24"
                       fill="none"
                     >
-                      <path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M6 9L12 15L18 9"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
 
@@ -352,17 +407,34 @@ const RecipeContentDesktop = ({
                           className="w-full text-left bg-white border border-gray-200 rounded-xl px-5 py-4 hover:bg-orange-50/50 hover:border-orange-200 transition-all flex items-start justify-between gap-5 group/btn shadow-sm hover:shadow-md"
                           onClick={() => {
                             onTimeClick(d.start);
-                            onStepClick?.(step.stepOrder, step.subtitle, d.start, di);
+                            onStepClick?.(
+                              step.stepOrder,
+                              step.subtitle,
+                              d.start,
+                              di
+                            );
                           }}
                         >
                           <div className="flex items-start gap-4">
                             <span className="w-7 h-7 text-sm font-bold rounded-full bg-gray-100 group-hover/btn:bg-orange-100 group-hover/btn:text-orange-700 grid place-items-center shrink-0 transition-colors">
                               {di + 1}
                             </span>
-                            <p className="text-base leading-7 text-neutral-900">{d.text}</p>
+                            <p className="text-base leading-7 text-neutral-900">
+                              {d.text}
+                            </p>
                           </div>
-                          <svg className="w-6 h-6 text-gray-300 group-hover/btn:text-orange-500 shrink-0 transition-colors" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <svg
+                            className="w-6 h-6 text-gray-300 group-hover/btn:text-orange-500 shrink-0 transition-colors"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
+                            <path
+                              d="M9 18L15 12L9 6"
+                              stroke="currentColor"
+                              strokeWidth="2.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
                           </svg>
                         </button>
                       ))}
@@ -379,7 +451,10 @@ const RecipeContentDesktop = ({
                 <div className="font-bold text-2xl">
                   {selected.size > 0 ? (
                     <span className="text-neutral-900">
-                      {t("ingredients.prepared", { count: selected.size, total: ingredients.length })}
+                      {t("ingredients.prepared", {
+                        count: selected.size,
+                        total: ingredients.length,
+                      })}
                     </span>
                   ) : (
                     <span className="text-neutral-900">
@@ -397,7 +472,13 @@ const RecipeContentDesktop = ({
                   >
                     <span>{t("ingredients.measure")}</span>
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </button>
                 )}
@@ -413,10 +494,22 @@ const RecipeContentDesktop = ({
                       <div className="w-14 h-14 rounded-2xl bg-white border border-gray-100 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
                         <div className="text-3xl">🛒</div>
                       </div>
-                      <span className="text-xl font-bold text-neutral-900 group-hover:text-orange-700 transition-colors">{t("ingredients.purchase")}</span>
+                      <span className="text-xl font-bold text-neutral-900 group-hover:text-orange-700 transition-colors">
+                        {t("ingredients.purchase")}
+                      </span>
                     </div>
-                    <svg className="w-7 h-7 text-gray-400 group-hover:text-orange-500 transition-colors" viewBox="0 0 24 24" fill="none">
-                      <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <svg
+                      className="w-7 h-7 text-gray-400 group-hover:text-orange-500 transition-colors"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -441,15 +534,22 @@ const RecipeContentDesktop = ({
                         })
                       }
                     >
-                      <span className={`text-center font-bold text-lg leading-6 ${isSel ? "text-orange-600" : "text-neutral-900"}`}>
+                      <span
+                        className={`text-center font-bold text-lg leading-6 ${
+                          isSel ? "text-orange-600" : "text-neutral-900"
+                        }`}
+                      >
                         {ing.name}
                       </span>
                       {(ing.amount ?? 0) > 0 ? (
                         <span className="text-base text-gray-600 bg-gray-100/50 px-3 py-1 rounded-full">
-                          {ing.amount}{ing.unit ?? ""}
+                          {ing.amount}
+                          {ing.unit ?? ""}
                         </span>
                       ) : (
-                        <span className="text-sm text-gray-500">{t("ingredients.videoRef")}</span>
+                        <span className="text-sm text-gray-500">
+                          {t("ingredients.videoRef")}
+                        </span>
                       )}
                     </button>
                   );
@@ -476,7 +576,9 @@ const RecipeContentDesktop = ({
                   )
                 }
               >
-                {allSel ? t("ingredients.deselectAll") : t("ingredients.selectAll")}
+                {allSel
+                  ? t("ingredients.deselectAll")
+                  : t("ingredients.selectAll")}
               </button>
               <button
                 className={`flex-1 px-8 py-4 rounded-xl font-bold text-lg transition-all ${
@@ -511,7 +613,10 @@ const RecipeContentDesktop = ({
         </div>
       </div>
 
-      <MeasurementOverlay open={measurementOpen} onOpenChange={setMeasurementOpen} />
+      <MeasurementOverlay
+        open={measurementOpen}
+        onOpenChange={setMeasurementOpen}
+      />
       <IngredientPurchaseModal
         open={purchaseModalOpen}
         onOpenChange={setPurchaseModalOpen}

@@ -2,9 +2,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
-import { IngredientPurchaseModal } from "./IngredientPurchaseModal";
-import { MeasurementOverlay } from "./MeasurementOverlay";
-import { TimerButton } from "./timerButton";
+import { IngredientPurchaseModal } from "../common/component/IngredientPurchaseModal";
+import { MeasurementOverlay } from "../common/component/MeasurementOverlay";
+import { TimerButton } from "../common/component/TimerButton";
 import {
   useRecipeDetailController,
   type TabName,
@@ -13,7 +13,7 @@ import {
   type RecipeTag,
   type RecipeBriefing,
   type RecipeMeta,
-} from "./RecipeDetail.controller";
+} from "../common/hook/useRecipeDetailController";
 
 export const RecipeDetailPageSkeletonTablet = () => (
   <div className="min-h-screen bg-gray-50">

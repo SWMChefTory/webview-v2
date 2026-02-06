@@ -31,7 +31,7 @@ export function usePopularRecipeController(
 
 export function usePopularRecipeContent(
   variant: PopularRecipeVariant
-): Omit<PopularRecipeContentProps, "renderToast"> {
+): PopularRecipeContentProps {
   const {
     entities: recipes,
     isFetchingNextPage,

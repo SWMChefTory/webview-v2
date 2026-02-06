@@ -1,4 +1,5 @@
 export * from "./model/useUserRecipe";
+export * from "./model/useBookmark";
 export type {
   CreateRecipeResponse as CreateRecipeResult,
   PaginatedRecipes,

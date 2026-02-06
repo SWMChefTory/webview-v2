@@ -153,3 +153,18 @@ export async function updateCategory({
   };
   return await client.put(`/recipes/${recipeId}/categories`, request);
 }
+
+const BookmarkResponseSchema = z.object({
+  message: z.string(),
+});
+
+export type BookmarkResponse = z.infer<typeof BookmarkResponseSchema>;
+
+export async function enrollBookmark(recipeId: string): Promise<BookmarkResponse> {
+  const response = await client.post(`/recipes/${recipeId}/bookmark`);
+  return parseWithErrLog(BookmarkResponseSchema, response.data);
+}
+
+export async function cancelBookmark(recipeId: string): Promise<void> {
+  return await client.delete(`/recipes/${recipeId}/bookmark`);
+}

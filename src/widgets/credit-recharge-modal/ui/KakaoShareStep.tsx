@@ -8,32 +8,47 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { completeRecharge } from "@/src/entities/balance/api/rechargeApi";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { BALANCE_QUERY_KEY } from "@/src/entities/balance/model/useFetchBalance";
 
 export function KakaoShareStep() {
-  const { setStep } = useCreditRechargeModalStore();
+  const { setStep, setRechargeResult } = useCreditRechargeModalStore();
   const { t } = useRechargeTranslation();
+  const queryClient = useQueryClient();
 
   const handleBack = useCallback(() => {
     setStep('clipboard');
   }, [setStep]);
 
-  const handleKakaoShare = useCallback(() => {
+  const handleKakaoShare = useCallback(async () => {
     track(AMPLITUDE_EVENT.RECHARGE_KAKAO_CLICK);
 
-    // 1. sessionStorage에 timestamp 저장 (5분 유효)
-    sessionStorage.setItem('rechargeTimestamp', Date.now().toString());
+    // 1. 즉시 충전 API 호출
+    try {
+      const result = await completeRecharge();
 
-    // 2. 복귀용 URL 생성
-    const returnUrl = generateRechargeUrl();
+      // 2. Store에 결과 저장
+      setRechargeResult(result);
 
-    // 3. 카카오톡 앱 실행 (네이티브에서 플랫폼별 스킴 처리)
-    request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, {
-      returnUrl,
-    });
+      // 3. Balance 갱신
+      queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
 
-    // 4. 바로 SuccessStep으로 이동 (모달은 닫지 않음)
-    setStep('success');
-  }, [setStep]);
+      // 4. 카카오톡 실행
+      const returnUrl = generateRechargeUrl();
+      request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, { returnUrl });
+
+      // 5. 성공 화면으로 전환
+      setStep('success');
+
+      toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
+    } catch (error) {
+      // 에러 시 토스트 표시, 스텝 유지
+      const message = error instanceof Error ? error.message : '충전에 실패했어요.';
+      toast.error(message, { duration: 3000 });
+    }
+  }, [setStep, setRechargeResult, queryClient]);
 
   return (
     <div className="flex flex-col min-h-[280px] h-full relative">

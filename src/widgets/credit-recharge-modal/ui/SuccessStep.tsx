@@ -1,71 +1,14 @@
-import { useCreditRechargeModalStore } from "../creditRechargeModalStore";
+import { useCreditRechargeModalStore, type RechargeResult } from "../creditRechargeModalStore";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
-import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Spinner } from "@/components/ui/spinner";
 
 export function SuccessStep() {
-  const { close } = useCreditRechargeModalStore();
+  const { close, rechargeResult } = useCreditRechargeModalStore();
   const { data } = useFetchBalance();
   const { t } = useRechargeTranslation();
 
-  // 충전 결과 상태
-  const [rechargeResult, setRechargeResult] = useState<{
-    amount: number;
-    remainingCount: number;
-  } | null>(null);
-
-  // 개발 모드 자동 완료 시뮬레이션
-  const isDev = process.env.NODE_ENV === 'development';
-
-  // sessionStorage에서 결과 읽기 및 주기적 체크
-  useEffect(() => {
-    const checkResult = () => {
-      const result = sessionStorage.getItem('lastRechargeResult');
-      if (result) {
-        try {
-          setRechargeResult(JSON.parse(result));
-          sessionStorage.removeItem('lastRechargeResult');
-        } catch (e) {
-          console.error('Failed to parse recharge result:', e);
-        }
-      }
-    };
-
-    // 초기 체크
-    checkResult();
-
-    // 개발 모드: 2초 후 자동 완료 시뮬레이션
-    if (isDev && !rechargeResult) {
-      const timer = setTimeout(() => {
-        const mockResult = {
-          amount: 10,
-          remainingCount: 2,
-        };
-        setRechargeResult(mockResult);
-        console.log('[Dev] 충전 완료 시뮬레이션:', mockResult);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-
-    // 주기적 체크 (복귀 후 업데이트를 위해)
-    const maxPollingTime = 5 * 60 * 1000; // 5 minutes
-    const startTime = Date.now();
-
-    const interval = setInterval(() => {
-      if (Date.now() - startTime > maxPollingTime) {
-        clearInterval(interval);
-        console.log('[Dev] Polling timeout - 5 minutes elapsed');
-        return;
-      }
-      checkResult();
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [isDev]);
-
-  // 로딩 상태 여부
+  // 로딩 상태: 결과가 없으면 로딩 중
   const isLoading = !rechargeResult;
 
   return (
@@ -74,7 +17,10 @@ export function SuccessStep() {
         {/* Icon + Berry + Amount */}
         {isLoading ? (
           <div className="w-16 h-16 rounded-full flex items-center justify-center bg-orange-100">
-            <Spinner className="size-6 text-orange-500" />
+            <svg className="animate-spin size-6 text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
           </div>
         ) : (
           <div className="flex items-center justify-center gap-2">
@@ -103,7 +49,10 @@ export function SuccessStep() {
         <div className="w-full max-w-md">
           {isLoading ? (
             <div className="flex items-center justify-center gap-2 p-3 bg-orange-50 rounded-xl">
-              <Spinner className="size-6 text-orange-500 flex-shrink-0" />
+              <svg className="animate-spin size-6 text-orange-500 flex-shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
               <div className="min-w-0 flex-1">
                 <p className="text-lg font-bold text-orange-500">{t('success.loadingTitle')}</p>
                 <p className="text-xs text-gray-600 truncate">{t('success.loadingDescription')}</p>

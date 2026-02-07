@@ -23,7 +23,7 @@ import {
 } from "@tanstack/react-query";
 import { RecipeCreatingView } from "@/src/widgets/recipe-creating-form/recipeCreatingForm";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
-import { CreditRechargeModal, useRechargeSession } from "@/src/widgets/credit-recharge-modal/ui";
+import { CreditRechargeModal } from "@/src/widgets/credit-recharge-modal/ui";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
@@ -75,9 +75,6 @@ function AppInner({ Component, pageProps }: AppProps) {
     string | undefined
   >(undefined);
   const { isOnboardingCompleted } = useOnboardingStore();
-
-  // Recharge session hook - handles return from KakaoTalk
-  useRechargeSession();
 
   useEffect(() => {
     // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)

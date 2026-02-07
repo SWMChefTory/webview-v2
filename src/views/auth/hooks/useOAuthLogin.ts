@@ -74,14 +74,6 @@ export function useOAuthLogin() {
       return;
     }
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) {
-      const errorMessage = "App URL is not configured";
-      console.error(errorMessage);
-      onError?.(errorMessage);
-      return;
-    }
-
     try {
       const response = await oauthLogin({
         idToken,

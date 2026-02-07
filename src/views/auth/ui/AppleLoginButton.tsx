@@ -70,7 +70,6 @@ export default function AppleLoginButton({
     if (!window.AppleID?.auth) {
       return false;
     }
-    
     try {
       const redirectURI = "https://cheftories.com/apple/notifications";
       window.AppleID.auth.init({

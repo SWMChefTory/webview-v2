@@ -25,7 +25,6 @@ export default function AuthPage() {
 
   useEffect(() => {
     setOrigin(window.location.origin);
-    console.log("origin", origin);
   }, []);
 
   useEffect(() => {

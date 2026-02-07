@@ -52,7 +52,7 @@ export function useRecipeStepPageController(id: string) {
     };
   }, []);
 
-  const { steps, currentIndex, currentDetailIndex, chageStepByTime } =
+  const { steps, currentIndex, currentDetailIndex, chageStepByTime, changeStepByIndex } =
     useRecipeStepController({ recipeId: id });
 
   const hasTrackedStartRef = useRef(false);
@@ -123,11 +123,14 @@ export function useRecipeStepPageController(id: string) {
       ) {
         return;
       }
+      // 중요: 수동 내비게이션을 먼저 설정하여 seek 후 시간 기반 업데이트가
+      // 잘못된 위치로 점프하는 것을 방지 (프로그래스바 깜빡임 버그 수정)
+      changeStepByIndex({ stepIndex, stepDetailIndex });
       videoRef.current?.seekTo({
         time: steps[stepIndex].details[stepDetailIndex].start,
       });
     },
-    [steps]
+    [steps, changeStepByIndex]
   );
 
   const { handleTimerIntent } = useHandleTimerVoiceIntent({

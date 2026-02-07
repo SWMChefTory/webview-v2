@@ -41,7 +41,7 @@ export function SuccessStep() {
       const timer = setTimeout(() => {
         const mockResult = {
           amount: 10,
-          remainingCount: 9,
+          remainingCount: 2,
         };
         setRechargeResult(mockResult);
         console.log('[Dev] 충전 완료 시뮬레이션:', mockResult);

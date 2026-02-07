@@ -6,13 +6,19 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { motion, useReducedMotion } from "motion/react";
 import { useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { fadeInUpVariants } from "../shared/animations";
 import { TORY_IMAGE } from "../shared/constants";
 
 // 인기 레시피 API
 import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+
+// 튜토리얼 완료 API
+import { completeTutorial } from "@/src/views/settings/entities/user/api";
+import { BALANCE_QUERY_KEY } from "@/src/entities/balance/model/useFetchBalance";
+
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // 스켈레톤 로딩 컴포넌트
 const RecipeCardSkeleton = () => (
@@ -26,6 +32,7 @@ const noop = () => {};
 export function OnboardingStep3() {
   const { t } = useOnboardingTranslation();
   const { currentStep, completeOnboarding, prevStep } = useOnboardingStore();
+  const queryClient = useQueryClient();
 
   // 접근성: reduced-motion 체크
   const prefersReducedMotion = useReducedMotion();
@@ -34,18 +41,34 @@ export function OnboardingStep3() {
   // 인기 레시피 데이터 (실제 API)
   const { data: popularRecipes = [] } = useFetchPopularRecipe(VideoType.NORMAL);
 
-  // 온보딩 완료 (index.tsx의 useEffect가 '/'로 리다이렉트)
-  const handleComplete = useCallback((type: string, extra?: Record<string, string>) => {
-    track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type, ...extra });
-    completeOnboarding();
-  }, [completeOnboarding]);
+  // 온보딩 완료 (index.tsx의 useEffect가 redirectPath로 리다이렉트)
+  const handleComplete = useCallback(async (type: string, redirectPath?: string, extra?: Record<string, string>) => {
+    try {
+      // 튜토리얼 완료 API 호출: true=첫 완료(크레딧 지급), false=이미 완료
+      const isFirstComplete = await completeTutorial();
+
+      if (isFirstComplete) {
+        // 첫 완료: 밸런스 갱신 + 축하 토스트
+        queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
+        toast.success('30베리가 지급되었어요!', { duration: 3000 });
+      }
+
+      // 트래킹 및 상태 변경 (redirectPath 전달)
+      track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type, isFirstComplete, ...extra });
+      completeOnboarding(redirectPath);
+    } catch (error) {
+      console.error('Tutorial completion failed:', error);
+      toast.error('오류가 발생했어요. 다시 시도해주세요.', { duration: 3000 });
+    }
+  }, [completeOnboarding, queryClient]);
 
   return (
     <StepContainer
       currentStep={currentStep}
       onNext={noop}
       onPrev={prevStep}
-      onSkip={() => handleComplete('explore')}
+      onSkip={() => handleComplete('explore', '/')}
+      hideSkipButton={true}
       hideNextButton={true}
     >
       <div className="w-full max-w-sm mx-auto flex flex-col items-center gap-3 px-2">
@@ -105,7 +128,7 @@ export function OnboardingStep3() {
           핸즈프리 요리를 시작해보세요
         </motion.p>
 
-        {/* 50 Berries Promotion Badge */}
+        {/* 30 Berries Promotion Badge */}
         <motion.div
           variants={fadeInUpVariants}
           initial="hidden"
@@ -114,7 +137,7 @@ export function OnboardingStep3() {
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-300"
         >
           <span className="text-xl" aria-hidden="true">🎁</span>
-          <span className="text-sm font-semibold text-amber-800">보상으로 50개가 지급되었습니다!</span>
+          <span className="text-sm font-semibold text-amber-800">완료하면 30베리를 받을 수 있어요!</span>
         </motion.div>
 
         {/* Primary CTA: Start Cooking Mode */}
@@ -123,7 +146,7 @@ export function OnboardingStep3() {
           initial="hidden"
           animate="visible"
           transition={{ delay: 0.5 }}
-          onClick={() => handleComplete('start_cooking')}
+          onClick={() => handleComplete('start_cooking', '/')}
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.97 }}
           className="w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-lg bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_0_rgb(180,83,9),0_6px_20px_rgba(234,88,12,0.4)] hover:shadow-[0_4px_0_rgb(180,83,9),0_8px_25px_rgba(234,88,12,0.5)] active:shadow-[0_2px_0_rgb(180,83,9),0_4px_10px_rgba(234,88,12,0.3)] active:translate-y-[2px] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 border-b-4 border-orange-700"
@@ -166,19 +189,15 @@ export function OnboardingStep3() {
               </>
             ) : (
               popularRecipes.slice(0, 3).map((recipe, index) => (
-                <motion.button
+                <motion.div
                   key={recipe.recipeId}
                   role="listitem"
                   variants={fadeInUpVariants}
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: 0.8 + index * 0.1 }}
-                  onClick={() => handleComplete('recipe_select', {
-                    recipe_id: recipe.recipeId,
-                    recipe_name: recipe.recipeTitle,
-                  })}
-                  className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 hover:border-orange-400 hover:shadow-md transition-all focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
-                  aria-label={`레시피: ${recipe.recipeTitle}, 선택하여 시작`}
+                  className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200"
+                  aria-label={`레시피: ${recipe.recipeTitle}`}
                 >
                   <img
                     src={recipe.videoThumbnailUrl}
@@ -191,24 +210,20 @@ export function OnboardingStep3() {
                       {recipe.recipeTitle}
                     </p>
                   </div>
-                </motion.button>
+                </motion.div>
               ))
             )}
           </div>
 
-          {/* More Recipes Link */}
-          <Link
-            href="/popular-recipe"
-            onClick={() => {
-              track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type: 'explore_more' });
-              completeOnboarding();
-            }}
-            className="flex items-center justify-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors focus-visible:underline focus-visible:underline-offset-2 min-h-[44px]"
+          {/* More Recipes Button */}
+          <button
+            onClick={() => handleComplete('explore_more', '/popular-recipe')}
+            className="flex items-center justify-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors focus-visible:underline focus-visible:underline-offset-2 min-h-[44px] w-full"
             aria-label="인기 레시피 더보기 페이지로 이동"
           >
             <span>인기 레시피 더보기</span>
             <span aria-hidden="true">→</span>
-          </Link>
+          </button>
 
           {/* Tutorial Notice */}
           <p className="text-[10px] text-gray-500 text-center mt-1">

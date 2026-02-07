@@ -11,6 +11,7 @@ interface StepContainerProps {
   onNext: () => void;
   onPrev: () => void;
   onSkip: () => void;
+  hideSkipButton?: boolean;
   hideNextButton?: boolean;
   innerStateIndex?: number;
   /** 하단 네비게이션 가운데에 표시할 커스텀 콘텐츠 (예: 마이크 버튼) */
@@ -35,6 +36,7 @@ export function StepContainer({
   onNext,
   onPrev,
   onSkip,
+  hideSkipButton,
   hideNextButton,
   innerStateIndex,
   bottomCenter,
@@ -47,13 +49,15 @@ export function StepContainer({
   return (
     <div className="h-dvh bg-gradient-to-b from-orange-50 via-white to-white p-4 relative flex flex-col">
       {/* Skip Button (Top Right) */}
-      <button
-        onClick={onSkip}
-        className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 z-50"
-        aria-label="온보딩 건너뛰기"
-      >
-        {t('common.skip')}
-      </button>
+      {!hideSkipButton && (
+        <button
+          onClick={onSkip}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 z-50"
+          aria-label="온보딩 건너뛰기"
+        >
+          {t('common.skip')}
+        </button>
+      )}
 
       {/* Segmented Progress Bar (4+4+1 그룹핑) */}
       <div

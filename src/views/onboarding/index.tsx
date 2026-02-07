@@ -5,18 +5,18 @@ import { useRouter } from "next/router";
 
 export default function OnboardingPage() {
   const [isMounted, setIsMounted] = useState(false);
-  const { isOnboardingCompleted } = useOnboardingStore();
+  const { isOnboardingCompleted, redirectPath } = useOnboardingStore();
   const router = useRouter();
-  
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
     if (isMounted && isOnboardingCompleted) {
-      router.replace('/');
+      router.replace(redirectPath ?? '/');
     }
-  }, [isOnboardingCompleted, isMounted, router]);
+  }, [isOnboardingCompleted, isMounted, router, redirectPath]);
   
   if (!isMounted) {
     // Loading state (prevents hydration mismatch)

@@ -13,9 +13,10 @@ interface OnboardingState {
   isOnboardingCompleted: boolean;
   currentStep: OnboardingStep;
   navigationDirection: NavigationDirection;
+  redirectPath: string | null;
 
   // Actions
-  completeOnboarding: () => void;
+  completeOnboarding: (redirectPath?: string) => void;
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: OnboardingStep) => void;
@@ -28,9 +29,10 @@ export const useOnboardingStore = create<OnboardingState>()(
       isOnboardingCompleted: false,
       currentStep: 1,
       navigationDirection: 'forward',
+      redirectPath: null,
 
-      completeOnboarding: () => {
-        set({ isOnboardingCompleted: true });
+      completeOnboarding: (redirectPath?: string) => {
+        set({ isOnboardingCompleted: true, redirectPath: redirectPath ?? '/' });
       },
 
       nextStep: () => set((state) => ({
@@ -49,6 +51,7 @@ export const useOnboardingStore = create<OnboardingState>()(
         isOnboardingCompleted: false,
         currentStep: 1,
         navigationDirection: 'forward' as NavigationDirection,
+        redirectPath: null,
       })
     }),
     {

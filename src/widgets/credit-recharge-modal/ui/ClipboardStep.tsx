@@ -8,7 +8,7 @@ import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import Image from "next/image";
 
-const DEFAULT_RECHARGE_COUNT = 10;
+const DEFAULT_RECHARGE_COUNT = 3;
 
 export function ClipboardStep() {
   const { setStep } = useCreditRechargeModalStore();

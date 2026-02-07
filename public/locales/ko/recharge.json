@@ -33,8 +33,8 @@
     "loadingDescription": "카카오톡 공유 완료 시 자동 충전됩니다",
     "creditAdded": "베리가 충전되었어요",
     "currentBalance": "현재 베리: {{balance}}",
-    "remainingCount": "이번 달 남은 횟수: {{count}}회",
-    "noRemainingCount": "이번 달 충전 횟수를 모두 사용했어요",
+    "remainingCount": "남은 충전 횟수: {{count}}회",
+    "noRemainingCount": "충전 횟수를 모두 사용했어요",
     "confirmButton": "확인",
     "error": "충전 처리 중 오류가 발생했어요"
   }

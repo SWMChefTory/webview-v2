@@ -9,10 +9,6 @@ import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHa
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
-// TODO: 실제 카카오톡 오픈채팅 스킴으로 변경
-const KAKAO_TALK_SCHEME = "kakaolink://";
-const KAKAO_FALLBACK_URL = "https://open.kakao.com/o/xxx";
-
 export function KakaoShareStep() {
   const { setStep } = useCreditRechargeModalStore();
   const { t } = useRechargeTranslation();
@@ -30,10 +26,8 @@ export function KakaoShareStep() {
     // 2. 복귀용 URL 생성
     const returnUrl = generateRechargeUrl();
 
-    // 3. 카카오톡 실행
-    request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_EXTERNAL_URL, {
-      url: KAKAO_TALK_SCHEME,
-      fallbackUrl: KAKAO_FALLBACK_URL,
+    // 3. 카카오톡 앱 실행 (네이티브에서 플랫폼별 스킴 처리)
+    request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, {
       returnUrl,
     });
 

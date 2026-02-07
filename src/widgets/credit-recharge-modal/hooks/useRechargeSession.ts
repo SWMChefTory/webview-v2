@@ -48,10 +48,10 @@ export function useRechargeSession() {
       queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
 
       // 4. 모달 열고 성공 스텝으로 전환
-      open('settings'); // source는 상관없음, 이미 모달이 열려있으면 상태만 변경됨
+      open('settings');
       setStep('success');
 
-      toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
+      toast.success(t('success.creditAdded'), { duration: 2000 });
     } catch (error) {
       console.error('Recharge complete failed:', error);
       track(AMPLITUDE_EVENT.RECHARGE_ERROR, { error: String(error) });

@@ -40,9 +40,11 @@ export async function completeRecharge(): Promise<RechargeResponse> {
       remainingCount,
     };
   } catch (error) {
-    if (isAxiosError(error) && error.response?.data?.errorCode) {
-      const errorCode = error.response.data.errorCode;
-      const message = ERROR_MESSAGES[errorCode];
+    if (isAxiosError(error)) {
+      const data = error.response?.data;
+      // 에러 응답은 camelcaseKeys 미적용이므로 snake_case/camelCase 모두 체크
+      const errorCode = data?.errorCode ?? data?.error_code;
+      const message = errorCode ? ERROR_MESSAGES[errorCode] : undefined;
 
       if (message) {
         throw new Error(message);

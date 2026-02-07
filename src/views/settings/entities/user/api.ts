@@ -41,8 +41,20 @@ export async function completeTutorial(): Promise<boolean> {
         return true;
     } catch (error) {
         // USER_005 (이미 완료) 에러는 정상 처리 — 크레딧 미지급
-        if (isAxiosError(error) && error.response?.data?.errorCode === TUTORIAL_ERROR_CODE) {
-            return false;
+        if (isAxiosError(error)) {
+            const data = error.response?.data;
+            const errorCode = data?.errorCode ?? data?.error_code;
+
+            console.error('[completeTutorial] API error:', {
+                status: error.response?.status,
+                errorCode,
+                message: data?.message,
+                rawData: data,
+            });
+
+            if (errorCode === TUTORIAL_ERROR_CODE) {
+                return false;
+            }
         }
         throw error;
     }

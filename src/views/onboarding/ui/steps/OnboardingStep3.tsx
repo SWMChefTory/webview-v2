@@ -19,6 +19,7 @@ import { BALANCE_QUERY_KEY } from "@/src/entities/balance/model/useFetchBalance"
 
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { isAxiosError } from "axios";
 
 // 스켈레톤 로딩 컴포넌트
 const RecipeCardSkeleton = () => (
@@ -42,24 +43,34 @@ export function OnboardingStep3() {
   const { data: popularRecipes = [] } = useFetchPopularRecipe(VideoType.NORMAL);
 
   // 온보딩 완료 (index.tsx의 useEffect가 redirectPath로 리다이렉트)
+  // API 실패해도 온보딩은 항상 완료 — 사용자가 화면에 갇히지 않도록
   const handleComplete = useCallback(async (type: string, redirectPath?: string, extra?: Record<string, string>) => {
+    let isFirstComplete = false;
+
     try {
       // 튜토리얼 완료 API 호출: true=첫 완료(크레딧 지급), false=이미 완료
-      const isFirstComplete = await completeTutorial();
+      isFirstComplete = await completeTutorial();
 
       if (isFirstComplete) {
         // 첫 완료: 밸런스 갱신 + 축하 토스트
         queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
         toast.success('30베리가 지급되었어요!', { duration: 3000 });
       }
-
-      // 트래킹 및 상태 변경 (redirectPath 전달)
-      track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type, isFirstComplete, ...extra });
-      completeOnboarding(redirectPath);
     } catch (error) {
-      console.error('Tutorial completion failed:', error);
-      toast.error('오류가 발생했어요. 다시 시도해주세요.', { duration: 3000 });
+      // 튜토리얼 API 실패해도 온보딩은 진행 (크레딧만 미지급)
+      console.error('Tutorial API failed:', error);
+      if (isAxiosError(error)) {
+        console.error('Tutorial API error detail:', {
+          status: error.response?.status,
+          data: error.response?.data,
+          errorCode: error.response?.data?.errorCode,
+        });
+      }
     }
+
+    // 트래킹 및 상태 변경 — API 실패해도 항상 실행
+    track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type, isFirstComplete, ...extra });
+    completeOnboarding(redirectPath);
   }, [completeOnboarding, queryClient]);
 
   return (

@@ -70,15 +70,8 @@ export default function AppleLoginButton({
     if (!window.AppleID?.auth) {
       return false;
     }
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) {
-      const errorMessage = "App URL is not configured";
-      console.error(errorMessage);
-      onError(errorMessage);
-      return false;
-    }
+    
     try {
-      // const redirectURI = `${appUrl}/auth`;
       const redirectURI = "https://cheftories.com/apple/notifications";
       window.AppleID.auth.init({
         clientId: APPLE_CLIENT_ID,

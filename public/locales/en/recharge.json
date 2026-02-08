@@ -1,0 +1,46 @@
+{
+  "modal": {
+    "title": "Recharge Credits",
+    "description": "Share Cheftory with friends and get credits",
+    "close": "Close"
+  },
+  "steps": {
+    "clipboard": "Copy Link",
+    "kakao": "Share",
+    "success": "Complete"
+  },
+  "clipboard": {
+    "title": "Invite Friends & Get Credits",
+    "description": "Share Cheftory with friends\nand get credits!",
+    "inviteLinkLabel": "Invite Link",
+    "copyButton": "Copy",
+    "copying": "Copying...",
+    "copySuccess": "Link copied",
+    "copyError": "Failed to copy",
+    "noRemainingCount": "All recharge attempts used",
+    "remainingCount": "{{count}} attempts remaining"
+  },
+  "kakao": {
+    "title": "Share via KakaoTalk",
+    "description": "Share the copied link with\nfriends on KakaoTalk",
+    "backButton": "Back",
+    "shareButton": "Share via KakaoTalk"
+  },
+  "success": {
+    "title": "Share completed!",
+    "loadingTitle": "Processing share...",
+    "description": "Thank you for sharing with friends",
+    "loadingDescription": "Automatic charge upon KakaoTalk share completion",
+    "creditAdded": "Berries charged",
+    "creditCharged": "Berries charged",
+    "currentBalance": "Current Berries: {{balance}}",
+    "currentBalanceLabel": "Current Berries: ",
+    "remainingCount": "{{count}} recharge attempts remaining",
+    "noRemainingCount": "All recharge attempts used",
+    "limitExceededTitle": "Thank you for sharing!",
+    "limitExceededLine1": "You've used all your recharge attempts for today.",
+    "limitExceededLine2": "You can recharge again tomorrow!",
+    "confirmButton": "Confirm",
+    "error": "An error occurred during recharge processing"
+  }
+}

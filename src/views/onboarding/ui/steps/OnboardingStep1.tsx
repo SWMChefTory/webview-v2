@@ -21,12 +21,12 @@ const STEP_IMAGES: Record<Step1State, string> = {
   home_saved: '/images/onboarding/app-home.png',
 };
 
-// 각 상태별 이미지 alt 텍스트
-const STEP_ALT: Record<Step1State, string> = {
-  youtube: '유튜브에서 레시피 영상 공유하기',
-  share_sheet: '공유 시트에서 Cheftory 선택하기',
-  create_confirm: '레시피 생성 확인 화면',
-  home_saved: '홈 화면에 저장된 레시피',
+// 각 상태별 이미지 alt 텍스트 키
+const STEP_ALT_KEYS: Record<Step1State, string> = {
+  youtube: 'step1.alt.youtube',
+  share_sheet: 'step1.alt.share_sheet',
+  create_confirm: 'step1.alt.create_confirm',
+  home_saved: 'step1.alt.home_saved',
 };
 
 // 상태 순서 (이전/다음 네비게이션용)
@@ -120,6 +120,11 @@ export function OnboardingStep1() {
     }
   }, [currentIndex, step1State, prevStep]);
 
+  // alt 텍스트 가져오기
+  const getAltText = useCallback((state: Step1State): string => {
+    return t(STEP_ALT_KEYS[state]);
+  }, [t]);
+
   return (
     <StepContainer
       currentStep={currentStep}
@@ -173,7 +178,7 @@ export function OnboardingStep1() {
           whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
           className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 flex-1 min-h-0"
           style={{ width: PREVIEW_BUTTON.WIDTH, maxHeight: PREVIEW_BUTTON.HEIGHT_NORMAL }}
-          aria-label={`${STEP_ALT[step1State]}. 터치하여 다음으로 이동.`}
+          aria-label={`${getAltText(step1State)}. ${t('step1.aria.touchToNext')}`}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -189,7 +194,7 @@ export function OnboardingStep1() {
             >
               <Image
                 src={STEP_IMAGES[step1State]}
-                alt={STEP_ALT[step1State]}
+                alt={getAltText(step1State)}
                 fill
                 className="object-contain"
               />
@@ -206,11 +211,11 @@ export function OnboardingStep1() {
             className="text-xs text-amber-600 flex items-center gap-1"
           >
             <Image src="/images/berry/berry.png" alt="" width={14} height={14} />
-            <span>끝까지 완료하면 30베리를 드려요</span>
+            <span>{t('step1.reward')}</span>
           </motion.p>
         ) : (
           <p className="text-xs text-gray-500 flex items-center gap-1">
-            <span>화면을 터치하여 다음</span>
+            <span>{t('step1.touchHint')}</span>
             <span aria-hidden="true">→</span>
           </p>
         )}

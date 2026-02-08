@@ -64,7 +64,7 @@ export function StepContainer({
         <button
           onClick={onSkip}
           className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 z-50"
-          aria-label="온보딩 건너뛰기"
+          aria-label={t('aria.skipOnboarding')}
         >
           {t('common.skip')}
         </button>
@@ -74,7 +74,7 @@ export function StepContainer({
       <div
         className="flex justify-center items-center gap-3 pt-2 pb-2"
         role="progressbar"
-        aria-label="온보딩 진행률"
+        aria-label={t('aria.onboardingProgress')}
         aria-valuemin={1}
         aria-valuemax={TOTAL_STEPS}
         aria-valuenow={globalStepIndex}
@@ -120,7 +120,7 @@ export function StepContainer({
                 ? "opacity-0 pointer-events-none"
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200"
             )}
-            aria-label={isFirstGlobalStep ? "첫 번째 단계입니다" : "이전 단계로 이동"}
+            aria-label={isFirstGlobalStep ? t('aria.firstStep') : t('aria.prevStep')}
           >
             {t('common.prev')}
           </button>
@@ -139,7 +139,7 @@ export function StepContainer({
             <button
               onClick={onNext}
               className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
-              aria-label="다음 단계로 이동"
+              aria-label={t('aria.nextStep')}
             >
               {t('common.next')}
             </button>

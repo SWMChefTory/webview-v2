@@ -43,11 +43,18 @@ export function SuccessStep() {
         {/* Title */}
         <div className="text-center space-y-1">
           <h2 className="text-lg lg:text-xl font-bold">
-            {isLoading ? t('success.loadingTitle') : isLimitExceeded ? '공유해주셔서 감사해요!' : t('success.title')}
+            {isLoading ? t('success.loadingTitle') : isLimitExceeded ? t('success.limitExceededTitle') : t('success.title')}
           </h2>
-          <p className="text-sm text-gray-600">
-            {isLoading ? t('success.loadingDescription') : isLimitExceeded ? '오늘의 충전 횟수를 모두 사용했어요.\n내일 다시 충전할 수 있어요!' : t('success.description')}
-          </p>
+          {isLoading ? (
+            <p className="text-sm text-gray-600">{t('success.loadingDescription')}</p>
+          ) : isLimitExceeded ? (
+            <div className="text-sm text-gray-600 space-y-1">
+              <p>{t('success.limitExceededLine1')}</p>
+              <p>{t('success.limitExceededLine2')}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600">{t('success.description')}</p>
+          )}
         </div>
 
         {/* Credit Display */}
@@ -66,17 +73,17 @@ export function SuccessStep() {
           ) : isLimitExceeded ? (
             <div className="text-center">
               <p className="text-xs text-gray-500">
-                현재 베리: <span className="font-semibold text-gray-900">{data?.balance ?? 0}</span>
+                {t('success.currentBalanceLabel')}<span className="font-semibold text-gray-900">{data?.balance ?? 0}</span>
               </p>
             </div>
           ) : (
             <div className="text-center space-y-1">
               <p className="text-sm text-gray-600">
                 <span className="font-semibold text-orange-500">{rechargeResult?.amount ?? 10}</span>
-                <span>베리가 충전되었어요</span>
+                <span>{t('success.creditCharged')}</span>
               </p>
               <p className="text-xs text-gray-500">
-                현재 베리: <span className="font-semibold text-gray-900">{data?.balance ?? 0}</span>
+                {t('success.currentBalanceLabel')}<span className="font-semibold text-gray-900">{data?.balance ?? 0}</span>
               </p>
             </div>
           )}

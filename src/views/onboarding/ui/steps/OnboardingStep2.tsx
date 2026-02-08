@@ -31,12 +31,12 @@ const STEP_IMAGES: Record<Step2State, string> = {
   cooking: '/images/onboarding/app-cooking_home.png',
 };
 
-// 각 상태별 이미지 alt 텍스트
-const STEP_ALT: Record<Step2State, string> = {
-  summary: '레시피 요약 화면',
-  ingredients: '재료 목록 화면',
-  steps: '조리 단계 화면',
-  cooking: '쿠킹 모드 홈 화면',
+// 각 상태별 이미지 alt 텍스트 키
+const STEP_ALT_KEYS: Record<Step2State, string> = {
+  summary: 'step2.alt.summary',
+  ingredients: 'step2.alt.ingredients',
+  steps: 'step2.alt.steps',
+  cooking: 'step2.alt.cooking',
 };
 
 // 상태 순서
@@ -135,11 +135,11 @@ export function OnboardingStep2() {
     if (step2State === 'cooking') {
       switch (voiceTaskState) {
         case 'play_video':
-          return '재생해줘라고 말해보세요';
+          return t('step2.cooking.voiceTasks.playVideoHint');
         case 'next_step':
-          return '다음단계라고 말해보세요';
+          return t('step2.cooking.voiceTasks.nextStepHint');
         case 'completed':
-          return '모두 완료했어요!';
+          return t('step2.cooking.voiceTasks.completed');
       }
     }
     switch (step2State) {
@@ -254,6 +254,11 @@ export function OnboardingStep2() {
 
   const isCookingState = step2State === 'cooking';
 
+  // alt 텍스트 가져오기
+  const getAltText = useCallback((state: Step2State): string => {
+    return t(STEP_ALT_KEYS[state]);
+  }, [t]);
+
   // 쿠킹 상태에서 하단 네비게이션 가운데에 표시할 마이크 UI
   const micBottomCenter = isCookingState ? (
     <div className="flex flex-col items-center gap-1 w-full">
@@ -268,8 +273,8 @@ export function OnboardingStep2() {
         {!micActivated ? t('step2.cooking.tapToStart') :
          isListening ? t('step2.cooking.listening') :
          voiceStatus === 'recognized' ? t('step2.cooking.recognized') :
-         voiceTaskState === 'play_video' ? '"재생해줘"라고 말해보세요' :
-         voiceTaskState === 'next_step' ? '"다음 단계"라고 말해보세요' :
+         voiceTaskState === 'play_video' ? t('step2.cooking.micStatus.playVideoPrompt') :
+         voiceTaskState === 'next_step' ? t('step2.cooking.micStatus.nextStepPrompt') :
          t('step2.cooking.recognized')}
       </p>
 
@@ -360,7 +365,7 @@ export function OnboardingStep2() {
                     className="flex items-center gap-1 text-green-600 text-sm font-medium"
                   >
                     <CheckIcon />
-                    <span>재생해줘</span>
+                    <span>{t('step2.cooking.voiceTasks.playVideoLabel')}</span>
                   </motion.span>
                 )}
                 {completedTasks.nextStep && (
@@ -370,7 +375,7 @@ export function OnboardingStep2() {
                     className="flex items-center gap-1 text-green-600 text-sm font-medium"
                   >
                     <CheckIcon />
-                    <span>다음단계</span>
+                    <span>{t('step2.cooking.voiceTasks.nextStepLabel')}</span>
                   </motion.span>
                 )}
               </div>
@@ -394,7 +399,7 @@ export function OnboardingStep2() {
             maxHeight: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL,
             pointerEvents: isCookingState ? 'none' : 'auto',
           }}
-          aria-label={`${STEP_ALT[step2State]}. ${isCookingState ? '음성으로 다음 단계를 진행하세요.' : '터치하여 다음으로 이동.'}`}
+          aria-label={`${getAltText(step2State)}. ${isCookingState ? t('step2.aria.voiceNavigate') : t('step1.aria.touchToNext')}`}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -410,7 +415,7 @@ export function OnboardingStep2() {
             >
               <Image
                 src={STEP_IMAGES[step2State]}
-                alt={STEP_ALT[step2State]}
+                alt={getAltText(step2State)}
                 fill
                 className="object-contain"
               />
@@ -421,7 +426,7 @@ export function OnboardingStep2() {
         {/* 터치 안내 - cooking 상태가 아닐 때만 */}
         {!isCookingState && (
           <p className="text-xs text-gray-500 flex items-center gap-1">
-            <span>화면을 터치하여 다음</span>
+            <span>{t('step2.touchHint')}</span>
             <span aria-hidden="true">→</span>
           </p>
         )}

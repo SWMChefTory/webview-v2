@@ -54,7 +54,7 @@ export function OnboardingStep3() {
       if (isFirstComplete) {
         // 첫 완료: 밸런스 갱신 + 축하 토스트
         queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
-        toast.success('30베리가 지급되었어요!', { duration: 3000 });
+        toast.success(t('step3.berryGranted'), { duration: 3000 });
       }
     } catch (error) {
       // 튜토리얼 API 실패해도 온보딩은 진행 (크레딧만 미지급)
@@ -110,7 +110,7 @@ export function OnboardingStep3() {
           />
           <Image
             src="/images/onboarding/tory-cooking.png"
-            alt="토리 캐릭터 - 온보딩 완료 축하"
+            alt={t('step3.alt.toryCharacter')}
             width={TORY_IMAGE.WIDTH}
             height={TORY_IMAGE.HEIGHT}
             className="relative z-10 drop-shadow-xl"
@@ -125,7 +125,7 @@ export function OnboardingStep3() {
           transition={{ delay: 0.2 }}
           className="text-2xl font-bold text-gray-900 text-center"
         >
-          완료!
+          {t('step3.completeTitle')}
         </motion.h1>
 
         {/* Subtitle */}
@@ -136,7 +136,7 @@ export function OnboardingStep3() {
           transition={{ delay: 0.3 }}
           className="text-sm text-gray-700 text-center px-4"
         >
-          핸즈프리 요리를 시작해보세요
+          {t('step3.completeSubtitle')}
         </motion.p>
 
         {/* 30 Berries Promotion Badge */}
@@ -148,7 +148,7 @@ export function OnboardingStep3() {
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-full border border-amber-300"
         >
           <span className="text-xl" aria-hidden="true">🎁</span>
-          <span className="text-sm font-semibold text-amber-800">완료하면 30베리를 받을 수 있어요!</span>
+          <span className="text-sm font-semibold text-amber-800">{t('step3.rewardBadge')}</span>
         </motion.div>
 
         {/* Primary CTA: Start Cooking Mode */}
@@ -161,10 +161,10 @@ export function OnboardingStep3() {
           whileHover={{ scale: 1.02, y: -1 }}
           whileTap={{ scale: 0.97 }}
           className="w-full max-w-[280px] py-4 rounded-2xl font-bold text-white text-lg bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 shadow-[0_4px_0_rgb(180,83,9),0_6px_20px_rgba(234,88,12,0.4)] hover:shadow-[0_4px_0_rgb(180,83,9),0_8px_25px_rgba(234,88,12,0.5)] active:shadow-[0_2px_0_rgb(180,83,9),0_4px_10px_rgba(234,88,12,0.3)] active:translate-y-[2px] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 border-b-4 border-orange-700"
-          aria-label="바로 이용해보기"
+          aria-label={t('step3.startCookingButton')}
         >
           <span aria-hidden="true">🍳</span>
-          <span>바로 이용해보기</span>
+          <span>{t('step3.startCookingButton')}</span>
         </motion.button>
 
         {/* Divider */}
@@ -176,7 +176,7 @@ export function OnboardingStep3() {
           className="flex items-center w-full gap-3"
         >
           <div className="flex-1 h-px bg-gray-200" />
-          <span className="text-xs text-gray-500">또는</span>
+          <span className="text-xs text-gray-500">{t('step3.or')}</span>
           <div className="flex-1 h-px bg-gray-200" />
         </motion.div>
 
@@ -188,10 +188,10 @@ export function OnboardingStep3() {
           transition={{ delay: 0.7 }}
           className="w-full"
         >
-          <p className="text-xs text-gray-600 mb-3 text-center">인기 레시피</p>
+          <p className="text-xs text-gray-600 mb-3 text-center">{t('step3.popularRecipes')}</p>
 
           {/* Recipe Cards Grid */}
-          <div className="grid grid-cols-3 gap-2 mb-3" role="list" aria-label="인기 레시피 목록">
+          <div className="grid grid-cols-3 gap-2 mb-3" role="list" aria-label={t('step3.aria.popularRecipesList')}>
             {popularRecipes.length === 0 ? (
               <>
                 <RecipeCardSkeleton />
@@ -208,7 +208,7 @@ export function OnboardingStep3() {
                   animate="visible"
                   transition={{ delay: 0.8 + index * 0.1 }}
                   className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200"
-                  aria-label={`레시피: ${recipe.recipeTitle}`}
+                  aria-label={t('step3.aria.recipeItem', { title: recipe.recipeTitle })}
                 >
                   <img
                     src={recipe.videoThumbnailUrl}
@@ -230,9 +230,9 @@ export function OnboardingStep3() {
           <button
             onClick={() => handleComplete('explore_more', '/popular-recipe')}
             className="flex items-center justify-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors focus-visible:underline focus-visible:underline-offset-2 min-h-[44px] w-full"
-            aria-label="인기 레시피 더보기 페이지로 이동"
+            aria-label={t('step3.aria.moreRecipesPage')}
           >
-            <span>인기 레시피 더보기</span>
+            <span>{t('step3.moreRecipes')}</span>
             <span aria-hidden="true">→</span>
           </button>
 

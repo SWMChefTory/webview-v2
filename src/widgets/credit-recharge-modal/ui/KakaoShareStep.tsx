@@ -8,7 +8,7 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { completeRecharge, LimitExceededError } from "@/src/entities/balance/api/rechargeApi";
+import { completeRecharge } from "@/src/entities/balance/api/rechargeApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BALANCE_QUERY_KEY } from "@/src/entities/balance/model/useFetchBalance";
@@ -26,8 +26,10 @@ export function KakaoShareStep() {
     track(AMPLITUDE_EVENT.RECHARGE_KAKAO_CLICK);
 
     // 1. 즉시 충전 API 호출
+    let result = { amount: 0, remainingCount: 0 };
+
     try {
-      const result = await completeRecharge();
+      result = await completeRecharge();
 
       // 2. Store에 결과 저장
       setRechargeResult(result);
@@ -35,29 +37,21 @@ export function KakaoShareStep() {
       // 3. Balance 갱신
       queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
 
-      // 4. 카카오톡 실행
-      const returnUrl = generateRechargeUrl();
-      request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, { returnUrl });
-
-      // 5. 성공 화면으로 전환
-      setStep('success');
-
-      toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
-    } catch (error) {
-      if (error instanceof LimitExceededError) {
-        // 횟수 초과: 카카오톡은 열고 success로 이동 (amount: 0)
-        setRechargeResult({ amount: 0, remainingCount: 0 });
-
-        const returnUrl = generateRechargeUrl();
-        request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, { returnUrl });
-
-        setStep('success');
-        toast.info('오늘의 충전 횟수를 모두 사용했어요.', { duration: 3000 });
-      } else {
-        const message = error instanceof Error ? error.message : '충전에 실패했어요.';
-        toast.error(message, { duration: 3000 });
+      // 성공 시 충전된 베리 토스트
+      if (result.amount > 0) {
+        toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
       }
+    } catch (error) {
+      // 모든 에러를 횟수 초과와 동일하게 처리
+      // 카카오톡은 열고 success로 이동 (amount: 0)
     }
+
+    // 4. 카카오톡 실행 (성공/실패 모두 실행)
+    const returnUrl = generateRechargeUrl();
+    request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, { returnUrl });
+
+    // 5. 성공 화면으로 전환
+    setStep('success');
   }, [setStep, setRechargeResult, queryClient]);
 
   return (

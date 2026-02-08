@@ -35,12 +35,21 @@ function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<Onboarding
 
   const { isListening, error } = useSimpleSpeech({
     recipeId: "onboarding-demo",
-    onIntent: (intent) => {
+    onIntent: (intent: unknown) => {
+      // Intent 객체 처리 (조리모드 RecipeStep.controller.tsx와 동일)
+      const intentObj = intent as { base_intent?: string } | string;
+      const rawIntent = typeof intentObj === "string"
+        ? intentObj
+        : intentObj?.base_intent;
+
+      // 대문자로 변환하여 비교 (서버는 "NEXT", "VIDEO PLAY" 등을 반환)
+      const upperIntent = (rawIntent ?? "").trim().toUpperCase();
+
       if (
-        intent === "next" ||
-        intent === "다음" ||
-        intent?.includes("다음") ||
-        intent === "play"
+        upperIntent === "NEXT" ||
+        upperIntent.includes("NEXT") ||
+        upperIntent === "VIDEO PLAY" ||
+        upperIntent.includes("PLAY")
       ) {
         onNext();
       }

@@ -121,6 +121,34 @@
       "steps": "Cooking steps screen",
       "cooking": "Cooking mode home screen"
     },
+    "tooltip": {
+      "ariaLabel": "View hands-free mode features",
+      "title": "Hands-Free Cooking Mode Features",
+      "description": "Control your cooking process with voice commands",
+      "closeHint": "Tap outside to close",
+      "features": {
+        "voiceCommand": {
+          "title": "Voice Commands",
+          "description": "Control with phrases like \"Next Step\", \"Play\" and more"
+        },
+        "sceneSearch": {
+          "title": "Scene Search",
+          "description": "Jump directly to any cooking step you need"
+        },
+        "timerControl": {
+          "title": "Timer Control",
+          "description": "Set and manage timers with voice commands"
+        },
+        "ingredientCheck": {
+          "title": "Ingredient Check",
+          "description": "Mark off prepared ingredients with a tap"
+        },
+        "loopMode": {
+          "title": "Loop Mode",
+          "description": "Repeat the current step as needed"
+        }
+      }
+    },
     "aria": {
       "voiceNavigate": "Navigate to next step using voice"
     }

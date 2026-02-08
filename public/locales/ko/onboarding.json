@@ -121,6 +121,34 @@
       "steps": "조리 단계 화면",
       "cooking": "쿠킹 모드 홈 화면"
     },
+    "tooltip": {
+      "ariaLabel": "핸즈프리 모드 기능 설명 보기",
+      "title": "핸즈프리 요리 모드 기능",
+      "description": "음성 명령으로 요리 과정을 편하게 제어해보세요",
+      "closeHint": "닫으려면 바깥을 터치하세요",
+      "features": {
+        "voiceCommand": {
+          "title": "음성 명령",
+          "description": "\"다음 단계\", \"재생해줘\" 등의 말로 조작할 수 있어요"
+        },
+        "sceneSearch": {
+          "title": "장면 검색",
+          "description": "원하는 조리 단계로 바로 이동할 수 있어요"
+        },
+        "timerControl": {
+          "title": "타이머 제어",
+          "description": "타이머를 음성으로 설정하고 관리할 수 있어요"
+        },
+        "ingredientCheck": {
+          "title": "재료 체크",
+          "description": "준비한 재료를 터치로 체크할 수 있어요"
+        },
+        "loopMode": {
+          "title": "반복 모드",
+          "description": "현재 단계를 반복 재생할 수 있어요"
+        }
+      }
+    },
     "aria": {
       "voiceNavigate": "음성으로 다음 단계를 진행하세요"
     }

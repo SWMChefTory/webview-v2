@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSimpleSpeech } from "@/src/views/recipe-step/hooks/useSimpleSpeech";
+import { parseIntent } from "@/src/views/recipe-step/lib/parseIntent";
 
 interface OnboardingMicButtonProps {
   enabled?: boolean;
@@ -49,14 +50,19 @@ function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<Onboarding
         ? intent
         : intent?.base_intent ?? intent?.intent ?? "";
 
-      // 대문자로 변환하여 비교 (서버는 "NEXT", "VIDEO PLAY" 등을 반환)
-      const upperIntent = rawIntent.trim().toUpperCase();
+      // 디버깅 로그
+      console.log("[OnboardingMicButton] rawIntent:", rawIntent);
+
+      // parseIntent 사용 (조리모드와 동일)
+      const parsedIntent = parseIntent(rawIntent);
+
+      console.log("[OnboardingMicButton] parsedIntent:", parsedIntent);
 
       if (
-        upperIntent === "NEXT" ||
-        upperIntent.includes("NEXT") ||
-        upperIntent === "VIDEO PLAY" ||
-        upperIntent.includes("PLAY")
+        parsedIntent === "NEXT" ||
+        parsedIntent === "VIDEO PLAY" ||
+        parsedIntent.startsWith("NEXT") ||  // 안전장치
+        parsedIntent.includes("PLAY")
       ) {
         onNext();
       }

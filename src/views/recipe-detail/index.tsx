@@ -1,7 +1,5 @@
-import { ResponsiveSwitcher } from "@/src/shared/ui/responsive";
 import {
   RecipeDetailPageReadyMobile,
-  // RecipeDetailPageSkeletonMobile,
 } from "./mobile/index.mobile";
 import {
   RecipeDetailPageReadyTablet,
@@ -11,82 +9,37 @@ import {
   RecipeDetailPageReadyDesktop,
   RecipeDetailPageSkeletonDesktop,
 } from "./desktop/index.desktop";
-import { SSRErrorBoundary } from "@/src/shared/boundary/SSRErrorBoundary";
-import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import axios from "axios";
 import { useRouter } from "next/router";
 
 import { motion } from "motion/react";
 import { ShieldAlert, Home, RefreshCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRecipeDetailTranslation } from "./common/hook/useRecipeDetailTranslation";
+import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
+import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
+import { Suspense } from "react";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 const RecipeDetailPage = () => {
+  const isTablet = useMediaQuery(MEDIA_QUERIES.tablet);
+  const isDesktop = useMediaQuery(MEDIA_QUERIES.desktop);
   const router = useRouter();
   const id = router.query.id as string | undefined;
 
-  return (
-    <div className="w-full h-dvh bg-white">
-      <ConditionalBoundary recipeId={id}>
-        {/* <SSRSuspense fallback={<RecipeDetailPageSkeleton />}>
-          {id ? (
-            <RecipeDetailPageReady id={id} />
-          ) : (
-            <RecipeDetailPageSkeleton />
-          )}
-        </SSRSuspense> */}
-        <RecipeDetailPageReadyMobile id={id ?? ""} />
-      </ConditionalBoundary>
-    </div>
-  );
-};
-
-export const RecipeDetailPageReady = ({ id }: { id: string }) => {
-  return (
-    <ResponsiveSwitcher
-      mobile={RecipeDetailPageReadyMobile}
-      tablet={RecipeDetailPageReadyTablet}
-      desktop={RecipeDetailPageReadyDesktop}
-      props={{ id }}
-    />
-  );
-};
-
-const isWantedError = (e: unknown) => {
-  if (axios.isAxiosError(e) && e.response?.data?.errorCode === "RECIPE_001") {
-    return true;
+  if (isTablet) {
+    return <SSRSuspense fallback={<RecipeDetailPageSkeletonTablet />}>
+      <RecipeDetailPageReadyTablet id={id ?? ""} />
+    </SSRSuspense>
   }
-  return false;
+  if (isDesktop) {
+    return <SSRSuspense fallback={<RecipeDetailPageSkeletonDesktop />}>
+      <RecipeDetailPageReadyDesktop id={id ?? ""} />
+    </SSRSuspense>
+  }
+
+  return <RecipeDetailPageReadyMobile id={id ?? ""} />;
 };
 
-function ConditionalBoundary({
-  children,
-  recipeId,
-}: {
-  children: React.ReactNode;
-  recipeId?: string;
-}) {
-  return (
-    <SSRErrorBoundary
-      fallbackRender={({ error, resetErrorBoundary }) =>
-        isWantedError(error) ? (
-          <SectionFallback
-            error={error}
-            resetErrorBoundary={resetErrorBoundary}
-            recipeId={recipeId}
-          />
-        ) : (
-          // 원하지 않는 에러는 "그대로 터지게" 해서 상위 바운더리로 올리기
-          (() => {
-            throw error;
-          })()
-        )
-      }
-    >
-      {children}
-    </SSRErrorBoundary>
-  );
-}
 
 type SectionFallbackProps = {
   error?: unknown;

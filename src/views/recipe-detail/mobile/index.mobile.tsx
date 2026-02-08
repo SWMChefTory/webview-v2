@@ -1,6 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
-import { useEffect, useRef, useState, useCallback, Suspense } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";

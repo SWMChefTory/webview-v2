@@ -9,6 +9,14 @@ interface OnboardingMicButtonProps {
   onListeningChange?: (isListening: boolean) => void;
 }
 
+// STT 서버에서 반환하는 Intent 형태
+interface IntentResponse {
+  base_intent?: string;
+  intent?: string;
+}
+
+type IntentValue = string | IntentResponse;
+
 // 마이크 아이콘 SVG (활성/비활성 공유)
 const MicIcon = () => (
   <svg
@@ -35,15 +43,14 @@ function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<Onboarding
 
   const { isListening, error } = useSimpleSpeech({
     recipeId: "onboarding-demo",
-    onIntent: (intent: unknown) => {
+    onIntent: (intent: IntentValue) => {
       // Intent 객체 처리 (조리모드 RecipeStep.controller.tsx와 동일)
-      const intentObj = intent as { base_intent?: string } | string;
-      const rawIntent = typeof intentObj === "string"
-        ? intentObj
-        : intentObj?.base_intent;
+      const rawIntent = typeof intent === "string"
+        ? intent
+        : intent?.base_intent ?? intent?.intent ?? "";
 
       // 대문자로 변환하여 비교 (서버는 "NEXT", "VIDEO PLAY" 등을 반환)
-      const upperIntent = (rawIntent ?? "").trim().toUpperCase();
+      const upperIntent = rawIntent.trim().toUpperCase();
 
       if (
         upperIntent === "NEXT" ||

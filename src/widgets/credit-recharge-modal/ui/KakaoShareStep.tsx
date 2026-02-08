@@ -31,9 +31,6 @@ export function KakaoShareStep() {
     try {
       result = await completeRecharge();
 
-      // 2. Store에 결과 저장
-      setRechargeResult(result);
-
       // 3. Balance 갱신
       queryClient.invalidateQueries({ queryKey: [BALANCE_QUERY_KEY] });
 
@@ -42,9 +39,12 @@ export function KakaoShareStep() {
         toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
       }
     } catch (error) {
-      // 모든 에러를 횟수 초과와 동일하게 처리
-      // 카카오톡은 열고 success로 이동 (amount: 0)
+      // 모든 에러를 횟수 초과와 동일하게 처리 (amount: 0)
+      result = { amount: 0, remainingCount: 0 };
     }
+
+    // 2. Store에 결과 저장 (성공/실패 모두 저장)
+    setRechargeResult(result);
 
     // 4. 카카오톡 실행 (성공/실패 모두 실행)
     const returnUrl = generateRechargeUrl();

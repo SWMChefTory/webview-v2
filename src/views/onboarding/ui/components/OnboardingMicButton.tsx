@@ -43,7 +43,7 @@ function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<Onboarding
   const [isActive, setIsActive] = useState(false);
 
   const { isListening, error } = useSimpleSpeech({
-    recipeId: "onboarding-demo",
+    recipeId: "ec77fa08-f2ec-45e9-a07c-5117bbc7ee9e", // TODO: 임시 실제 레시피 ID - 추후 서버에서 onboarding 전용 recipe_id 허용 필요
     onIntent: (intent: IntentValue) => {
       // Intent 객체 처리 (조리모드 RecipeStep.controller.tsx와 동일)
       const rawIntent = typeof intent === "string"

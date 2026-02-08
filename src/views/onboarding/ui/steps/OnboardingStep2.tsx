@@ -268,7 +268,9 @@ export function OnboardingStep2() {
         {!micActivated ? t('step2.cooking.tapToStart') :
          isListening ? t('step2.cooking.listening') :
          voiceStatus === 'recognized' ? t('step2.cooking.recognized') :
-         t('step2.cooking.idle')}
+         voiceTaskState === 'play_video' ? '"재생해줘"라고 말해보세요' :
+         voiceTaskState === 'next_step' ? '"다음 단계"라고 말해보세요' :
+         t('step2.cooking.recognized')}
       </p>
 
       {/* 마이크 버튼 */}

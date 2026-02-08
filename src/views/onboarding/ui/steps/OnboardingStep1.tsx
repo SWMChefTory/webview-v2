@@ -42,6 +42,7 @@ export function OnboardingStep1() {
   );
   const [prevStep1State, setPrevStep1State] = useState<Step1State | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isTransitioningRef = useRef(false);
 
   const currentIndex = STEP_ORDER.indexOf(step1State);
   const prevIndex = prevStep1State !== null ? STEP_ORDER.indexOf(prevStep1State) : 0;
@@ -90,6 +91,7 @@ export function OnboardingStep1() {
 
   // 다음 상태로 이동
   const moveToNextState = useCallback(() => {
+    if (isTransitioningRef.current) return;
     triggerHaptic();
     track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
       step: currentStep,
@@ -101,12 +103,15 @@ export function OnboardingStep1() {
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep1State(STEP_ORDER[currentIndex + 1]);
     } else {
+      isTransitioningRef.current = true;
+      if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => nextStep(), TIMING.NEXT_STEP_DELAY_MS);
     }
   }, [currentIndex, step1State, currentStep, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {
+    isTransitioningRef.current = false;
     setPrevStep1State(step1State);
     if (currentIndex > 0) {
       setStep1State(STEP_ORDER[currentIndex - 1]);

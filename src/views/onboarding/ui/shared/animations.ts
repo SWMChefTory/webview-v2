@@ -24,13 +24,6 @@ export const slideXVariants = {
   }),
 };
 
-// 페이드 전용 variants (Step 3 등에서 사용)
-export const fadeOnlyVariants = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
 // 애니메이션 transition 설정 생성
 export const createSlideTransition = (
   shouldAnimate: boolean

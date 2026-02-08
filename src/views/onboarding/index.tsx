@@ -1,4 +1,4 @@
-import { OnboardingPageMobile, OnboardingPageTablet, OnboardingPageDesktop } from "./ui";
+import { OnboardingPageMobile } from "./ui";
 import { useOnboardingStore } from "./stores/useOnboardingStore";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";

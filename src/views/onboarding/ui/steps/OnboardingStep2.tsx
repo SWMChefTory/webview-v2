@@ -71,6 +71,7 @@ export function OnboardingStep2() {
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [micActivated, setMicActivated] = useState(false);
+  const isTransitioningRef = useRef(false);
 
   // 2단계 음성 과제 상태
   const [voiceTaskState, setVoiceTaskState] = useState<VoiceTaskState>('play_video');
@@ -95,6 +96,7 @@ export function OnboardingStep2() {
   // cooking 상태를 벗어나면 마이크/음성 상태 리셋
   useEffect(() => {
     if (step2State !== 'cooking') {
+      isTransitioningRef.current = false;
       setMicActivated(false);
       setVoiceStatus('idle');
       setIsListening(false);
@@ -150,6 +152,7 @@ export function OnboardingStep2() {
 
   // 다음 상태로 이동
   const moveToNextState = useCallback(() => {
+    if (isTransitioningRef.current) return;
     triggerHaptic();
     track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
       step: currentStep,
@@ -162,12 +165,14 @@ export function OnboardingStep2() {
     if (currentIndex < STEP_ORDER.length - 1) {
       setStep2State(STEP_ORDER[currentIndex + 1]);
     } else {
+      isTransitioningRef.current = true;
       nextStep();
     }
   }, [currentIndex, step2State, currentStep, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {
+    isTransitioningRef.current = false;
     setPrevStep2State(step2State);
     if (currentIndex > 0) {
       setStep2State(STEP_ORDER[currentIndex - 1]);
@@ -203,6 +208,8 @@ export function OnboardingStep2() {
 
     // NEXT 인식 (2단계 과제)
     if (intent === 'NEXT' && voiceTaskState === 'next_step' && !completedTasks.nextStep) {
+      if (isTransitioningRef.current) return;
+      isTransitioningRef.current = true;
       triggerHaptic();
       setCompletedTasks(prev => ({ ...prev, nextStep: true }));
       setVoiceTaskState('completed');
@@ -216,6 +223,7 @@ export function OnboardingStep2() {
       });
 
       // 두 과제 완료 후 다음 스텝으로 이동
+      if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
         track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
           step: currentStep,

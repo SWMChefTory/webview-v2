@@ -192,11 +192,23 @@ export function OnboardingStep1() {
           </AnimatePresence>
         </motion.button>
 
-        {/* 터치 안내 */}
-        <p className="text-xs text-gray-500 flex items-center gap-1">
-          <span>화면을 터치하여 다음</span>
-          <span aria-hidden="true">→</span>
-        </p>
+        {/* 하단 힌트 — 첫 화면: 리워드, 이후: 터치 안내 */}
+        {currentIndex === 0 ? (
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.2, duration: 0.5 }}
+            className="text-xs text-amber-600 flex items-center gap-1"
+          >
+            <Image src="/images/berry/berry.png" alt="" width={14} height={14} />
+            <span>끝까지 완료하면 30베리를 드려요</span>
+          </motion.p>
+        ) : (
+          <p className="text-xs text-gray-500 flex items-center gap-1">
+            <span>화면을 터치하여 다음</span>
+            <span aria-hidden="true">→</span>
+          </p>
+        )}
       </div>
     </StepContainer>
   );

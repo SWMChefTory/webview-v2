@@ -238,14 +238,23 @@ export function OnboardingStep2() {
           </motion.p>
         </AnimatePresence>
 
-        {/* Image Area - always tappable for navigation */}
-        <motion.button
-          onClick={moveToNextState}
-          whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
-          whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
-          className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
-          style={{ width: PREVIEW_BUTTON.WIDTH, height: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL }}
-          aria-label={`${STEP_ALT[step2State]}. ${isCookingState ? '터치하거나 음성으로 다음 이동.' : '터치하여 다음으로 이동.'}`}
+        {/* Image Area - cooking 상태에서는 음성으로만 진행 */}
+        <motion.div
+          onClick={isCookingState ? undefined : moveToNextState}
+          whileHover={shouldAnimate && !isCookingState ? { scale: 1.02 } : undefined}
+          whileTap={shouldAnimate && !isCookingState ? { scale: 0.96 } : undefined}
+          role={isCookingState ? "img" : "button"}
+          tabIndex={isCookingState ? undefined : 0}
+          className={cn(
+            "relative rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2",
+            isCookingState ? "cursor-default" : "cursor-pointer"
+          )}
+          style={{
+            width: PREVIEW_BUTTON.WIDTH,
+            height: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL,
+            pointerEvents: isCookingState ? 'none' : 'auto',
+          }}
+          aria-label={`${STEP_ALT[step2State]}. ${isCookingState ? '음성으로 다음 단계를 진행하세요.' : '터치하여 다음으로 이동.'}`}
         >
           <AnimatePresence mode="wait" initial={false}>
             <motion.div
@@ -267,7 +276,7 @@ export function OnboardingStep2() {
               />
             </motion.div>
           </AnimatePresence>
-        </motion.button>
+        </motion.div>
 
         {/* 터치 안내 - cooking 상태가 아닐 때만 */}
         {!isCookingState && (

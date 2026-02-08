@@ -1,3 +1,4 @@
+import { useRef, useEffect } from "react";
 import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { cn } from "@/lib/utils";
 
@@ -43,7 +44,17 @@ export function StepContainer({
 }: StepContainerProps) {
   const { t } = useOnboardingTranslation();
 
-  const globalStepIndex = getGlobalStepIndex(currentStep, innerStateIndex);
+  // Step 전환 시 stale innerStateIndex 방지
+  // AnimatePresence exit 중 이전 Step 컴포넌트가 새 currentStep으로 리렌더되면서
+  // 자신의 innerStateIndex를 그대로 전달 → 잘못된 progress 계산 발생 (e.g. 4→8 flash)
+  // currentStep이 바뀌면 innerStateIndex를 0으로 리셋하여 방지
+  const prevStepRef = useRef(currentStep);
+  const safeInnerIndex = prevStepRef.current !== currentStep ? 0 : (innerStateIndex ?? 0);
+  useEffect(() => {
+    prevStepRef.current = currentStep;
+  });
+
+  const globalStepIndex = getGlobalStepIndex(currentStep, safeInnerIndex);
   const isFirstGlobalStep = globalStepIndex === 1;
 
   return (

@@ -49,6 +49,10 @@ const TrendRecipeGrid = () => {
           recipeTitle={recipe.recipeTitle}
           recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
           recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={
             <TrendRecipeCard
               videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}

@@ -78,7 +78,16 @@ function RecipeCardSectionReady() {
   return (
     <HorizontalScrollArea onReachEnd={handleReachEnd}>
       {recipes.map((recipe) => (
-        <Link href={`/recipe/${recipe.recipeId}/detail`} key={recipe.recipeId}>
+        <Link href={{
+            pathname: `/recipe/${recipe.recipeId}/detail`,
+            query: {
+              title: recipe.recipeTitle,
+              videoId: recipe.videoInfo.videoId,
+              description: recipe.detailMeta.description,
+              servings: recipe.detailMeta.servings,
+              cookingTime: recipe.detailMeta.cookingTime,
+            },
+          }} key={recipe.recipeId}>
           <RecipeCardReady
             recipe={{
               id: recipe.recipeId,

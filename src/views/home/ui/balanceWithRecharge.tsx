@@ -4,11 +4,6 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { HiPlus } from "react-icons/hi2";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useAnimate } from "motion/react";
 
 const BalanceWithRechargeSkeleton = () => {

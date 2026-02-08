@@ -1,5 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { TextSkeleton } from "@/src/shared/ui/skeleton";
+import { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
@@ -9,41 +10,59 @@ import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
 import { BriefingSummary } from "./component/briefingSummary";
 import { Steps } from "./component/steps";
 import { Ingredients } from "./component/ingredients";
+import { useRouter } from "next/router";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
-/** ---- Skeleton ---- */
-export const RecipeDetailPageSkeletonMobile = () => (
-  <div className="p-4">
-    <Skeleton className="w-full h-56 mb-4" />
-    <Skeleton className="w-2/3 h-6 mb-2" />
-    <Skeleton className="w-1/2 h-6 mb-6" />
-    <div className="space-y-2">
-      <Skeleton className="w-full h-10" />
-      <Skeleton className="w-full h-10" />
-      <Skeleton className="w-full h-10" />
-    </div>
-  </div>
-);
+
+const RecipeVideoSummarySkeleton = () => {
+  
+  return (
+    <>
+      {/* QuickAccessCards 스켈레톤 */}
+      <div className="px-4 pt-3 pb-2">
+        <div className="flex gap-3">
+          <Skeleton className="flex-1 h-[60px] rounded-2xl" />
+          <Skeleton className="flex-1 h-[60px] rounded-2xl" />
+        </div>
+      </div>
+      <div className="h-2" />
+      {/* BriefingSummary 스켈레톤 */}
+      <div className="px-4 py-4 flex flex-col gap-2">
+        <div className="w-24">
+          <TextSkeleton fontSize="text-lg" />
+        </div>
+        <TextSkeleton fontSize="text-sm" />
+        <TextSkeleton fontSize="text-sm" />
+        <div className="w-4/5">
+          <TextSkeleton fontSize="text-sm" />
+        </div>
+      </div>
+      <div className="px-4">
+        <HorizontalLine />
+      </div>
+      <div className="h-2" />
+      {/* Ingredients 스켈레톤 */}
+      <div className="px-3 gap-2">
+        <div className="w-20 px-1">
+          <TextSkeleton fontSize="text-lg" />
+        </div>
+        <div className="h-2" />
+        <div className="flex flex-wrap gap-1">
+          {[20, 16, 24, 14, 18, 22].map((w, i) => (
+            <Skeleton key={i} className={`h-[52px] rounded-md`} style={{ width: `${w * 4}px` }} />
+          ))}
+        </div>
+      </div>
+      <div className="h-2" />
+      <div className="px-4">
+        <HorizontalLine />
+      </div>
+      <div className="h-2" />
+    </>
+  );
+};
 
 export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
-  const {
-    videoInfo,
-    recipeSummary,
-    ingredients,
-    steps,
-    tags,
-    briefings,
-    viewStatus,
-    onBack,
-    routeToStep,
-    onTimeClick,
-    t,
-    lang,
-    formatTime,
-  } = useRecipeDetailController(id, "mobile");
-
-  const { data: balanceData } = useFetchBalance();
-  const balance = balanceData?.balance ?? 0;
-
   useSafeArea({
     top: { color: "#FFFFFF", isExists: true },
     bottom: { color: "#FFFFFF", isExists: false },
@@ -59,15 +78,60 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
   // YouTube 플레이어 ref
   const playerRef = useRef<YT.Player | null>(null);
 
-  const handleTimeClick = (sec: number) => {
-    onTimeClick(sec, playerRef);
-  };
+  const router = useRouter();
+  const title = router.query.title as string;
+  // const thumbnailUrl = router.query.thumbnailUrl as string;
+  const description = router.query.description as string;
+  const cookingTime = router.query.cookingTime as string;
+  const servings = router.query.servings as string;
+  const videoId = router.query.videoId as string;
+
+  if (!id || !title || !description || !cookingTime || !servings || !videoId) {
+    return <div>No data</div>;
+  }
 
   return (
     <div
       ref={scrollContainerRef}
       className="relative w-full h-[100dvh] overflow-scroll overscroll-y-none bg-white"
     >
+      <FirstSection
+        videoInfo={{ videoId: videoId, videoTitle: title }}
+        recipeSummary={{
+          description,
+          cookingTime: Number(cookingTime),
+          servings: Number(servings),
+        }}
+        playerRef={playerRef}
+        videoWrapRef={videoWrapRef}
+      />
+
+      <SSRSuspense
+        fallback={<RecipeVideoSummarySkeleton />}
+      >
+        <RecipeVideoSummary
+          recipeId={id}
+          playerRef={playerRef}
+          scrollContainerRef={scrollContainerRef}
+        />
+      </SSRSuspense>
+    </div>
+  );
+};
+
+const FirstSection = ({
+  videoInfo,
+  recipeSummary,
+  playerRef,
+  videoWrapRef,
+}: {
+  videoInfo: { videoId: string; videoTitle: string };
+  recipeSummary: { description: string; cookingTime: number; servings: number };
+  playerRef: React.RefObject<YT.Player | null>;
+  videoWrapRef: React.RefObject<HTMLDivElement | null>;
+}) => {
+  return (
+    <>
       <div className="fixed top-[0px] left-0 right-0 z-10">
         <YoutubeVideo
           videoId={videoInfo.videoId}
@@ -76,43 +140,77 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
           onPlayerReady={(p) => (playerRef.current = p)}
         />
       </div>
+      <VideoPadding />
+      <RecipeSummary
+        title={videoInfo?.videoTitle}
+        description={recipeSummary?.description}
+        cookTime={recipeSummary?.cookingTime}
+        servings={recipeSummary?.servings}
+      />
+    </>
+  );
+};
 
-      <div className="w-full">
-        <VideoPadding />
-        <RecipeSummary
-          title={videoInfo?.videoTitle}
-          description={recipeSummary?.description}
-          cookTime={recipeSummary?.cookingTime}
-          servings={recipeSummary?.servings}
-        />
-        <QuickAccessCards
-          ingredientCount={ingredients.length}
-          stepCount={steps.length}
-          scrollContainerRef={scrollContainerRef}
-        />
-        <div className="h-2" />
-        {briefings && briefings.length > 0 && (
-          <>
-            <BriefingSummary briefings={briefings} />
-            <div className="px-4">
-              <HorizontalLine />
-            </div>
-            <div className="h-2" />
-          </>
-        )}
-        <Ingredients ingredients={ingredients} recipeId={id} />
-        <div className="px-4">
-          <HorizontalLine />
-        </div>
-        <div className="h-2" />
-        <Steps
-          recipeId={id}
-          isEnrolled={viewStatus !== null}
-          steps={steps}
-          onTimeClick={handleTimeClick}
-          balance={balance}
-        />
+const RecipeVideoSummary = ({
+  recipeId,
+  playerRef,
+  scrollContainerRef,
+}: {
+  recipeId: string;
+  playerRef: React.RefObject<YT.Player | null>;
+  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
+}) => {
+  const {
+    videoInfo,
+    recipeSummary,
+    ingredients,
+    steps,
+    tags,
+    briefings,
+    viewStatus,
+    onBack,
+    routeToStep,
+    onTimeClick,
+    t,
+    lang,
+    formatTime,
+  } = useRecipeDetailController(recipeId, "mobile");
+
+  const handleTimeClick = (sec: number) => {
+    onTimeClick(sec, playerRef);
+  };
+
+  const { data: balanceData } = useFetchBalance();
+  const balance = balanceData?.balance ?? 0;
+  return (
+    <>
+      <QuickAccessCards
+        ingredientCount={ingredients.length}
+        stepCount={steps.length}
+        scrollContainerRef={scrollContainerRef}
+      />
+      <div className="h-2" />
+      {briefings && briefings.length > 0 && (
+        <>
+          <BriefingSummary briefings={briefings} />
+          <div className="px-4">
+            <HorizontalLine />
+          </div>
+          <div className="h-2" />
+        </>
+      )}
+      <Ingredients ingredients={ingredients} recipeId={recipeId} />
+      <div className="px-4">
+        <HorizontalLine />
       </div>
+      <div className="h-2" />
+      <Steps
+        recipeId={recipeId}
+        isEnrolled={viewStatus !== null}
+        steps={steps}
+        onTimeClick={handleTimeClick}
+        balance={balance}
+      />
       {viewStatus !== null && (
         <div className="fixed bottom-14 right-10 z-10">
           <ButtonStartCooking onClick={routeToStep} />
@@ -121,7 +219,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
       <div className="fixed bottom-14 left-10 z-10">
         <ButtonBack onClick={onBack} />
       </div>
-    </div>
+    </>
   );
 };
 

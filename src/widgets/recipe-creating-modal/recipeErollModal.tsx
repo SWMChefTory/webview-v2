@@ -229,7 +229,16 @@ const ContentReady = ({
 
   const handleNavigate = () => {
     onClose();
-    router.push(`/recipe/${recipeId}/detail`);
+    router.push({
+      pathname: `/recipe/${recipeId}/detail`,
+      query: {
+        title: recipe.videoInfo.videoTitle,
+        videoId: recipe.videoInfo.videoId,
+        description: recipe.recipeDetailMeta?.description,
+        servings: recipe.recipeDetailMeta?.servings,
+        cookingTime: recipe.recipeDetailMeta?.cookingTime,
+      },
+    });
   };
 
   return (

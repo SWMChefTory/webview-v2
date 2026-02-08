@@ -1,7 +1,7 @@
 import { ResponsiveSwitcher } from "@/src/shared/ui/responsive";
 import {
   RecipeDetailPageReadyMobile,
-  RecipeDetailPageSkeletonMobile,
+  // RecipeDetailPageSkeletonMobile,
 } from "./mobile/index.mobile";
 import {
   RecipeDetailPageReadyTablet,
@@ -28,26 +28,16 @@ const RecipeDetailPage = () => {
   return (
     <div className="w-full h-dvh bg-white">
       <ConditionalBoundary recipeId={id}>
-        <SSRSuspense fallback={<RecipeDetailPageSkeleton />}>
+        {/* <SSRSuspense fallback={<RecipeDetailPageSkeleton />}>
           {id ? (
             <RecipeDetailPageReady id={id} />
           ) : (
             <RecipeDetailPageSkeleton />
           )}
-        </SSRSuspense>
+        </SSRSuspense> */}
+        <RecipeDetailPageReadyMobile id={id ?? ""} />
       </ConditionalBoundary>
     </div>
-  );
-};
-
-export const RecipeDetailPageSkeleton = () => {
-  return (
-    <ResponsiveSwitcher
-      mobile={RecipeDetailPageSkeletonMobile}
-      tablet={RecipeDetailPageSkeletonTablet}
-      desktop={RecipeDetailPageSkeletonDesktop}
-      props={{}}
-    />
   );
 };
 

@@ -48,6 +48,10 @@ function PopularRecipesContent() {
             }
             recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
             entryPoint="popular_normal"
+            videoId={recipe.videoInfo.videoId}
+            description={recipe.detailMeta.description}
+            servings={recipe.detailMeta.servings}
+            cookingTime={recipe.detailMeta.cookingTime}
             trigger={<PopularRecipeCard recipe={recipe} />}
           />
         ))}

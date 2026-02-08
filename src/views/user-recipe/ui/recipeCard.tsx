@@ -36,6 +36,7 @@ import {
   formatMinute,
 } from "@/src/features/format/recipe-info/formatRecipeProperties";
 import { useTranslation } from "next-i18next";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -46,34 +47,31 @@ const RecipeDetailsCardReady = ({
   selectedCategoryId?: string;
   isDesktop?: boolean;
 }) => {
-  const { recipeStatus } = useFetchRecipeProgressWithRefetch(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
-  const userRouter = useRouter();
-  const { handleTapStart } = useResolveLongClick(
-    () => {
-      if (recipeStatus === RecipeStatus.SUCCESS) {
-        userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
-      }
-    },
-    () => {
-      setIsCategorySelectOpen(true);
-    }
-  );
 
   return (
-    <motion.div
-      whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
-      transition={{ duration: 1 }}
+    <div
       className={`relative w-full flex ${
         isDesktop
           ? "flex-col items-start p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
           : "flex-row items-center justify-center lg:p-3 lg:rounded-xl lg:hover:bg-gray-50 lg:transition-colors"
       } z-10`}
-      onTapStart={handleTapStart}
     >
-      <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
-        <ProgressDetailsCheckList recipeStatus={recipeStatus} />
-      </div>
+      <SSRSuspense
+        fallback={
+          <div className="absolute flex justify-center inset-0 overflow-hidden z-100" />
+        }
+      >
+        <RecipeDetailsProgressOverlay
+          recipeId={userRecipe.recipeId}
+          title={userRecipe.videoInfo.videoTitle}
+          videoId={userRecipe.videoInfo.videoId}
+          description={userRecipe.recipeDetailMeta?.description}
+          servings={userRecipe.recipeDetailMeta?.servings}
+          cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
+          onLongPress={() => setIsCategorySelectOpen(true)}
+        />
+      </SSRSuspense>
       <div
         className={`relative ${
           isDesktop
@@ -117,6 +115,49 @@ const RecipeDetailsCardReady = ({
           selectedCategoryId={selectedCategoryId}
         />
       </div>
+    </div>
+  );
+};
+
+const RecipeDetailsProgressOverlay = ({
+  recipeId,
+  title,
+  videoId,
+  description,
+  servings,
+  cookingTime,
+  onLongPress,
+}: {
+  recipeId: string;
+  title: string;
+  videoId: string;
+  description?: string;
+  servings?: number;
+  cookingTime?: number;
+  onLongPress: () => void;
+}) => {
+  const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
+  const router = useRouter();
+  const { handleTapStart } = useResolveLongClick(
+    () => {
+      if (recipeStatus === RecipeStatus.SUCCESS) {
+        router.push({
+          pathname: `/recipe/${recipeId}/detail`,
+          query: { title, videoId, description, servings, cookingTime },
+        });
+      }
+    },
+    onLongPress
+  );
+
+  return (
+    <motion.div
+      whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+      transition={{ duration: 1 }}
+      onTapStart={handleTapStart}
+      className="absolute flex justify-center inset-0 overflow-hidden z-100"
+    >
+      <ProgressDetailsCheckList recipeStatus={recipeStatus} />
     </motion.div>
   );
 };

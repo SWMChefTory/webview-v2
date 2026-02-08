@@ -44,7 +44,16 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
     }
 
     // 이미 생성된 레시피 → 상세 페이지 이동
-    router.push(`/recipe/${recipe.recipeId}/detail`);
+    router.push({
+      pathname: `/recipe/${recipe.recipeId}/detail`,
+      query: {
+        title: recipe.recipeTitle,
+        videoId: recipe.videoId,
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookingTime,
+      },
+    });
   };
 
   const handleCreate = () => {
@@ -58,7 +67,16 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
       _creationMethod: "card",
     });
     // 나의 레시피 등록 후 바로 상세 페이지로 이동
-    router.push(`/recipe/${recipe.recipeId}/detail`);
+    router.push({
+      pathname: `/recipe/${recipe.recipeId}/detail`,
+      query: {
+        title: recipe.recipeTitle,
+        videoId: recipe.videoId,
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookingTime,
+      },
+    });
   };
 
   return (

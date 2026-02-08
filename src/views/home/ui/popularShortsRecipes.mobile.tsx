@@ -85,6 +85,10 @@ const ShortPopularRecipesSectionReady = () => {
           recipeVideoType={VideoType.SHORTS}
           recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
           entryPoint="popular_shorts"
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={
             <ShortsRecipeCardReady
               recipe={{

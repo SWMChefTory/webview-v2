@@ -60,7 +60,7 @@ export function useRecipeDetailController(
   const safeAreaColor = variant === "mobile" ? "#FFFFFF" : "#F9FAFB";
   useSafeArea({
     top: { color: safeAreaColor, isExists: true },
-    bottom: { color: safeAreaColor, isExists: true },
+    bottom: { color: safeAreaColor, isExists: false },
     left: { color: safeAreaColor, isExists: true },
     right: { color: safeAreaColor, isExists: true },
   });

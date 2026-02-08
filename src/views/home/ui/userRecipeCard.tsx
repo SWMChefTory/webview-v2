@@ -29,12 +29,27 @@ export const UserRecipeCardReady = ({
   isTablet?: boolean;
 }) => {
   return (
-    <div className={`relative flex flex-col ${isTablet ? "w-[260px] lg:w-full group" : "w-40"}`}>
+    <div
+      className={`relative flex flex-col ${
+        isTablet ? "w-[260px] lg:w-full group" : "w-40"
+      }`}
+    >
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
-        <RecipeProgressReady recipeId={userRecipe.recipeId} />
+        <RecipeProgressReady
+          recipeId={userRecipe.recipeId}
+          title={userRecipe.videoInfo.videoTitle}
+          videoId={userRecipe.videoInfo.videoId}
+          description={userRecipe.recipeDetailMeta?.description}
+          servings={userRecipe.recipeDetailMeta?.servings}
+          cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
+        />
       </SSRSuspense>
       <div
-        className={`relative overflow-hidden ${isTablet ? "w-full aspect-video rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1" : "w-40 h-[90px]"}`}
+        className={`relative overflow-hidden ${
+          isTablet
+            ? "w-full aspect-video rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group-hover:-translate-y-1"
+            : "w-40 h-[90px]"
+        }`}
       >
         <div className="absolute top-3 right-3 z-10">
           <TimerTag
@@ -45,7 +60,11 @@ export const UserRecipeCardReady = ({
         <div className="absolute inset-0">
           <ThumbnailReady
             imgUrl={userRecipe.videoInfo.videoThumbnailUrl}
-            size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }}
+            size={
+              isTablet
+                ? { width: 320, height: 180 }
+                : { width: 160, height: 90 }
+            }
             className="group-hover:scale-105 transition-transform duration-500"
           />
         </div>
@@ -59,7 +78,9 @@ export const UserRecipeCardReady = ({
               : ""
           }
         />
-        <ElapsedViewTimeReady viewedAt={userRecipe.viewStatus?.viewedAt||new Date()} />
+        <ElapsedViewTimeReady
+          viewedAt={userRecipe.viewStatus?.viewedAt || new Date()}
+        />
       </div>
     </div>
   );
@@ -176,11 +197,19 @@ const Tail = ({
   );
 };
 
-export const UserRecipeCardSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
+export const UserRecipeCardSkeleton = ({
+  isTablet = false,
+}: {
+  isTablet?: boolean;
+}) => {
   return (
     <div className={isTablet ? "w-[260px] lg:w-[280px] xl:w-[300px]" : "w-40"}>
       <div className={isTablet ? "rounded-lg overflow-hidden" : ""}>
-        <ThumbnailSkeleton size={isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }} />
+        <ThumbnailSkeleton
+          size={
+            isTablet ? { width: 320, height: 180 } : { width: 160, height: 90 }
+          }
+        />
       </div>
       <div className="w-full mt-2">
         <TitleSkeleton />
@@ -192,22 +221,37 @@ export const UserRecipeCardSkeleton = ({ isTablet = false }: { isTablet?: boolea
 
 const RecipeProgressSkeleton = () => {
   return (
-    <div className="absolute top-0 right-0 w-full h-full bg-gray-500/10 rounded-md flex items-center justify-center z-10">
-    </div>
+    <div className="absolute top-0 right-0 w-full h-full bg-gray-500/10 rounded-md flex items-center justify-center z-10"></div>
   );
 };
 
-const RecipeProgressReady = ({ recipeId }: { recipeId: string }) => {
+const RecipeProgressReady = ({
+  recipeId,
+  title,
+  videoId,
+  description,
+  servings,
+  cookingTime,
+}: {
+  recipeId: string;
+  title: string;
+  videoId: string;
+  description: string | undefined;
+  servings: number | undefined;
+  cookingTime: number | undefined;
+}) => {
   const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
 
   if (recipeStatus === RecipeStatus.SUCCESS) {
     return (
-      <div className="absolute inset-0 flex items-center overflow-hidden z-10"
+      <div
         onClick={() => {
-          if (recipeStatus === RecipeStatus.SUCCESS) {
-            router.push(`/recipe/${recipeId}/detail`);
-          }
+          router.push({
+            pathname: `/recipe/${recipeId}/detail`,
+            query: { title, videoId, description, servings, cookingTime },
+          });
         }}
+        className="absolute inset-0 flex items-center overflow-hidden z-10"
       />
     );
   }

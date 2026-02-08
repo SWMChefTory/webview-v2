@@ -16,6 +16,7 @@ export type RecipeCardsSectionRecipe = {
   isViewed?: boolean;
   tags?: Tag[];
   videoInfo: {
+    videoId: string;
     videoThumbnailUrl: string;
     videoType: "SHORTS" | "NORMAL";
   };
@@ -69,6 +70,10 @@ export function RecipeCardsSectionMobile<
                 recipeVideoType={getVideoType(recipe)}
                 entryPoint={entryPoint}
                 recipeVideoUrl={getVideoUrl(recipe)}
+                videoId={recipe.videoInfo.videoId}
+                description={recipe.detailMeta?.description}
+                servings={recipe.detailMeta?.servings}
+                cookingTime={recipe.detailMeta?.cookingTime}
                 trigger={
                   recipe.videoInfo.videoType === "SHORTS" ? (
                     <RecipeListCardShorts
@@ -131,6 +136,10 @@ export function RecipeCardsSectionMobile<
                 recipeVideoType={getVideoType(recipe)}
                 entryPoint={entryPoint}
                 recipeVideoUrl={getVideoUrl(recipe)}
+                videoId={recipe.videoInfo.videoId}
+                description={recipe.detailMeta?.description}
+                servings={recipe.detailMeta?.servings}
+                cookingTime={recipe.detailMeta?.cookingTime}
                 trigger={
                   recipe.videoInfo.videoType === "SHORTS" ? (
                     <RecipeGridCardShorts

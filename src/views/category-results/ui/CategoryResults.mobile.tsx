@@ -84,6 +84,10 @@ export function CategoryResultsContentMobile({
                 recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
                 entryPoint={getEntryPoint()}
                 recipeVideoUrl={getVideoUrl(recipe)}
+                videoId={recipe.videoInfo.videoId}
+                description={recipe.detailMeta?.description}
+                servings={recipe.detailMeta?.servings}
+                cookingTime={recipe.detailMeta?.cookingTime}
                 trigger={
                   recipe.videoInfo.videoType === "SHORTS" ? (
                     <RecipeListCardShorts
@@ -142,6 +146,10 @@ export function CategoryResultsContentMobile({
                 recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
                 entryPoint={getEntryPoint()}
                 recipeVideoUrl={getVideoUrl(recipe)}
+                videoId={recipe.videoInfo.videoId}
+                description={recipe.detailMeta?.description}
+                servings={recipe.detailMeta?.servings}
+                cookingTime={recipe.detailMeta?.cookingTime}
                 trigger={
                   recipe.videoInfo.videoType === "SHORTS" ? (
                     <RecipeGridCardShorts

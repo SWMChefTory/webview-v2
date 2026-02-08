@@ -99,6 +99,10 @@ export function SearchedRecipeCard({
           recipeIsViewed={recipe.isViewed}
           recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
           recipeVideoUrl={recipe.videoUrl}
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={thumbnailContent}
           entryPoint="search_result"
         />
@@ -138,6 +142,10 @@ export function SearchedRecipeCard({
             recipeIsViewed={recipe.isViewed}
             recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
           recipeVideoUrl={recipe.videoUrl}
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={thumbnailContent}
           entryPoint="search_result"
         />

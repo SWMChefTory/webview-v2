@@ -75,6 +75,10 @@ export function CategoryResultsContentTablet({
               recipeVideoType={getVideoType(recipe)}
               entryPoint={getEntryPoint()}
               recipeVideoUrl={getVideoUrl(recipe)}
+              videoId={recipe.videoInfo.videoId}
+              description={recipe.detailMeta?.description}
+              servings={recipe.detailMeta?.servings}
+              cookingTime={recipe.detailMeta?.cookingTime}
               trigger={
                 <RecipeCardReady
                   recipeTitle={recipe.recipeTitle}

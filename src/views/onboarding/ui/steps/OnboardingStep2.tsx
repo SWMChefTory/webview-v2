@@ -12,12 +12,16 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { slideXVariants, createSlideTransition } from "../shared/animations";
 import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
+import { BasicIntent } from "@/src/views/recipe-step/lib/parseIntent";
 
 // Step 2 상태 타입
 type Step2State = 'summary' | 'ingredients' | 'steps' | 'cooking';
 
 // 음성 인식 상태
 type VoiceStatus = 'idle' | 'listening' | 'recognized' | 'failed';
+
+// 음성 과제 상태 (cooking 모드 내 2단계)
+type VoiceTaskState = 'play_video' | 'next_step' | 'completed';
 
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step2State, string> = {
@@ -38,6 +42,23 @@ const STEP_ALT: Record<Step2State, string> = {
 // 상태 순서
 const STEP_ORDER: Step2State[] = ['summary', 'ingredients', 'steps', 'cooking'];
 
+// 체크 아이콘 컴포넌트
+const CheckIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-5 h-5"
+    aria-hidden="true"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
 export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
   const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection } = useOnboardingStore();
@@ -50,6 +71,14 @@ export function OnboardingStep2() {
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [micActivated, setMicActivated] = useState(false);
+
+  // 2단계 음성 과제 상태
+  const [voiceTaskState, setVoiceTaskState] = useState<VoiceTaskState>('play_video');
+  const [completedTasks, setCompletedTasks] = useState({
+    playVideo: false,
+    nextStep: false,
+  });
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
@@ -69,6 +98,8 @@ export function OnboardingStep2() {
       setMicActivated(false);
       setVoiceStatus('idle');
       setIsListening(false);
+      setVoiceTaskState('play_video');
+      setCompletedTasks({ playVideo: false, nextStep: false });
     }
   }, [step2State]);
 
@@ -97,14 +128,25 @@ export function OnboardingStep2() {
     }
   }, [step2State, t]);
 
+  // 서브타이틀 - cooking 모드에서는 현재 과제에 따라 동적 변경
   const subtitle = useMemo((): string => {
+    if (step2State === 'cooking') {
+      switch (voiceTaskState) {
+        case 'play_video':
+          return '재생해줘라고 말해보세요';
+        case 'next_step':
+          return '다음단계라고 말해보세요';
+        case 'completed':
+          return '모두 완료했어요!';
+      }
+    }
     switch (step2State) {
       case 'summary': return t('step2.summary.guide');
       case 'ingredients': return t('step2.ingredients.guide');
       case 'steps': return t('step2.steps.guide');
-      case 'cooking': return t('step2.cooking.guide');
+      // cooking 상태는 위에서 처리됨
     }
-  }, [step2State, t]);
+  }, [step2State, voiceTaskState, t]);
 
   // 다음 상태로 이동
   const moveToNextState = useCallback(() => {
@@ -134,20 +176,68 @@ export function OnboardingStep2() {
     }
   }, [currentIndex, step2State, prevStep]);
 
-  // 음성 인식 성공 시 다음 단계로 이동
-  const handleVoiceNext = useCallback(() => {
-    setVoiceStatus('recognized');
-    track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-      step: currentStep,
-      step_count: 3,
-      sub_step: step2State,
-      voice_method: 'voice',
-    });
+  // 음성 인식 핸들러 (2단계 과제 시스템)
+  const handleIntentRecognized = useCallback((intent: BasicIntent) => {
+    console.log('[OnboardingStep2] Intent recognized:', intent, 'current task:', voiceTaskState);
 
-    timerRef.current = setTimeout(() => {
-      nextStep();
-    }, TIMING.VOICE_SUCCESS_DELAY_MS);
-  }, [currentStep, nextStep, step2State]);
+    // VIDEO PLAY 인식 (1단계 과제)
+    if (intent === 'VIDEO PLAY' && voiceTaskState === 'play_video' && !completedTasks.playVideo) {
+      triggerHaptic();
+      setCompletedTasks(prev => ({ ...prev, playVideo: true }));
+      setVoiceTaskState('next_step');
+      setVoiceStatus('recognized');
+
+      track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
+        step: currentStep,
+        step_count: 3,
+        sub_step: 'voice_task_play_video',
+        voice_method: 'voice',
+      });
+
+      // 인식 성공 상태를 잠시 보여주다가 다음 대기 상태로
+      timerRef.current = setTimeout(() => {
+        setVoiceStatus('idle');
+      }, TIMING.VOICE_SUCCESS_DELAY_MS);
+      return;
+    }
+
+    // NEXT 인식 (2단계 과제)
+    if (intent === 'NEXT' && voiceTaskState === 'next_step' && !completedTasks.nextStep) {
+      triggerHaptic();
+      setCompletedTasks(prev => ({ ...prev, nextStep: true }));
+      setVoiceTaskState('completed');
+      setVoiceStatus('recognized');
+
+      track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
+        step: currentStep,
+        step_count: 3,
+        sub_step: 'voice_task_next_step',
+        voice_method: 'voice',
+      });
+
+      // 두 과제 완료 후 다음 스텝으로 이동
+      timerRef.current = setTimeout(() => {
+        track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
+          step: currentStep,
+          step_count: 3,
+          sub_step: step2State,
+          voice_method: 'voice',
+        });
+        nextStep();
+      }, TIMING.VOICE_SUCCESS_DELAY_MS);
+      return;
+    }
+
+    // 이미 완료된 과제를 다시 말한 경우
+    if ((intent === 'VIDEO PLAY' && completedTasks.playVideo) ||
+        (intent === 'NEXT' && completedTasks.nextStep)) {
+      setVoiceStatus('recognized');
+      timerRef.current = setTimeout(() => {
+        setVoiceStatus('idle');
+      }, 1000);
+      return;
+    }
+  }, [voiceTaskState, completedTasks, currentStep, nextStep, triggerHaptic]);
 
   // 음성 인식 실패 시 처리
   const handleVoiceError = useCallback(() => {
@@ -181,9 +271,10 @@ export function OnboardingStep2() {
         <OnboardingMicButton
           enabled={micActivated}
           onActivate={() => setMicActivated(true)}
-          onNext={handleVoiceNext}
+          onNext={() => { /* No-op: onIntentRecognized으로 처리 */ }}
           onError={handleVoiceError}
           onListeningChange={setIsListening}
+          onIntentRecognized={handleIntentRecognized}
         />
       </div>
 
@@ -234,20 +325,47 @@ export function OnboardingStep2() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Subtitle */}
+        {/* Subtitle - cooking 모드에서는 완료 표시와 함께 표시 */}
         <AnimatePresence mode="wait" initial={false}>
-          <motion.p
-            key={`subtitle-${step2State}`}
+          <motion.div
+            key={`subtitle-${step2State}-${voiceTaskState}`}
             variants={slideXVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
             custom={{ direction, shouldAnimate }}
             transition={transitionConfig}
-            className="text-sm text-gray-600 text-center px-4"
+            className="flex items-center gap-2"
           >
-            {subtitle}
-          </motion.p>
+            <p className="text-sm text-gray-600 text-center px-4">
+              {subtitle}
+            </p>
+            {/* 완료 체크 표시들 */}
+            {isCookingState && (
+              <div className="flex items-center gap-2">
+                {completedTasks.playVideo && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center gap-1 text-green-600 text-sm font-medium"
+                  >
+                    <CheckIcon />
+                    <span>재생해줘</span>
+                  </motion.span>
+                )}
+                {completedTasks.nextStep && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    className="flex items-center gap-1 text-green-600 text-sm font-medium"
+                  >
+                    <CheckIcon />
+                    <span>다음단계</span>
+                  </motion.span>
+                )}
+              </div>
+            )}
+          </motion.div>
         </AnimatePresence>
 
         {/* Image Area - cooking 상태에서는 음성으로만 진행 */}

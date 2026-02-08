@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSimpleSpeech } from "@/src/views/recipe-step/hooks/useSimpleSpeech";
-import { parseIntent } from "@/src/views/recipe-step/lib/parseIntent";
+import { parseIntent, BasicIntent } from "@/src/views/recipe-step/lib/parseIntent";
 
 interface OnboardingMicButtonProps {
   enabled?: boolean;
@@ -8,6 +8,8 @@ interface OnboardingMicButtonProps {
   onNext: () => void;
   onError?: () => void;
   onListeningChange?: (isListening: boolean) => void;
+  /** 인식된 인텐트를 상위로 전달 (2단계 과제 시스템용) */
+  onIntentRecognized?: (intent: BasicIntent) => void;
 }
 
 // STT 서버에서 반환하는 Intent 형태
@@ -39,7 +41,7 @@ const MicIcon = () => (
 );
 
 // 활성 상태: useSimpleSpeech 훅으로 음성 인식 수행
-function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<OnboardingMicButtonProps, 'onNext' | 'onError' | 'onListeningChange'>) {
+function ActiveMicButton({ onNext, onError, onListeningChange, onIntentRecognized }: Pick<OnboardingMicButtonProps, 'onNext' | 'onError' | 'onListeningChange' | 'onIntentRecognized'>) {
   const [isActive, setIsActive] = useState(false);
 
   const { isListening, error } = useSimpleSpeech({
@@ -58,6 +60,10 @@ function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<Onboarding
 
       console.log("[OnboardingMicButton] parsedIntent:", parsedIntent);
 
+      // 상위로 인식된 인텐트 전달 (2단계 과제 시스템용)
+      onIntentRecognized?.(parsedIntent);
+
+      // 기존 호환성: onNext 호출
       if (
         parsedIntent === "NEXT" ||
         parsedIntent === "VIDEO PLAY" ||
@@ -149,6 +155,7 @@ export function OnboardingMicButton({
   onNext,
   onError,
   onListeningChange,
+  onIntentRecognized,
 }: OnboardingMicButtonProps) {
   if (!enabled) {
     // 비활성 상태: 회색 마이크 버튼 + 주목 유도 펄스 (음성 인식 미시작)
@@ -186,6 +193,7 @@ export function OnboardingMicButton({
       onNext={onNext}
       onError={onError}
       onListeningChange={onListeningChange}
+      onIntentRecognized={onIntentRecognized}
     />
   );
 }

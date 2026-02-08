@@ -12,6 +12,16 @@ export interface RechargeResponse {
   remainingCount: number;
 }
 
+/** 하루 공유 횟수 초과 시 throw되는 에러 */
+export class LimitExceededError extends Error {
+  constructor() {
+    super('충전 횟수를 모두 사용했어요.');
+    this.name = 'LimitExceededError';
+    // 번들러/트랜스파일러에 따라 instanceof 실패 방지
+    Object.setPrototypeOf(this, LimitExceededError.prototype);
+  }
+}
+
 // 백엔드 에러 코드 (UserShareErrorCode.java 참조)
 const ERROR_CODES = {
   LIMIT_EXCEEDED: 'USER_SHARE_001',      // 공유 횟수 초과
@@ -44,8 +54,12 @@ export async function completeRecharge(): Promise<RechargeResponse> {
       const data = error.response?.data;
       // 에러 응답은 camelcaseKeys 미적용이므로 snake_case/camelCase 모두 체크
       const errorCode = data?.errorCode ?? data?.error_code;
-      const message = errorCode ? ERROR_MESSAGES[errorCode] : undefined;
 
+      if (errorCode === ERROR_CODES.LIMIT_EXCEEDED) {
+        throw new LimitExceededError();
+      }
+
+      const message = errorCode ? ERROR_MESSAGES[errorCode] : undefined;
       if (message) {
         throw new Error(message);
       }

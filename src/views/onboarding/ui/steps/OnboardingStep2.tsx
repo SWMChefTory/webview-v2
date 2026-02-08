@@ -49,6 +49,7 @@ export function OnboardingStep2() {
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
   const [isListening, setIsListening] = useState(false);
+  const [micActivated, setMicActivated] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
@@ -61,6 +62,15 @@ export function OnboardingStep2() {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
+
+  // cooking 상태를 벗어나면 마이크/음성 상태 리셋
+  useEffect(() => {
+    if (step2State !== 'cooking') {
+      setMicActivated(false);
+      setVoiceStatus('idle');
+      setIsListening(false);
+    }
+  }, [step2State]);
 
   // 접근성: reduced-motion 체크
   const prefersReducedMotion = useReducedMotion();
@@ -148,35 +158,37 @@ export function OnboardingStep2() {
 
   // 쿠킹 상태에서 하단 네비게이션 가운데에 표시할 마이크 UI
   const micBottomCenter = isCookingState ? (
-    <div className="flex flex-col items-center gap-1">
-      {/* 음성 상태 텍스트 */}
+    <div className="flex flex-col items-center gap-1 w-full">
+      {/* 음성 상태 텍스트 — failed 시에도 idle 텍스트 유지 (온보딩에서 부정적 메시지 최소화) */}
       <p className={cn(
-        "text-xs font-medium",
+        "text-sm font-medium h-5 leading-5 whitespace-nowrap",
+        !micActivated ? "text-gray-500" :
         isListening ? "text-blue-600 animate-pulse" :
         voiceStatus === 'recognized' ? "text-green-600" :
-        voiceStatus === 'failed' ? "text-orange-600" :
         "text-gray-500"
       )}>
-        {isListening ? t('step2.cooking.listening') :
+        {!micActivated ? t('step2.cooking.tapToStart') :
+         isListening ? t('step2.cooking.listening') :
          voiceStatus === 'recognized' ? t('step2.cooking.recognized') :
-         voiceStatus === 'failed' ? t('step2.cooking.failed') :
          t('step2.cooking.idle')}
       </p>
 
       {/* 마이크 버튼 */}
       <div className="relative">
-        {isListening && shouldAnimate && (
+        {micActivated && isListening && shouldAnimate && (
           <div className="absolute inset-0 bg-orange-500/40 rounded-full animate-ping" />
         )}
         <OnboardingMicButton
+          enabled={micActivated}
+          onActivate={() => setMicActivated(true)}
           onNext={handleVoiceNext}
           onError={handleVoiceError}
           onListeningChange={setIsListening}
         />
       </div>
 
-      {/* 음성 실패 시 터치 대안 */}
-      {voiceStatus === 'failed' && (
+      {/* 음성 실패 시 터치 대안 (마이크 활성화 후에만) */}
+      {micActivated && voiceStatus === 'failed' && (
         <button
           onClick={moveToNextState}
           className="text-[10px] text-gray-500 hover:text-orange-600 underline"

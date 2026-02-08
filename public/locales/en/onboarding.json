@@ -47,6 +47,16 @@
       "title": "Cooking Steps",
       "guide": "Follow the step-by-step cooking instructions"
     },
+    "cooking": {
+      "title": "Hands-Free Cooking Mode",
+      "guide": "Try saying \"Next step\"!",
+      "tapToStart": "Tap the mic to start",
+      "idle": "Say \"Next step\"",
+      "listening": "Listening...",
+      "recognized": "Recognized!",
+      "failed": "Please try again",
+      "fallback": "Tap to skip"
+    },
     "tooltip": {
       "title": "Hands-Free Cooking Mode",
       "description": "Control hands-free with voice commands even when your hands are dirty.",

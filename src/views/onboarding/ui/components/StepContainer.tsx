@@ -107,41 +107,44 @@ export function StepContainer({
         {children}
       </div>
 
-      {/* Navigation (Bottom) */}
-      <div className="flex items-center justify-between w-full py-3">
-        <button
-          onClick={onPrev}
-          disabled={isFirstGlobalStep}
-          className={cn(
-            "min-h-[44px] min-w-[44px] px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95",
-            isFirstGlobalStep
-              ? "opacity-0 pointer-events-none"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-          )}
-          aria-label={isFirstGlobalStep ? "첫 번째 단계입니다" : "이전 단계로 이동"}
-        >
-          {t('common.prev')}
-        </button>
+      {/* Navigation (Bottom) — 3칸 레이아웃: 좌(flex-1) | 중앙(auto) | 우(flex-1) */}
+      <div className="flex items-center w-full py-3">
+        {/* Left */}
+        <div className="flex-1 flex justify-start">
+          <button
+            onClick={onPrev}
+            disabled={isFirstGlobalStep}
+            className={cn(
+              "min-h-[44px] min-w-[44px] px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95",
+              isFirstGlobalStep
+                ? "opacity-0 pointer-events-none"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            )}
+            aria-label={isFirstGlobalStep ? "첫 번째 단계입니다" : "이전 단계로 이동"}
+          >
+            {t('common.prev')}
+          </button>
+        </div>
 
-        {/* Center: 커스텀 콘텐츠 (마이크 등) 또는 빈 공간 */}
+        {/* Center: 커스텀 콘텐츠 (마이크 등) */}
         {bottomCenter && (
           <div className="flex flex-col items-center">
             {bottomCenter}
           </div>
         )}
 
-        {!hideNextButton && !bottomCenter && (
-          <button
-            onClick={onNext}
-            className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
-            aria-label="다음 단계로 이동"
-          >
-            {t('common.next')}
-          </button>
-        )}
-
-        {/* hideNextButton && !bottomCenter: 빈 공간으로 이전 버튼만 보이게 */}
-        {hideNextButton && !bottomCenter && <div className="min-w-[44px]" />}
+        {/* Right */}
+        <div className="flex-1 flex justify-end">
+          {!hideNextButton && !bottomCenter && (
+            <button
+              onClick={onNext}
+              className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
+              aria-label="다음 단계로 이동"
+            >
+              {t('common.next')}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

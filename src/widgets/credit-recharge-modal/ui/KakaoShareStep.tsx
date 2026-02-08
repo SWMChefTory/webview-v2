@@ -8,7 +8,7 @@ import { request, MODE } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
-import { completeRecharge } from "@/src/entities/balance/api/rechargeApi";
+import { completeRecharge, LimitExceededError } from "@/src/entities/balance/api/rechargeApi";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { BALANCE_QUERY_KEY } from "@/src/entities/balance/model/useFetchBalance";
@@ -44,9 +44,19 @@ export function KakaoShareStep() {
 
       toast.success(`${result.amount}베리가 충전되었어요!`, { duration: 2000 });
     } catch (error) {
-      // 에러 시 토스트 표시, 스텝 유지
-      const message = error instanceof Error ? error.message : '충전에 실패했어요.';
-      toast.error(message, { duration: 3000 });
+      if (error instanceof LimitExceededError) {
+        // 횟수 초과: 카카오톡은 열고 success로 이동 (amount: 0)
+        setRechargeResult({ amount: 0, remainingCount: 0 });
+
+        const returnUrl = generateRechargeUrl();
+        request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_KAKAO, { returnUrl });
+
+        setStep('success');
+        toast.info('오늘의 충전 횟수를 모두 사용했어요.', { duration: 3000 });
+      } else {
+        const message = error instanceof Error ? error.message : '충전에 실패했어요.';
+        toast.error(message, { duration: 3000 });
+      }
     }
   }, [setStep, setRechargeResult, queryClient]);
 

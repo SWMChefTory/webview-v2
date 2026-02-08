@@ -2,12 +2,35 @@ import { useState, useEffect } from "react";
 import { useSimpleSpeech } from "@/src/views/recipe-step/hooks/useSimpleSpeech";
 
 interface OnboardingMicButtonProps {
+  enabled?: boolean;
+  onActivate?: () => void;
   onNext: () => void;
   onError?: () => void;
   onListeningChange?: (isListening: boolean) => void;
 }
 
-export function OnboardingMicButton({ onNext, onError, onListeningChange }: OnboardingMicButtonProps) {
+// 마이크 아이콘 SVG (활성/비활성 공유)
+const MicIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="h-8 w-8 lg:h-10 lg:w-10"
+    aria-hidden="true"
+  >
+    <path d="M12 1a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" y1="19" x2="12" y2="23" />
+    <line x1="8" y1="23" x2="16" y2="23" />
+  </svg>
+);
+
+// 활성 상태: useSimpleSpeech 훅으로 음성 인식 수행
+function ActiveMicButton({ onNext, onError, onListeningChange }: Pick<OnboardingMicButtonProps, 'onNext' | 'onError' | 'onListeningChange'>) {
   const [isActive, setIsActive] = useState(false);
 
   const { isListening, error } = useSimpleSpeech({
@@ -50,24 +73,9 @@ export function OnboardingMicButton({ onNext, onError, onListeningChange }: Onbo
       aria-label={isActiveState ? "음성 인식 중입니다" : "음성 인식 시작"}
       aria-pressed={isActiveState}
     >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        className="h-8 w-8 lg:h-10 lg:w-10"
-        aria-hidden="true"
-      >
-        <path d="M12 1a3 3 0 0 1 3 3v7a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z" />
-        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-        <line x1="12" y1="19" x2="12" y2="23" />
-        <line x1="8" y1="23" x2="16" y2="23" />
-      </svg>
+      <MicIcon />
 
-      {isActiveState && (
+      {isActiveState ? (
         <>
           <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-300/60 animate-[listening_1.8s_ease-out_infinite]" />
           <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/40 animate-[listening_1.8s_ease-out_infinite_0.9s]" />
@@ -88,7 +96,74 @@ export function OnboardingMicButton({ onNext, onError, onListeningChange }: Onbo
             }
           `}</style>
         </>
+      ) : (
+        <>
+          <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-orange-400/50 animate-[micReady_2s_ease-out_infinite]" />
+          <style jsx>{`
+            @keyframes micReady {
+              0% {
+                transform: scale(1);
+                opacity: 0.5;
+              }
+              70% {
+                transform: scale(1.5);
+                opacity: 0;
+              }
+              100% {
+                transform: scale(1.5);
+                opacity: 0;
+              }
+            }
+          `}</style>
+        </>
       )}
     </button>
+  );
+}
+
+export function OnboardingMicButton({
+  enabled = true,
+  onActivate,
+  onNext,
+  onError,
+  onListeningChange,
+}: OnboardingMicButtonProps) {
+  if (!enabled) {
+    // 비활성 상태: 회색 마이크 버튼 + 주목 유도 펄스 (음성 인식 미시작)
+    return (
+      <button
+        onClick={onActivate}
+        className="relative flex h-[3.75rem] w-[3.75rem] lg:h-[4.5rem] lg:w-[4.5rem] items-center justify-center rounded-full bg-gray-400 shadow-[0_2px_16px_rgba(0,0,0,0.16)] active:scale-95 lg:hover:scale-105"
+        type="button"
+        aria-label="마이크를 눌러 음성 인식을 시작하세요"
+      >
+        <MicIcon />
+        <span className="pointer-events-none absolute inset-0 rounded-full border-2 border-gray-400/50 animate-[micAttention_2s_ease-out_infinite]" />
+        <style jsx>{`
+          @keyframes micAttention {
+            0% {
+              transform: scale(1);
+              opacity: 0.5;
+            }
+            70% {
+              transform: scale(1.5);
+              opacity: 0;
+            }
+            100% {
+              transform: scale(1.5);
+              opacity: 0;
+            }
+          }
+        `}</style>
+      </button>
+    );
+  }
+
+  return (
+    <ActiveMicButton
+      onNext={onNext}
+      onError={onError}
+      onListeningChange={onListeningChange}
+    />
   );
 }

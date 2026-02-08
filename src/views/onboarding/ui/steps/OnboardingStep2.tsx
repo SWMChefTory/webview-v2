@@ -209,7 +209,7 @@ export function OnboardingStep2() {
       hideNextButton={isCookingState}
       bottomCenter={micBottomCenter}
     >
-      <div className="w-full flex flex-col items-center justify-center gap-2">
+      <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 min-h-0">
         {/* Section Label */}
         <span className="text-[11px] font-semibold text-orange-500 tracking-wide">
           STEP 2 · {t('step2.sectionLabel')}
@@ -258,12 +258,12 @@ export function OnboardingStep2() {
           role={isCookingState ? "img" : "button"}
           tabIndex={isCookingState ? undefined : 0}
           className={cn(
-            "relative rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2",
+            "relative rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 flex-1 min-h-0",
             isCookingState ? "cursor-default" : "cursor-pointer"
           )}
           style={{
             width: PREVIEW_BUTTON.WIDTH,
-            height: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL,
+            maxHeight: isCookingState ? PREVIEW_BUTTON.HEIGHT_COOKING : PREVIEW_BUTTON.HEIGHT_NORMAL,
             pointerEvents: isCookingState ? 'none' : 'auto',
           }}
           aria-label={`${STEP_ALT[step2State]}. ${isCookingState ? '음성으로 다음 단계를 진행하세요.' : '터치하여 다음으로 이동.'}`}

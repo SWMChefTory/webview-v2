@@ -11,11 +11,13 @@ type NavigationDirection = 'forward' | 'backward';
 
 interface OnboardingState {
   isOnboardingCompleted: boolean;
+  _hasHydrated: boolean;
   currentStep: OnboardingStep;
   navigationDirection: NavigationDirection;
   redirectPath: string | null;
 
   // Actions
+  setHasHydrated: (hydrated: boolean) => void;
   completeOnboarding: (redirectPath?: string) => void;
   nextStep: () => void;
   prevStep: () => void;
@@ -27,9 +29,14 @@ export const useOnboardingStore = create<OnboardingState>()(
   persist(
     (set) => ({
       isOnboardingCompleted: false,
+      _hasHydrated: false,
       currentStep: 1,
       navigationDirection: 'forward',
       redirectPath: null,
+
+      setHasHydrated: (hydrated: boolean) => {
+        set({ _hasHydrated: hydrated });
+      },
 
       completeOnboarding: (redirectPath?: string) => {
         set({ isOnboardingCompleted: true, redirectPath: redirectPath ?? '/' });
@@ -56,7 +63,10 @@ export const useOnboardingStore = create<OnboardingState>()(
     }),
     {
       name: 'onboarding-storage',
-      partialize: (state) => ({ isOnboardingCompleted: state.isOnboardingCompleted })
+      partialize: (state) => ({ isOnboardingCompleted: state.isOnboardingCompleted }),
+      onRehydrateStorage: (state) => {
+        return () => state.setHasHydrated(true);
+      },
     }
   )
 );

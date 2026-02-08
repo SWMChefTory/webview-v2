@@ -82,7 +82,7 @@ export function OnboardingStep3() {
       hideSkipButton={true}
       hideNextButton={true}
     >
-      <div className="w-full max-w-sm mx-auto flex flex-col items-center gap-3 px-2">
+      <div className="w-full max-w-sm mx-auto flex-1 flex flex-col items-center gap-3 px-2 min-h-0 overflow-y-auto">
 
         {/* Tory Character - Main Hero */}
         <motion.div

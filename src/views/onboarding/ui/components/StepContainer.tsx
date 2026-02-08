@@ -103,7 +103,7 @@ export function StepContainer({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center w-full overflow-hidden">
+      <div className="flex-1 flex flex-col w-full overflow-hidden min-h-0">
         {children}
       </div>
 

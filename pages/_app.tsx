@@ -74,14 +74,17 @@ function AppInner({ Component, pageProps }: AppProps) {
   const [recipeDetailLinkUrl, setRecipeDetailLinkUrl] = useState<
     string | undefined
   >(undefined);
-  const { isOnboardingCompleted } = useOnboardingStore();
+  const { isOnboardingCompleted, _hasHydrated } = useOnboardingStore();
 
   useEffect(() => {
+    // hydration 완료 전에는 라우팅 결정하지 않음
+    if (!_hasHydrated) return;
+
     // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
     if (!isOnboardingCompleted && router.pathname !== '/onboarding') {
       router.replace('/onboarding');
     }
-  }, [isOnboardingCompleted, router.pathname]);
+  }, [_hasHydrated, isOnboardingCompleted, router.pathname]);
 
   function handleRecipeDeepLink({ path }: { path: string }) {
     const recipeId = path.split("/")[2];
@@ -145,6 +148,15 @@ function AppInner({ Component, pageProps }: AppProps) {
       cleanup();
     };
   }, [router]);
+
+  // Zustand persist hydration 완료 전에는 아무것도 렌더링하지 않음
+  // → 새 사용자: 홈 화면이 먼저 보이는 flash 방지
+  // → 기존 사용자: 온보딩으로 잘못 리다이렉트되는 것 방지
+  if (!_hasHydrated) {
+    return (
+      <div className="h-dvh bg-gradient-to-b from-orange-50 via-white to-white" />
+    );
+  }
 
   return (
     <HydrationBoundary state={pageProps.dehydratedState}>

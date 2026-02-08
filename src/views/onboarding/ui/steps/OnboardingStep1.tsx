@@ -123,7 +123,7 @@ export function OnboardingStep1() {
       onSkip={handleSkip}
       innerStateIndex={currentIndex}
     >
-      <div className="w-full flex flex-col items-center justify-center gap-2">
+      <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 min-h-0">
         {/* Section Label */}
         <span className="text-[11px] font-semibold text-orange-500 tracking-wide">
           STEP 1 · {t('step1.sectionLabel')}
@@ -166,8 +166,8 @@ export function OnboardingStep1() {
           onClick={moveToNextState}
           whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
           whileTap={shouldAnimate ? { scale: 0.96 } : undefined}
-          className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2"
-          style={{ width: PREVIEW_BUTTON.WIDTH, height: PREVIEW_BUTTON.HEIGHT_NORMAL }}
+          className="relative cursor-pointer rounded-2xl transition-transform focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:ring-offset-2 flex-1 min-h-0"
+          style={{ width: PREVIEW_BUTTON.WIDTH, maxHeight: PREVIEW_BUTTON.HEIGHT_NORMAL }}
           aria-label={`${STEP_ALT[step1State]}. 터치하여 다음으로 이동.`}
         >
           <AnimatePresence mode="wait" initial={false}>

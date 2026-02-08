@@ -3,21 +3,13 @@ import { Copy } from "lucide-react";
 import { useCreditRechargeModalStore } from "../creditRechargeModalStore";
 import { copyToClipboard } from "../utils/clipboard";
 import { toast } from "sonner";
-import { fetchUserModel } from "@/src/views/settings/entities/user/model";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
-import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import Image from "next/image";
-
-const DEFAULT_RECHARGE_COUNT = 3;
 
 export function ClipboardStep() {
   const { setStep } = useCreditRechargeModalStore();
   const [isCopying, setIsCopying] = useState(false);
   const { t } = useRechargeTranslation();
-  const { data } = useFetchBalance();
-
-  // Get actual user ID from user model
-  const { user } = fetchUserModel();
 
   // 표시용 링크 (홈페이지)
   const displayLink = "https://www.cheftories.com";
@@ -27,17 +19,7 @@ export function ClipboardStep() {
     return `🍳 셰프토리에서 레시피 공유하고 맛있는 요리를 만들어보세요!\n\n나만의 레시피를 정리하고, 친구들과 공유하며 요리 실력을 UP!\n\n지금 바로 시작해보세요 👇\nhttps://www.cheftories.com`;
   };
 
-  // 남은 충전 횟수
-  const remainingCount = data?.remainingRechargeCount ?? DEFAULT_RECHARGE_COUNT;
-  const isDisabled = remainingCount <= 0;
-
   const handleCopy = useCallback(async () => {
-    // 횟수 소진 시 체크
-    if (isDisabled) {
-      toast.error(t('clipboard.noRemainingCount'), { duration: 2000 });
-      return;
-    }
-
     setIsCopying(true);
     const shareContent = getShareContent();
     const result = await copyToClipboard(shareContent);
@@ -50,7 +32,7 @@ export function ClipboardStep() {
     }
 
     setIsCopying(false);
-  }, [setStep, t, isDisabled]);
+  }, [setStep, t]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[280px] h-full">
@@ -86,14 +68,9 @@ export function ClipboardStep() {
             />
             <button
               onClick={handleCopy}
-              disabled={isCopying || isDisabled}
-              className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-colors active:scale-95 ${
-                isDisabled
-                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  : 'bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white active:bg-orange-700'
-              }`}
+              disabled={isCopying}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold text-sm transition-colors active:scale-95 bg-orange-500 hover:bg-orange-600 disabled:bg-orange-300 text-white active:bg-orange-700"
               aria-label={t('clipboard.copyButton')}
-              aria-disabled={isDisabled}
             >
               <Copy size={16} />
               <span>{isCopying ? t('clipboard.copying') : t('clipboard.copyButton')}</span>

@@ -13,6 +13,7 @@ import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import Image from "next/image";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
 
 /**
  * 공통 컴포넌트: 모바일/태블릿 모두 사용
@@ -149,6 +150,7 @@ const BalanceRemainedSkeleton = ({ isTablet = false }: { isTablet?: boolean }) =
 const BalanceRemainedReadySection = ({ isTablet = false }: { isTablet?: boolean }) => {
   const { t } = useSettingsTranslation();
   const { data } = useFetchBalance();
+  const { open } = useCreditRechargeModalStore();
 
   return (
     <div className={isTablet ? "px-0" : "px-4"}>
@@ -160,6 +162,7 @@ const BalanceRemainedReadySection = ({ isTablet = false }: { isTablet?: boolean 
           track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
             source: "settings",
           });
+          open('settings');
         }}
         whileTap={{ scale: 0.98, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
         transition={{ duration: 0.2 }}

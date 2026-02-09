@@ -4,6 +4,10 @@
       "title": "Terms and Agreements",
       "privacy_policy": "Privacy Policy",
       "service_terms": "Terms of Service"
+    },
+    "onboarding": {
+      "title": "Tutorial",
+      "reset": "Onboarding"
     }
   },
   "button": {

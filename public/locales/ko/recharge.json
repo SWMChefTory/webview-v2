@@ -1,0 +1,46 @@
+{
+  "modal": {
+    "title": "크레딧 충전하기",
+    "description": "친구에게 쉐프토리를 공유하고 크레딧을 받아보세요",
+    "close": "닫기"
+  },
+  "steps": {
+    "clipboard": "링크 복사",
+    "kakao": "공유하기",
+    "success": "완료"
+  },
+  "clipboard": {
+    "title": "친구 초대하고 크레딧 받기",
+    "description": "친구에게 쉐프토리를 공유하고\n크레딧을 받아보세요!",
+    "inviteLinkLabel": "초대 링크",
+    "copyButton": "복사하기",
+    "copying": "복사 중...",
+    "copySuccess": "링크가 복사되었어요",
+    "copyError": "복사에 실패했어요",
+    "noRemainingCount": "충전 횟수를 모두 사용했어요",
+    "remainingCount": "남은 횟수: {{count}}회"
+  },
+  "kakao": {
+    "title": "카카오톡으로 공유하기",
+    "description": "복사된 링크를 카카오톡으로\n친구에게 공유해주세요",
+    "backButton": "뒤로가기",
+    "shareButton": "카카오톡으로 공유하기"
+  },
+  "success": {
+    "title": "공유가 완료되었어요!",
+    "loadingTitle": "공유 처리 중...",
+    "description": "친구에게 공유해주셔서 감사해요",
+    "loadingDescription": "카카오톡 공유 완료 시 자동 충전됩니다",
+    "creditAdded": "베리가 충전되었어요",
+    "creditCharged": "베리가 충전되었어요",
+    "currentBalance": "현재 베리: {{balance}}",
+    "currentBalanceLabel": "현재 베리: ",
+    "remainingCount": "남은 충전 횟수: {{count}}회",
+    "noRemainingCount": "충전 횟수를 모두 사용했어요",
+    "limitExceededTitle": "공유해주셔서 감사해요!",
+    "limitExceededLine1": "오늘의 충전 횟수를 모두 사용했어요.",
+    "limitExceededLine2": "내일 다시 충전할 수 있어요!",
+    "confirmButton": "확인",
+    "error": "충전 처리 중 오류가 발생했어요"
+  }
+}

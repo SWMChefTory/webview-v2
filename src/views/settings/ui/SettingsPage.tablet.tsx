@@ -53,6 +53,21 @@ export function SettingsPageTabletLayout({
           </div>
         </div>
 
+        <div className="h-12" />
+
+        <div className="flex flex-col gap-4">
+          <div className="text-gray-500 text-lg font-medium pb-2 px-2">
+            {t("section.onboarding.title")}
+          </div>
+          <div
+            className="flex flex-row justify-between items-center py-5 px-4 rounded-xl cursor-pointer bg-white border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-all active:scale-[0.99]"
+            onClick={navigation.resetOnboarding}
+          >
+            <div className="text-xl font-medium text-gray-900">{t("section.onboarding.reset")}</div>
+            <GoChevronRight className="size-6 text-gray-400" />
+          </div>
+        </div>
+
         <div className="h-16" />
 
         <div className="flex flex-row gap-8 items-center justify-center">

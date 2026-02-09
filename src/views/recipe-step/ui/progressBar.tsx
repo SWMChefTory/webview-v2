@@ -31,6 +31,11 @@ export function ProgressBar({
       steps[currentStepIndex].details.length /
       steps.length) *
       100;
+
+  // 디버깅: 프로그래스바 깜빡임 현상 추적
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[ProgressBar] stepIndex=${currentStepIndex}, detailIndex=${currentDetailStepIndex}, steps.length=${steps.length}, width=${progressBarWidth.toFixed(1)}%`);
+  }
   return (
     <div className="w-full">
       <div className="h-2 lg:h-3" />

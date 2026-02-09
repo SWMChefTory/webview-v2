@@ -5,6 +5,10 @@ import {
   extractYouTubeVideoId,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { Loader2 } from "lucide-react";
+import { FaYoutube } from "react-icons/fa6";
+import { request } from "@/src/shared/client/native/client";
+import { MODE } from "@/src/shared/client/native/client";
+import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 
 import { useRecipeCreatingViewOpenStore } from "./recipeCreatingFormOpenStore";
 import { FormInput } from "@/src/shared/form/components";
@@ -149,6 +153,22 @@ export function RecipeCreatingView() {
                   errorMessage={t("recipeCreating.form.invalidUrl")}
                   placeholder={t("recipeCreating.form.placeholder")}
                 />
+
+                <div className="mt-3 flex justify-center">
+                  <button
+                    onClick={() => {
+                      request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE);
+                      close();
+                    }}
+                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors py-1 px-2 rounded-lg hover:bg-red-50"
+                  >
+                    <span>URL을 모르시나요?</span>
+                    <span className="font-semibold text-red-500 flex items-center gap-1">
+                      <FaYoutube className="w-4 h-4" />
+                      YouTube에서 찾기
+                    </span>
+                  </button>
+                </div>
               </div>
               <div className="w-full flex justify-center items-center">
                 <div className="px-4 text-sm text-gray-500">
@@ -438,7 +458,7 @@ const BalanceDescriptionReady = () => {
           className="object-contain lg:w-[22px] lg:h-[22px]"
         />
         <p className="text-sm lg:text-base text-gray-500">
-          {t("recipeCreating.berry.currentBalance", { balance })}
+          {t("recipeCreating.berry.currentBalance", { balance: balance.balance })}
         </p>
       </div>
     </div>

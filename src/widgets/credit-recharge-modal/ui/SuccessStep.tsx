@@ -1,6 +1,8 @@
-import { useCreditRechargeModalStore, type RechargeResult } from "../creditRechargeModalStore";
+import { useCreditRechargeModalStore } from "../creditRechargeModalStore";
+import type { RechargeResponse } from "@/src/entities/balance/api/rechargeApi";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
+import { CREDIT_PER_SHARE } from "@/src/entities/balance/type/balanceScheme";
 import Image from "next/image";
 
 export function SuccessStep() {
@@ -36,7 +38,7 @@ export function SuccessStep() {
               height={32}
               className="object-contain"
             />
-            <span className="text-2xl font-bold text-red-500">+{rechargeResult?.amount ?? 10}</span>
+            <span className="text-2xl font-bold text-red-500">+{rechargeResult?.amount ?? CREDIT_PER_SHARE}</span>
           </div>
         )}
 
@@ -79,7 +81,7 @@ export function SuccessStep() {
           ) : (
             <div className="text-center space-y-1">
               <p className="text-sm text-gray-600">
-                <span className="font-semibold text-orange-500">{rechargeResult?.amount ?? 10}</span>
+                <span className="font-semibold text-orange-500">{rechargeResult?.amount ?? CREDIT_PER_SHARE}</span>
                 <span>{t('success.creditCharged')}</span>
               </p>
               <p className="text-xs text-gray-500">

@@ -10,17 +10,33 @@ import { useRef } from "react";
 import { useRechargeTranslation } from "../hooks/useRechargeTranslation";
 
 export function CreditRechargeModal() {
-  const { isOpen, step, close } = useCreditRechargeModalStore();
+  const { isOpen, step, close, isSharing } = useCreditRechargeModalStore();
   const scrollAreaRef = useRef<HTMLDivElement | null>(null);
   const { t } = useRechargeTranslation();
 
   const { handlers: dragHandlers, style: dragStyle } = useDragToClose({
-    onClose: close,
+    onClose: () => {
+      // 공유 중이면 드래그로 닫기 방지
+      if (!isSharing) {
+        close();
+      }
+    },
     scrollAreaRef,
   });
 
   const handleOpenChange = (open: boolean) => {
+    // 공유 중이면 닫기 방지 (오버레이 클릭, ESC 키 등)
+    if (!open && isSharing) {
+      return;
+    }
     if (!open) {
+      close();
+    }
+  };
+
+  // 공유 중이면 닫을 수 없는 handleClose 함수
+  const handleClose = () => {
+    if (!isSharing) {
       close();
     }
   };
@@ -52,8 +68,9 @@ export function CreditRechargeModal() {
 
             <Dialog.Close asChild>
               <button
-                onClick={close}
-                className="absolute top-2 right-6 lg:right-8 p-3 lg:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                onClick={handleClose}
+                disabled={isSharing}
+                className="absolute top-2 right-6 lg:right-8 p-3 lg:p-3 rounded-full hover:bg-gray-100 active:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label={t('modal.close')}
               >
                 <X className="w-5 h-5 lg:w-6 lg:h-6 text-gray-500" />

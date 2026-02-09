@@ -1,0 +1,151 @@
+import { useRef, useEffect } from "react";
+import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
+import { cn } from "@/lib/utils";
+
+/** 각 스텝의 내부 하위 스텝 수 (그룹핑용) */
+const STEP_GROUPS = [4, 4, 1] as const;
+const TOTAL_STEPS = STEP_GROUPS.reduce((a, b) => a + b, 0); // 9
+
+interface StepContainerProps {
+  children: React.ReactNode;
+  currentStep: number;
+  onNext: () => void;
+  onPrev: () => void;
+  onSkip: () => void;
+  hideSkipButton?: boolean;
+  hideNextButton?: boolean;
+  innerStateIndex?: number;
+  /** 하단 네비게이션 가운데에 표시할 커스텀 콘텐츠 (예: 마이크 버튼) */
+  bottomCenter?: React.ReactNode;
+}
+
+/**
+ * 전역 하위 스텝 인덱스 계산 (1~9)
+ * - Step 1: 4개 하위 스텝 → 1~4
+ * - Step 2: 4개 하위 스텝 → 5~8
+ * - Step 3: 1개 하위 스텝 → 9
+ */
+const getGlobalStepIndex = (currentStep: number, innerIndex?: number): number => {
+  if (currentStep === 1) return (innerIndex ?? 0) + 1;
+  if (currentStep === 2) return (innerIndex ?? 0) + 5;
+  return 9;
+};
+
+export function StepContainer({
+  children,
+  currentStep,
+  onNext,
+  onPrev,
+  onSkip,
+  hideSkipButton,
+  hideNextButton,
+  innerStateIndex,
+  bottomCenter,
+}: StepContainerProps) {
+  const { t } = useOnboardingTranslation();
+
+  // Step 전환 시 stale innerStateIndex 방지
+  // AnimatePresence exit 중 이전 Step 컴포넌트가 새 currentStep으로 리렌더되면서
+  // 자신의 innerStateIndex를 그대로 전달 → 잘못된 progress 계산 발생 (e.g. 4→8 flash)
+  // currentStep이 바뀌면 innerStateIndex를 0으로 리셋하여 방지
+  const prevStepRef = useRef(currentStep);
+  const safeInnerIndex = prevStepRef.current !== currentStep ? 0 : (innerStateIndex ?? 0);
+  useEffect(() => {
+    prevStepRef.current = currentStep;
+  });
+
+  const globalStepIndex = getGlobalStepIndex(currentStep, safeInnerIndex);
+  const isFirstGlobalStep = globalStepIndex === 1;
+
+  return (
+    <div className="h-dvh bg-gradient-to-b from-orange-50 via-white to-white p-4 relative flex flex-col">
+      {/* Skip Button (Top Right) */}
+      {!hideSkipButton && (
+        <button
+          onClick={onSkip}
+          className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 text-xs font-medium transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-gray-100 z-50"
+          aria-label={t('aria.skipOnboarding')}
+        >
+          {t('common.skip')}
+        </button>
+      )}
+
+      {/* Segmented Progress Bar (4+4+1 그룹핑) */}
+      <div
+        className="flex justify-center items-center gap-3 pt-2 pb-2"
+        role="progressbar"
+        aria-label={t('aria.onboardingProgress')}
+        aria-valuemin={1}
+        aria-valuemax={TOTAL_STEPS}
+        aria-valuenow={globalStepIndex}
+      >
+        {STEP_GROUPS.map((count, groupIdx) => {
+          const groupStart = STEP_GROUPS.slice(0, groupIdx).reduce((a, b) => a + b, 0);
+          return (
+            <div key={groupIdx} className="flex gap-1">
+              {Array.from({ length: count }).map((_, segIdx) => {
+                const globalIdx = groupStart + segIdx;
+                return (
+                  <div
+                    key={globalIdx}
+                    className={cn(
+                      "h-1 rounded-full transition-all duration-300 w-5",
+                      globalIdx < globalStepIndex
+                        ? "bg-orange-500"
+                        : "bg-gray-200"
+                    )}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col w-full overflow-hidden min-h-0">
+        {children}
+      </div>
+
+      {/* Navigation (Bottom) — 3칸 레이아웃: 좌(flex-1) | 중앙(auto) | 우(flex-1) */}
+      <div className="flex items-center w-full py-3">
+        {/* Left */}
+        <div className="flex-1 flex justify-start">
+          <button
+            onClick={onPrev}
+            disabled={isFirstGlobalStep}
+            className={cn(
+              "min-h-[44px] min-w-[44px] px-4 py-2 rounded-full text-sm font-semibold transition-all active:scale-95",
+              isFirstGlobalStep
+                ? "opacity-0 pointer-events-none"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            )}
+            aria-label={isFirstGlobalStep ? t('aria.firstStep') : t('aria.prevStep')}
+          >
+            {t('common.prev')}
+          </button>
+        </div>
+
+        {/* Center: 커스텀 콘텐츠 (마이크 등) */}
+        {bottomCenter && (
+          <div className="flex flex-col items-center">
+            {bottomCenter}
+          </div>
+        )}
+
+        {/* Right */}
+        <div className="flex-1 flex justify-end">
+          {!hideNextButton && !bottomCenter && (
+            <button
+              onClick={onNext}
+              className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"
+              aria-label={t('aria.nextStep')}
+            >
+              {t('common.next')}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

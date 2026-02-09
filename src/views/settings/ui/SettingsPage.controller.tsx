@@ -9,6 +9,7 @@ import {
   LogoutButton,
   WithdrawalButton,
 } from "./SettingsPage.common";
+import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 
 export interface SettingsPageProps {
   onBack: () => void;
@@ -18,6 +19,7 @@ export interface SettingsPageProps {
   navigation: {
     goToPrivacyPolicy: () => void;
     goToTerms: () => void;
+    resetOnboarding: () => void;
   };
   actionButtons: {
     logout: React.ReactNode;
@@ -30,6 +32,7 @@ export function useSettingsPageController(
 ): SettingsPageProps {
   const router = useRouter();
   const { t } = useSettingsTranslation();
+  const resetOnboarding = useOnboardingStore((state) => state.resetOnboarding);
 
   useSafeArea({
     top: { color: "#FFFFFF", isExists: true },
@@ -39,6 +42,11 @@ export function useSettingsPageController(
   });
 
   const isTablet = variant !== "mobile";
+
+  const handleResetOnboarding = () => {
+    resetOnboarding();
+    router.push('/onboarding');
+  };
 
   return {
     onBack: () => router.push("/"),
@@ -52,6 +60,7 @@ export function useSettingsPageController(
     navigation: {
       goToPrivacyPolicy: () => router.push("/user/settings/privacy-policy"),
       goToTerms: () => router.push("/user/settings/terms-and-conditions"),
+      resetOnboarding: handleResetOnboarding,
     },
     actionButtons: {
       logout: <LogoutButton isTablet={isTablet} />,

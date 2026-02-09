@@ -53,3 +53,13 @@ next-env.d.ts
 .claude
 .gemini
 .cursor
+.mcp.json
+.omc
+/skills
+
+# AI assistant directories
+.agents
+.opencode
+.agent
+.claude
+.gemini

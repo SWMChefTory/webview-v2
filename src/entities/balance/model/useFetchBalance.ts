@@ -7,6 +7,8 @@ export const useFetchBalance = () => {
     const { data, isLoading, error } = useSuspenseQuery({
       queryKey: [BALANCE_QUERY_KEY],
       queryFn: fetchBalance,
+      staleTime: 0,
+      refetchOnMount: 'always',
     });
     return { data, isLoading, error };
   };

@@ -2,7 +2,6 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { useRecipeDetailTranslation } from "@/src/views/recipe-detail/hooks/useRecipeDetailTranslation";
-import { TFunction } from "i18next";
 
 type MeasurementCategory = "dry" | "liquid" | "jang";
 
@@ -16,7 +15,11 @@ interface MeasurementGroup {
   images: ImageItem[];
 }
 
-const getMeasurementData = (t: TFunction): Record<MeasurementCategory, MeasurementGroup[]> => ({
+type TranslationFn = (key: string, options?: Record<string, unknown>) => string;
+
+const getMeasurementData = (
+  t: TranslationFn
+): Record<MeasurementCategory, MeasurementGroup[]> => ({
   dry: [
     {
       categoryLabel: t("measurement.dry.tbsp.label"),

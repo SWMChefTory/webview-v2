@@ -19,7 +19,7 @@ import {
 import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
 import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import { IoMdClose } from "react-icons/io";
@@ -40,9 +40,11 @@ import { useTranslation } from "next-i18next";
 const RecipeDetailsCardReady = ({
   userRecipe,
   selectedCategoryId,
+  isDesktop = false,
 }: {
   userRecipe: UserRecipe;
   selectedCategoryId?: string;
+  isDesktop?: boolean;
 }) => {
   const { recipeStatus } = useFetchRecipeProgressWithRefetch(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
@@ -62,13 +64,23 @@ const RecipeDetailsCardReady = ({
     <motion.div
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
       transition={{ duration: 1 }}
-      className="relative w-full  flex flex-row items-center justify-center z-10"
+      className={`relative w-full flex ${
+        isDesktop
+          ? "flex-col items-start p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
+          : "flex-row items-center justify-center lg:p-3 lg:rounded-xl lg:hover:bg-gray-50 lg:transition-colors"
+      } z-10`}
       onTapStart={handleTapStart}
     >
       <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
         <ProgressDetailsCheckList recipeStatus={recipeStatus} />
       </div>
-      <div className="relative h-[108] w-[192]">
+      <div
+        className={`relative ${
+          isDesktop
+            ? "w-full aspect-video mb-3 rounded-lg overflow-hidden"
+            : "h-[108] w-[192] lg:h-[120px] lg:w-[213px] xl:h-[135px] xl:w-[240px]"
+        }`}
+      >
         <div className="absolute top-1 right-1 z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
@@ -77,11 +89,19 @@ const RecipeDetailsCardReady = ({
         </div>
         <ThumbnailReady
           imgUrl={userRecipe.videoInfo.thumbnailUrl}
-          size={{ height: 108, width: 192 }}
+          size={
+            isDesktop
+              ? { width: "100%", height: "100%" }
+              : { height: 108, width: 192 }
+          }
         />
       </div>
-      <div className="w-2" />
-      <div className=" flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+      <div className={isDesktop ? "h-0" : "w-2 lg:w-4"} />
+      <div
+        className={`flex flex-col items-start flex-1 gap-1 ${
+          isDesktop ? "w-full gap-2" : "lg:gap-1.5 overflow-x-hidden"
+        }`}
+      >
         <TitleReady title={userRecipe.title} />
         <DetailSectionReady
           tags={userRecipe.tags || []}
@@ -119,11 +139,41 @@ const ElapsedViewTimeSkeleton = () => {
   );
 };
 
-const RecipeDetailsCardSkeleton = () => {
+const RecipeDetailsCardSkeleton = ({
+  isDesktop = false,
+}: {
+  isDesktop?: boolean;
+}) => {
   return (
-    <div className="w-full px-[10] flex flex-row items-center">
-      <ThumbnailSkeleton size={{ height: 108, width: 192 }} />
-      <div className="px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden">
+    <div
+      className={`w-full ${
+        isDesktop
+          ? "flex flex-col p-3 rounded-xl border border-transparent"
+          : "px-[10] flex flex-row items-center"
+      }`}
+    >
+      <div
+        className={`${
+          isDesktop
+            ? "w-full aspect-video mb-3 rounded-lg overflow-hidden"
+            : ""
+        }`}
+      >
+        <ThumbnailSkeleton
+          size={
+            isDesktop
+              ? { width: "100%", height: "100%" }
+              : { height: 108, width: 192 }
+          }
+        />
+      </div>
+      <div
+        className={`${
+          isDesktop
+            ? "flex flex-col items-start w-full gap-2"
+            : "px-[8] flex flex-col items-start flex-1 gap-1 overflow-x-hidden"
+        }`}
+      >
         <TitleSkeleton />
         <CategoryChip props={{ type: ChipType.SKELETON }} />
         <DetailSectionSkeleton />

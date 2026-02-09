@@ -10,10 +10,10 @@ import {
 } from "@/src/shared/client/native/client";
 import { UNBLOCKING_HANDLER_TYPE } from "@/src/shared/client/native/unblockingHandlerType";
 import { RecipeCreationInfoSchema } from "@/src/views/home/entities/creating_info/recipeCreationInfo";
-import { Toaster } from "sonner";
 import { useRouter } from "next/router";
 import { motion } from "motion/react";
 import { WiCloud } from "react-icons/wi";
+import { Toaster } from "sonner";
 import {
   QueryClient,
   QueryClientProvider,
@@ -23,12 +23,14 @@ import {
 } from "@tanstack/react-query";
 import { RecipeCreatingView } from "@/src/widgets/recipe-creating-form/recipeCreatingForm";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
+import { CreditRechargeModal } from "@/src/widgets/credit-recharge-modal/ui";
 import * as Dialog from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
-import {appWithTranslation} from 'next-i18next';
+import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
-import { AxiosError } from "axios";
+import { Agentation } from "agentation";
+import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 
 export default appWithTranslation(App);
 
@@ -45,16 +47,17 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      })
+      }),
   );
-
-  useInit();
   useAmplitude();
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AppInner {...props} />
-    </QueryClientProvider>
+    <>
+      <QueryClientProvider client={queryClient}>
+        <AppInner {...props} />
+      </QueryClientProvider>
+      {process.env.NODE_ENV === "development" && <Agentation />}
+    </>
   );
 }
 
@@ -65,13 +68,25 @@ enum loadingRequestType {
 
 function AppInner({ Component, pageProps }: AppProps) {
   const router = useRouter();
+  useInit();
   const { open } = useRecipeCreatingViewOpenStore();
   const [recipeDetailLinkUrl, setRecipeDetailLinkUrl] = useState<
     string | undefined
   >(undefined);
+  const { isOnboardingCompleted, _hasHydrated } = useOnboardingStore();
 
-  function handleRecipeDeepLink({path}: {path: string}) {
-    const recipeId = path.split('/')[2];
+  useEffect(() => {
+    // hydration 완료 전에는 라우팅 결정하지 않음
+    if (!_hasHydrated) return;
+
+    // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
+    if (!isOnboardingCompleted && router.pathname !== '/onboarding') {
+      router.replace('/onboarding');
+    }
+  }, [_hasHydrated, isOnboardingCompleted, router.pathname]);
+
+  function handleRecipeDeepLink({ path }: { path: string }) {
+    const recipeId = path.split("/")[2];
     if (!recipeId) return;
     if (router.asPath === `/recipe/${recipeId}/detail`) {
       return;
@@ -81,7 +96,6 @@ function AppInner({ Component, pageProps }: AppProps) {
     }
     setRecipeDetailLinkUrl(path);
   }
-
 
   useEffect(() => {
     request(MODE.BLOCKING, "CONSUME_INITIAL_DATA").then((result) => {
@@ -93,7 +107,7 @@ function AppInner({ Component, pageProps }: AppProps) {
           return;
         }
         if (message.type === "ROUTE") {
-          handleRecipeDeepLink({path: message.data.route});
+          handleRecipeDeepLink({ path: message.data.route });
         }
       }
     });
@@ -101,9 +115,10 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
   }
+
   useEffect(() => {
     (async () => {
       await nextPaint();
@@ -117,7 +132,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      }
+      },
     );
     return cleanup;
   }, []);
@@ -126,13 +141,22 @@ function AppInner({ Component, pageProps }: AppProps) {
     const cleanup = onUnblockingRequest(
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
-        handleRecipeDeepLink({path: payload.route});
-      }
+        handleRecipeDeepLink({ path: payload.route });
+      },
     );
     return () => {
       cleanup();
     };
-  }, [router]);
+  }, []);
+
+  // Zustand persist hydration 완료 전에는 아무것도 렌더링하지 않음
+  // → 새 사용자: 홈 화면이 먼저 보이는 flash 방지
+  // → 기존 사용자: 온보딩으로 잘못 리다이렉트되는 것 방지
+  if (!_hasHydrated) {
+    return (
+      <div className="h-dvh bg-gradient-to-b from-orange-50 via-white to-white" />
+    );
+  }
 
   return (
     <HydrationBoundary state={pageProps.dehydratedState}>
@@ -140,7 +164,7 @@ function AppInner({ Component, pageProps }: AppProps) {
         {({ reset }) => (
           <ErrorBoundary
             onReset={reset}
-            fallbackRender={({ error,resetErrorBoundary }) => (
+            fallbackRender={({ error, resetErrorBoundary }) => (
               <NetworkFallback
                 error={error}
                 onRetry={async () => {
@@ -153,6 +177,7 @@ function AppInner({ Component, pageProps }: AppProps) {
             <Toaster />
             <Component {...pageProps} />
             <RecipeCreatingView />
+            <CreditRechargeModal />
             {recipeDetailLinkUrl && (
               <RouteDialog
                 deepLinkUrl={recipeDetailLinkUrl}
@@ -166,7 +191,13 @@ function AppInner({ Component, pageProps }: AppProps) {
   );
 }
 
-export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: () => void }) {
+export function NetworkFallback({
+  error,
+  onRetry,
+}: {
+  error: unknown;
+  onRetry: () => void;
+}) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -203,17 +234,9 @@ export function NetworkFallback({ error, onRetry }: { error: unknown, onRetry: (
         whileTap={{ scale: 0.95 }}
         className="bg-orange-500 text-white font-semibold px-5 py-2 rounded-full shadow-md hover:bg-orange-600 transition"
         onClick={async () => {
-
-          // 1) 바운더리 리셋
           onRetry?.();
-
-          // 2) 쿼리 캐시/에러 상태 제거
-          queryClient.clear(); // 또는 queryClient.removeQueries();
-
-          // 3) 홈으로 이동 (필요시 하드 리로드)
+          queryClient.clear();
           await router.replace("/");
-          // 하드 리로드가 확실히 필요하면:
-          // window.location.href = "/";
         }}
       >
         다시 시도하기
@@ -266,8 +289,9 @@ function RouteDialog({
   );
 }
 
-
 const useInit = () => {
+  // const { user, isLoading, error } = useFetchUserModelNotSuspense();
+
   useEffect(() => {
     // 웹 브라우저 환경에서만 URL 파라미터 추출
     if (typeof window !== "undefined" && !window.ReactNativeWebView) {
@@ -275,6 +299,7 @@ const useInit = () => {
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
       const locale = params.get("locale");
+      const isRecharge = params.get("recharge");
 
       // 토큰이 있으면 localStorage에 저장
       if (accessToken && refreshToken) {
@@ -292,17 +317,31 @@ const useInit = () => {
 
         console.log("[WebView] Tokens saved from URL parameters");
       }
+
+      // 충전 복귀 처리
+      if (isRecharge === "true") {
+        window.dispatchEvent(new CustomEvent('rechargeComplete'));
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, '', cleanUrl);
+      }
     }
 
     // Native bridge communication (기존 로직 유지)
-    //사파리 전용
-    window.addEventListener("message", communication);
-    //크로미움 전용
-    document.addEventListener('message' as any, communication);
+    if (window.ReactNativeWebView) {
+      //사파리 전용
+      window.addEventListener("message", communication);
+      //크로미움 전용
+      document.addEventListener("message" as any, communication);
+    }
+
     return () => {
       console.log("brigdeEnd");
-      window.removeEventListener("message", communication);
+      if (window.ReactNativeWebView) {
+        window.removeEventListener("message", communication);
+        document.removeEventListener("message" as any, communication);
+      }
     };
   }, []);
-};
 
+  // return { isAuthenticated: !!user, isLoading, error };
+};

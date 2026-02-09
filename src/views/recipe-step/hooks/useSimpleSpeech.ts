@@ -132,6 +132,9 @@ export const useSimpleSpeech = ({
       if (recipeIdRef.current)
         url.searchParams.append("recipe_id", recipeIdRef.current);
 
+      console.log("[STT] WebSocket 연결 시도:", url.toString());
+      console.log("[STT] 토큰 유무:", !!token);
+
       const ws = new WebSocket(url.toString());
       ws.binaryType = "arraybuffer";
       wsRef.current = ws;
@@ -139,25 +142,29 @@ export const useSimpleSpeech = ({
 
       ws.onopen = () => {
         isWSReady.current = true;
+        console.log("[STT] WebSocket 연결 성공");
       };
       ws.onmessage = ({ data }) => {
         try {
           const j = JSON.parse(data as string);
+          console.log("[STT] 수신 데이터:", j);
           if (j.status === 200 && j.data?.intent) {
+            console.log("[STT] intent:", j.data.intent, "base_intent:", j.data.base_intent);
             onIntentRef.current?.(j.data.intent);
-            // STT 인텐트 로그
-            // console.log(`[STT] intent: ${j.data.intent}, raw: ${j.data.base_intent}`);
           }
-        } catch {}
+        } catch (e) {
+          console.error("[STT] JSON 파싱 에러:", e);
+        }
       };
       ws.onerror = (event) => {
-        console.error("[STT] WebSocket error:");
+        console.error("[STT] WebSocket error:", event);
         setError("알 수 없는 오류가 발생했습니다.");
       };
       ws.onclose = async (e) => {
         isWSReady.current = false;
 
-        // console.log("[STT] WebSocket 연결 종료:", e);
+        console.log("[STT] WebSocket 연결 종료:", e.code, e.reason);
+        console.log("[STT] wasClean:", e.wasClean, "type:", e.type);
 
         // 1008: Policy Violation (토큰 인증 실패)
         if (e.code === 1008 && isMountedRef.current) {

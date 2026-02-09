@@ -15,6 +15,7 @@
     "popularRecipes":"인기 레시피",
     "shortsPopularRecipes":"쇼츠 인기 레시피",
     "createRecipe":"레시피 생성하기",
+    "viewMore": "더보기",
     "accessibility": {
       "floatingButton": "레시피 추가"
     }

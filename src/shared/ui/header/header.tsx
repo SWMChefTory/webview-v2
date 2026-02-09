@@ -1,36 +1,33 @@
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { CgProfile } from "react-icons/cg";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdArrowBack, IoMdClose } from "react-icons/io";
 
-/**
- * header는 44px 항상 공간 차지함.
- */
 const Header = ({
   leftContent,
   centerContent,
   rightContent,
   color,
-  fixed = true,
   className = "",
 }: {
   leftContent?: React.ReactNode;
   centerContent?: React.ReactNode;
   rightContent?: React.ReactNode;
   color?: string;
-  fixed?: boolean;
   className?: string;
 }) => {
   return (
     <div className={className}>
       <div
-        className={`flex fixed top-0 left-0 right-0 items-center py-2 px-2 h-[44px] z-40 ${
+        className={cn(
+          "fixed top-0 left-0 right-0 z-40",
           color || "bg-transparent"
-        }`}
+        )}
       >
-        {/* h-[44] → h-[44px] */}
+        <div className="flex relative items-center py-2 px-2 md:px-4 h-[44px] md:h-[52px] mx-auto max-w-[1200px] lg:max-w-[1400px] xl:max-w-[1600px] 2xl:max-w-[1800px]">
         {leftContent && (
-          <div className="absolute flex pl-2 h-full w-full top-0 left-0 items-center pointer-events-auto">
+          <div className="absolute flex pl-2 md:pl-4 h-full w-full top-0 left-0 items-center pointer-events-auto">
             {leftContent}
           </div>
         )}
@@ -40,19 +37,15 @@ const Header = ({
           </div>
         )}
         {rightContent && (
-          <div className="absolute pr-2 h-full w-full top-0 right-0 flex justify-end items-center pointer-events-auto">
+          <div className="absolute pr-2 md:pr-4 h-full w-full top-0 right-0 flex justify-end items-center pointer-events-auto">
             {rightContent}
           </div>
         )}
+        </div>
       </div>
-      <div className="h-[44px]" />
+      <div className="h-[44px] md:h-[52px]" />
     </div>
   );
-};
-
-//다른 페이지에서 호환성 때문에 남겨둠. 지워야 함.
-export const HeaderSpacing = () => {
-  return <div className="flex flex-col h-[44px] bg-transparent" />;
 };
 
 const HeaderCenterItem = ({ children }: { children: React.ReactNode }) => {
@@ -102,7 +95,7 @@ const BackButton = ({
 }) => {
   return (
     <IconButtonTemplate
-      icon={<IoMdArrowBack className={`!w-6 !h-6 ${color}`} />}
+      icon={<IoMdArrowBack className={cn("!w-6 !h-6", color)} />}
       onClick={onClick}
     />
   );
@@ -119,7 +112,7 @@ const AddButton = ({ onClick }: { onClick: () => void }) => {
 const ProfileButton = ({ onClick }: { onClick: () => void }) => {
   return (
     <IconButtonTemplate
-      icon={<CgProfile className="!w-6 !h-6" />}
+      icon={<CgProfile className="!w-6 !h-6 md:!w-7 md:!h-7" />}
       onClick={onClick}
     />
   );

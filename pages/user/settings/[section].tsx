@@ -16,7 +16,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps = async ({ locale }) => {
   return {
     props: {
-      ...(await serverSideTranslations(locale ?? "ko", ["common", "withdrawal"], nextI18NextConfig)),
+      ...(await serverSideTranslations(locale ?? "ko", ["common", "withdrawal", "recharge"], nextI18NextConfig)),
     },
   };
 };

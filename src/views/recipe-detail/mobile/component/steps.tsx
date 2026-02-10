@@ -29,29 +29,6 @@ const Steps = ({
     return String.fromCharCode(64 + n);
   };
 
-  const StepTitle = ({
-    index,
-    stepTitle,
-  }: {
-    index: number;
-    stepTitle: string;
-  }) => {
-    const Order = () => {
-      return (
-        <div className="text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
-          {numberToUpperAlpha(index + 1)}
-        </div>
-      );
-    };
-
-    return (
-      <div className="flex items-center gap-2">
-        <Order />
-        <p className="text-base font-bold">{stepTitle}</p>
-      </div>
-    );
-  };
-
   const StepDetails = ({
     stepDetails,
     onDetailClick,
@@ -60,7 +37,7 @@ const Steps = ({
     onDetailClick?: (sec: number) => void;
   }) => {
     return (
-      <div className="px-2 rounded-md bg-gray-100 flex flex-col gap-2">
+      <div className="rounded-md flex flex-col gap-2">
         {stepDetails.map((detail, index) => (
           <button
             key={index}
@@ -131,10 +108,16 @@ const Steps = ({
         </div>
         <div className=" gap-1 text text-lg font-bold">레시피</div>
         <div className="h-2" />
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           {steps.slice(0, 2).map((step, index) => (
-            <div key={index} className="p-2 rounded-md bg-gray-100">
-              <StepTitle index={index} stepTitle={step.subtitle} />
+            <div key={index} className="relative pl-8">
+              {index !== 1 && (
+                <div className="absolute left-[11px] top-6 bottom-0 w-px bg-orange-200" />
+              )}
+              <div className="absolute left-0 top-0 text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
+                {numberToUpperAlpha(index + 1)}
+              </div>
+              <p className="text-base font-bold pt-0.5">{step.subtitle}</p>
               <div className="h-2" />
               <StepDetails
                 stepDetails={step.details}
@@ -151,10 +134,16 @@ const Steps = ({
     <div id="recipe-steps-section" className="px-4 gap-2 ">
       <div className=" gap-1 text text-lg font-bold">레시피</div>
       <div className="h-2" />
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col">
         {steps.map((step, index) => (
-          <div key={index} className="p-2 rounded-md bg-gray-100">
-            <StepTitle index={index} stepTitle={step.subtitle} />
+          <div key={index} className="relative pl-8 pb-4">
+            {index !== steps.length - 1 && (
+              <div className="absolute left-[11px] top-6 bottom-0 w-px bg-orange-200" />
+            )}
+            <div className="absolute left-0 top-0 text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
+              {numberToUpperAlpha(index + 1)}
+            </div>
+            <p className="text-base font-bold pt-0.5">{step.subtitle}</p>
             <div className="h-2" />
             <StepDetails
               stepDetails={step.details}

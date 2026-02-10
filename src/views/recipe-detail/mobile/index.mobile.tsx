@@ -1,5 +1,3 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { TextSkeleton } from "@/src/shared/ui/skeleton";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
 import Image from "next/image";
@@ -7,55 +5,25 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { ChevronLeft, ChefHat, ListChecks } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
-import { BriefingSummary } from "./component/briefingSummary";
+import { BriefingSummary, BriefingSummarySkeleton } from "./component/briefingSummary";
 import { Steps } from "./component/steps";
-import { Ingredients } from "./component/ingredients";
+import { Ingredients, IngredientsSkeleton } from "./component/ingredients";
 import { useRouter } from "next/router";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 
 const RecipeVideoSummarySkeleton = () => {
-  
   return (
     <>
-      {/* QuickAccessCards 스켈레톤 */}
-      <div className="px-4 pt-3 pb-2">
-        <div className="flex gap-3">
-          <Skeleton className="flex-1 h-[60px] rounded-2xl" />
-          <Skeleton className="flex-1 h-[60px] rounded-2xl" />
-        </div>
-      </div>
       <div className="h-2" />
-      {/* BriefingSummary 스켈레톤 */}
-      <div className="px-4 py-4 flex flex-col gap-2">
-        <div className="w-24">
-          <TextSkeleton fontSize="text-lg" />
-        </div>
-        <TextSkeleton fontSize="text-sm" />
-        <TextSkeleton fontSize="text-sm" />
-        <div className="w-4/5">
-          <TextSkeleton fontSize="text-sm" />
-        </div>
-      </div>
+      <BriefingSummarySkeleton />
       <div className="px-4">
-        <HorizontalLine />
+        <HorizontalLineSkeleton />
       </div>
       <div className="h-2" />
-      {/* Ingredients 스켈레톤 */}
-      <div className="px-3 gap-2">
-        <div className="w-20 px-1">
-          <TextSkeleton fontSize="text-lg" />
-        </div>
-        <div className="h-2" />
-        <div className="flex flex-wrap gap-1">
-          {[20, 16, 24, 14, 18, 22].map((w, i) => (
-            <Skeleton key={i} className={`h-[52px] rounded-md`} style={{ width: `${w * 4}px` }} />
-          ))}
-        </div>
-      </div>
-      <div className="h-2" />
+      <IngredientsSkeleton />
       <div className="px-4">
-        <HorizontalLine />
+        <HorizontalLineSkeleton />
       </div>
       <div className="h-2" />
     </>
@@ -105,7 +73,6 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
         playerRef={playerRef}
         videoWrapRef={videoWrapRef}
       />
-
       <SSRSuspense
         fallback={<RecipeVideoSummarySkeleton />}
       >
@@ -184,11 +151,11 @@ const RecipeVideoSummary = ({
   const balance = balanceData?.balance ?? 0;
   return (
     <>
-      <QuickAccessCards
+      {/* <QuickAccessCards
         ingredientCount={ingredients.length}
         stepCount={steps.length}
         scrollContainerRef={scrollContainerRef}
-      />
+      /> */}
       <div className="h-2" />
       {briefings && briefings.length > 0 && (
         <>
@@ -278,7 +245,7 @@ const RecipeSummary = ({
   const CookingTime = () => {
     return (
       <div className="flex-1 flex gap-2 items-center justify-center">
-        <div className="w-[30px] h-[30px]">
+        <div className="w-[24px] h-[24px]">
           <Image
             src="/images/description/cooking-time.png"
             alt="Cooking Time"
@@ -288,7 +255,7 @@ const RecipeSummary = ({
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-xl font-bold">{cookTime}분</div>
+          <div className="text-base font-bold">{cookTime}분</div>
           <div className="text-gray-500">요리시간</div>
         </div>
       </div>
@@ -298,7 +265,7 @@ const RecipeSummary = ({
   const Servings = () => {
     return (
       <div className="flex-1 flex gap-2 items-center justify-center">
-        <div className="w-[44px] h-[28px]">
+        <div className="w-[36px] h-[20px]">
           <Image
             src="/images/description/serving-counts.png"
             alt="Servings"
@@ -307,7 +274,7 @@ const RecipeSummary = ({
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-xl font-bold">{servings}인분</div>
+          <div className="text-base font-bold">{servings}인분</div>
           <div className="text-gray-500">인원</div>
         </div>
       </div>
@@ -315,12 +282,12 @@ const RecipeSummary = ({
   };
 
   return (
-    <div className="pt-6 px-4">
+    <div className="pt-3 px-4">
       <div className="text-xl font-bold line-clamp-2">{title}</div>
       <div className="text-sm text-gray-500 line-clamp-2">{description}</div>
-      <div className="pt-4 flex flex-col">
+      <div className="pt-2 flex flex-col">
         <HorizontalLine />
-        <div className="flex py-4 h-[92px] items-center">
+        <div className="flex py-4 h-[72px] items-center">
           <CookingTime />
           <VerticalLine />
           <Servings />
@@ -333,6 +300,10 @@ const RecipeSummary = ({
 
 const HorizontalLine = () => {
   return <div className="w-full h-[1px] bg-gray-300"></div>;
+};
+
+const HorizontalLineSkeleton = () => {
+  return <div className="w-full h-[1px] bg-gray-100"></div>;
 };
 
 const VerticalLine = () => {

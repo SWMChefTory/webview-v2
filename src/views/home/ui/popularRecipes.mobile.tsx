@@ -4,7 +4,7 @@ import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
 import { VideoType } from "@/src/entities/schema";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
-import { RecipeListCardNormal } from "@/src/widgets/recipe-cards-section/RecipeCardsSection.mobile";
+import { RecipeCardNormal } from "@/src/widgets/recipe-cards-section/RecipeCardsSection.mobile";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,

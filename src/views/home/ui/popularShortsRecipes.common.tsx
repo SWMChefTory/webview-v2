@@ -19,12 +19,11 @@ import {
 export const PopularShortsRecipesTitleReady = () => {
   const { t } = useHomeTranslation();
   return (
-    <Link href="/recommend?recipeType=POPULAR&videoType=SHORTS">
-      <div className="pl-4 md:pl-0 flex items-center  lg:gap-3">
-        <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("shortsPopularRecipes")}</div>
-        <IoChevronForwardOutline className="size-6 md:size-7 lg:size-7 xl:size-8" color="black" />
+    <div className="pl-4 md:pl-0 flex items-center  lg:gap-3">
+      <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">
+        {t("shortsPopularRecipes")}
       </div>
-    </Link>
+    </div>
   );
 };
 
@@ -39,10 +38,10 @@ export function ShortsRecipeCardReady({
   isTablet = false,
 }: {
   recipe: {
-    id:string;
-    isViewed:boolean;
-    videoThumbnailUrl:string;
-    recipeTitle:string;
+    id: string;
+    isViewed: boolean;
+    videoThumbnailUrl: string;
+    recipeTitle: string;
   };
   isTablet?: boolean;
 }) {
@@ -51,7 +50,11 @@ export function ShortsRecipeCardReady({
   });
   return (
     <div
-      className={`relative ${isTablet ? "w-[130px] lg:w-full h-[231px] lg:h-auto lg:aspect-[9/16] rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group hover:-translate-y-1" : "w-[180px] h-[320px] rounded-md"} overflow-hidden`}
+      className={`relative ${
+        isTablet
+          ? "w-[130px] lg:w-full h-[231px] lg:h-auto lg:aspect-[9/16] rounded-lg shadow-md md:hover:shadow-lg transition-all duration-300 group hover:-translate-y-1"
+          : "w-[180px] h-[320px] rounded-md"
+      } overflow-hidden`}
     >
       <div className="absolute top-2 left-2 z-10">
         <AlreadyEnrolledChip
@@ -67,8 +70,14 @@ export function ShortsRecipeCardReady({
       />
       {/* Gradient overlay for text readability */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 lg:opacity-80 transition-opacity duration-300" />
-      
-      <div className={`absolute text-left w-[90%] left-2 font-bold text-white line-clamp-2 z-10 ${isTablet ? "bottom-4 text-xs lg:text-lg lg:leading-tight lg:bottom-6" : "bottom-[24] left-[10] text-base"}`}>
+
+      <div
+        className={`absolute text-left w-[90%] left-2 font-bold text-white line-clamp-2 z-10 ${
+          isTablet
+            ? "bottom-4 text-xs lg:text-lg lg:leading-tight lg:bottom-6"
+            : "bottom-[24] left-[10] text-base"
+        }`}
+      >
         {recipe.recipeTitle}
       </div>
     </div>
@@ -87,7 +96,11 @@ export function ShortsRecipeCardSkeleton({
 }) {
   return (
     <Skeleton
-      className={`flex shrink-0 ${isTablet ? "w-[130px] lg:w-full h-[231px] lg:h-auto lg:aspect-[9/16] rounded-lg" : "w-[180px] h-[320px] rounded-md"}`}
+      className={`flex shrink-0 ${
+        isTablet
+          ? "w-[130px] lg:w-full h-[231px] lg:h-auto lg:aspect-[9/16] rounded-lg"
+          : "w-[180px] h-[320px] rounded-md"
+      }`}
     />
   );
 }

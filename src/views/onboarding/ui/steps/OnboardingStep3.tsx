@@ -3,6 +3,7 @@ import { StepContainer } from "../components/StepContainer";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { getOnboardingDuration } from "../OnboardingPage.controller";
 import { motion, useReducedMotion } from "motion/react";
 import { useCallback } from "react";
 import Image from "next/image";
@@ -32,7 +33,7 @@ const noop = () => {};
 
 export function OnboardingStep3() {
   const { t } = useOnboardingTranslation();
-  const { currentStep, completeOnboarding, prevStep } = useOnboardingStore();
+  const { currentStep, completeOnboarding, prevStep, voice_tasks_completed } = useOnboardingStore();
   const queryClient = useQueryClient();
 
   // 접근성: reduced-motion 체크
@@ -44,7 +45,11 @@ export function OnboardingStep3() {
 
   // 온보딩 완료 (index.tsx의 useEffect가 redirectPath로 리다이렉트)
   // API 실패해도 온보딩은 항상 완료 — 사용자가 화면에 갇히지 않도록
-  const handleComplete = useCallback(async (type: string, redirectPath?: string, extra?: Record<string, string>) => {
+  const handleComplete = useCallback(async (
+    exit_type: string,
+    redirectPath?: string,
+    voice_tasks_completed?: boolean
+  ) => {
     let isFirstComplete = false;
 
     try {
@@ -68,10 +73,16 @@ export function OnboardingStep3() {
       }
     }
 
-    // 트래킹 및 상태 변경 — API 실패해도 항상 실행
-    track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, { type, isFirstComplete, ...extra });
+    // 트래킹 및 상태 변경 — 단순화된 3개 핵심 속성
+    track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, {
+      global_step: 9,                      // 항상 9 (완료 스텝)
+      exit_type,                            // 'start_cooking' | 'explore' | 'explore_more'
+      voice_tasks_completed,                // 음성 과제 완료 여부 (store에서 가져옴)
+      duration_ms: getOnboardingDuration(), // 총 체류 시간
+      isFirstComplete,                      // 첫 완료 여부 (크레딧 지급용)
+    });
     completeOnboarding(redirectPath);
-  }, [completeOnboarding, queryClient]);
+  }, [completeOnboarding, queryClient, t, voice_tasks_completed]);
 
   return (
     <StepContainer

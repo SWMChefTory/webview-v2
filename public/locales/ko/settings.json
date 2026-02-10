@@ -12,6 +12,11 @@
     "info": {
       "title": "정보",
       "version_info": "버전 정보"
+    },
+    "version_info": {
+      "title": "버전 정보",
+      "app_version": "앱 버전",
+      "service_version": "서비스 버전"
     }
   },
   "button": {

@@ -52,6 +52,10 @@ export function useSettingsPageController(
     router.push('/onboarding');
   };
 
+  const handleGoToVersionInfo = () => {
+    router.push("/user/settings/version-info");
+  };
+
   return {
     onBack: () => router.push("/"),
     t,
@@ -61,11 +65,12 @@ export function useSettingsPageController(
       </SSRSuspense>
     ),
     balanceSection: <BalanceSection isTablet={isTablet} />,
-    versionSection: <VersionInfoSection isTablet={isTablet} />,
+    versionSection: <VersionInfoSection isTablet={isTablet} onClick={handleGoToVersionInfo} />,
     navigation: {
       goToPrivacyPolicy: () => router.push("/user/settings/privacy-policy"),
       goToTerms: () => router.push("/user/settings/terms-and-conditions"),
       resetOnboarding: handleResetOnboarding,
+      goToVersionInfo: handleGoToVersionInfo,
     },
     actionButtons: {
       logout: <LogoutButton isTablet={isTablet} />,

@@ -12,6 +12,11 @@
     "info": {
       "title": "Information",
       "version_info": "Version Info"
+    },
+    "version_info": {
+      "title": "Version Information",
+      "app_version": "App Version",
+      "service_version": "Service Version"
     }
   },
   "button": {

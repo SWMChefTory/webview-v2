@@ -3,35 +3,31 @@ import {
   fetchAllRecipesSummary,
   fetchRecipeProgress,
   updateCategory,
-} from "@/src/entities/user-recipe/model/api";
+} from "@/src/entities/user-recipe/model/api/api";
 import {
   RecipeStatus,
   RecipeProgressDetail,
-} from "@/src/entities/user-recipe/type/type";
+} from "@/src/entities/user-recipe/model/api/enum";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
-import { RecipeCreateStatusResponse } from "@/src/entities/user-recipe/model/api";
+import { RecipeCreateStatusResponse } from "@/src/entities/user-recipe/model/api/api";
 
 import { useMutation } from "@tanstack/react-query";
-import { createRecipe } from "@/src/entities/user-recipe/model/api";
+import { createRecipe } from "@/src/entities/user-recipe/model/api/api";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
-import { useFakeRecipeInCreatingStore } from "@/src/entities/user-recipe/model/useFakeRecipeInCreatingStore";
-import {
-  RecipeCreateToastStatus,
-  useRecipeCreateToastAction,
-} from "./useToast";
-import { VideoType } from "../../recommend-recipe/type/videoType";
+import { VideoType } from "@/src/entities/schema";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { BALANCE_QUERY_KEY } from "../../balance/model/useFetchBalance";
 import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineRecipe";
-import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/useRecipeSearched";
+import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/model/useRecipeSearched";
 import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
 import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";
 import { useRecipeEnrollModalStore } from "@/src/widgets/recipe-creating-modal/recipeErollModalStore";
+import { RECIPE_QUERY_KEY } from "../../recipe";
 
 // export const QUERY_KEY = "categoryRecipes";
 
@@ -317,8 +313,6 @@ const createInProress = (
 };
 
 export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
-  const { isInCreating: isInCreatingFake } = useFakeRecipeInCreatingStore();
-
   const { data: progress } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -327,11 +321,12 @@ export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   });
 
   return {
-    recipeStatus: createInProress(progress, isInCreatingFake(recipeId)),
+    recipeStatus: progress.recipeStatus,
   };
 };
 
 export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
+  const queryClient = useQueryClient();
   const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -356,6 +351,15 @@ export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
     if (isInProgressBefore && progress.recipeStatus === RecipeStatus.SUCCESS) {
       clearInterval(timerRef.current);
       setIsInProgressBefore(false);
+      queryClient.invalidateQueries({
+        queryKey: [RECIPE_QUERY_KEY, recipeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [ALL_RECIPES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [CATEGORY_QUERY_KEY],
+      });
     }
     return () => {
       if (timerRef.current) {

@@ -3,10 +3,13 @@ import { useRouter } from "next/router";
 import Chef from "@/src/views/settings/assets/chef.png";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { motion } from "motion/react";
-import { useFetchUserModel } from "@/src/entities/user/model";
+import { useFetchUserModel } from "@/src/entities/user";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { setMainAccessToken } from "@/src/shared/client/main/client";
+import {
+  setMainAccessToken,
+  setMainRefreshToken,
+} from "@/src/shared/client/main/client";
 import { ReactNode } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
@@ -56,7 +59,11 @@ export const UserSectionTemplate = ({
 /**
  * 프로필 섹션 - Ready 상태
  */
-export const UserSectionReady = ({ isTablet = false }: { isTablet?: boolean }) => {
+export const UserSectionReady = ({
+  isTablet = false,
+}: {
+  isTablet?: boolean;
+}) => {
   const { user } = useFetchUserModel();
 
   return (
@@ -88,7 +95,11 @@ export const UserSectionReady = ({ isTablet = false }: { isTablet?: boolean }) =
 /**
  * 프로필 섹션 - Skeleton 상태
  */
-export const UserSectionSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
+export const UserSectionSkeleton = ({
+  isTablet = false,
+}: {
+  isTablet?: boolean;
+}) => {
   return (
     <UserSectionTemplate
       isTablet={isTablet}
@@ -115,7 +126,11 @@ export const UserSectionSkeleton = ({ isTablet = false }: { isTablet?: boolean }
 /**
  * 잔액 섹션 - Skeleton 상태
  */
-const BalanceRemainedSkeleton = ({ isTablet = false }: { isTablet?: boolean }) => {
+const BalanceRemainedSkeleton = ({
+  isTablet = false,
+}: {
+  isTablet?: boolean;
+}) => {
   const { t } = useSettingsTranslation();
   return (
     <div className={isTablet ? "px-0" : "px-4"}>
@@ -136,7 +151,9 @@ const BalanceRemainedSkeleton = ({ isTablet = false }: { isTablet?: boolean }) =
             {t("berry.balance", { count: 0 })}
           </p>
         </div>
-        <p className={`text-red-500 font-semibold ${isTablet ? "text-base" : "text-sm"}`}>
+        <p
+          className={`text-red-500 font-semibold ${isTablet ? "text-base" : "text-sm"}`}
+        >
           {t("berry.recharge")}
         </p>
       </div>
@@ -147,7 +164,11 @@ const BalanceRemainedSkeleton = ({ isTablet = false }: { isTablet?: boolean }) =
 /**
  * 잔액 섹션 - Ready 상태
  */
-const BalanceRemainedReadySection = ({ isTablet = false }: { isTablet?: boolean }) => {
+const BalanceRemainedReadySection = ({
+  isTablet = false,
+}: {
+  isTablet?: boolean;
+}) => {
   const { t } = useSettingsTranslation();
   const { data } = useFetchBalance();
   const { open } = useCreditRechargeModalStore();
@@ -162,7 +183,7 @@ const BalanceRemainedReadySection = ({ isTablet = false }: { isTablet?: boolean 
           track(AMPLITUDE_EVENT.RECHARGE_CLICK, {
             source: "settings",
           });
-          open('settings');
+          open("settings");
         }}
         whileTap={{ scale: 0.98, backgroundColor: "rgba(239, 68, 68, 0.1)" }}
         transition={{ duration: 0.2 }}
@@ -180,10 +201,14 @@ const BalanceRemainedReadySection = ({ isTablet = false }: { isTablet?: boolean 
           </p>
         </div>
         <div className="flex items-center gap-1">
-          <p className={`text-red-500 font-semibold ${isTablet ? "text-base" : "text-sm"}`}>
+          <p
+            className={`text-red-500 font-semibold ${isTablet ? "text-base" : "text-sm"}`}
+          >
             {t("berry.recharge")}
           </p>
-          <GoChevronRight className={`text-red-500 ${isTablet ? "size-5" : "size-4"}`} />
+          <GoChevronRight
+            className={`text-red-500 ${isTablet ? "size-5" : "size-4"}`}
+          />
         </div>
       </motion.div>
     </div>
@@ -193,7 +218,11 @@ const BalanceRemainedReadySection = ({ isTablet = false }: { isTablet?: boolean 
 /**
  * 잔액 섹션 컨테이너
  */
-export const BalanceSection = ({ isTablet = false }: { isTablet?: boolean }) => {
+export const BalanceSection = ({
+  isTablet = false,
+}: {
+  isTablet?: boolean;
+}) => {
   return (
     <SSRSuspense fallback={<BalanceRemainedSkeleton isTablet={isTablet} />}>
       <BalanceRemainedReadySection isTablet={isTablet} />
@@ -212,12 +241,17 @@ const LOGOUT = "LOGOUT";
  */
 export function LogoutButton({ isTablet = false }: { isTablet?: boolean }) {
   const { t } = useSettingsTranslation();
-
+  const router = useRouter();
   return (
     <motion.div
       onClick={() => {
         setMainAccessToken("");
-        request(MODE.UNBLOCKING, LOGOUT);
+        setMainRefreshToken("");
+        if (window.ReactNativeWebView) {
+          request(MODE.UNBLOCKING, LOGOUT);
+        } else {
+          router.push("/auth");
+        }
       }}
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
       className={`text-gray-500 rounded-md ${isTablet ? "px-4 py-2 text-base" : ""}`}

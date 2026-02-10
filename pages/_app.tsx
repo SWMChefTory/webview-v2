@@ -31,6 +31,7 @@ import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
 import { Agentation } from "agentation";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
+import { authEventBus } from "@/src/shared/client/main/authEventBus";
 
 export default appWithTranslation(App);
 
@@ -47,9 +48,30 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      }),
+      })
   );
   useAmplitude();
+
+  useEffect(() => {
+    authEventBus.register(() => {
+      queryClient.clear();
+
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage(
+          JSON.stringify({ type: "LOGOUT" })
+        );
+        return;
+      }
+
+      if (window.location.pathname !== "/auth") {
+        window.location.href = "/auth";
+      }
+    });
+
+    return () => {
+      authEventBus.unregister();
+    };
+  }, [queryClient]);
 
   return (
     <>
@@ -115,7 +137,7 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     );
   }
 
@@ -132,7 +154,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      },
+      }
     );
     return cleanup;
   }, []);
@@ -142,7 +164,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
         handleRecipeDeepLink({ path: payload.route });
-      },
+      }
     );
     return () => {
       cleanup();
@@ -192,7 +214,6 @@ function AppInner({ Component, pageProps }: AppProps) {
 }
 
 export function NetworkFallback({
-  error,
   onRetry,
 }: {
   error: unknown;

@@ -1,10 +1,10 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlreadyEnrolledChip } from "@/src/shared/ui/chip/recipeCreatingStatusChip";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { PopularSummaryRecipeDto } from "@/src/entities/popular-recipe/api/api";
+import type { RecommendRecipe } from "@/src/entities/recommend-recipe";
 
 interface PopularRecipeCardProps {
-  recipe: PopularSummaryRecipeDto;
+  recipe: RecommendRecipe;
   isTablet?: boolean;
 }
 
@@ -15,7 +15,7 @@ export function PopularRecipeCard({ recipe, isTablet = false }: PopularRecipeCar
         <AlreadyEnrolledChip isEnrolled={recipe.isViewed} />
       </div>
       <img
-        src={recipe.videoThumbnailUrl}
+        src={recipe.videoInfo.videoThumbnailUrl}
         alt={recipe.recipeTitle}
         className={`w-full h-full object-cover ${isTablet ? "rounded-lg shadow-sm hover:shadow-md transition-shadow" : "rounded-md"}`}
       />

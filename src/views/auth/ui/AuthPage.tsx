@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
-import GoogleLoginButton from "@/src/shared/ui/auth/GoogleLoginButton";
-import AppleLoginButton from "@/src/shared/ui/auth/AppleLoginButton";
+import GoogleLoginButton from "@/src/views/auth/ui/GoogleLoginButton";
+import AppleLoginButton from "@/src/views/auth/ui/AppleLoginButton";
 
 interface Character {
   title: string;
@@ -16,8 +16,16 @@ export default function AuthPage() {
   const { t, i18n } = useTranslation("auth");
   const [error, setError] = useState<string | null>(null);
   const [currentCharacter, setCurrentCharacter] = useState(0);
-  const characters = t("welcome.characters", { returnObjects: true }) as Character[];
+  const characters = t("welcome.characters", {
+    returnObjects: true,
+  }) as Character[];
   const locale = i18n.language;
+
+  const [origin, setOrigin] = useState<string>("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -160,9 +168,7 @@ export default function AuthPage() {
               <h2 className="text-2xl font-bold text-gray-900">
                 {t("loginTitle")}
               </h2>
-              <p className="text-sm text-gray-600">
-                {t("loginDescription")}
-              </p>
+              <p className="text-sm text-gray-600">{t("loginDescription")}</p>
             </div>
 
             {error && (
@@ -173,7 +179,10 @@ export default function AuthPage() {
 
             <div className="space-y-4">
               <GoogleLoginButton
-                redirectUrl={process.env.NEXT_PUBLIC_APP_URL || "https://app.cheftories.com"}
+                redirectUrl={
+                  origin ||
+                  "https://app.cheftories.com"
+                }
                 onSuccess={handleSuccess}
                 onError={handleError}
               />
@@ -183,14 +192,15 @@ export default function AuthPage() {
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    {t("or")}
-                  </span>
+                  <span className="px-2 bg-white text-gray-500">{t("or")}</span>
                 </div>
               </div>
 
               <AppleLoginButton
-                redirectUrl={process.env.NEXT_PUBLIC_APP_URL || "https://app.cheftories.com"}
+                redirectUrl={
+                  origin ||
+                  "https://app.cheftories.com"
+                }
                 onSuccess={handleSuccess}
                 onError={handleError}
               />

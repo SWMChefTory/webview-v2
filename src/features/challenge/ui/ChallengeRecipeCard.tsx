@@ -17,9 +17,10 @@ import { BsPeople } from "react-icons/bs";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { VideoTypeQuery } from "@/src/entities/recipe-searched";
 import type { ChallengeRecipe } from "../model/schema";
 import { useTranslation } from "next-i18next";
+import { VideoType } from "@/src/entities/schema";
 
 interface ChallengeRecipeCardProps {
   recipe: ChallengeRecipe;
@@ -43,7 +44,16 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
     }
 
     // 이미 생성된 레시피 → 상세 페이지 이동
-    router.push(`/recipe/${recipe.recipeId}/detail`);
+    router.push({
+      pathname: `/recipe/${recipe.recipeId}/detail`,
+      query: {
+        title: recipe.recipeTitle,
+        videoId: recipe.videoId,
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookingTime,
+      },
+    });
   };
 
   const handleCreate = () => {
@@ -57,7 +67,16 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
       _creationMethod: "card",
     });
     // 나의 레시피 등록 후 바로 상세 페이지로 이동
-    router.push(`/recipe/${recipe.recipeId}/detail`);
+    router.push({
+      pathname: `/recipe/${recipe.recipeId}/detail`,
+      query: {
+        title: recipe.recipeTitle,
+        videoId: recipe.videoId,
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookingTime,
+      },
+    });
   };
 
   return (

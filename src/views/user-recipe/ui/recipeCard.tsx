@@ -2,12 +2,13 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { IconType } from "react-icons";
-import { RecipeTag } from "@/src/entities/recipe/model/useRecipe";
+import type { RecipeTagResponse as RecipeTag } from "@/src/entities/recipe/model/api/api";
 import {
   ThumbnailSkeleton,
   ThumbnailReady,
 } from "@/src/entities/user-recipe/ui/thumbnail";
 import {
+  useFetchRecipeProgress,
   useFetchRecipeProgressWithRefetch,
   useUpdateCategoryOfRecipe,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
@@ -16,15 +17,15 @@ import {
   CategoryChip,
   ChipType,
 } from "@/src/entities/category/ui/categoryChip";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
-import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
 import { motion } from "motion/react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useFetchCategories } from "@/src/entities/category/model/useCategory";
 import { IoMdClose } from "react-icons/io";
 import { useResolveLongClick } from "@/src/shared/hooks/useClick";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { IoFolderOpenOutline } from "react-icons/io5";
 import { useRouter } from "next/router";
 import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
@@ -36,6 +37,7 @@ import {
   formatMinute,
 } from "@/src/features/format/recipe-info/formatRecipeProperties";
 import { useTranslation } from "next-i18next";
+import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -46,34 +48,32 @@ const RecipeDetailsCardReady = ({
   selectedCategoryId?: string;
   isDesktop?: boolean;
 }) => {
-  const { recipeStatus } = useFetchRecipeProgressWithRefetch(userRecipe.recipeId);
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
-  const userRouter = useRouter();
-  const { handleTapStart } = useResolveLongClick(
-    () => {
-      if (recipeStatus === RecipeStatus.SUCCESS) {
-        userRouter.push(`/recipe/${userRecipe.recipeId}/detail`);
-      }
-    },
-    () => {
-      setIsCategorySelectOpen(true);
-    }
-  );
 
   return (
-    <motion.div
-      whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
-      transition={{ duration: 1 }}
+    <div
       className={`relative w-full flex ${
         isDesktop
           ? "flex-col items-start p-3 rounded-xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-200"
           : "flex-row items-center justify-center lg:p-3 lg:rounded-xl lg:hover:bg-gray-50 lg:transition-colors"
       } z-10`}
-      onTapStart={handleTapStart}
     >
-      <div className="absolute flex justify-center inset-0 overflow-hidden z-100">
-        <ProgressDetailsCheckList recipeStatus={recipeStatus} />
-      </div>
+      {/* <SSRSuspense
+        fallback={
+          <div className="absolute flex justify-center inset-0 overflow-hidden z-100" />
+        }
+      > */}
+      <RecipeOverlay
+        recipeId={userRecipe.recipeId}
+        title={userRecipe.videoInfo.videoTitle}
+        videoId={userRecipe.videoInfo.videoId}
+        description={userRecipe.recipeDetailMeta?.description}
+        servings={userRecipe.recipeDetailMeta?.servings}
+        cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
+        onLongPress={() => setIsCategorySelectOpen(true)}
+        recipeStatusBefore={userRecipe.recipeStatus}
+      />
+      {/* </SSRSuspense> */}
       <div
         className={`relative ${
           isDesktop
@@ -84,11 +84,11 @@ const RecipeDetailsCardReady = ({
         <div className="absolute top-1 right-1 z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
-            recipeName={userRecipe.title}
+            recipeName={userRecipe.videoInfo.videoTitle}
           />
         </div>
         <ThumbnailReady
-          imgUrl={userRecipe.videoInfo.thumbnailUrl}
+          imgUrl={userRecipe.videoInfo.videoThumbnailUrl}
           size={
             isDesktop
               ? { width: "100%", height: "100%" }
@@ -102,14 +102,16 @@ const RecipeDetailsCardReady = ({
           isDesktop ? "w-full gap-2" : "lg:gap-1.5 overflow-x-hidden"
         }`}
       >
-        <TitleReady title={userRecipe.title} />
+        <TitleReady title={userRecipe.videoInfo.videoTitle} />
         <DetailSectionReady
           tags={userRecipe.tags || []}
           cookTime={userRecipe.recipeDetailMeta?.cookingTime ?? 0}
           servings={userRecipe.recipeDetailMeta?.servings ?? 0}
           desrciption={userRecipe.recipeDetailMeta?.description ?? ""}
         />
-        <ElapsedViewTimeReady viewedAt={userRecipe.viewedAt} />
+        <ElapsedViewTimeReady
+          viewedAt={userRecipe.viewStatus?.viewedAt ?? new Date()}
+        />
         <CategorySelect
           recipeId={userRecipe.recipeId}
           isCategorySelectOpen={isCategorySelectOpen}
@@ -117,6 +119,102 @@ const RecipeDetailsCardReady = ({
           selectedCategoryId={selectedCategoryId}
         />
       </div>
+    </div>
+  );
+};
+
+const RecipeOverlay = ({
+  recipeId,
+  title,
+  videoId,
+  description,
+  servings,
+  cookingTime,
+  recipeStatusBefore,
+  onLongPress,
+}: {
+  recipeId: string;
+  title: string;
+  videoId: string;
+  description?: string;
+  servings?: number;
+  cookingTime?: number;
+  recipeStatusBefore: RecipeStatus;
+  onLongPress: () => void;
+}) => {
+  // const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
+  const router = useRouter();
+  const handleClick = ({
+    recipeStatusCurrent,
+  }: {
+    recipeStatusCurrent?: RecipeStatus;
+  }) => {
+    if (
+      recipeStatusCurrent === RecipeStatus.SUCCESS ||
+      recipeStatusBefore === RecipeStatus.SUCCESS
+    ) {
+      router.push({
+        pathname: `/recipe/${recipeId}/detail`,
+        query: { title, videoId, description, servings, cookingTime },
+      });
+    }
+  };
+  const { handleTapStart } = useResolveLongClick(
+    () => handleClick({ recipeStatusCurrent: recipeStatusBefore }),
+    onLongPress,
+  );
+
+  if (recipeStatusBefore === RecipeStatus.SUCCESS) {
+    return (
+      <motion.div
+        whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+        transition={{ duration: 1 }}
+        onTapStart={handleTapStart}
+        className="absolute flex justify-center inset-0 overflow-hidden z-100"
+      />
+    );
+  }
+
+  return (
+    <SSRSuspense
+      fallback={
+        <div className="absolute flex justify-center inset-0 overflow-hidden z-999" />
+      }
+    >
+      <RecipeOverlayInProgress
+        recipeId={recipeId}
+        onTapStart={handleTapStart}
+      />
+    </SSRSuspense>
+  );
+};
+
+const RecipeOverlayInProgress = ({
+  recipeId,
+  onTapStart,
+}: {
+  recipeId: string;
+  onTapStart: (event: PointerEvent) => void;
+}) => {
+  const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
+  return (
+    <motion.div
+      whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.3)" }}
+      transition={{ duration: 1 }}
+      onTapStart={(e: PointerEvent) => {
+        if (recipeStatus === RecipeStatus.SUCCESS) {
+          onTapStart(e);
+        }
+      }}
+      className="absolute flex justify-center inset-0 overflow-hidden z-100"
+    >
+      <SSRSuspense
+        fallback={
+          <div className="absolute flex justify-center inset-0 overflow-hidden z-999" />
+        }
+      >
+        <ProgressDetailsCheckList recipeStatusCurrent={recipeStatus} />
+      </SSRSuspense>
     </motion.div>
   );
 };
@@ -154,9 +252,7 @@ const RecipeDetailsCardSkeleton = ({
     >
       <div
         className={`${
-          isDesktop
-            ? "w-full aspect-video mb-3 rounded-lg overflow-hidden"
-            : ""
+          isDesktop ? "w-full aspect-video mb-3 rounded-lg overflow-hidden" : ""
         }`}
       >
         <ThumbnailSkeleton

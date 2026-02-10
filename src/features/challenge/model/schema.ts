@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { RecipeTagSchema } from "@/src/shared/schema/recipeSchema";
+import { RecipeTagSchema } from "@/src/entities/schema/recipe/recipeSchema";
 import { CHALLENGE_TYPES } from "./types";
 
 // ============================================

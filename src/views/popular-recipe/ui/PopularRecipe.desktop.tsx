@@ -1,5 +1,6 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+
 import {
   PopularRecipeCard,
   PopularRecipeCardSkeleton,
@@ -7,31 +8,30 @@ import {
 import {
   usePopularRecipeController,
   usePopularRecipeContent,
-  PopularRecipePageProps,
+  PopularRecipePageProps, 
   PopularRecipeContentProps,
 } from "./PopularRecipe.controller";
+import { VideoType } from "@/src/entities/schema";
 
 export function PopularRecipeDesktop() {
   const props = usePopularRecipeController("desktop");
   return <PopularRecipeDesktopLayout {...props} />;
 }
 
-function PopularRecipeDesktopLayout({ title, renderToast }: PopularRecipePageProps) {
+function PopularRecipeDesktopLayout({ title }: PopularRecipePageProps) {
   return (
     <div className="w-full max-w-[1600px] mx-auto px-8">
       <div className="h-12" />
       <div className="text-4xl lg:text-5xl font-bold tracking-tight text-gray-900">{title}</div>
       <div className="h-10" />
       <SSRSuspense fallback={<PopularRecipesSkeleton />}>
-        <PopularRecipesContent renderToast={renderToast} />
+        <PopularRecipesContent />
       </SSRSuspense>
     </div>
   );
 }
 
-function PopularRecipesContent({
-  renderToast,
-}: Pick<PopularRecipeContentProps, "renderToast">) {
+function PopularRecipesContent() {
   const { recipes, isFetchingNextPage, loadMoreRef } = usePopularRecipeContent("desktop");
 
   return (
@@ -45,9 +45,15 @@ function PopularRecipesContent({
             recipeCreditCost={recipe.creditCost}
             recipeTitle={recipe.recipeTitle}
             recipeIsViewed={recipe.isViewed}
-            recipeVideoType={recipe.videoType}
-            recipeVideoUrl={recipe.videoUrl}
+            recipeVideoType={
+              recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+            }
+            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
             entryPoint="popular_normal"
+            videoId={recipe.videoInfo.videoId}
+            description={recipe.detailMeta.description}
+            servings={recipe.detailMeta.servings}
+            cookingTime={recipe.detailMeta.cookingTime}
             trigger={<PopularRecipeCard recipe={recipe} isTablet />}
           />
           </div>
@@ -63,7 +69,6 @@ function PopularRecipesContent({
         )}
       </div>
       <div ref={loadMoreRef} className="h-10 w-full" />
-      {renderToast("fixed right-8 top-4 z-1000 w-[400px]")}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { MODE, request } from "@/src/shared/client/native/client";
 import axios, { isAxiosError } from "axios";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
+import { authEventBus } from "./authEventBus";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -92,7 +93,8 @@ client.interceptors.response.use(
             return clientResolvingError(originalRequest);
           })
           .catch((error) => {
-            return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
+            authEventBus.emit(new TokenRefreshFailedError("Token refresh failed", error));
+            return new Promise(() => {});
           });
       }
 
@@ -100,7 +102,8 @@ client.interceptors.response.use(
       return tokenRefreshManager.refreshToken().then(() => {
         return clientResolvingError(originalRequest);
       }).catch((error) => {
-        return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
+        authEventBus.emit(new TokenRefreshFailedError("Token refresh failed", error));
+        return new Promise(() => {});
       });
     }
     return Promise.reject(error);
@@ -135,10 +138,6 @@ class TokenRefreshManager {
   private async executeRefresh(): Promise<string> {
     try {
       const refreshToken = getMainRefreshToken();
-      console.log(
-        "token을 갱신하기 위해 refreshToken을 가져옵니다.",
-        refreshToken
-      );
       if (!refreshToken) {
         throw new Error("No refresh token");
       }

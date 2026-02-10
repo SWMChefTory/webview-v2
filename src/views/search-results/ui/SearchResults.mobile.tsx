@@ -1,10 +1,8 @@
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useSearchResultsController } from "./SearchResults.controller";
-import {
-  SearchedRecipeCard,
-  RecipeCardSkeleton,
-  EmptyState,
-} from "./SearchResults.common";
+import { EmptyState } from "./SearchResults.common";
+import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSkeleton, NormalVerticalListSkeleton } from "@/src/widgets/recipe-cards-section";
+import { VideoType } from "@/src/entities/schema";
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -12,12 +10,9 @@ export function SearchResultsSkeletonMobile() {
       <div className="px-4 py-6">
         <TextSkeleton fontSize="text-2xl" />
       </div>
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {Array.from({ length: 10 }).map((_, index) => (
-            <RecipeCardSkeleton key={index} variant="mobile" />
-          ))}
-        </div>
+      <div className="px-4 pb-28">
+        <ShortsHorizontalListSkeleton />
+        <NormalVerticalListSkeleton />
       </div>
     </div>
   );
@@ -26,16 +21,24 @@ export function SearchResultsSkeletonMobile() {
 export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
   const {
     searchResults,
-    totalElements,
     loadMoreRef,
     isFetchingNextPage,
     translations,
-    onRecipeClick,
   } = useSearchResultsController(keyword);
 
   if (searchResults.length === 0) {
     return <EmptyState variant="mobile" translations={translations} />;
   }
+
+  const shortsRecipes = searchResults.filter(
+    (r) => r.videoInfo.videoType === "SHORTS"
+  );
+  const normalRecipes = searchResults.filter(
+    (r) => r.videoInfo.videoType === "NORMAL"
+  );
+
+  const getVideoType = (recipe: (typeof searchResults)[number]) =>
+    recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL;
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
@@ -46,31 +49,28 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
             {translations.headerSuffix}
           </span>
         </div>
-        <p className="text-sm text-gray-500 mt-2">
-          {translations.headerTotalCount(totalElements)}
-        </p>
       </div>
 
-      <div className="px-4 pb-6">
-        <div className="grid grid-cols-2 gap-4">
-          {searchResults.map((recipe, index) => (
-            <SearchedRecipeCard
-              key={recipe.recipeId}
-              recipe={recipe}
-              position={index + 1}
-              variant="mobile"
-              translations={translations}
-              onRecipeClick={onRecipeClick}
-            />
-          ))}
-          {isFetchingNextPage && (
-            <>
-              <RecipeCardSkeleton variant="mobile" />
-              <RecipeCardSkeleton variant="mobile" />
-            </>
-          )}
-        </div>
-        <div ref={loadMoreRef} className="h-20" />
+      <div className="px-4 pb-28">
+        <ShortsRecipeListMobile
+          recipes={shortsRecipes}
+          entryPoint="search_result"
+          getVideoType={getVideoType}
+          getVideoUrl={(recipe) => recipe.videoUrl}
+          cardServing={translations.cardServing}
+          cardMinute={translations.cardMinute}
+        />
+        <NormalRecipeListMobile
+          recipes={normalRecipes}
+          loadMoreRef={loadMoreRef}
+          isFetchingNextPage={isFetchingNextPage}
+          entryPoint="search_result"
+          getVideoType={getVideoType}
+          getVideoUrl={(recipe) => recipe.videoUrl}
+          cardBadge={translations.cardBadge}
+          cardServing={translations.cardServing}
+          cardMinute={translations.cardMinute}
+        />
       </div>
     </div>
   );

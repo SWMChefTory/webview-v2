@@ -25,7 +25,7 @@ export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
     handleTrackTouchNavigation,
   } = controller;
 
-  const id = recipe.videoInfo.id;
+  const id = recipe.videoInfo.videoId;
 
   return (
     <div className="flex flex-col w-[100vw] h-[100vh] overflow-hidden bg-black items-center lg:max-w-[1920px] lg:mx-auto">
@@ -41,7 +41,7 @@ export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
         }
       />
       <Video
-        videoId={recipe.videoInfo.id}
+        videoId={recipe.videoInfo.videoId}
         title={recipe.videoInfo.videoTitle}
         ref={videoRef}
         onInternallyChangeTime={
@@ -50,7 +50,7 @@ export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
         isLandscape={false}
       />
       <ProgressBar
-        steps={steps}
+        steps={recipe.recipeSteps ?? []}
         currentDetailStepIndex={currentDetailIndex}
         currentStepIndex={currentIndex}
         isLandscape={false}
@@ -62,7 +62,7 @@ export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
           currentDetailStepIndex={currentDetailIndex}
           currentStepIndex={currentIndex}
           onChangeStep={handleChangeStepWithVideoTime}
-          steps={steps}
+          steps={recipe.recipeSteps ?? []}
           isLandscape={false}
           recipeId={id}
           onTrackTouchNavigation={handleTrackTouchNavigation}

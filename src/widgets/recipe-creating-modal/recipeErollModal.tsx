@@ -1,9 +1,8 @@
 import { Sheet } from "react-modal-sheet";
 import { useRecipeEnrollModalStore } from "./recipeErollModalStore";
-import { useFetchRecipeOverview } from "@/src/entities/recipe-overview/model/model";
 import { useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/model/useUserRecipe";
 import { useFetchRecipe } from "@/src/entities/recipe/model/useRecipe";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
+import { RecipeStatus } from "@/src/entities/user-recipe";
 import { useRouter } from "next/router";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -230,18 +229,25 @@ const ContentReady = ({
 
   const handleNavigate = () => {
     onClose();
-    router.push(`/recipe/${recipeId}/detail`);
+    router.push({
+      pathname: `/recipe/${recipeId}/detail`,
+      query: {
+        title: recipe.videoInfo.videoTitle,
+        videoId: recipe.videoInfo.videoId,
+        description: recipe.recipeDetailMeta?.description,
+        servings: recipe.recipeDetailMeta?.servings,
+        cookingTime: recipe.recipeDetailMeta?.cookingTime,
+      },
+    });
   };
 
   return (
     <ContentTemplate
       thumbnail={
-        <Image
-          src="/images/tory/tory_study.png"
+        <img
+          src={recipe.videoInfo.videoThumbnailUrl}
           alt="tory"
-          width={120}
-          height={120}
-          className="object-contain"
+          className="w-full h-full object-cover object-center"
         />
       }
       title={

@@ -3,7 +3,7 @@ import { useSearchResultsTranslation } from "../hooks/useSearchResultsTranslatio
 import {
   useFetchRecipesSearched,
   Recipe,
-} from "@/src/entities/recipe-searched/useRecipeSearched";
+} from "@/src/entities/recipe-searched/model/useRecipeSearched";
 import { useInfiniteScroll } from "@/src/shared/hooks";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
@@ -22,7 +22,6 @@ export interface SearchResultsTranslations {
 
 export interface SearchResultsControllerProps {
   searchResults: Recipe[];
-  totalElements: number;
   keyword: string;
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   isFetchingNextPage: boolean;
@@ -85,7 +84,6 @@ export function useSearchResultsController(keyword: string): SearchResultsContro
 
   return {
     searchResults,
-    totalElements,
     keyword,
     loadMoreRef,
     isFetchingNextPage,

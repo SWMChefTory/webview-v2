@@ -1,8 +1,9 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import { RecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { RecommendType } from "@/src/entities/recommend-recipe/";
+import { VideoType } from "@/src/entities/schema";
+
 import { useInfiniteScroll } from "@/src/shared/hooks";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 
@@ -46,8 +47,12 @@ const TrendRecipeGrid = () => {
           recipeCreditCost={recipe.creditCost}
           recipeIsViewed={recipe.isViewed}
           recipeTitle={recipe.recipeTitle}
-          recipeVideoType={VideoType.ALL}
+          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
           recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={
             <TrendRecipeCard
               videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}

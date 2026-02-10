@@ -26,8 +26,10 @@ export function CategoryResultsSkeletonTablet() {
 
 export function CategoryResultsContentTablet({
   categoryType,
+  videoType,
 }: {
   categoryType: string;
+  videoType?: string;
 }) {
   const {
     recipes,
@@ -39,7 +41,7 @@ export function CategoryResultsContentTablet({
     getVideoType,
     getEntryPoint,
     getVideoUrl,
-  } = useCategoryResultsController(categoryType, "tablet");
+  } = useCategoryResultsController(categoryType, "tablet", videoType);
 
   if (recipes.length === 0) {
     return <EmptyState t={t} />;
@@ -73,6 +75,10 @@ export function CategoryResultsContentTablet({
               recipeVideoType={getVideoType(recipe)}
               entryPoint={getEntryPoint()}
               recipeVideoUrl={getVideoUrl(recipe)}
+              videoId={recipe.videoInfo.videoId}
+              description={recipe.detailMeta?.description}
+              servings={recipe.detailMeta?.servings}
+              cookingTime={recipe.detailMeta?.cookingTime}
               trigger={
                 <RecipeCardReady
                   recipeTitle={recipe.recipeTitle}

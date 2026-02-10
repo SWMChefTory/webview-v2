@@ -23,7 +23,6 @@ export function useEnrollBookmark() {
       return await enrollBookmark(recipeId);
     },
     onSuccess: () => {
-      console.log("enrollBookmark success!!!!!!!!!!!!!", RECIPE_QUERY_KEY);
       queryClient.invalidateQueries({
         queryKey: [RECIPE_QUERY_KEY],
       });

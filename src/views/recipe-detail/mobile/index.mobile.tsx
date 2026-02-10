@@ -5,12 +5,16 @@ import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
 import { ChevronLeft, ChefHat, ListChecks } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
-import { BriefingSummary, BriefingSummarySkeleton } from "./component/briefingSummary";
+import {
+  BriefingSummary,
+  BriefingSummarySkeleton,
+} from "./component/briefingSummary";
 import { Steps } from "./component/steps";
 import { Ingredients, IngredientsSkeleton } from "./component/ingredients";
 import { useRouter } from "next/router";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-
+import { ErrorBoundary } from "react-error-boundary";
+import { isAxiosError } from "axios";
 
 const RecipeVideoSummarySkeleton = () => {
   return (
@@ -59,31 +63,101 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
   }
 
   return (
-    <div
-      ref={scrollContainerRef}
-      className="relative w-full h-[100dvh] overflow-scroll overscroll-y-none bg-white"
+    <ErrorBoundary
+      fallbackRender={({ error }) => <RecipeDetailPageError error={error} />}
     >
-      <FirstSection
-        videoInfo={{ videoId: videoId, videoTitle: title }}
-        recipeSummary={{
-          description,
-          cookingTime: Number(cookingTime),
-          servings: Number(servings),
-        }}
-        playerRef={playerRef}
-        videoWrapRef={videoWrapRef}
-      />
-      <SSRSuspense
-        fallback={<RecipeVideoSummarySkeleton />}
+      <div
+        ref={scrollContainerRef}
+        className="relative w-full h-[100dvh] overflow-scroll overscroll-y-none bg-white"
       >
-        <RecipeVideoSummary
-          recipeId={id}
+        <FirstSection
+          videoInfo={{ videoId: videoId, videoTitle: title }}
+          recipeSummary={{
+            description,
+            cookingTime: Number(cookingTime),
+            servings: Number(servings),
+          }}
           playerRef={playerRef}
-          scrollContainerRef={scrollContainerRef}
+          videoWrapRef={videoWrapRef}
         />
-      </SSRSuspense>
-    </div>
+        <SSRSuspense fallback={<RecipeVideoSummarySkeleton />}>
+          <RecipeVideoSummary
+            recipeId={id}
+            playerRef={playerRef}
+            scrollContainerRef={scrollContainerRef}
+          />
+        </SSRSuspense>
+      </div>
+    </ErrorBoundary>
   );
+};
+
+const RecipeDetailPageError = ({ error }: { error: any }) => {
+  const router = useRouter();
+  if (isAxiosError(error)) {
+    const errorCode = error.response?.data?.errorCode;
+    if (errorCode === "RECIPE008") {
+      return (
+        <div className="flex flex-col items-center justify-center h-[100dvh] w-full bg-gradient-to-b from-orange-50 via-orange-50/50 to-white px-6">
+          <div className="flex flex-col items-center justify-center max-w-sm w-full">
+            {/* Tory 이미지 카드 */}
+            <div className="relative mb-6">
+              <div className="absolute inset-0 bg-gradient-to-b from-orange-200/40 to-transparent rounded-3xl blur-xl" />
+              <div className="relative bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100">
+                <Image
+                  src="/images/tory/tory_cry.png"
+                  alt="실패한 레시피"
+                  width={140}
+                  height={140}
+                />
+              </div>
+            </div>
+
+            {/* 에러 메시지 */}
+            <div className="text-center space-y-2 mb-8">
+              <h2 className="text-xl font-bold text-gray-900">
+                실패한 레시피예요...
+              </h2>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                토리가 실패한 레시피를 가져왔어요.
+                <br />
+                다음엔 완성해서 레시피를 보여드릴게요!
+              </p>
+            </div>
+
+            {/* 액션 버튼들 */}
+            <div className="w-full flex flex-col gap-3">
+              <button
+                type="button"
+                onClick={() => router.back()}
+                className="w-full flex items-center justify-center gap-2 bg-white rounded-2xl px-6 py-4 text-gray-600 font-semibold text-base border border-gray-200 shadow-sm
+                  transition-all duration-150
+                  hover:bg-gray-50 hover:border-gray-300 hover:shadow-md
+                  active:scale-[0.98] active:bg-gray-100
+                  cursor-pointer"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                <span>뒤로가기</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
+  throw error;
 };
 
 const FirstSection = ({
@@ -128,11 +202,8 @@ const RecipeVideoSummary = ({
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }) => {
   const {
-    videoInfo,
-    recipeSummary,
     ingredients,
     steps,
-    tags,
     briefings,
     viewStatus,
     onBack,
@@ -142,7 +213,6 @@ const RecipeVideoSummary = ({
     lang,
     formatTime,
   } = useRecipeDetailController(recipeId, "mobile");
-
   const handleTimeClick = (sec: number) => {
     onTimeClick(sec, playerRef);
   };
@@ -151,11 +221,6 @@ const RecipeVideoSummary = ({
   const balance = balanceData?.balance ?? 0;
   return (
     <>
-      {/* <QuickAccessCards
-        ingredientCount={ingredients.length}
-        stepCount={steps.length}
-        scrollContainerRef={scrollContainerRef}
-      /> */}
       <div className="h-2" />
       {briefings && briefings.length > 0 && (
         <>

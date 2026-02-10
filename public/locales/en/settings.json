@@ -8,6 +8,10 @@
     "onboarding": {
       "title": "Tutorial",
       "reset": "Onboarding"
+    },
+    "info": {
+      "title": "Information",
+      "version_info": "Version Info"
     }
   },
   "button": {

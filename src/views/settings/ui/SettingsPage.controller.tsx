@@ -11,12 +11,14 @@ import {
   ContactButton,
 } from "./SettingsPage.common";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
+import { VersionInfoSection } from "./VersionInfoSection";
 
 export interface SettingsPageProps {
   onBack: () => void;
   t: (key: string) => string;
   userSection: React.ReactNode;
   balanceSection: React.ReactNode;
+  versionSection: React.ReactNode;
   navigation: {
     goToPrivacyPolicy: () => void;
     goToTerms: () => void;
@@ -59,6 +61,7 @@ export function useSettingsPageController(
       </SSRSuspense>
     ),
     balanceSection: <BalanceSection isTablet={isTablet} />,
+    versionSection: <VersionInfoSection isTablet={isTablet} />,
     navigation: {
       goToPrivacyPolicy: () => router.push("/user/settings/privacy-policy"),
       goToTerms: () => router.push("/user/settings/terms-and-conditions"),

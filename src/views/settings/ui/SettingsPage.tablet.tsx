@@ -16,6 +16,7 @@ export function SettingsPageTabletLayout({
   t,
   userSection,
   balanceSection,
+  versionSection,
   navigation,
   actionButtons,
 }: SettingsPageProps) {
@@ -68,6 +69,11 @@ export function SettingsPageTabletLayout({
             <GoChevronRight className="size-6 text-gray-400" />
           </div>
         </div>
+
+        <div className="h-12" />
+
+        {/* 정보 섹션 */}
+        {versionSection}
 
         <div className="h-16" />
 

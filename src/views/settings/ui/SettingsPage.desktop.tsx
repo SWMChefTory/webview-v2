@@ -16,6 +16,7 @@ export function SettingsPageDesktopLayout({
   t,
   userSection,
   balanceSection,
+  versionSection,
   navigation,
   actionButtons,
 }: SettingsPageProps) {
@@ -73,6 +74,11 @@ export function SettingsPageDesktopLayout({
               <GoChevronRight className="size-6 text-gray-400 group-hover:text-gray-600 transition-colors group-hover:translate-x-1 duration-200" />
             </div>
           </div>
+
+          <div className="h-14" />
+
+          {/* 정보 섹션 */}
+          {versionSection}
 
           <div className="h-16" />
 

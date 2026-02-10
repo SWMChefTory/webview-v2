@@ -8,6 +8,10 @@
     "onboarding": {
       "title": "튜토리얼",
       "reset": "온보딩"
+    },
+    "info": {
+      "title": "정보",
+      "version_info": "버전 정보"
     }
   },
   "button": {

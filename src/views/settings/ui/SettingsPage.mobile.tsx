@@ -16,6 +16,7 @@ export function SettingsPageMobileLayout({
   t,
   userSection,
   balanceSection,
+  versionSection,
   navigation,
   actionButtons,
 }: SettingsPageProps) {
@@ -67,6 +68,11 @@ export function SettingsPageMobileLayout({
             </div>
           </div>
         </div>
+
+        <div className="h-[16px]" />
+
+        {/* 정보 섹션 */}
+        {versionSection}
 
         <div className="h-[32px]" />
 

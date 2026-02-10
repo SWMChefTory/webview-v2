@@ -4,6 +4,7 @@ import {
   useSettingsPageController,
   SettingsPageProps,
 } from "./SettingsPage.controller";
+import { ContactButton } from "./SettingsPage.common";
 
 export function SettingsPageMobile() {
   const props = useSettingsPageController("mobile");
@@ -72,6 +73,12 @@ export function SettingsPageMobileLayout({
         <div className="flex flex-row gap-6 items-center justify-center">
           {actionButtons.logout}
           {actionButtons.withdrawal}
+        </div>
+
+        <div className="h-4" />
+
+        <div className="flex flex-row items-center justify-center">
+          <ContactButton />
         </div>
       </div>
     </div>

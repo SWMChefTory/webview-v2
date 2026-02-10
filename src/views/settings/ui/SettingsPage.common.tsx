@@ -246,3 +246,28 @@ export function WithdrawalButton({ isTablet = false }: { isTablet?: boolean }) {
     </motion.div>
   );
 }
+
+const KAKAO_OPEN_CHAT_URL = "https://open.kakao.com/o/sXzywB7h";
+
+/**
+ * 문의하기 버튼
+ */
+export function ContactButton({ isTablet = false }: { isTablet?: boolean }) {
+  const { t } = useSettingsTranslation();
+
+  return (
+    <motion.div
+      onClick={() => {
+        if (typeof window !== "undefined" && window.ReactNativeWebView) {
+          request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", { url: KAKAO_OPEN_CHAT_URL });
+        } else {
+          window.open(KAKAO_OPEN_CHAT_URL, "_blank");
+        }
+      }}
+      whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}
+      className={`text-gray-700 rounded-md ${isTablet ? "px-4 py-2 text-base" : ""}`}
+    >
+      {t("button.contact")}
+    </motion.div>
+  );
+}

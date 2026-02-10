@@ -12,7 +12,8 @@
   },
   "button": {
     "logout": "Log Out",
-    "withdrawal": "Delete Account"
+    "withdrawal": "Delete Account",
+    "contact": "Contact Us"
   },
   "berry": {
     "balance": "{{count}} berries to go!",

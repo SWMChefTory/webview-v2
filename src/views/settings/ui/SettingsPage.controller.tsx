@@ -8,6 +8,7 @@ import {
   BalanceSection,
   LogoutButton,
   WithdrawalButton,
+  ContactButton,
 } from "./SettingsPage.common";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 
@@ -24,6 +25,7 @@ export interface SettingsPageProps {
   actionButtons: {
     logout: React.ReactNode;
     withdrawal: React.ReactNode;
+    contact: React.ReactNode;
   };
 }
 
@@ -65,6 +67,7 @@ export function useSettingsPageController(
     actionButtons: {
       logout: <LogoutButton isTablet={isTablet} />,
       withdrawal: <WithdrawalButton isTablet={isTablet} />,
+      contact: <ContactButton isTablet={isTablet} />,
     },
   };
 }

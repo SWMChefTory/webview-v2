@@ -4,6 +4,7 @@ import {
   useSettingsPageController,
   SettingsPageProps,
 } from "./SettingsPage.controller";
+import { ContactButton } from "./SettingsPage.common";
 
 export function SettingsPageTablet() {
   const props = useSettingsPageController("tablet");
@@ -75,7 +76,11 @@ export function SettingsPageTabletLayout({
           <div className="scale-110">{actionButtons.withdrawal}</div>
         </div>
 
-        <div className="h-12" />
+        <div className="h-8" />
+
+        <div className="flex flex-row items-center justify-center">
+          <ContactButton isTablet={true} />
+        </div>
       </div>
     </div>
   );

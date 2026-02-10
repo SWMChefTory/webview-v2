@@ -1,0 +1,202 @@
+{
+  "common": {
+    "next": "Next",
+    "prev": "Previous",
+    "skip": "Skip"
+  },
+  "step1": {
+    "sectionLabel": "Save Recipe",
+    "title": "Save Recipes from YouTube",
+    "subtitle": "Save your favorite chef's recipes instantly",
+    "value": "Access your favorite recipes anytime, anywhere",
+    "arrowClick": "Paste a YouTube URL to convert it to a recipe",
+    "arrowIcon": "🔗",
+    "highlight": "Input field",
+    "reward": "Get 30 berries when you complete all steps!",
+    "touchHint": "Tap screen to continue",
+    "youtube": {
+      "title": "Save YouTube Recipe",
+      "guide": "Tap the share button"
+    },
+    "share_sheet": {
+      "title": "Select Cheftory",
+      "guide": "Select Cheftory"
+    },
+    "create_confirm": {
+      "title": "Create Recipe",
+      "guide": "Tap the create button"
+    },
+    "home_saved": {
+      "title": "Recipe Saved!",
+      "guide": "Check your saved recipe on home"
+    },
+    "simulation": {
+      "selectApp": "Select Cheftory!",
+      "analyzing": "AI is analyzing the recipe...",
+      "guide": {
+        "initial": "Just tap this button while watching YouTube!",
+        "sheet": "Find Cheftory in the share sheet.",
+        "analyzing": "Extracting ingredients and cooking methods from the video.",
+        "clicked": "✨ Tap the link!"
+      },
+      "tooltip": "Save using Share!"
+    },
+    "alt": {
+      "youtube": "Sharing recipe video from YouTube",
+      "share_sheet": "Selecting Cheftory in share sheet",
+      "create_confirm": "Recipe creation confirmation screen",
+      "home_saved": "Saved recipe on home screen"
+    },
+    "aria": {
+      "touchToNext": "Tap to continue to next"
+    }
+  },
+  "step2": {
+    "sectionLabel": "Use Recipe",
+    "title": "Hands-Free Cooking Mode",
+    "subtitle": "Control easily even with messy hands while cooking",
+    "value": "Try voice commands with the mic button",
+    "micButton": "Mic Button",
+    "tryNow": "Try Now",
+    "touchHint": "Tap screen to continue",
+    "result": {
+      "title": "Ta-da! Recipe Book Complete ✨",
+      "subtitle": "AI has neatly organized the video content.",
+      "button": "Start Cooking"
+    },
+    "voice": {
+      "tooltip": "Say \"Next Step!\""
+    },
+    "summary": {
+      "title": "Recipe Summary",
+      "guide": "Check recipe information"
+    },
+    "ingredients": {
+      "title": "Ingredients",
+      "guide": "Check required ingredients"
+    },
+    "steps": {
+      "title": "Cooking Steps",
+      "guide": "Follow step-by-step cooking method"
+    },
+    "cooking": {
+      "title": "Hands-Free Cooking Mode",
+      "guide": "Say \"Next Step\"!",
+      "tapToStart": "Tap mic to start",
+      "idle": "Say \"Next Step\"",
+      "listening": "Listening...",
+      "recognized": "Recognized!",
+      "failed": "Please try again",
+      "fallback": "Tap to skip",
+      "voiceTasks": {
+        "playVideoHint": "Say \"Play\"",
+        "nextStepHint": "Say \"Next Step\"",
+        "completed": "All completed!",
+        "playVideoLabel": "Play",
+        "nextStepLabel": "Next"
+      },
+      "micStatus": {
+        "playVideoPrompt": "Say \"Play\"",
+        "nextStepPrompt": "Say \"Next Step\""
+      }
+    },
+    "instructions": {
+      "play": "Play",
+      "stop": "Stop",
+      "next": "Next Step",
+      "prev": "Previous Step",
+      "timestamp": "Timestamp"
+    },
+    "commands": {
+      "play": "Play video",
+      "stop": "Stop video",
+      "next": "Next Step",
+      "prev": "Previous Step",
+      "timestamp": "Go to timestamp"
+    },
+    "micTutorial": "Tap the mic button",
+    "alt": {
+      "summary": "Recipe summary screen",
+      "ingredients": "Ingredients list screen",
+      "steps": "Cooking steps screen",
+      "cooking": "Cooking mode home screen"
+    },
+    "tooltip": {
+      "ariaLabel": "View hands-free mode features",
+      "title": "Hands-Free Cooking Mode Features",
+      "description": "Control your cooking process with voice commands",
+      "closeHint": "Tap outside to close",
+      "features": {
+        "voiceCommand": {
+          "title": "Voice Commands",
+          "description": "Control with phrases like \"Next Step\", \"Play\" and more"
+        },
+        "sceneSearch": {
+          "title": "Scene Search",
+          "description": "Jump directly to any cooking step you need"
+        },
+        "timerControl": {
+          "title": "Timer Control",
+          "description": "Set and manage timers with voice commands"
+        },
+        "ingredientCheck": {
+          "title": "Ingredient Check",
+          "description": "Mark off prepared ingredients with a tap"
+        },
+        "loopMode": {
+          "title": "Loop Mode",
+          "description": "Repeat the current step as needed"
+        }
+      }
+    },
+    "aria": {
+      "voiceNavigate": "Navigate to next step using voice"
+    }
+  },
+  "step3": {
+    "title": "Trial Complete!",
+    "subtitle": "Save recipes from YouTube links + Hands-free control while cooking",
+    "allFeatures": "Experienced all features",
+    "startButton": "Start Cooking Mode Now",
+    "motivation": "Start cooking mode now",
+    "success": "✅",
+    "input": {
+      "placeholder": "Paste a YouTube link"
+    },
+    "button": {
+      "saving": "Saving...",
+      "save": "Save Recipe & Start",
+      "explore": "Browse Popular Recipes"
+    },
+    "tutorialNotice": "You can see this again in Settings > Onboarding",
+    "completeTitle": "Complete!",
+    "completeSubtitle": "Start hands-free cooking",
+    "rewardBadge": "Get 30 berries when you complete!",
+    "startCookingButton": "Start Now",
+    "or": "or",
+    "popularRecipes": "Popular Recipes",
+    "moreRecipes": "More Popular Recipes",
+    "berryGranted": "30 berries granted!",
+    "alt": {
+      "toryCharacter": "Tory character - Onboarding completion celebration"
+    },
+    "aria": {
+      "popularRecipesList": "Popular recipes list",
+      "recipeItem": "Recipe: {{title}}",
+      "moreRecipesPage": "Go to more popular recipes page"
+    }
+  },
+  "progress": {
+    "step1": "1/3",
+    "step2": "2/3",
+    "step3": "3/3"
+  },
+  "aria": {
+    "skipOnboarding": "Skip onboarding",
+    "onboardingProgress": "Onboarding progress",
+    "firstStep": "First step",
+    "prevStep": "Go to previous step",
+    "nextStep": "Go to next step"
+  },
+  "close": "Close"
+}

@@ -40,6 +40,10 @@
       "recharge": "Recharge",
       "titleReady": "Register Recipe",
       "submitReady": "Submit"
+    },
+    "goToYouTube": "Go to YouTube",
+    "accessibility": {
+      "goToYouTube": "Open YouTube app"
     }
   }
 }

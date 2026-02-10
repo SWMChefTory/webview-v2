@@ -40,6 +40,10 @@
       "recharge": "충전하기",
       "titleReady": "레시피 등록하기",
       "submitReady": "입력 완료"
+    },
+    "goToYouTube": "유튜브로 이동",
+    "accessibility": {
+      "goToYouTube": "유튜브 앱 열기"
     }
   }
 }

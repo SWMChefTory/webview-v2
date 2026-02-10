@@ -44,12 +44,6 @@ export default function AuthPage() {
     setTimeout(() => setError(null), 5000);
   };
 
-  useEffect(() => {
-    if (error) {
-      setTimeout(() => setError(null), 5000);
-    }
-  }, [error]);
-
   return (
     <div className="min-h-screen flex bg-gray-50">
       <div className="hidden lg:flex lg:w-1/2 xl:w-3/5 p-12 flex-col justify-center items-center">

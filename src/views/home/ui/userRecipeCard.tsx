@@ -42,6 +42,7 @@ export const UserRecipeCardReady = ({
           description={userRecipe.recipeDetailMeta?.description}
           servings={userRecipe.recipeDetailMeta?.servings}
           cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
+          recipeStatusBefore={userRecipe.recipeStatus}
         />
       </SSRSuspense>
       <div
@@ -232,6 +233,7 @@ const RecipeProgressReady = ({
   description,
   servings,
   cookingTime,
+  recipeStatusBefore,
 }: {
   recipeId: string;
   title: string;
@@ -239,18 +241,57 @@ const RecipeProgressReady = ({
   description: string | undefined;
   servings: number | undefined;
   cookingTime: number | undefined;
+  recipeStatusBefore: RecipeStatus;
+}) => {
+  const handleClick = ({
+    recipeStatusCurrent,
+  }: {
+    recipeStatusCurrent?: RecipeStatus;
+  }) => {
+    if (
+      recipeStatusCurrent === RecipeStatus.SUCCESS ||
+      recipeStatusBefore === RecipeStatus.SUCCESS
+    ) {
+      router.push({
+        pathname: `/recipe/${recipeId}/detail`,
+        query: { title, videoId, description, servings, cookingTime },
+      });
+    }
+  };
+
+  if (recipeStatusBefore === RecipeStatus.SUCCESS) {
+    return (
+      <div
+        onClick={() => handleClick({ recipeStatusCurrent: undefined })}
+        className="absolute inset-0 flex items-center overflow-hidden z-10"
+      />
+    );
+  }
+
+  return (
+    <SSRSuspense fallback={<RecipeProgressSkeleton />}>
+      <RecipeProgresStatus recipeId={recipeId} onClick={handleClick} />
+    </SSRSuspense>
+  );
+};
+
+const RecipeProgresStatus = ({
+  recipeId,
+  onClick,
+}: {
+  recipeId: string;
+  onClick: ({
+    recipeStatusCurrent,
+  }: {
+    recipeStatusCurrent?: RecipeStatus;
+  }) => void;
 }) => {
   const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
 
   if (recipeStatus === RecipeStatus.SUCCESS) {
     return (
       <div
-        onClick={() => {
-          router.push({
-            pathname: `/recipe/${recipeId}/detail`,
-            query: { title, videoId, description, servings, cookingTime },
-          });
-        }}
+        onClick={() => onClick({ recipeStatusCurrent: RecipeStatus.SUCCESS })}
         className="absolute inset-0 flex items-center overflow-hidden z-10"
       />
     );
@@ -258,7 +299,7 @@ const RecipeProgressReady = ({
 
   return (
     <div className="absolute inset-0 flex items-center overflow-hidden z-10">
-      <ProgressDetailsCheckList recipeStatus={recipeStatus} />
+      <ProgressDetailsCheckList recipeStatusCurrent={recipeStatus} />
     </div>
   );
 };

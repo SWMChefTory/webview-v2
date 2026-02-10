@@ -51,6 +51,22 @@ export function SettingsPageMobileLayout({
           </div>
         </div>
 
+        <div className="h-[16px]" />
+
+        {/* 온보딩 섹션 */}
+        <div className="flex flex-col gap-1 px-2">
+          <div className="text-gray-500 pb-2">{t("section.onboarding.title")}</div>
+          <div className="flex flex-col gap-2 px-2">
+            <div
+              className="flex flex-row justify-between items-center"
+              onClick={navigation.resetOnboarding}
+            >
+              <div className="text-lg">{t("section.onboarding.reset")}</div>
+              <GoChevronRight className="size-4 text-gray-500" />
+            </div>
+          </div>
+        </div>
+
         <div className="h-[32px]" />
 
         <div className="flex flex-row gap-6 items-center justify-center">

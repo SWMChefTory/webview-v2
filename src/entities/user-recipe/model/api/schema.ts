@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { RecipeDetailMetaSchema, RecipeTagSchema } from "@/src/entities/schema/recipe/recipeSchema";
 import { VideoInfoSchema } from "../../../schema/recipe/videoInfoSchema";
+import { RecipeStatus } from "@/src/shared/enums/recipe";
 
 /**
  * 북마크/시청정보
@@ -25,6 +26,7 @@ export const UserRecipeSchema = z.object({
   recipeDetailMeta: RecipeDetailMetaSchema.optional(),
   tags: z.array(RecipeTagSchema).optional(),
   createdAt: z.date(),
+  recipeStatus: z.enum(RecipeStatus),
 });
 
 export type UserRecipe = z.infer<typeof UserRecipeSchema>;

@@ -27,6 +27,7 @@ import { RECIPE_SEARCH_QUERY_KEY } from "../../recipe-searched/model/useRecipeSe
 import { RECOMMEND_RECIPE_QUERY_KEY } from "../../recommend-recipe/model/useRecommendRecipe";
 import { useCursorPaginationQuery } from "@/src/shared/hooks/usePaginationQuery";
 import { useRecipeEnrollModalStore } from "@/src/widgets/recipe-creating-modal/recipeErollModalStore";
+import { RECIPE_QUERY_KEY } from "../../recipe";
 
 // export const QUERY_KEY = "categoryRecipes";
 
@@ -325,6 +326,7 @@ export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
 };
 
 export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
+  const queryClient = useQueryClient();
   const { data: progress, refetch } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],
     queryFn: () => fetchRecipeProgress(recipeId),
@@ -349,6 +351,15 @@ export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
     if (isInProgressBefore && progress.recipeStatus === RecipeStatus.SUCCESS) {
       clearInterval(timerRef.current);
       setIsInProgressBefore(false);
+      queryClient.invalidateQueries({
+        queryKey: [RECIPE_QUERY_KEY, recipeId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [ALL_RECIPES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [CATEGORY_QUERY_KEY],
+      });
     }
     return () => {
       if (timerRef.current) {

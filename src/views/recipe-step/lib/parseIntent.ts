@@ -13,7 +13,7 @@ export type BasicIntent =
 
 export function parseIntent(raw: string | undefined): BasicIntent {
   const key = (raw ?? "").trim().toUpperCase();
-  console.log("key", key);
+  console.log("[parseIntent] input:", raw, "→ key:", key);
 
   if (key === "NEXT") return "NEXT";
   if (key === "PREV") return "PREV";
@@ -31,5 +31,6 @@ export function parseIntent(raw: string | undefined): BasicIntent {
     return key as BasicIntent;
   }
 
+  console.log("[parseIntent] no match, returning EXTRA");
   return "EXTRA";
 }

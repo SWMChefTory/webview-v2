@@ -2,6 +2,7 @@ import { MODE, request } from "@/src/shared/client/native/client";
 import axios, { isAxiosError } from "axios";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
+import { authEventBus } from "./authEventBus";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -77,7 +78,6 @@ client.interceptors.response.use(
     ) {
       originalRequest.isSecondRequest = true;
 
-      console.log("실행1");
       if (!window) {
         console.warn("서버 환경에서 외부 호출 시도");
         return Promise.reject(new Error("REFRESH_TOKEN_ERROR"));
@@ -93,16 +93,17 @@ client.interceptors.response.use(
             return clientResolvingError(originalRequest);
           })
           .catch((error) => {
-            return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
+            authEventBus.emit(new TokenRefreshFailedError("Token refresh failed", error));
+            return new Promise(() => {});
           });
       }
 
       // Web browser: Backend API 호출
       return tokenRefreshManager.refreshToken().then(() => {
         return clientResolvingError(originalRequest);
-        console.log("실행2");
       }).catch((error) => {
-        return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
+        authEventBus.emit(new TokenRefreshFailedError("Token refresh failed", error));
+        return new Promise(() => {});
       });
     }
     return Promise.reject(error);

@@ -27,6 +27,7 @@ export async function fetchAllRecipesSummary({
   })();
 
   const data = response.data;
+  console.log("data!!!!!!!!!!!!!!!!!!!!!!",JSON.stringify(data,null,2));
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.recentRecipes.map((recipe: any) => transformRecipe(recipe)),
@@ -80,6 +81,7 @@ const transformRecipe = (recipe: any) => {
       videoSeconds: recipe.videoSeconds,
       videoType: recipe?.videoType ?? "NORMAL",
     },
+    recipeStatus: recipe.recipeStatus,
     viewedAt: new Date(recipe.viewedAt),
     viewStatus: {
       id: recipe.recipeId,

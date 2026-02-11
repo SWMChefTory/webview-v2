@@ -299,19 +299,6 @@ class RecipeProgressStatus {
   }
 }
 
-const createInProress = (
-  realProgress: RecipeProgressStatus,
-  isInFakeProgress: boolean
-) => {
-  const real = realProgress.recipeStatus;
-
-  if (real === RecipeStatus.SUCCESS || real === RecipeStatus.FAILED) {
-    return real;
-  }
-
-  return isInFakeProgress ? RecipeStatus.IN_PROGRESS : real;
-};
-
 export const useFetchRecipeProgress = ({ recipeId }: { recipeId: string }) => {
   const { data: progress } = useSuspenseQuery({
     queryKey: [QUERY_KEY_RECIPE_PROGRESS, recipeId],

@@ -34,6 +34,7 @@ jobs:
             --build-arg NEXT_PUBLIC_AMPLITUDE_API_KEY=${{ secrets.NEXT_PUBLIC_AMPLITUDE_API_KEY }} \
             --build-arg NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }} \
             --build-arg NEXT_PUBLIC_APPLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_APPLE_CLIENT_ID }} \
+            --build-arg NEXT_PUBLIC_APPLE_RETURN_URL=${{ secrets.NEXT_PUBLIC_APPLE_RETURN_URL }} \
             -t cheftory-webview:latest .
 
       - name: Save Docker image to tar

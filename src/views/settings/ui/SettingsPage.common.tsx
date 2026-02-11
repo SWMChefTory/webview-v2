@@ -249,6 +249,7 @@ export function LogoutButton({ isTablet = false }: { isTablet?: boolean }) {
         setMainRefreshToken("");
         if (window.ReactNativeWebView) {
           request(MODE.UNBLOCKING, LOGOUT);
+          console.log("logout");
         } else {
           router.push("/auth");
         }

@@ -35,7 +35,7 @@ export default function AuthPage() {
     return () => clearInterval(interval);
   }, [characters.length]);
 
-  const handleSuccess = () => {
+  const handleSuccess = () => { 
     router.push("/");
   };
 

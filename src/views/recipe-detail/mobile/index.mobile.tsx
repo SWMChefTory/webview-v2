@@ -69,7 +69,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
     >
       <div
         ref={scrollContainerRef}
-        className="relative w-full h-[100dvh] overflow-scroll overscroll-y-none bg-white"
+        className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]"
       >
         <FirstSection
           videoInfo={{ videoId: videoId, videoTitle: title }}

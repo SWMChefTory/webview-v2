@@ -2,6 +2,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import Image from "next/image";
+import { SectionFallback } from "../index";
+import { useFetchBalance } from "@/src/entities/balance";
+import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
+import { type ViewStatus } from "@/src/entities/recipe";
 import { IngredientPurchaseModal } from "../common/component/IngredientPurchaseModal";
 import { MeasurementOverlay } from "../common/component/MeasurementOverlay";
 import { TimerButton } from "../common/component/TimerButton";
@@ -42,6 +48,7 @@ export const RecipeDetailPageReadyTablet = ({ id }: { id: string }) => {
     steps,
     tags,
     briefings,
+    viewStatus,
     onBack,
     onCookingStart,
     routeToStep,
@@ -62,66 +69,73 @@ export const RecipeDetailPageReadyTablet = ({ id }: { id: string }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
-        <div className="max-w-[1024px] mx-auto">
-          <Header
-            leftContent={
-              <div className="z-1">
-                <BackButton onClick={onBack} />
-              </div>
-            }
-            centerContent={
-              <div
-                className="text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap max-w-[500px]"
+    <ErrorBoundary
+      fallbackRender={({ error, resetErrorBoundary }) => (
+        <SectionFallback error={error} resetErrorBoundary={resetErrorBoundary} recipeId={id} />
+      )}
+    >
+      <div className="min-h-screen bg-gray-50">
+        <div className="sticky top-0 z-50 bg-white border-b border-gray-100">
+          <div className="max-w-[1024px] mx-auto">
+            <Header
+              leftContent={
+                <div className="z-1">
+                  <BackButton onClick={onBack} />
+                </div>
+              }
+              centerContent={
+                <div
+                  className="text-xl font-semibold text-center overflow-hidden text-ellipsis whitespace-nowrap max-w-[500px]"
+                  title={videoInfo?.videoTitle}
+                >
+                  {videoInfo?.videoTitle}
+                </div>
+              }
+              rightContent={
+                <TimerButton
+                  recipeId={id}
+                  recipeName={videoInfo?.videoTitle ?? ""}
+                  onTimerClick={onTimerClick}
+                />
+              }
+            />
+          </div>
+        </div>
+
+        <div className="max-w-[1024px] mx-auto px-8 py-10">
+          <div className="flex flex-col gap-10">
+            <div className="w-full">
+              <VideoPlayer
+                videoId={videoInfo?.videoId}
                 title={videoInfo?.videoTitle}
-              >
-                {videoInfo?.videoTitle}
-              </div>
-            }
-            rightContent={
-              <TimerButton
-                recipeId={id}
-                recipeName={videoInfo?.videoTitle ?? ""}
-                onTimerClick={onTimerClick}
+                onPlayerReady={(p) => (playerRef.current = p)}
               />
-            }
-          />
-        </div>
-      </div>
+            </div>
 
-      <div className="max-w-[1024px] mx-auto px-8 py-10">
-        <div className="flex flex-col gap-10">
-          <div className="w-full">
-            <VideoPlayer
-              videoId={videoInfo?.videoId}
-              title={videoInfo?.videoTitle}
-              onPlayerReady={(p) => (playerRef.current = p)}
-            />
-          </div>
-
-          <div className="w-full">
-            <RecipeContentTablet
-              steps={steps}
-              ingredients={ingredients}
-              onTimeClick={handleTimeClick}
-              handleRouteToStep={routeToStep}
-              recipe_summary={recipeSummary}
-              tags={tags}
-              briefings={briefings}
-              recipeId={id}
-              onTabClick={onTabClick}
-              onStepClick={onStepClick}
-              onMeasurementClick={onMeasurementClick}
-              onCookingStart={onCookingStart}
-              t={t}
-              lang={lang}
-              formatTime={formatTime}
-            />
+            <div className="w-full">
+              <RecipeContentTablet
+                steps={steps}
+                ingredients={ingredients}
+                onTimeClick={handleTimeClick}
+                handleRouteToStep={routeToStep}
+                recipe_summary={recipeSummary}
+                tags={tags}
+                briefings={briefings}
+                recipeId={id}
+                onTabClick={onTabClick}
+                onStepClick={onStepClick}
+                onMeasurementClick={onMeasurementClick}
+                onCookingStart={onCookingStart}
+                viewStatus={viewStatus}
+                t={t}
+                lang={lang}
+                formatTime={formatTime}
+              />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 
@@ -180,6 +194,7 @@ const RecipeContentTablet = ({
   onStepClick,
   onMeasurementClick,
   onCookingStart,
+  viewStatus,
   t,
   lang,
   formatTime,
@@ -196,10 +211,16 @@ const RecipeContentTablet = ({
   onStepClick?: (stepOrder: number, stepTitle: string, videoTime: number, detailIndex: number) => void;
   onMeasurementClick?: () => void;
   onCookingStart?: (selectedIngredientCount: number) => void;
+  viewStatus?: ViewStatus | null;
   t: (key: string, options?: Record<string, unknown>) => string;
   lang: string;
   formatTime: (min: number) => string;
 }) => {
+  const { enrollBookmark, isLoading: isEnrollingBookmark } = useEnrollBookmark();
+  const { data: balanceData } = useFetchBalance();
+  const balance = balanceData?.balance ?? 0;
+  const isEnrolled = viewStatus !== null;
+
   const [activeTab, setActiveTab] = useState<TabName>("summary");
   const [expanded, setExpanded] = useState<Set<number>>(new Set(steps.map((_, idx) => idx)));
   const [selected, setSelected] = useState<Set<number>>(new Set());
@@ -314,64 +335,96 @@ const RecipeContentTablet = ({
           )}
 
           {activeTab === "recipe" && (
-            <div className="flex flex-col gap-6">
-              {steps.map((step, idx) => (
-                <div key={step.id} className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100">
-                  <div
-                    className="flex items-center gap-6 cursor-pointer select-none active:opacity-70"
-                    onClick={() =>
-                      setExpanded((prev) => {
-                        const next = new Set(prev);
-                        if (next.has(idx)) {
-                          next.delete(idx);
-                        } else {
-                          next.add(idx);
-                        }
-                        return next;
-                      })
-                    }
-                  >
-                    <div className="w-12 h-12 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-xl shadow-sm">
-                      {String.fromCharCode(65 + idx)}
+            <div className="relative">
+              {!isEnrolled && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-gradient-to-t from-amber-100/95 via-amber-50/80 to-white/60 backdrop-blur-[2px] rounded-2xl">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="w-[100px] h-[90px]">
+                      <Image
+                        src="/images/tory/polite-tory.png"
+                        alt="Tory"
+                        width={100}
+                        height={90}
+                        className="object-cover object-center"
+                      />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold text-neutral-900">{step.subtitle}</h3>
+                    <div className="text-center space-y-1.5">
+                      <p className="text-lg font-bold text-gray-900">{t("lock.berryPrompt1")}</p>
+                      <p className="text-lg font-bold text-gray-900">{t("lock.berryPrompt2")}</p>
                     </div>
-                    <svg
-                      className={`w-8 h-8 transition-transform ${expanded.has(idx) ? "rotate-180" : ""}`}
-                      viewBox="0 0 24 24"
-                      fill="none"
+                    <div className="flex items-center gap-1.5 px-4 py-2 bg-white/80 rounded-full border border-orange-200">
+                      <Image src="/images/berry/berry.png" alt="Berry" width={18} height={22} />
+                      <span className="text-sm text-gray-600 font-medium">{t("lock.currentBerry", { count: balance })}</span>
+                    </div>
+                    <button
+                      className="mt-2 px-8 py-3 bg-orange-500 rounded-2xl text-white font-bold text-lg shadow-lg shadow-orange-200/50 active:scale-[0.97] transition-transform disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                      onClick={() => { if (!isEnrollingBookmark) enrollBookmark(recipeId); }}
+                      disabled={isEnrollingBookmark}
                     >
-                      <path d="M6 9L12 15L18 9" stroke="#111111" strokeWidth="2.5" />
-                    </svg>
+                      {isEnrollingBookmark ? t("lock.loading") : t("lock.viewRecipe")}
+                    </button>
                   </div>
-
-                  {expanded.has(idx) && (
-                    <div className="flex flex-col gap-4 mt-6 pl-18">
-                      {step.details.map((d, di) => (
-                        <button
-                          key={di}
-                          className="w-full text-left bg-white border border-gray-200 rounded-xl px-6 py-5 active:bg-orange-50 active:border-orange-200 transition-all flex items-start justify-between gap-6 shadow-sm hover:border-orange-200 group"
-                          onClick={() => {
-                            onTimeClick(d.start);
-                            onStepClick?.(step.stepOrder, step.subtitle, d.start, di);
-                          }}
-                        >
-                          <div className="flex items-start gap-4">
-                            <span className="w-7 h-7 text-sm font-bold rounded-full bg-gray-100 grid place-items-center shrink-0 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
-                              {di + 1}
-                            </span>
-                            <p className="text-lg leading-7 text-neutral-900">{d.text}</p>
-                          </div>
-                          <svg className="w-6 h-6 text-gray-400 shrink-0 group-hover:text-orange-400 transition-colors" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" />
-                          </svg>
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
-              ))}
+              )}
+              <div className={`flex flex-col gap-6 ${!isEnrolled ? 'max-h-[400px] overflow-hidden' : ''}`}>
+                {(isEnrolled ? steps : steps.slice(0, 2)).map((step, idx) => (
+                  <div key={step.id} className="bg-gray-50/50 rounded-2xl p-6 border border-gray-100">
+                    <div
+                      className="flex items-center gap-6 cursor-pointer select-none active:opacity-70"
+                      onClick={() =>
+                        setExpanded((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(idx)) {
+                            next.delete(idx);
+                          } else {
+                            next.add(idx);
+                          }
+                          return next;
+                        })
+                      }
+                    >
+                      <div className="w-12 h-12 rounded-full bg-orange-500 text-white font-bold flex items-center justify-center text-xl shadow-sm">
+                        {String.fromCharCode(65 + idx)}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-neutral-900">{step.subtitle}</h3>
+                      </div>
+                      <svg
+                        className={`w-8 h-8 transition-transform ${expanded.has(idx) ? "rotate-180" : ""}`}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                      >
+                        <path d="M6 9L12 15L18 9" stroke="#111111" strokeWidth="2.5" />
+                      </svg>
+                    </div>
+
+                    {expanded.has(idx) && (
+                      <div className="flex flex-col gap-4 mt-6 pl-18">
+                        {step.details.map((d, di) => (
+                          <button
+                            key={di}
+                            className="w-full text-left bg-white border border-gray-200 rounded-xl px-6 py-5 active:bg-orange-50 active:border-orange-200 transition-all flex items-start justify-between gap-6 shadow-sm hover:border-orange-200 group"
+                            onClick={() => {
+                              onTimeClick(d.start);
+                              onStepClick?.(step.stepOrder, step.subtitle, d.start, di);
+                            }}
+                          >
+                            <div className="flex items-start gap-4">
+                              <span className="w-7 h-7 text-sm font-bold rounded-full bg-gray-100 grid place-items-center shrink-0 group-hover:bg-orange-100 group-hover:text-orange-600 transition-colors">
+                                {di + 1}
+                              </span>
+                              <p className="text-lg leading-7 text-neutral-900">{d.text}</p>
+                            </div>
+                            <svg className="w-6 h-6 text-gray-400 shrink-0 group-hover:text-orange-400 transition-colors" viewBox="0 0 24 24" fill="none">
+                              <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" />
+                            </svg>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 

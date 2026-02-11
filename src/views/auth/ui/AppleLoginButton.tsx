@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import { OAuthProvider, useOAuthLogin } from "@/src/views/auth/hooks/useOAuthLogin";
 
 const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
-if(APPLE_CLIENT_ID === undefined) {
-  throw new Error("Apple Client ID is not configured");
-}
 const APPLE_SDK_SRC =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
@@ -60,13 +57,16 @@ export default function AppleLoginButton({
   const [isLoading, setIsLoading] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
-
+  const [APPLE_CLIENT_ID, setAPPLE_CLIENT_ID] = useState<string | undefined>(process.env.NEXT_PUBLIC_APPLE_CLIENT_ID);
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const attemptCountRef = useRef(0);
 
   const initializeSDK = useCallback(() => {
     if (!APPLE_CLIENT_ID) {
-      throw new Error("Apple Client ID is not configured");
+      const errorMessage = "Apple Client ID is not configured";
+      console.error(errorMessage);
+      onError(errorMessage);
+      return false;
     }
 
     if (!window.AppleID?.auth) {

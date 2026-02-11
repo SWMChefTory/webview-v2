@@ -6,6 +6,7 @@ import { HandsFreeModeTooltipCompact } from "../components/HandsFreeModeTooltip"
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { getOnboardingDuration } from "../OnboardingPage.controller";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
@@ -61,7 +62,7 @@ const CheckIcon = () => (
 
 export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection } = useOnboardingStore();
+  const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection, setVoiceTasksCompleted } = useOnboardingStore();
   const { triggerHaptic } = useHapticFeedback();
 
   const [step2State, setStep2State] = useState<Step2State>(
@@ -111,14 +112,18 @@ export function OnboardingStep2() {
 
   const transitionConfig = createSlideTransition(shouldAnimate);
 
-  // 건너뛰기: 온보딩 완료 (index.tsx의 useEffect가 '/'로 리다이렉트)
+  // 건너뛰기: global_step (5-8)와 체류 시간 기록
   const handleSkip = useCallback(() => {
+    // Step 2는 global_step 5-8 (summary=5, ingredients=6, steps=7, cooking=8)
+    const global_step = currentIndex + 5;
+    const duration_ms = getOnboardingDuration();
+
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
-      step: currentStep,
-      step_count: 3,
+      global_step,
+      duration_ms,
     });
     completeOnboarding();
-  }, [currentStep, completeOnboarding]);
+  }, [currentIndex, completeOnboarding]);
 
   // 타이틀/서브타이틀 텍스트
   const title = useMemo((): string => {
@@ -154,12 +159,7 @@ export function OnboardingStep2() {
   const moveToNextState = useCallback(() => {
     if (isTransitioningRef.current) return;
     triggerHaptic();
-    track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-      step: currentStep,
-      step_count: 3,
-      sub_step: step2State,
-      voice_method: 'manual_click',
-    });
+    // 세부 스텝 완료 이벤트 제거 - 전체 완료/건너뛰기 시점에만 기록
 
     setPrevStep2State(step2State);
     if (currentIndex < STEP_ORDER.length - 1) {
@@ -168,7 +168,7 @@ export function OnboardingStep2() {
       isTransitioningRef.current = true;
       nextStep();
     }
-  }, [currentIndex, step2State, currentStep, nextStep, triggerHaptic]);
+  }, [currentIndex, step2State, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {
@@ -192,12 +192,7 @@ export function OnboardingStep2() {
       setVoiceTaskState('next_step');
       setVoiceStatus('recognized');
 
-      track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-        step: currentStep,
-        step_count: 3,
-        sub_step: 'voice_task_play_video',
-        voice_method: 'voice',
-      });
+      // 음성 과제 완료 이벤트 제거 - 완료 시점에만 기록
 
       // 인식 성공 상태를 잠시 보여주다가 다음 대기 상태로
       timerRef.current = setTimeout(() => {
@@ -215,22 +210,17 @@ export function OnboardingStep2() {
       setVoiceTaskState('completed');
       setVoiceStatus('recognized');
 
-      track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-        step: currentStep,
-        step_count: 3,
-        sub_step: 'voice_task_next_step',
-        voice_method: 'voice',
-      });
+      // 두 음성 과제 모두 완료 시 store에 기록
+      if (completedTasks.playVideo) {
+        setVoiceTasksCompleted(true);
+      }
+
+      // 음성 과제 완료 이벤트 제거 - 완료 시점에만 기록
 
       // 두 과제 완료 후 다음 스텝으로 이동
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-          step: currentStep,
-          step_count: 3,
-          sub_step: step2State,
-          voice_method: 'voice',
-        });
+        // 세부 스텝 완료 이벤트 제거 - 전체 완료 시점에만 기록
         nextStep();
       }, TIMING.VOICE_SUCCESS_DELAY_MS);
       return;
@@ -245,7 +235,7 @@ export function OnboardingStep2() {
       }, 1000);
       return;
     }
-  }, [voiceTaskState, completedTasks, currentStep, nextStep, triggerHaptic]);
+  }, [voiceTaskState, completedTasks, nextStep, triggerHaptic]);
 
   // 음성 인식 실패 시 처리
   const handleVoiceError = useCallback(() => {

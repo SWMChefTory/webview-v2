@@ -29,7 +29,7 @@ export function FloatingControlBar({
     handleVoiceGuideClose,
   } = controller;
 
-  const id = recipe.videoInfo.id;
+  const id = recipe.videoInfo.videoId;
   const recipeName = recipe.videoInfo.videoTitle;
 
   return (

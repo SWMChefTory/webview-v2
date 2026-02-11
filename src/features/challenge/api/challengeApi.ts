@@ -144,10 +144,10 @@ function convertUserRecipeToChallengeRecipe(
 ): ChallengeRecipe {
   return {
     recipeId: recipe.recipeId,
-    recipeTitle: recipe.title,
-    videoThumbnailUrl: recipe.videoInfo.thumbnailUrl,
-    videoId: recipe.videoInfo.id,
-    videoSeconds: recipe.videoInfo.seconds,
+    recipeTitle: recipe.videoInfo.videoTitle,
+    videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+    videoId: recipe.videoInfo.videoId,
+    videoSeconds: recipe.videoInfo.videoSeconds,
     servings: recipe.recipeDetailMeta?.servings,
     cookingTime: recipe.recipeDetailMeta?.cookingTime,
     tags: recipe.tags,

@@ -15,6 +15,7 @@ interface OnboardingState {
   currentStep: OnboardingStep;
   navigationDirection: NavigationDirection;
   redirectPath: string | null;
+  voice_tasks_completed: boolean;  // 음성 과제 완료 여부 (Step2의 VIDEO PLAY + NEXT)
 
   // Actions
   setHasHydrated: (hydrated: boolean) => void;
@@ -22,6 +23,7 @@ interface OnboardingState {
   nextStep: () => void;
   prevStep: () => void;
   goToStep: (step: OnboardingStep) => void;
+  setVoiceTasksCompleted: (completed: boolean) => void;
   resetOnboarding: () => void;
 }
 
@@ -33,6 +35,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       currentStep: 1,
       navigationDirection: 'forward',
       redirectPath: null,
+      voice_tasks_completed: false,
 
       setHasHydrated: (hydrated: boolean) => {
         set({ _hasHydrated: hydrated });
@@ -54,16 +57,24 @@ export const useOnboardingStore = create<OnboardingState>()(
 
       goToStep: (step: OnboardingStep) => set({ currentStep: step }),
 
+      setVoiceTasksCompleted: (completed: boolean) => {
+        set({ voice_tasks_completed: completed });
+      },
+
       resetOnboarding: () => set({
         isOnboardingCompleted: false,
         currentStep: 1,
         navigationDirection: 'forward' as NavigationDirection,
         redirectPath: null,
+        voice_tasks_completed: false,
       })
     }),
     {
       name: 'onboarding-storage',
-      partialize: (state) => ({ isOnboardingCompleted: state.isOnboardingCompleted }),
+      partialize: (state) => ({
+        isOnboardingCompleted: state.isOnboardingCompleted,
+        voice_tasks_completed: state.voice_tasks_completed,
+      }),
       onRehydrateStorage: (state) => {
         return () => state.setHasHydrated(true);
       },

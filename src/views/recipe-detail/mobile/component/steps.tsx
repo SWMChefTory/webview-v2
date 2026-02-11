@@ -3,6 +3,7 @@ import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark"
 
 import Image from "next/image";
 import { RecipeStep, StepDetail } from "../../common/hook/useRecipeDetailController";
+import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
 
 const Steps = ({
   steps,
@@ -17,6 +18,7 @@ const Steps = ({
   balance?: number;
   recipeId: string;
 }) => {
+  const { t } = useRecipeDetailTranslation();
   const { enrollBookmark, isLoading: isEnrollingBookmark } =
     useEnrollBookmark();
   const handleEnrollBookmark = () => {
@@ -75,8 +77,8 @@ const Steps = ({
             </div>
             <div className="h-3" />
             <div className="text-lg font-bold text-center">
-              <span className="block">토리에게 베리 1개를 주면</span>
-              <span className="block">레시피를 볼 수 있어요.</span>
+              <span className="block">{t("lock.berryPrompt1")}</span>
+              <span className="block">{t("lock.berryPrompt2")}</span>
             </div>
             <div className="flex flex-row items-center justify-center gap-1 ">
               <div className="pb-1">
@@ -89,7 +91,7 @@ const Steps = ({
                   />
                 </div>
               </div>
-              <div className="text text-gray-600 ">{`현재 베리 : ${balance}개`}</div>
+              <div className="text text-gray-600 ">{t("lock.currentBerry", { count: balance })}</div>
             </div>
             <button
               type="button"
@@ -102,11 +104,11 @@ const Steps = ({
                   disabled:opacity-50 disabled:cursor-not-allowed
                   cursor-pointer"
             >
-              {isEnrollingBookmark ? "로딩 중..." : "레시피 보기"}
+              {isEnrollingBookmark ? t("lock.loading") : t("lock.viewRecipe")}
             </button>
           </div>
         </div>
-        <div className=" gap-1 text text-lg font-bold">레시피</div>
+        <h2 className="gap-1 text text-lg font-bold">{t("tabs.recipe")}</h2>
         <div className="h-2" />
         <div className="flex flex-col gap-6">
           {steps.slice(0, 2).map((step, index) => (
@@ -132,7 +134,7 @@ const Steps = ({
 
   return (
     <div id="recipe-steps-section" className="px-4 gap-2 ">
-      <div className=" gap-1 text text-lg font-bold">레시피</div>
+      <h2 className="gap-1 text text-lg font-bold">{t("tabs.recipe")}</h2>
       <div className="h-2" />
       <div className="flex flex-col">
         {steps.map((step, index) => (

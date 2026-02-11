@@ -3,9 +3,11 @@ import { Sheet } from "react-modal-sheet";
 import { RecipeBriefing } from "../../common/hook/useRecipeDetailController";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
+import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
 
 const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { t } = useRecipeDetailTranslation();
 
   const Point = () => {
     return (
@@ -15,7 +17,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
 
   return (
     <div className="px-4">
-      <div className="text text-lg font-bold">실제 사용자 후기</div>
+      <h2 className="text text-lg font-bold">{t("summary.reviews")}</h2>
       <div className="h-2" />
       <div className="flex flex-col gap-2">
         {briefings.slice(0, 1).map((briefing, index) => (
@@ -35,7 +37,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
               active:scale-[0.97] active:bg-gray-300
               cursor-pointer"
         >
-          {briefings.length - 1 && (
+          {briefings.length > 1 && (
             <div>
               더보기{" "}
               <span className="text-xs text-gray-500">
@@ -75,7 +77,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
                   </svg>
                 </button>
                 <h2 className="text-xl font-bold text-neutral-900 pr-8">
-                  실제 사용자 후기
+                  {t("summary.reviews")}
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">
                   유튜브 댓글에서 추출한 후기입니다

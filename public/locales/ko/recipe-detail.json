@@ -4,7 +4,10 @@
     "description": "요리 영상이 아니거나 차단된 영상일 수 있어요. 다른 영상을 시도해 보세요.",
     "retry": "다시 시도",
     "back": "뒤로가기",
-    "home": "홈으로"
+    "home": "홈으로",
+    "failedRecipeTitle": "실패한 레시피예요...",
+    "failedRecipeDescription": "토리가 실패한 레시피를 가져왔어요.\n다음엔 완성해서 레시피를 보여드릴게요!",
+    "goBack": "뒤로가기"
   },
   "tabs": {
     "summary": "요약",
@@ -31,6 +34,28 @@
     "selectAll": "전체 선택",
     "ready": "준비 완료",
     "start": "요리 시작"
+  },
+  "mobile": {
+    "cookingTime": "요리시간",
+    "cookingTimeValue": "{{minutes}}분",
+    "servingsLabel": "인원",
+    "servingsValue": "{{count}}인분",
+    "startCooking": "요리하기",
+    "quickAccess": {
+      "guideTitle": "뭐부터 확인할까요?",
+      "guideDescription": "아래 버튼으로 바로 이동할 수 있어요",
+      "ingredients": "재료",
+      "ingredientsCount": "{{count}}개",
+      "recipe": "레시피",
+      "stepsCount": "{{count}}단계"
+    }
+  },
+  "lock": {
+    "berryPrompt1": "토리에게 베리 1개를 주면",
+    "berryPrompt2": "레시피를 볼 수 있어요.",
+    "currentBerry": "현재 베리 : {{count}}개",
+    "viewRecipe": "레시피 보기",
+    "loading": "로딩 중..."
   },
   "measurement": {
     "title": "계량법",

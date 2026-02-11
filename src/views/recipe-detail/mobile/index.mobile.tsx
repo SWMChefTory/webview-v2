@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { ErrorBoundary } from "react-error-boundary";
 import { isAxiosError } from "axios";
+import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTranslation";
 
 const RecipeVideoSummarySkeleton = () => {
   return (
@@ -87,6 +88,10 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
             scrollContainerRef={scrollContainerRef}
           />
         </SSRSuspense>
+        {/* Always visible back button */}
+        <div className="fixed bottom-14 left-10 z-10">
+          <ButtonBack onClick={() => router.back()} />
+        </div>
       </div>
     </ErrorBoundary>
   );
@@ -94,6 +99,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
 
 const RecipeDetailPageError = ({ error }: { error: any }) => {
   const router = useRouter();
+  const { t } = useRecipeDetailTranslation();
   if (isAxiosError(error)) {
     const errorCode = error.response?.data?.errorCode;
     if (errorCode === "RECIPE008") {
@@ -116,12 +122,10 @@ const RecipeDetailPageError = ({ error }: { error: any }) => {
             {/* 에러 메시지 */}
             <div className="text-center space-y-2 mb-8">
               <h2 className="text-xl font-bold text-gray-900">
-                실패한 레시피예요...
+                {t("error.failedRecipeTitle")}
               </h2>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                토리가 실패한 레시피를 가져왔어요.
-                <br />
-                다음엔 완성해서 레시피를 보여드릴게요!
+              <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                {t("error.failedRecipeDescription")}
               </p>
             </div>
 
@@ -149,7 +153,7 @@ const RecipeDetailPageError = ({ error }: { error: any }) => {
                     d="M15 19l-7-7 7-7"
                   />
                 </svg>
-                <span>뒤로가기</span>
+                <span>{t("error.goBack")}</span>
               </button>
             </div>
           </div>
@@ -248,14 +252,12 @@ const RecipeVideoSummary = ({
           <ButtonStartCooking onClick={routeToStep} />
         </div>
       )}
-      <div className="fixed bottom-14 left-10 z-10">
-        <ButtonBack onClick={onBack} />
-      </div>
     </>
   );
 };
 
 const ButtonStartCooking = ({ onClick }: { onClick?: () => void }) => {
+  const { t } = useRecipeDetailTranslation();
   return (
     <button
       type="button"
@@ -266,7 +268,7 @@ const ButtonStartCooking = ({ onClick }: { onClick?: () => void }) => {
         active:scale-[0.95] active:shadow-md
         cursor-pointer"
     >
-      <span className="text-white font-bold text-xl">요리하기</span>
+      <span className="text-white font-bold text-xl">{t("mobile.startCooking")}</span>
       <Image
         src="/images/cook-pot.png"
         alt="Cooking Pot"
@@ -307,6 +309,7 @@ const RecipeSummary = ({
   cookTime,
   servings,
 }: RecipeSummaryProps) => {
+  const { t } = useRecipeDetailTranslation();
   const CookingTime = () => {
     return (
       <div className="flex-1 flex gap-2 items-center justify-center">
@@ -320,8 +323,8 @@ const RecipeSummary = ({
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-base font-bold">{cookTime}분</div>
-          <div className="text-gray-500">요리시간</div>
+          <div className="text-base font-bold">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
+          <div className="text-gray-500">{t("mobile.cookingTime")}</div>
         </div>
       </div>
     );
@@ -339,8 +342,8 @@ const RecipeSummary = ({
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-base font-bold">{servings}인분</div>
-          <div className="text-gray-500">인원</div>
+          <div className="text-base font-bold">{t("mobile.servingsValue", { count: servings })}</div>
+          <div className="text-gray-500">{t("mobile.servingsLabel")}</div>
         </div>
       </div>
     );
@@ -348,7 +351,7 @@ const RecipeSummary = ({
 
   return (
     <div className="pt-3 px-4">
-      <div className="text-xl font-bold line-clamp-2">{title}</div>
+      <h1 className="text-xl font-bold line-clamp-2">{title}</h1>
       <div className="text-sm text-gray-500 line-clamp-2">{description}</div>
       <div className="pt-2 flex flex-col">
         <HorizontalLine />
@@ -387,6 +390,7 @@ const QuickAccessCards = ({
   stepCount: number;
   scrollContainerRef: React.RefObject<HTMLDivElement | null>;
 }) => {
+  const { t } = useRecipeDetailTranslation();
   const [showToryGuide, setShowToryGuide] = useState(false);
 
   useEffect(() => {
@@ -434,10 +438,10 @@ const QuickAccessCards = ({
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium text-gray-800">
-              뭐부터 확인할까요?
+              {t("mobile.quickAccess.guideTitle")}
             </p>
             <p className="text-xs text-gray-500 mt-0.5">
-              아래 버튼으로 바로 이동할 수 있어요
+              {t("mobile.quickAccess.guideDescription")}
             </p>
           </div>
           <button
@@ -471,8 +475,8 @@ const QuickAccessCards = ({
             <ListChecks className="w-4 h-4 text-white" />
           </div>
           <div className="text-left">
-            <div className="text-sm font-bold text-gray-800">재료</div>
-            <div className="text-xs text-gray-500">{ingredientCount}개</div>
+            <div className="text-sm font-bold text-gray-800">{t("mobile.quickAccess.ingredients")}</div>
+            <div className="text-xs text-gray-500">{t("mobile.quickAccess.ingredientsCount", { count: ingredientCount })}</div>
           </div>
         </button>
 
@@ -485,8 +489,8 @@ const QuickAccessCards = ({
             <ChefHat className="w-4 h-4 text-white" />
           </div>
           <div className="text-left">
-            <div className="text-sm font-bold text-gray-800">레시피</div>
-            <div className="text-xs text-gray-500">{stepCount}단계</div>
+            <div className="text-sm font-bold text-gray-800">{t("mobile.quickAccess.recipe")}</div>
+            <div className="text-xs text-gray-500">{t("mobile.quickAccess.stepsCount", { count: stepCount })}</div>
           </div>
         </button>
       </div>

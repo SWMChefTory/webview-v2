@@ -4,7 +4,10 @@
     "description": "This video might not be a cooking video or access could be restricted. Please try another video.",
     "retry": "Retry",
     "back": "Back",
-    "home": "Home"
+    "home": "Home",
+    "failedRecipeTitle": "Failed recipe...",
+    "failedRecipeDescription": "Tory brought a failed recipe.\nWe'll show you a completed one next time!",
+    "goBack": "Go Back"
   },
   "tabs": {
     "summary": "Summary",
@@ -31,6 +34,28 @@
     "selectAll": "Select All",
     "ready": "Ready to Cook",
     "start": "Start Cooking"
+  },
+  "mobile": {
+    "cookingTime": "Cook Time",
+    "cookingTimeValue": "{{minutes}} min",
+    "servingsLabel": "Servings",
+    "servingsValue": "{{count}} servings",
+    "startCooking": "Start Cooking",
+    "quickAccess": {
+      "guideTitle": "What to check first?",
+      "guideDescription": "Jump to sections with buttons below",
+      "ingredients": "Ingredients",
+      "ingredientsCount": "{{count}} items",
+      "recipe": "Recipe",
+      "stepsCount": "{{count}} steps"
+    }
+  },
+  "lock": {
+    "berryPrompt1": "Give Tory 1 berry",
+    "berryPrompt2": "to see the recipe.",
+    "currentBerry": "Berries: {{count}}",
+    "viewRecipe": "View Recipe",
+    "loading": "Loading..."
   },
   "measurement": {
     "title": "Measurement Guide",

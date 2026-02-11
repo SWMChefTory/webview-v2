@@ -3,6 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { IngredientPurchaseModal } from "../../common/component/IngredientPurchaseModal";
 import { Ingredient } from "../../common/hook/useRecipeDetailController";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
+import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
 
 const Ingredients = ({
   ingredients,
@@ -12,10 +13,11 @@ const Ingredients = ({
   recipeId: string;
 }) => {
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const { t } = useRecipeDetailTranslation();
 
   return (
     <div id="ingredients-section" className="px-3 gap-2">
-      <div className="text text-lg font-bold px-1">재료</div>
+      <h2 className="text text-lg font-bold px-1">{t("tabs.ingredients")}</h2>
       <div className="h-2" />
       <div className="flex flex-wrap gap-1">
         {ingredients.map((ingredient, index) => (
@@ -27,7 +29,7 @@ const Ingredients = ({
               <div className="font-semibold text-sm">{ingredient.name}</div>
               <div className="text-gray-500 text-sm">
                 {!ingredient.amount || !ingredient.unit ? (
-                  <>(영상참고)</>
+                  <>{t("ingredients.videoRef")}</>
                 ) : (
                   <>
                     {ingredient.amount}
@@ -49,7 +51,7 @@ const Ingredients = ({
               active:scale-[0.97] active:shadow-sm
               cursor-pointer"
         >
-          🛒 영상 속 재료 바로 구매하기
+          {t("ingredients.purchase")}
         </button>
       </div>
 

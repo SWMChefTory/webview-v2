@@ -162,10 +162,10 @@ export function RecipeCreatingView() {
                     }}
                     className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors py-1 px-2 rounded-lg hover:bg-red-50"
                   >
-                    <span>URL을 모르시나요?</span>
+                    <span>{t("recipeCreating.form.unknownUrl")}</span>
                     <span className="font-semibold text-red-500 flex items-center gap-1">
                       <FaYoutube className="w-4 h-4" />
-                      YouTube에서 찾기
+                      {t("recipeCreating.form.searchOnYouTube")}
                     </span>
                   </button>
                 </div>

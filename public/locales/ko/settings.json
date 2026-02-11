@@ -8,11 +8,21 @@
     "onboarding": {
       "title": "튜토리얼",
       "reset": "온보딩"
+    },
+    "info": {
+      "title": "정보",
+      "version_info": "버전 정보"
+    },
+    "version_info": {
+      "title": "버전 정보",
+      "app_version": "앱 버전",
+      "service_version": "서비스 버전"
     }
   },
   "button": {
     "logout": "로그아웃",
-    "withdrawal": "회원탈퇴"
+    "withdrawal": "회원탈퇴",
+    "contact": "문의하기"
   },
   "berry": {
     "balance": "내 베리 {{count}}개",

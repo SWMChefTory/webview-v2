@@ -15,6 +15,7 @@ export function SettingsPageMobileLayout({
   t,
   userSection,
   balanceSection,
+  versionSection,
   navigation,
   actionButtons,
 }: SettingsPageProps) {
@@ -37,6 +38,8 @@ export function SettingsPageMobileLayout({
             <div
               className="flex flex-row justify-between items-center"
               onClick={navigation.goToPrivacyPolicy}
+              role="button"
+              tabIndex={0}
             >
               <div className="text-lg">{t("section.terms.privacy_policy")}</div>
               <GoChevronRight className="size-4 text-gray-500" />
@@ -44,6 +47,8 @@ export function SettingsPageMobileLayout({
             <div
               className="flex flex-row justify-between items-center"
               onClick={navigation.goToTerms}
+              role="button"
+              tabIndex={0}
             >
               <div className="text-lg">{t("section.terms.service_terms")}</div>
               <GoChevronRight className="size-4 text-gray-500" />
@@ -60,6 +65,8 @@ export function SettingsPageMobileLayout({
             <div
               className="flex flex-row justify-between items-center"
               onClick={navigation.resetOnboarding}
+              role="button"
+              tabIndex={0}
             >
               <div className="text-lg">{t("section.onboarding.reset")}</div>
               <GoChevronRight className="size-4 text-gray-500" />
@@ -67,9 +74,16 @@ export function SettingsPageMobileLayout({
           </div>
         </div>
 
+        <div className="h-[16px]" />
+
+        {/* 정보 섹션 */}
+        {versionSection}
+
         <div className="h-[32px]" />
 
-        <div className="flex flex-row gap-6 items-center justify-center">
+        <div className="flex flex-row items-center justify-center gap-3">
+          {actionButtons.contact}
+          <div className="w-px h-4 bg-gray-300" />
           {actionButtons.logout}
           {actionButtons.withdrawal}
         </div>

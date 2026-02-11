@@ -246,7 +246,7 @@ export function OnboardingStep3() {
 
           {/* More Recipes Button */}
           <button
-            onClick={() => handleComplete('explore_more', '/popular-recipe')}
+            onClick={() => handleComplete('explore_more', '/recommend?recipeType=POPULAR&videoType=NORMAL')}
             className="flex items-center justify-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors focus-visible:underline focus-visible:underline-offset-2 min-h-[44px] w-full"
             aria-label={t('step3.aria.moreRecipesPage')}
           >

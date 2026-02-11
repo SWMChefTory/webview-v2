@@ -9,6 +9,7 @@ import {
   OAuthProvider,
   useOAuthLogin,
 } from "@/src/views/auth/hooks/useOAuthLogin";
+import { useEffect, useState } from "react";
 
 interface GoogleLoginButtonProps {
   redirectUrl: string;
@@ -70,10 +71,14 @@ const GoogleLoginButtonInner = ({
 };
 
 const GoogleLoginButton = (props: GoogleLoginButtonProps) => {
-  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-  
-  if (!GOOGLE_CLIENT_ID) {
-    throw new Error("Google Client ID is not configured");
+  const [GOOGLE_CLIENT_ID, setGOOGLE_CLIENT_ID] = useState<string | undefined>(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+
+  if (GOOGLE_CLIENT_ID === undefined) {
+    return (
+      <div className="w-full p-4 border border-red-300 bg-red-50 rounded-lg text-center text-sm text-red-600">
+        Google login is not configured. Please check your environment variables.
+      </div>
+    );
   }
 
   return (

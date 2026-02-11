@@ -311,8 +311,6 @@ function RouteDialog({
 }
 
 const useInit = () => {
-  // const { user, isLoading, error } = useFetchUserModelNotSuspense();
-
   useEffect(() => {
     // 웹 브라우저 환경에서만 URL 파라미터 추출
     if (typeof window !== "undefined" && !window.ReactNativeWebView) {

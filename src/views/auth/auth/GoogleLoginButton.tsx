@@ -71,6 +71,9 @@ const GoogleLoginButtonInner = ({
 
 const GoogleLoginButton = (props: GoogleLoginButtonProps) => {
   const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  if(GOOGLE_CLIENT_ID === undefined) {
+    throw new Error("Google Client ID is not configured");
+  }
   
   if (!GOOGLE_CLIENT_ID) {
     return (

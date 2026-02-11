@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { OAuthProvider, useOAuthLogin } from "@/src/views/auth/hooks/useOAuthLogin";
 
 const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
-
+if(APPLE_CLIENT_ID === undefined) {
+  throw new Error("Apple Client ID is not configured");
+}
 const APPLE_SDK_SRC =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 

@@ -72,6 +72,9 @@ export default function AppleLoginButton({
     throw new Error("Apple Redirect URI is not configured");
   }
 
+  console.log("APPLE_CLIENT_ID!", APPLE_CLIENT_ID);
+  console.log("redirectURI!", redirectURI);
+
   const initializeSDK = useCallback(() => {
     if (!APPLE_CLIENT_ID) {
       const errorMessage = "Apple Client ID is not configured";

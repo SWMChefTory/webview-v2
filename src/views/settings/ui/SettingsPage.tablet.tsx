@@ -4,7 +4,6 @@ import {
   useSettingsPageController,
   SettingsPageProps,
 } from "./SettingsPage.controller";
-import { ContactButton } from "./SettingsPage.common";
 
 export function SettingsPageTablet() {
   const props = useSettingsPageController("tablet");
@@ -41,6 +40,8 @@ export function SettingsPageTabletLayout({
             <div
               className="flex flex-row justify-between items-center py-5 px-4 rounded-xl cursor-pointer bg-white border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-all active:scale-[0.99]"
               onClick={navigation.goToPrivacyPolicy}
+              role="button"
+              tabIndex={0}
             >
               <div className="text-xl font-medium text-gray-900">{t("section.terms.privacy_policy")}</div>
               <GoChevronRight className="size-6 text-gray-400" />
@@ -48,6 +49,8 @@ export function SettingsPageTabletLayout({
             <div
               className="flex flex-row justify-between items-center py-5 px-4 rounded-xl cursor-pointer bg-white border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-all active:scale-[0.99]"
               onClick={navigation.goToTerms}
+              role="button"
+              tabIndex={0}
             >
               <div className="text-xl font-medium text-gray-900">{t("section.terms.service_terms")}</div>
               <GoChevronRight className="size-6 text-gray-400" />
@@ -64,6 +67,8 @@ export function SettingsPageTabletLayout({
           <div
             className="flex flex-row justify-between items-center py-5 px-4 rounded-xl cursor-pointer bg-white border border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition-all active:scale-[0.99]"
             onClick={navigation.resetOnboarding}
+            role="button"
+            tabIndex={0}
           >
             <div className="text-xl font-medium text-gray-900">{t("section.onboarding.reset")}</div>
             <GoChevronRight className="size-6 text-gray-400" />
@@ -77,15 +82,11 @@ export function SettingsPageTabletLayout({
 
         <div className="h-16" />
 
-        <div className="flex flex-row gap-8 items-center justify-center">
+        <div className="flex flex-row items-center justify-center gap-4">
+          <div className="scale-110">{actionButtons.contact}</div>
+          <div className="w-px h-5 bg-gray-300" />
           <div className="scale-110">{actionButtons.logout}</div>
           <div className="scale-110">{actionButtons.withdrawal}</div>
-        </div>
-
-        <div className="h-8" />
-
-        <div className="flex flex-row items-center justify-center">
-          <ContactButton isTablet={true} />
         </div>
       </div>
     </div>

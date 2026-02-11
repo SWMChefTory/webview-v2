@@ -23,6 +23,7 @@ export interface SettingsPageProps {
     goToPrivacyPolicy: () => void;
     goToTerms: () => void;
     resetOnboarding: () => void;
+    goToVersionInfo: () => void;
   };
   actionButtons: {
     logout: React.ReactNode;

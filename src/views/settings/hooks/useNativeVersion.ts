@@ -4,7 +4,7 @@ import { request, MODE } from "@/src/shared/client/native/client";
 const GET_APP_VERSION = "GET_APP_VERSION";
 
 export const useNativeVersion = () => {
-  const [nativeVersion, setNativeVersion] = useState<string | null>(null);
+  const [nativeVersion, setNativeVersion] = useState<string | null | undefined>(undefined);
 
   useEffect(() => {
     const fetchNativeVersion = async () => {

@@ -15,6 +15,7 @@ export function SettingsPageDesktopLayout({
   t,
   userSection,
   balanceSection,
+  versionSection,
   navigation,
   actionButtons,
 }: SettingsPageProps) {
@@ -42,6 +43,8 @@ export function SettingsPageDesktopLayout({
               <div
                 className="flex flex-row justify-between items-center py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 cursor-pointer active:scale-[0.99] transition-all duration-200 group"
                 onClick={navigation.goToPrivacyPolicy}
+                role="button"
+                tabIndex={0}
               >
                 <div className="text-xl font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{t("section.terms.privacy_policy")}</div>
                 <GoChevronRight className="size-6 text-gray-400 group-hover:text-gray-600 transition-colors group-hover:translate-x-1 duration-200" />
@@ -49,6 +52,8 @@ export function SettingsPageDesktopLayout({
               <div
                 className="flex flex-row justify-between items-center py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 cursor-pointer active:scale-[0.99] transition-all duration-200 group"
                 onClick={navigation.goToTerms}
+                role="button"
+                tabIndex={0}
               >
                 <div className="text-xl font-medium text-gray-700 group-hover:text-gray-900 transition-colors">{t("section.terms.service_terms")}</div>
                 <GoChevronRight className="size-6 text-gray-400 group-hover:text-gray-600 transition-colors group-hover:translate-x-1 duration-200" />
@@ -65,6 +70,8 @@ export function SettingsPageDesktopLayout({
             <div
               className="flex flex-row justify-between items-center py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 cursor-pointer active:scale-[0.99] transition-all duration-200 group"
               onClick={navigation.resetOnboarding}
+              role="button"
+              tabIndex={0}
             >
               <div className="text-xl font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
                 {t("section.onboarding.reset")}
@@ -73,11 +80,32 @@ export function SettingsPageDesktopLayout({
             </div>
           </div>
 
+          <div className="h-14" />
+
+          <div className="flex flex-col gap-4">
+            <div className="text-gray-900 text-lg font-bold pb-2 pl-2">
+              {t("section.info.title")}
+            </div>
+            <div
+              className="flex flex-row justify-between items-center py-5 px-6 rounded-2xl bg-gray-50 hover:bg-gray-100 cursor-pointer active:scale-[0.99] transition-all duration-200 group"
+              onClick={navigation.goToVersionInfo}
+              role="button"
+              tabIndex={0}
+            >
+              <div className="text-xl font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+                {t("section.info.version_info")}
+              </div>
+              <GoChevronRight className="size-6 text-gray-400 group-hover:text-gray-600 transition-colors group-hover:translate-x-1 duration-200" />
+            </div>
+          </div>
+
           <div className="h-16" />
 
-          <div className="flex flex-row gap-10 items-center justify-center">
-            {actionButtons.logout}
-            {actionButtons.withdrawal}
+          <div className="flex flex-row items-center justify-center gap-4">
+            <div className="scale-110">{actionButtons.contact}</div>
+            <div className="w-px h-5 bg-gray-300" />
+            <div className="scale-110">{actionButtons.logout}</div>
+            <div className="scale-110">{actionButtons.withdrawal}</div>
           </div>
         </div>
       </div>

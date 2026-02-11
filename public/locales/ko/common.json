@@ -5,7 +5,9 @@
       "title": "레시피 생성하기",
       "placeholder": "유튜브 링크를 입력해주세요",
       "invalidUrl": "해당 입력은 유튜브 링크가 아니에요",
-      "submit": "완료"
+      "submit": "완료",
+      "unknownUrl": "URL을 모르시나요?",
+      "searchOnYouTube": "YouTube에서 찾기"
     },
     "tutorial": {
       "title": "레시피 생성하기",

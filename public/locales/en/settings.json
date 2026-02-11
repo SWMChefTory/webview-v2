@@ -8,11 +8,21 @@
     "onboarding": {
       "title": "Tutorial",
       "reset": "Onboarding"
+    },
+    "info": {
+      "title": "Information",
+      "version_info": "Version Info"
+    },
+    "version_info": {
+      "title": "Version Information",
+      "app_version": "App Version",
+      "service_version": "Service Version"
     }
   },
   "button": {
     "logout": "Log Out",
-    "withdrawal": "Delete Account"
+    "withdrawal": "Delete Account",
+    "contact": "Contact Us"
   },
   "berry": {
     "balance": "{{count}} berries to go!",

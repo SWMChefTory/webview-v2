@@ -312,20 +312,20 @@ const RecipeSummary = ({
   const { t } = useRecipeDetailTranslation();
   const CookingTime = () => {
     return (
-      <div className="flex-1 flex gap-2 items-center justify-center">
-        <div className="w-6 h-6">
+      <div className="flex-1 flex gap-2.5 items-center justify-center">
+        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-50">
           <Image
             src="/images/description/cooking-time.png"
             alt=""
             aria-hidden="true"
             className="object-cover object-center"
-            width={24}
-            height={24}
+            width={20}
+            height={20}
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-base font-bold">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
-          <div className="text-gray-500">{t("mobile.cookingTime")}</div>
+          <div className="text-base font-bold text-gray-900">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
+          <div className="text-xs text-gray-500">{t("mobile.cookingTime")}</div>
         </div>
       </div>
     );
@@ -333,19 +333,19 @@ const RecipeSummary = ({
 
   const Servings = () => {
     return (
-      <div className="flex-1 flex gap-2 items-center justify-center">
-        <div className="w-9 h-5">
+      <div className="flex-1 flex gap-2.5 items-center justify-center">
+        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-50">
           <Image
             src="/images/description/serving-counts.png"
             alt=""
             aria-hidden="true"
-            width={36}
-            height={20}
+            width={22}
+            height={14}
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-base font-bold">{t("mobile.servingsValue", { count: servings })}</div>
-          <div className="text-gray-500">{t("mobile.servingsLabel")}</div>
+          <div className="text-base font-bold text-gray-900">{t("mobile.servingsValue", { count: servings })}</div>
+          <div className="text-xs text-gray-500">{t("mobile.servingsLabel")}</div>
         </div>
       </div>
     );
@@ -353,12 +353,12 @@ const RecipeSummary = ({
 
   return (
     <div className="pt-3 px-4">
-      <h1 className="text-2xl font-bold leading-tight line-clamp-2">{title}</h1>
+      <h1 className="text-xl font-bold leading-tight line-clamp-2">{title}</h1>
       <div className="h-1.5" />
       <p className="text-sm leading-relaxed text-gray-600 line-clamp-2">{description}</p>
-      <div className="pt-2 flex flex-col">
+      <div className="pt-3 flex flex-col">
         <HorizontalLine />
-        <div className="flex py-4 h-[72px] items-center">
+        <div className="flex py-3 items-center">
           <CookingTime />
           <VerticalLine />
           <Servings />

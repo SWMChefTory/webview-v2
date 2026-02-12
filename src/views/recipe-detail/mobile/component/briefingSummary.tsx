@@ -12,41 +12,41 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
 
   const Point = () => {
     return (
-      <div className="w-1 h-1 mt-2.5 rounded-full bg-orange-500 flex-shrink-0" />
+      <div className="w-1 h-1 mt-1.5 rounded-full bg-orange-500 flex-shrink-0" />
     );
   };
 
   return (
     <div className="px-4">
-      <h2 className="text-lg font-bold">{t("summary.reviews")}</h2>
-      <div className="h-2" />
-      <div className="flex flex-col gap-2">
-        {briefings.slice(0, 2).map((briefing, index) => (
-          <div key={index} className="flex items-start gap-2">
-            <Point />
-            <div>{briefing.content}</div>
-          </div>
-        ))}
-      </div>
-      {briefings.length > 2 && (
-        <div className="w-full flex justify-center py-2">
-          <button
-            type="button"
-            onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1 text-sm text-gray-600 font-medium
-                transition-colors duration-150
-                hover:text-gray-900
-                active:text-gray-900
-                cursor-pointer"
-          >
-            {t("summary.showMore")}
-            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-orange-100 text-orange-600 text-xs font-semibold rounded-full">
-              +{briefings.length - 2}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => { if (briefings.length > 2) setIsModalOpen(true); }}
+        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && briefings.length > 2) { e.preventDefault(); setIsModalOpen(true); } }}
+        className={`bg-gray-50 rounded-xl p-4 ${briefings.length > 2 ? 'cursor-pointer active:bg-gray-100 transition-colors duration-150' : ''}`}
+      >
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-gray-900">{t("summary.reviews")}</h2>
+          {briefings.length > 2 && (
+            <span className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+              {t("summary.showMore")}
+              <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-orange-100 text-orange-600 text-[10px] font-semibold rounded-full">
+                +{briefings.length - 2}
+              </span>
+              <ChevronDown className="w-3 h-3 text-gray-400" />
             </span>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
-          </button>
+          )}
         </div>
-      )}
+        <div className="h-2" />
+        <div className="flex flex-col gap-1.5">
+          {briefings.slice(0, 2).map((briefing, index) => (
+            <div key={index} className="flex items-start gap-2">
+              <Point />
+              <p className="text-xs text-gray-600 leading-relaxed">{briefing.content}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* 후기 전체보기 바텀시트 */}
       <Sheet
@@ -115,24 +115,24 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
 const BriefingSummarySkeleton = () => {
   return (
     <div className="px-4">
-      <div className="w-[30%]">
-        <TextSkeleton fontSize="text-lg" />
-      </div>
-      <div className="h-2" />
-      {/* 후기 텍스트 2건 - 실제 컴포넌트와 동일한 구조(Point + 텍스트) */}
-      <div className="flex flex-col gap-2">
-        {[0, 1].map((i) => (
-          <div key={i} className="flex items-start gap-2">
-            <div className="w-1 h-1 mt-2.5 rounded-full bg-gray-200 flex-shrink-0" />
-            <div className="flex flex-col gap-1.5 flex-1">
-              <TextSkeleton fontSize="text-base" />
-            </div>
+      <div className="bg-gray-50 rounded-xl p-4">
+        <div className="flex items-center justify-between">
+          <div className="w-[30%]">
+            <TextSkeleton fontSize="text-sm" />
           </div>
-        ))}
-      </div>
-      {/* 더보기 버튼 - 실제: px-6 py-1.5 → h-8, 텍스트 "더보기 +N" → w-28 */}
-      <div className="w-full flex justify-center px-2 py-2">
-        <Skeleton className="h-9 w-28 rounded-md" />
+          <Skeleton className="h-4 w-16 rounded" />
+        </div>
+        <div className="h-2" />
+        <div className="flex flex-col gap-1.5">
+          {[0, 1].map((i) => (
+            <div key={i} className="flex items-start gap-2">
+              <div className="w-1 h-1 mt-1.5 rounded-full bg-gray-200 flex-shrink-0" />
+              <div className="flex flex-col gap-1 flex-1">
+                <TextSkeleton fontSize="text-xs" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -16,21 +16,46 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { ErrorBoundary } from "react-error-boundary";
 import { isAxiosError } from "axios";
 import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTranslation";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const RecipeVideoSummarySkeleton = () => {
+const RecipeDetailPageSkeleton = () => {
   return (
-    <>
-      <BriefingSummarySkeleton />
-      <div className="px-4">
-        <HorizontalLineSkeleton />
+    <div className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]">
+      <div className="w-full aspect-video bg-gray-200 animate-pulse" />
+      <div className="pt-3 px-4">
+        <Skeleton className="h-7 w-[80%] rounded" />
+        <div className="h-1.5" />
+        <Skeleton className="h-4 w-full rounded" />
+        <Skeleton className="h-4 w-[60%] rounded mt-1" />
+        <div className="pt-3 flex flex-col">
+          <div className="w-full h-[1px] bg-gray-200" />
+          <div className="flex py-2 items-center">
+            <div className="flex-1 flex gap-2.5 items-center justify-center">
+              <Skeleton className="w-11 h-11 rounded-full" />
+              <div className="flex flex-col gap-1">
+                <Skeleton className="h-5 w-16 rounded" />
+                <Skeleton className="h-4 w-12 rounded" />
+              </div>
+            </div>
+            <div className="w-[1px] h-10 bg-gray-200" />
+            <div className="flex-1 flex gap-2.5 items-center justify-center">
+              <Skeleton className="w-11 h-11 rounded-full" />
+              <div className="flex flex-col gap-1">
+                <Skeleton className="h-5 w-16 rounded" />
+                <Skeleton className="h-4 w-12 rounded" />
+              </div>
+            </div>
+          </div>
+          <div className="w-full h-[1px] bg-gray-200" />
+        </div>
       </div>
-      <div className="h-3" />
       <IngredientsSkeleton />
-      <div className="px-4">
-        <HorizontalLineSkeleton />
-      </div>
+      <div className="px-4"><div className="w-full h-[1px] bg-gray-200" /></div>
       <div className="h-3" />
-    </>
+      <BriefingSummarySkeleton />
+      <div className="px-4"><div className="w-full h-[1px] bg-gray-200" /></div>
+      <div className="h-3" />
+    </div>
   );
 };
 
@@ -42,55 +67,17 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
     right: { color: "#FFFFFF", isExists: true },
   });
 
-  const videoWrapRef = useRef<HTMLDivElement | null>(null);
-
-  // 스크롤 컨테이너 ref
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-
-  // YouTube 플레이어 ref
-  const playerRef = useRef<YT.Player | null>(null);
-
-  const router = useRouter();
-  const title = router.query.title as string;
-  const description = router.query.description as string;
-  const cookingTime = router.query.cookingTime as string;
-  const servings = router.query.servings as string;
-  const videoId = router.query.videoId as string;
-
-  if (!id || !title || !description || !cookingTime || !servings || !videoId) {
-    return <div>No data</div>;
+  if (!id) {
+    return <RecipeDetailPageSkeleton />;
   }
 
   return (
     <ErrorBoundary
       fallbackRender={({ error }) => <RecipeDetailPageError error={error} />}
     >
-      <div
-        ref={scrollContainerRef}
-        className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]"
-      >
-        <FirstSection
-          videoInfo={{ videoId: videoId, videoTitle: title }}
-          recipeSummary={{
-            description,
-            cookingTime: Number(cookingTime),
-            servings: Number(servings),
-          }}
-          playerRef={playerRef}
-          videoWrapRef={videoWrapRef}
-        />
-        <SSRSuspense fallback={<RecipeVideoSummarySkeleton />}>
-          <RecipeVideoSummary
-            recipeId={id}
-            playerRef={playerRef}
-            scrollContainerRef={scrollContainerRef}
-          />
-        </SSRSuspense>
-        {/* Always visible back button */}
-        <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] left-4 z-10">
-          <ButtonBack onClick={() => router.back()} />
-        </div>
-      </div>
+      <SSRSuspense fallback={<RecipeDetailPageSkeleton />}>
+        <RecipeDetailContent recipeId={id} />
+      </SSRSuspense>
     </ErrorBoundary>
   );
 };
@@ -162,67 +149,59 @@ const RecipeDetailPageError = ({ error }: { error: any }) => {
   throw error;
 };
 
-const FirstSection = ({
-  videoInfo,
-  recipeSummary,
-  playerRef,
-  videoWrapRef,
-}: {
-  videoInfo: { videoId: string; videoTitle: string };
-  recipeSummary: { description: string; cookingTime: number; servings: number };
-  playerRef: React.RefObject<YT.Player | null>;
-  videoWrapRef: React.RefObject<HTMLDivElement | null>;
-}) => {
-  return (
-    <>
-      <div className="fixed top-0 left-0 right-0 z-10">
-        <YoutubeVideo
-          videoId={videoInfo.videoId}
-          title={videoInfo?.videoTitle}
-          containerRef={videoWrapRef as React.RefObject<HTMLDivElement>}
-          onPlayerReady={(p) => (playerRef.current = p)}
-        />
-      </div>
-      <VideoPadding />
-      <RecipeSummary
-        title={videoInfo?.videoTitle}
-        description={recipeSummary?.description}
-        cookTime={recipeSummary?.cookingTime}
-        servings={recipeSummary?.servings}
-      />
-    </>
-  );
-};
+const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
+  const videoWrapRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const playerRef = useRef<YT.Player | null>(null);
+  const router = useRouter();
 
-const RecipeVideoSummary = ({
-  recipeId,
-  playerRef,
-  scrollContainerRef,
-}: {
-  recipeId: string;
-  playerRef: React.RefObject<YT.Player | null>;
-  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
-}) => {
   const {
+    videoInfo,
+    recipeSummary,
     ingredients,
     steps,
     briefings,
     viewStatus,
-    onBack,
     routeToStep,
     onTimeClick,
-    t,
-    lang,
-    formatTime,
   } = useRecipeDetailController(recipeId, "mobile");
+
   const handleTimeClick = (sec: number) => {
     onTimeClick(sec, playerRef);
   };
 
   const { data: balanceData } = useFetchBalance();
   const balance = balanceData?.balance ?? 0;
+
   return (
-    <>
+    <div
+      ref={scrollContainerRef}
+      className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]"
+    >
+      <div className="fixed top-0 left-0 right-0 z-10">
+        <YoutubeVideo
+          videoId={videoInfo.videoId}
+          title={videoInfo.videoTitle}
+          containerRef={videoWrapRef as React.RefObject<HTMLDivElement>}
+          onPlayerReady={(p) => (playerRef.current = p)}
+        />
+        <div className="absolute top-3 left-3 z-20">
+          <ButtonBack onClick={() => router.back()} />
+        </div>
+      </div>
+      <VideoPadding />
+      <RecipeSummary
+        title={videoInfo.videoTitle}
+        description={recipeSummary.description}
+        cookTime={recipeSummary.cookingTime}
+        servings={recipeSummary.servings}
+      />
+      <Ingredients ingredients={ingredients} recipeId={recipeId} />
+      <div className="h-2" />
+      <div className="px-4">
+        <HorizontalLine />
+      </div>
+      <div className="h-3" />
       {briefings && briefings.length > 0 && (
         <>
           <BriefingSummary briefings={briefings} />
@@ -232,12 +211,6 @@ const RecipeVideoSummary = ({
           <div className="h-3" />
         </>
       )}
-      <Ingredients ingredients={ingredients} recipeId={recipeId} />
-      <div className="h-2" />
-      <div className="px-4">
-        <HorizontalLine />
-      </div>
-      <div className="h-3" />
       <Steps
         recipeId={recipeId}
         isEnrolled={viewStatus !== null}
@@ -250,7 +223,7 @@ const RecipeVideoSummary = ({
           <ButtonStartCooking onClick={routeToStep} />
         </div>
       )}
-    </>
+    </div>
   );
 };
 
@@ -284,13 +257,13 @@ const ButtonBack = ({ onClick }: { onClick?: () => void }) => {
       type="button"
       aria-label="Back"
       onClick={onClick}
-      className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500/80 text-white font-bold text-base shadow-xl shadow-gray-500/40
+      className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-black/40 backdrop-blur-sm text-white
         transition-all duration-150
-        hover:bg-gray-600/90 hover:shadow-lg
-        active:scale-[0.95] active:shadow-md active:bg-gray-600
+        hover:bg-black/60
+        active:scale-[0.90] active:bg-black/70
         cursor-pointer"
     >
-      <ChevronLeft className="opacity-90" />
+      <ChevronLeft className="w-5 h-5" />
     </button>
   );
 };
@@ -369,10 +342,6 @@ const RecipeSummary = ({
 };
 
 const HorizontalLine = () => {
-  return <div className="w-full h-[1px] bg-gray-200"></div>;
-};
-
-const HorizontalLineSkeleton = () => {
   return <div className="w-full h-[1px] bg-gray-200"></div>;
 };
 

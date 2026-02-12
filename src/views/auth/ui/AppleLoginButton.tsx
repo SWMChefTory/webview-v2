@@ -62,9 +62,11 @@ export default function AppleLoginButton({
   if (!APPLE_CLIENT_ID) {
     throw new Error("Apple Client ID is not configured");
   }
-
-  const redirectURI = "https://www.cheftories.com/ko/auth/callback/apple";
+  // const redirectURI = process.env.NEXT_PUBLIC_APPLE_RETURN_URL;
+  // const redirectURI = "https://app.cheftories.com/api/auth/callback/apple";
   // const redirectURI = `https://www.cheftories.com/${locale}/auth/callback/apple`;
+  const redirectURI =
+  "https://app-dev.cheftories.com/api/auth/callback/apple"
   if (!redirectURI) {
     throw new Error("Apple Redirect URI is not configured");
   }

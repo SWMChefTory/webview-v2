@@ -1,8 +1,8 @@
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, X } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
 import {
@@ -23,7 +23,7 @@ const RecipeDetailPageSkeleton = () => {
     <div className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]">
       <div className="w-full aspect-video bg-gray-200 animate-pulse" />
       <div className="pt-3 px-4">
-        <Skeleton className="h-7 w-[80%] rounded" />
+        <Skeleton className="h-8 w-[80%] rounded" />
         <div className="h-1.5" />
         <Skeleton className="h-4 w-full rounded" />
         <Skeleton className="h-4 w-[60%] rounded mt-1" />
@@ -49,12 +49,12 @@ const RecipeDetailPageSkeleton = () => {
           <div className="w-full h-[1px] bg-gray-200" />
         </div>
       </div>
-      <IngredientsSkeleton />
-      <div className="px-4"><div className="w-full h-[1px] bg-gray-200" /></div>
-      <div className="h-3" />
-      <BriefingSummarySkeleton />
-      <div className="px-4"><div className="w-full h-[1px] bg-gray-200" /></div>
-      <div className="h-3" />
+      <div className="flex flex-col gap-3 mt-3 px-3">
+        <div className="bg-gray-50/50 rounded-2xl py-3">
+          <IngredientsSkeleton />
+        </div>
+        <BriefingSummarySkeleton />
+      </div>
     </div>
   );
 };
@@ -149,11 +149,45 @@ const RecipeDetailPageError = ({ error }: { error: any }) => {
   throw error;
 };
 
+const PIP_THRESHOLD = 80;
+const PIP_WIDTH = 160;
+const PIP_ASPECT = 9 / 16;
+const PIP_HEIGHT = Math.round(PIP_WIDTH * PIP_ASPECT);
+
 const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
   const videoWrapRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YT.Player | null>(null);
   const router = useRouter();
+
+  const [isPip, setIsPip] = useState(false);
+  const [pipDismissed, setPipDismissed] = useState(false);
+
+  const handleScroll = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container || pipDismissed) return;
+    const shouldPip = container.scrollTop > PIP_THRESHOLD;
+    setIsPip(shouldPip);
+  }, [pipDismissed]);
+
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
+
+  const handlePipTap = useCallback(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: 0, behavior: "smooth" });
+    setIsPip(false);
+  }, []);
+
+  const handlePipDismiss = useCallback(() => {
+    setPipDismissed(true);
+    setIsPip(false);
+  }, []);
 
   const {
     videoInfo,
@@ -173,21 +207,56 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
   const { data: balanceData } = useFetchBalance();
   const balance = balanceData?.balance ?? 0;
 
+  // PIP POC — 기능 보류, 상단 고정 유지. 활성화 시 아래 주석 해제
+  // const showPip = isPip && !pipDismissed;
+  const showPip = false;
+
   return (
     <div
       ref={scrollContainerRef}
       className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]"
     >
-      <div className="fixed top-0 left-0 right-0 z-10">
+      <div
+        className={`fixed z-10 transition-all duration-300 ease-in-out ${
+          showPip
+            ? "bottom-24 right-3 rounded-xl overflow-hidden shadow-xl shadow-black/30"
+            : "top-0 left-0 right-0"
+        }`}
+        style={showPip ? { width: PIP_WIDTH, height: PIP_HEIGHT } : undefined}
+      >
         <YoutubeVideo
           videoId={videoInfo.videoId}
           title={videoInfo.videoTitle}
           containerRef={videoWrapRef as React.RefObject<HTMLDivElement>}
           onPlayerReady={(p) => (playerRef.current = p)}
         />
-        <div className="absolute top-3 left-3 z-20">
-          <ButtonBack onClick={() => router.back()} />
-        </div>
+        {showPip && (
+          <>
+            <button
+              type="button"
+              aria-label="Expand video"
+              onClick={handlePipTap}
+              className="absolute inset-0 z-10"
+            />
+            <button
+              type="button"
+              aria-label="Close PIP"
+              onClick={handlePipDismiss}
+              className="absolute top-1 right-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 text-white
+                transition-opacity duration-150
+                hover:bg-black/70
+                active:scale-90
+                cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </>
+        )}
+        {!showPip && (
+          <div className="absolute top-3 left-3 z-20">
+            <ButtonBack onClick={() => router.back()} />
+          </div>
+        )}
       </div>
       <VideoPadding />
       <RecipeSummary
@@ -196,28 +265,21 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         cookTime={recipeSummary.cookingTime}
         servings={recipeSummary.servings}
       />
-      <Ingredients ingredients={ingredients} recipeId={recipeId} />
-      <div className="h-2" />
-      <div className="px-4">
-        <HorizontalLine />
-      </div>
-      <div className="h-3" />
-      {briefings && briefings.length > 0 && (
-        <>
+      <div className="flex flex-col gap-3 mt-3 px-3">
+        <div className="bg-gray-50/50 rounded-2xl py-3">
+          <Ingredients ingredients={ingredients} recipeId={recipeId} />
+        </div>
+        {briefings && briefings.length > 0 && (
           <BriefingSummary briefings={briefings} />
-          <div className="px-4">
-            <HorizontalLine />
-          </div>
-          <div className="h-3" />
-        </>
-      )}
-      <Steps
-        recipeId={recipeId}
-        isEnrolled={viewStatus !== null}
-        steps={steps}
-        onTimeClick={handleTimeClick}
-        balance={balance}
-      />
+        )}
+        <Steps
+          recipeId={recipeId}
+          isEnrolled={viewStatus !== null}
+          steps={steps}
+          onTimeClick={handleTimeClick}
+          balance={balance}
+        />
+      </div>
       {viewStatus !== null && (
         <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] right-4 z-10">
           <ButtonStartCooking onClick={routeToStep} />
@@ -325,7 +387,7 @@ const RecipeSummary = ({
 
   return (
     <div className="pt-3 px-4">
-      <h1 className="text-xl font-bold leading-tight line-clamp-2">{title}</h1>
+      <h1 className="text-2xl font-bold leading-tight line-clamp-2">{title}</h1>
       <div className="h-1.5" />
       <p className="text-sm leading-relaxed text-gray-600 line-clamp-2">{description}</p>
       <div className="pt-3 flex flex-col">

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useRef } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ChevronLeft, ChefHat, ListChecks } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
 import {
@@ -53,7 +53,6 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
 
   const router = useRouter();
   const title = router.query.title as string;
-  // const thumbnailUrl = router.query.thumbnailUrl as string;
   const description = router.query.description as string;
   const cookingTime = router.query.cookingTime as string;
   const servings = router.query.servings as string;
@@ -112,7 +111,7 @@ const RecipeDetailPageError = ({ error }: { error: any }) => {
               <div className="relative bg-white rounded-3xl p-6 shadow-xl shadow-orange-100/50 border border-orange-100">
                 <Image
                   src="/images/tory/tory_cry.png"
-                  alt="실패한 레시피"
+                  alt={t("error.failedRecipeAlt")}
                   width={140}
                   height={140}
                 />
@@ -378,122 +377,3 @@ const VerticalLine = () => {
   return <div className="w-[1px] h-full bg-gray-300"></div>;
 };
 
-/** ---- Quick Access Cards with Tory Guide ---- */
-const TORY_GUIDE_STORAGE_KEY = "recipe-detail-tory-guide-shown";
-
-const QuickAccessCards = ({
-  ingredientCount,
-  stepCount,
-  scrollContainerRef,
-}: {
-  ingredientCount: number;
-  stepCount: number;
-  scrollContainerRef: React.RefObject<HTMLDivElement | null>;
-}) => {
-  const { t } = useRecipeDetailTranslation();
-  const [showToryGuide, setShowToryGuide] = useState(false);
-
-  useEffect(() => {
-    // 첫 방문 시에만 토리 가이드 표시
-    const hasShown = localStorage.getItem(TORY_GUIDE_STORAGE_KEY);
-    if (!hasShown) {
-      setShowToryGuide(true);
-      localStorage.setItem(TORY_GUIDE_STORAGE_KEY, "true");
-    }
-  }, []);
-
-  const scrollToSection = useCallback(
-    (sectionId: string) => {
-      const element = document.getElementById(sectionId);
-      const container = scrollContainerRef.current;
-      if (element && container) {
-        // YouTube 비디오가 fixed로 상단에 있으므로 비디오 높이만큼 offset 필요
-        const videoHeight = window.innerWidth * (9 / 16); // aspect-video 비율
-        // 컨테이너 스크롤 기준으로 요소 위치 계산
-        const elementTop = element.offsetTop;
-        const offsetTop = elementTop - videoHeight; // 16px 추가 여백
-
-        container.scrollTo({
-          top: offsetTop,
-          behavior: "smooth",
-        });
-      }
-    },
-    [scrollContainerRef]
-  );
-
-  return (
-    <div className="px-4 pt-3 pb-2">
-      {/* 토리 가이드 - 첫 방문 시에만 */}
-      {showToryGuide && (
-        <div className="mb-3 p-3 bg-orange-50 rounded-2xl border border-orange-100 flex items-center gap-3">
-          <div className="w-12 h-12 flex-shrink-0">
-            <Image
-              src="/images/tory/polite-tory.png"
-              alt="토리"
-              width={48}
-              height={48}
-              className="object-contain"
-            />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-800">
-              {t("mobile.quickAccess.guideTitle")}
-            </p>
-            <p className="text-xs text-gray-500 mt-0.5">
-              {t("mobile.quickAccess.guideDescription")}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setShowToryGuide(false)}
-            className="p-1 text-gray-400 hover:text-gray-600"
-            aria-label="닫기"
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M18 6L6 18M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-      )}
-
-      {/* 퀵 액세스 카드 */}
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => scrollToSection("ingredients-section")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-200 active:scale-[0.98] transition-all cursor-pointer"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-b from-orange-400 to-orange-500 flex items-center justify-center shadow-sm">
-            <ListChecks className="w-4 h-4 text-white" />
-          </div>
-          <div className="text-left">
-            <div className="text-sm font-bold text-gray-800">{t("mobile.quickAccess.ingredients")}</div>
-            <div className="text-xs text-gray-500">{t("mobile.quickAccess.ingredientsCount", { count: ingredientCount })}</div>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => scrollToSection("recipe-steps-section")}
-          className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-orange-200 active:scale-[0.98] transition-all cursor-pointer"
-        >
-          <div className="w-8 h-8 rounded-full bg-gradient-to-b from-orange-400 to-orange-500 flex items-center justify-center shadow-sm">
-            <ChefHat className="w-4 h-4 text-white" />
-          </div>
-          <div className="text-left">
-            <div className="text-sm font-bold text-gray-800">{t("mobile.quickAccess.recipe")}</div>
-            <div className="text-xs text-gray-500">{t("mobile.quickAccess.stepsCount", { count: stepCount })}</div>
-          </div>
-        </button>
-      </div>
-    </div>
-  );
-};

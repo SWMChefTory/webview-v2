@@ -39,7 +39,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
         >
           {briefings.length > 1 && (
             <div>
-              더보기{" "}
+              {t("summary.showMore")}{" "}
               <span className="text-xs text-gray-500">
                 +{briefings.length - 1}
               </span>
@@ -80,7 +80,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
                   {t("summary.reviews")}
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">
-                  유튜브 댓글에서 추출한 후기입니다
+                  {t("summary.reviewSource")}
                 </p>
               </div>
 

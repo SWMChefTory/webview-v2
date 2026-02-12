@@ -11,6 +11,7 @@ import { type ViewStatus } from "@/src/entities/recipe";
 import { IngredientPurchaseModal } from "../common/component/IngredientPurchaseModal";
 import { MeasurementOverlay } from "../common/component/MeasurementOverlay";
 import { TimerButton } from "../common/component/TimerButton";
+import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTranslation";
 import {
   useRecipeDetailController,
   type TabName,
@@ -152,6 +153,7 @@ const VideoPlayer = ({
   title?: string;
   onPlayerReady?: (p: YT.Player) => void;
 }) => {
+  const { t } = useRecipeDetailTranslation();
   const ytRef = useRef<YT.Player | null>(null);
 
   const opts = useMemo(
@@ -174,7 +176,7 @@ const VideoPlayer = ({
             onPlayerReady?.(e.target);
           }}
           iframeClassName="absolute top-0 left-0 w-full h-full border-0"
-          title={`${title ?? ""} 동영상`}
+          title={t("video.iframeTitle", { title: title ?? "" })}
         />
       ) : (
         <div className="w-full h-full bg-gray-100" />

@@ -7,7 +7,8 @@
     "home": "홈으로",
     "failedRecipeTitle": "실패한 레시피예요...",
     "failedRecipeDescription": "토리가 실패한 레시피를 가져왔어요.\n다음엔 완성해서 레시피를 보여드릴게요!",
-    "goBack": "뒤로가기"
+    "goBack": "뒤로가기",
+    "failedRecipeAlt": "실패한 레시피"
   },
   "tabs": {
     "summary": "요약",
@@ -21,7 +22,8 @@
     "timeMinute": "{{minutes}}분 이내",
     "servings": "{{count}}인분 기준",
     "reviews": "실제 사용자 후기",
-    "reviewSource": "유튜브 댓글을 참고해서 만들었어요."
+    "reviewSource": "유튜브 댓글을 참고해서 만들었어요.",
+    "showMore": "더보기"
   },
   "ingredients": {
     "prepared": "준비 {{count}}개 / {{total}}개",
@@ -56,6 +58,16 @@
     "currentBerry": "현재 베리 : {{count}}개",
     "viewRecipe": "레시피 보기",
     "loading": "로딩 중..."
+  },
+  "coupang": {
+    "title": "지금 필요한 재료,\n쿠팡에서 바로 준비해보세요!",
+    "disclaimer": "쿠팡 파트너스 활동의 일환으로 수수료를 일부 제공 받습니다.",
+    "noProducts": "등록된 상품이 없습니다",
+    "rocket": "로켓",
+    "price": "{{price}}원"
+  },
+  "video": {
+    "iframeTitle": "{{title}} 동영상"
   },
   "measurement": {
     "title": "계량법",

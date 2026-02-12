@@ -1,9 +1,9 @@
 import client from "@/src/shared/client/main/client";
 import { useEffect, useRef, useState } from "react";
-import React from "react";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { Sheet } from "react-modal-sheet";
+import { useRecipeDetailTranslation } from "../hook/useRecipeDetailTranslation";
 
 interface CoupangProduct {
   keyword: string;
@@ -45,6 +45,7 @@ export const IngredientPurchaseModal = ({
   ingredients,
   recipeId,
 }: IngredientPurchaseModalProps) => {
+  const { t } = useRecipeDetailTranslation();
   const [products, setProducts] = useState<IngredientProduct[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -231,13 +232,11 @@ export const IngredientPurchaseModal = ({
                 </svg>
               </button>
 
-              <h2 className="text-xl font-bold text-neutral-900 mb-1 pr-8">
-                지금 필요한 재료,
-                <br />
-                쿠팡에서 바로 준비해보세요!
+              <h2 className="text-xl font-bold text-neutral-900 mb-1 pr-8 whitespace-pre-line">
+                {t("coupang.title")}
               </h2>
               <p className="text-xs text-gray-500">
-                쿠팡 파트너스 활동의 일환으로 수수료를 일부 제공 받습니다.
+                {t("coupang.disclaimer")}
               </p>
             </div>
 
@@ -262,7 +261,7 @@ export const IngredientPurchaseModal = ({
                       d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
                     />
                   </svg>
-                  <p className="text-sm">등록된 상품이 없습니다</p>
+                  <p className="text-sm">{t("coupang.noProducts")}</p>
                 </div>
               ) : (
                 <div className="space-y-3 pb-4">
@@ -288,7 +287,7 @@ export const IngredientPurchaseModal = ({
                         />
                         {product.isRocket && (
                           <div className="absolute top-1 left-1 bg-blue-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">
-                            로켓
+                            {t("coupang.rocket")}
                           </div>
                         )}
                       </div>
@@ -304,7 +303,7 @@ export const IngredientPurchaseModal = ({
                           </p>
                         </div>
                         <p className="font-bold text-lg text-neutral-900">
-                          {product.price.toLocaleString()}원
+                          {t("coupang.price", { price: product.price.toLocaleString() })}
                         </p>
                       </div>
 

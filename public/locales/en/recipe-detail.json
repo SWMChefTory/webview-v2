@@ -7,7 +7,8 @@
     "home": "Home",
     "failedRecipeTitle": "Failed recipe...",
     "failedRecipeDescription": "Tory brought a failed recipe.\nWe'll show you a completed one next time!",
-    "goBack": "Go Back"
+    "goBack": "Go Back",
+    "failedRecipeAlt": "Failed recipe"
   },
   "tabs": {
     "summary": "Summary",
@@ -21,7 +22,8 @@
     "timeMinute": "{{minutes}}m max",
     "servings": "{{count}} servings",
     "reviews": "Actual User Reviews",
-    "reviewSource": "Created based on YouTube comments."
+    "reviewSource": "Created based on YouTube comments.",
+    "showMore": "Show more"
   },
   "ingredients": {
     "prepared": "{{count}}/{{total}} Prepared",
@@ -56,6 +58,16 @@
     "currentBerry": "Berries: {{count}}",
     "viewRecipe": "View Recipe",
     "loading": "Loading..."
+  },
+  "coupang": {
+    "title": "Ingredients you need,\nget them on Coupang!",
+    "disclaimer": "We earn a small commission as part of the Coupang Partners program.",
+    "noProducts": "No products found",
+    "rocket": "Rocket",
+    "price": "₩{{price}}"
+  },
+  "video": {
+    "iframeTitle": "{{title}} Video"
   },
   "measurement": {
     "title": "Measurement Guide",

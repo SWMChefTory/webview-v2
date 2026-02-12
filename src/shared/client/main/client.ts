@@ -143,9 +143,9 @@ class TokenRefreshManager {
       }
 
       const response = await reissueRefreshToken(refreshToken);
-      setMainAccessToken(response.access_token);
-      setMainRefreshToken(response.refresh_token);
-      return response.access_token;
+      setMainAccessToken(response.accessToken);
+      setMainRefreshToken(response.refreshToken);
+      return response.accessToken;
     } catch (error) {
       localStorage.removeItem(MAIN_ACCESS_TOKEN_KEY);
       localStorage.removeItem(MAIN_REFRESH_TOKEN_KEY);
@@ -157,8 +157,8 @@ class TokenRefreshManager {
 const tokenRefreshManager = new TokenRefreshManager();
 
 interface ReissueTokenResponse {
-  access_token: string;
-  refresh_token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 interface RawReissueTokenRequest {
   refresh_token: string;

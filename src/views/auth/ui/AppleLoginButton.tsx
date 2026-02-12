@@ -62,18 +62,15 @@ export default function AppleLoginButton({
   const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const attemptCountRef = useRef(0);
 
-  const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
+  const APPLE_CLIENT_ID = "com.cheftory.web";
   if (!APPLE_CLIENT_ID) {
     throw new Error("Apple Client ID is not configured");
   }
 
-  const redirectURI = process.env.NEXT_PUBLIC_APPLE_RETURN_URL;
+  const redirectURI = "https://app-dev.cheftories.com/api/auth/callback/apple";
   if (!redirectURI) {
     throw new Error("Apple Redirect URI is not configured");
   }
-
-  console.log("APPLE_CLIENT_ID!", APPLE_CLIENT_ID);
-  console.log("redirectURI!", redirectURI);
 
   const initializeSDK = useCallback(() => {
     if (!APPLE_CLIENT_ID) {

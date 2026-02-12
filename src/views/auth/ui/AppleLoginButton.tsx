@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useRouter } from "next/router";
 
@@ -11,8 +11,6 @@ import {
 const APPLE_SDK_SRC =
   "https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js";
 
-const SDK_POLL_INTERVAL_MS = 100;
-const SDK_MAX_ATTEMPTS = 100;
 
 type AppleSignInResponse = {
   authorization?: {
@@ -59,8 +57,6 @@ export default function AppleLoginButton({
   const [isLoading, setIsLoading] = useState(false);
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
-  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const attemptCountRef = useRef(0);
 
   const APPLE_CLIENT_ID = "com.cheftory.web";
   if (!APPLE_CLIENT_ID) {
@@ -68,6 +64,7 @@ export default function AppleLoginButton({
   }
 
   const redirectURI = "https://app-dev.cheftories.com/api/auth/callback/apple";
+  // const redirectURI = `https://www.cheftories.com/${locale}/auth/callback/apple`;
   if (!redirectURI) {
     throw new Error("Apple Redirect URI is not configured");
   }
@@ -84,10 +81,13 @@ export default function AppleLoginButton({
       return false;
     }
     try {
+      if(window.AppleID.auth){
+        console.log("있음");
+      }
       window.AppleID.auth.init({
         clientId: APPLE_CLIENT_ID,
         scope: "name email",
-        redirectURI,
+        redirectURI: redirectURI,
         usePopup: true,
       });
 
@@ -111,51 +111,22 @@ export default function AppleLoginButton({
       'script[data-appleid-sdk="true"]',
     );
 
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.src = APPLE_SDK_SRC;
-      script.async = true;
-      script.defer = true;
-      script.dataset.appleidSdk = "true";
-      script.onload = () => {
-        initializeSDK();
-      };
-      script.onerror = () => {
-        setSdkError("Apple Sign In SDK failed to load");
-        onError("Apple Sign In SDK failed to load");
-      };
-      document.head.appendChild(script);
+    if (existingScript) {
+      initializeSDK();
+      return;
     }
 
-    const pollForSDK = () => {
-      if (isSDKLoaded) return;
-
-      if (initializeSDK()) {
-        return;
-      }
-
-      attemptCountRef.current += 1;
-      if (attemptCountRef.current >= SDK_MAX_ATTEMPTS) {
-        console.warn(
-          "[Apple SDK] SDK load timeout after",
-          SDK_MAX_ATTEMPTS * SDK_POLL_INTERVAL_MS,
-          "ms",
-        );
-        setSdkError("Apple Sign In SDK failed to load");
-        onError("Apple Sign In SDK failed to load");
-        return;
-      }
-
-      pollTimeoutRef.current = setTimeout(pollForSDK, SDK_POLL_INTERVAL_MS);
+    const script = document.createElement("script");
+    script.src = APPLE_SDK_SRC;
+    script.async = true;
+    script.defer = true;
+    script.dataset.appleidSdk = "true";
+    script.onload = () => initializeSDK();
+    script.onerror = () => {
+      setSdkError("Apple Sign In SDK failed to load");
+      onError("Apple Sign In SDK failed to load");
     };
-
-    pollForSDK();
-
-    return () => {
-      if (pollTimeoutRef.current) {
-        clearTimeout(pollTimeoutRef.current);
-      }
-    };
+    document.head.appendChild(script);
   }, [initializeSDK, isSDKLoaded, onError]);
 
   const handleRoute = () => {

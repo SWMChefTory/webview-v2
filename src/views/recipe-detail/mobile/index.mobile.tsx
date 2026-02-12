@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
@@ -379,6 +379,101 @@ type RecipeSummaryProps = {
   servings?: number;
 };
 
+/**
+ * 텍스트를 지정된 줄 수에 맞게 자르고, 넘치면 "...더보기"를 인라인으로 삽입하는 훅.
+ *
+ * 원리:
+ * 1. 숨겨진 measurer element에 동일한 CSS(font-size, line-height, width)를 적용
+ * 2. 한 줄 높이를 측정한 뒤, maxLines * lineHeight 이내에 텍스트가 들어가는지 확인
+ * 3. 넘치면 binary search로 "...더보기" suffix 포함 시 정확히 maxLines에 맞는 자름 위치를 찾음
+ * 4. ResizeObserver로 컨테이너 너비 변경 시 재계산
+ *
+ * 한글/영문/숫자/특수문자 등 글자 너비가 제각각이므로 글자 수가 아닌
+ * 실제 렌더링 높이 기반으로 측정합니다.
+ */
+const useTextTruncation = (
+  text: string | undefined,
+  suffix: string,
+  maxLines: number,
+) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const measurerRef = useRef<HTMLSpanElement>(null);
+  const [truncatedText, setTruncatedText] = useState<string | null>(null);
+  const [overflows, setOverflows] = useState(false);
+
+  const computeTruncation = useCallback(() => {
+    const container = containerRef.current;
+    const measurer = measurerRef.current;
+    if (!container || !measurer || !text) {
+      setOverflows(false);
+      setTruncatedText(null);
+      return;
+    }
+
+    const containerWidth = container.clientWidth;
+    measurer.style.width = `${containerWidth}px`;
+
+    measurer.textContent = "\u200b";
+    const singleLineHeight = measurer.offsetHeight;
+    if (singleLineHeight === 0) return;
+
+    const maxHeight = singleLineHeight * maxLines;
+
+    measurer.textContent = text;
+    if (measurer.offsetHeight <= maxHeight) {
+      setOverflows(false);
+      setTruncatedText(null);
+      return;
+    }
+
+    setOverflows(true);
+    let lo = 0;
+    let hi = text.length;
+    let best = 0;
+
+    while (lo <= hi) {
+      const mid = Math.floor((lo + hi) / 2);
+      measurer.textContent = text.slice(0, mid) + suffix;
+      if (measurer.offsetHeight <= maxHeight) {
+        best = mid;
+        lo = mid + 1;
+      } else {
+        hi = mid - 1;
+      }
+    }
+
+    let cutPos = best;
+    if (cutPos < text.length && text[cutPos] !== " ") {
+      const lastSpace = text.lastIndexOf(" ", cutPos);
+      if (lastSpace > cutPos * 0.7) {
+        measurer.textContent = text.slice(0, lastSpace) + suffix;
+        if (measurer.offsetHeight <= maxHeight) {
+          cutPos = lastSpace;
+        }
+      }
+    }
+
+    const PADDING_CHARS = 1;
+    const paddedPos = Math.max(0, cutPos - PADDING_CHARS);
+    const trimmed = text.slice(0, paddedPos).trimEnd();
+    setTruncatedText(trimmed);
+  }, [text, suffix, maxLines]);
+
+  useEffect(() => {
+    computeTruncation();
+  }, [computeTruncation]);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const ro = new ResizeObserver(() => computeTruncation());
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [computeTruncation]);
+
+  return { containerRef, measurerRef, truncatedText, overflows };
+};
+
 const RecipeSummary = ({
   title,
   description,
@@ -386,6 +481,18 @@ const RecipeSummary = ({
   servings,
 }: RecipeSummaryProps) => {
   const { t } = useRecipeDetailTranslation();
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  const suffix = useMemo(() => `... ${t("summary.showMore")}`, [t]);
+
+  const { containerRef, measurerRef, truncatedText, overflows } =
+    useTextTruncation(description, suffix, 2);
+
+  const toggleExpanded = useCallback(() => {
+    if (!overflows) return;
+    setDescExpanded((prev) => !prev);
+  }, [overflows]);
+
   const CookingTime = () => {
     return (
       <div className="flex-1 flex gap-2.5 items-center justify-center">
@@ -431,7 +538,48 @@ const RecipeSummary = ({
     <div className="pt-3 px-4">
       <h1 className="text-xl font-bold leading-tight line-clamp-2">{title}</h1>
       <div className="h-1.5" />
-      <p className="text-sm leading-relaxed text-gray-700 line-clamp-2">{description}</p>
+      <span
+        ref={measurerRef}
+        aria-hidden="true"
+        className="absolute invisible text-sm leading-relaxed whitespace-pre-wrap break-words"
+        style={{ top: 0, left: 0, pointerEvents: "none" }}
+      />
+      <div
+        ref={containerRef}
+        role={overflows ? "button" : undefined}
+        tabIndex={overflows ? 0 : undefined}
+        aria-expanded={overflows ? descExpanded : undefined}
+        onClick={toggleExpanded}
+        onKeyDown={
+          overflows
+            ? (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  toggleExpanded();
+                }
+              }
+            : undefined
+        }
+        className={`text-sm leading-relaxed text-gray-700 ${overflows ? "cursor-pointer" : ""}`}
+      >
+        {descExpanded || !overflows ? (
+          <>
+            {description}
+            {overflows && (
+              <span className="text-gray-500 font-medium ml-1">
+                {t("ingredients.showLess")}
+              </span>
+            )}
+          </>
+        ) : (
+          <>
+            {truncatedText}
+            <span className="text-gray-500 font-medium">
+              ... {t("summary.showMore")}
+            </span>
+          </>
+        )}
+      </div>
       <div className="pt-3 flex flex-col">
         <HorizontalLine />
         <div className="flex py-2 items-center">

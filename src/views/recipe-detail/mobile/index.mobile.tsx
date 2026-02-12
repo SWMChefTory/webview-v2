@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useRecipeDetailController } from "../common/hook/useRecipeDetailController";
+import { useTextTruncation } from "../common/hook/useTextTruncation";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ChevronLeft, X } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
 import {
@@ -151,45 +152,10 @@ const RecipeDetailPageError = ({ error }: { error: any }) => {
   throw error;
 };
 
-const PIP_THRESHOLD = 80;
-const PIP_WIDTH = 160;
-const PIP_ASPECT = 9 / 16;
-const PIP_HEIGHT = Math.round(PIP_WIDTH * PIP_ASPECT);
-
 const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
   const videoWrapRef = useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<YT.Player | null>(null);
   const router = useRouter();
-
-  const [isPip, setIsPip] = useState(false);
-  const [pipDismissed, setPipDismissed] = useState(false);
-
-  const handleScroll = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container || pipDismissed) return;
-    const shouldPip = container.scrollTop > PIP_THRESHOLD;
-    setIsPip(shouldPip);
-  }, [pipDismissed]);
-
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    container.addEventListener("scroll", handleScroll, { passive: true });
-    return () => container.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
-
-  const handlePipTap = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    container.scrollTo({ top: 0, behavior: "smooth" });
-    setIsPip(false);
-  }, []);
-
-  const handlePipDismiss = useCallback(() => {
-    setPipDismissed(true);
-    setIsPip(false);
-  }, []);
 
   const {
     videoInfo,
@@ -200,6 +166,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
     viewStatus,
     routeToStep,
     onTimeClick,
+    formatTime,
   } = useRecipeDetailController(recipeId, "mobile");
 
   const handleTimeClick = (sec: number) => {
@@ -223,56 +190,18 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
     });
   }, [recipeId, isEnrollingBookmark, enrollBookmark, openRechargeModal]);
 
-  // PIP POC — 기능 보류, 상단 고정 유지. 활성화 시 아래 주석 해제
-  // const showPip = isPip && !pipDismissed;
-  const showPip = false;
-
   return (
-    <div
-      ref={scrollContainerRef}
-      className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]"
-    >
-      <div
-        className={`fixed z-10 transition-all duration-300 ease-in-out ${
-          showPip
-            ? "bottom-24 right-3 rounded-xl overflow-hidden shadow-xl shadow-black/30"
-            : "top-0 left-0 right-0"
-        }`}
-        style={showPip ? { width: PIP_WIDTH, height: PIP_HEIGHT } : undefined}
-      >
+    <div className="relative w-full h-[100dvh] overflow-y-auto overscroll-y-none bg-white [-webkit-overflow-scrolling:touch]">
+      <div className="fixed z-10 top-0 left-0 right-0">
         <YoutubeVideo
           videoId={videoInfo.videoId}
           title={videoInfo.videoTitle}
           containerRef={videoWrapRef as React.RefObject<HTMLDivElement>}
           onPlayerReady={(p) => (playerRef.current = p)}
         />
-        {showPip && (
-          <>
-            <button
-              type="button"
-              aria-label="Expand video"
-              onClick={handlePipTap}
-              className="absolute inset-0 z-10"
-            />
-            <button
-              type="button"
-              aria-label="Close PIP"
-              onClick={handlePipDismiss}
-              className="absolute top-1 right-1 z-20 w-6 h-6 flex items-center justify-center rounded-full bg-black/50 text-white
-                transition-opacity duration-150
-                hover:bg-black/70
-                active:scale-90
-                cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          </>
-        )}
-        {!showPip && (
-          <div className="absolute top-3 left-3 z-20">
-            <ButtonBack onClick={() => router.back()} />
-          </div>
-        )}
+        <div className="absolute top-3 left-3 z-20">
+          <ButtonBack onClick={() => router.back()} />
+        </div>
       </div>
       <VideoPadding />
       <RecipeSummary
@@ -280,6 +209,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         description={recipeSummary.description}
         cookTime={recipeSummary.cookingTime}
         servings={recipeSummary.servings}
+        formatTime={formatTime}
       />
       <div className="flex flex-col gap-3 mt-3 px-3">
         <Ingredients ingredients={ingredients} recipeId={recipeId} />
@@ -377,101 +307,64 @@ type RecipeSummaryProps = {
   description?: string;
   cookTime?: number;
   servings?: number;
+  formatTime: (min: number) => string;
 };
 
-/**
- * 텍스트를 지정된 줄 수에 맞게 자르고, 넘치면 "...더보기"를 인라인으로 삽입하는 훅.
- *
- * 원리:
- * 1. 숨겨진 measurer element에 동일한 CSS(font-size, line-height, width)를 적용
- * 2. 한 줄 높이를 측정한 뒤, maxLines * lineHeight 이내에 텍스트가 들어가는지 확인
- * 3. 넘치면 binary search로 "...더보기" suffix 포함 시 정확히 maxLines에 맞는 자름 위치를 찾음
- * 4. ResizeObserver로 컨테이너 너비 변경 시 재계산
- *
- * 한글/영문/숫자/특수문자 등 글자 너비가 제각각이므로 글자 수가 아닌
- * 실제 렌더링 높이 기반으로 측정합니다.
- */
-const useTextTruncation = (
-  text: string | undefined,
-  suffix: string,
-  maxLines: number,
-) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const measurerRef = useRef<HTMLSpanElement>(null);
-  const [truncatedText, setTruncatedText] = useState<string | null>(null);
-  const [overflows, setOverflows] = useState(false);
+const CookingTime = ({
+  cookTime,
+  formatTime,
+}: {
+  cookTime?: number;
+  formatTime: (min: number) => string;
+}) => {
+  const { t } = useRecipeDetailTranslation();
+  return (
+    <div className="flex-1 flex gap-2.5 items-center justify-center">
+      <div className="w-11 h-11 flex items-center justify-center">
+        <Image
+          src="/images/description/timer.png"
+          alt=""
+          aria-hidden="true"
+          className="object-cover object-center"
+          width={34}
+          height={34}
+        />
+      </div>
+      <div className="flex flex-col">
+        <div className="text-lg font-bold leading-tight text-gray-900">
+          {cookTime ? formatTime(cookTime) : t("mobile.cookingTimeValue", { minutes: 0 })}
+        </div>
+        <div className="text-sm text-gray-600">{t("mobile.cookingTime")}</div>
+      </div>
+    </div>
+  );
+};
 
-  const computeTruncation = useCallback(() => {
-    const container = containerRef.current;
-    const measurer = measurerRef.current;
-    if (!container || !measurer || !text) {
-      setOverflows(false);
-      setTruncatedText(null);
-      return;
-    }
-
-    const containerWidth = container.clientWidth;
-    measurer.style.width = `${containerWidth}px`;
-
-    measurer.textContent = "\u200b";
-    const singleLineHeight = measurer.offsetHeight;
-    if (singleLineHeight === 0) return;
-
-    const maxHeight = singleLineHeight * maxLines;
-
-    measurer.textContent = text;
-    if (measurer.offsetHeight <= maxHeight) {
-      setOverflows(false);
-      setTruncatedText(null);
-      return;
-    }
-
-    setOverflows(true);
-    let lo = 0;
-    let hi = text.length;
-    let best = 0;
-
-    while (lo <= hi) {
-      const mid = Math.floor((lo + hi) / 2);
-      measurer.textContent = text.slice(0, mid) + suffix;
-      if (measurer.offsetHeight <= maxHeight) {
-        best = mid;
-        lo = mid + 1;
-      } else {
-        hi = mid - 1;
-      }
-    }
-
-    let cutPos = best;
-    if (cutPos < text.length && text[cutPos] !== " ") {
-      const lastSpace = text.lastIndexOf(" ", cutPos);
-      if (lastSpace > cutPos * 0.7) {
-        measurer.textContent = text.slice(0, lastSpace) + suffix;
-        if (measurer.offsetHeight <= maxHeight) {
-          cutPos = lastSpace;
-        }
-      }
-    }
-
-    const PADDING_CHARS = 1;
-    const paddedPos = Math.max(0, cutPos - PADDING_CHARS);
-    const trimmed = text.slice(0, paddedPos).trimEnd();
-    setTruncatedText(trimmed);
-  }, [text, suffix, maxLines]);
-
-  useEffect(() => {
-    computeTruncation();
-  }, [computeTruncation]);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const ro = new ResizeObserver(() => computeTruncation());
-    ro.observe(container);
-    return () => ro.disconnect();
-  }, [computeTruncation]);
-
-  return { containerRef, measurerRef, truncatedText, overflows };
+const ServingsInfo = ({
+  servings,
+}: {
+  servings?: number;
+}) => {
+  const { t } = useRecipeDetailTranslation();
+  return (
+    <div className="flex-1 flex gap-2.5 items-center justify-center">
+      <div className="w-11 h-11 flex items-center justify-center">
+        <Image
+          src="/images/description/count.png"
+          alt=""
+          aria-hidden="true"
+          width={36}
+          height={22}
+        />
+      </div>
+      <div className="flex flex-col">
+        <div className="text-lg font-bold leading-tight text-gray-900">
+          {t("mobile.servingsValue", { count: servings })}
+        </div>
+        <div className="text-sm text-gray-600">{t("mobile.servingsLabel")}</div>
+      </div>
+    </div>
+  );
 };
 
 const RecipeSummary = ({
@@ -479,6 +372,7 @@ const RecipeSummary = ({
   description,
   cookTime,
   servings,
+  formatTime,
 }: RecipeSummaryProps) => {
   const { t } = useRecipeDetailTranslation();
   const [descExpanded, setDescExpanded] = useState(false);
@@ -493,46 +387,15 @@ const RecipeSummary = ({
     setDescExpanded((prev) => !prev);
   }, [overflows]);
 
-  const CookingTime = () => {
-    return (
-      <div className="flex-1 flex gap-2.5 items-center justify-center">
-        <div className="w-11 h-11 flex items-center justify-center">
-          <Image
-            src="/images/description/timer.png"
-            alt=""
-            aria-hidden="true"
-            className="object-cover object-center"
-            width={34}
-            height={34}
-          />
-        </div>
-        <div className="flex flex-col">
-          <div className="text-lg font-bold leading-tight text-gray-900">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
-          <div className="text-sm text-gray-600">{t("mobile.cookingTime")}</div>
-        </div>
-      </div>
-    );
-  };
-
-  const Servings = () => {
-    return (
-      <div className="flex-1 flex gap-2.5 items-center justify-center">
-        <div className="w-11 h-11 flex items-center justify-center">
-          <Image
-            src="/images/description/count.png"
-            alt=""
-            aria-hidden="true"
-            width={36}
-            height={22}
-          />
-        </div>
-        <div className="flex flex-col">
-          <div className="text-lg font-bold leading-tight text-gray-900">{t("mobile.servingsValue", { count: servings })}</div>
-          <div className="text-sm text-gray-600">{t("mobile.servingsLabel")}</div>
-        </div>
-      </div>
-    );
-  };
+  const handleDescriptionKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleExpanded();
+      }
+    },
+    [toggleExpanded],
+  );
 
   return (
     <div className="pt-3 px-4">
@@ -550,16 +413,7 @@ const RecipeSummary = ({
         tabIndex={overflows ? 0 : undefined}
         aria-expanded={overflows ? descExpanded : undefined}
         onClick={toggleExpanded}
-        onKeyDown={
-          overflows
-            ? (e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  toggleExpanded();
-                }
-              }
-            : undefined
-        }
+        onKeyDown={overflows ? handleDescriptionKeyDown : undefined}
         className={`text-sm leading-relaxed text-gray-700 ${overflows ? "cursor-pointer" : ""}`}
       >
         {descExpanded || !overflows ? (
@@ -583,9 +437,9 @@ const RecipeSummary = ({
       <div className="pt-3 flex flex-col">
         <HorizontalLine />
         <div className="flex py-2 items-center">
-          <CookingTime />
+          <CookingTime cookTime={cookTime} formatTime={formatTime} />
           <VerticalLine />
-          <Servings />
+          <ServingsInfo servings={servings} />
         </div>
         <HorizontalLine />
       </div>

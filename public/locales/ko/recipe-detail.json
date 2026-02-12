@@ -59,6 +59,8 @@
     "berryPrompt2": "레시피를 볼 수 있어요.",
     "currentBerry": "현재 베리 : {{count}}개",
     "viewRecipe": "레시피 보기",
+    "unlockWithBerry": "1개로 열기",
+    "toryAlt": "토리 캐릭터",
     "loading": "로딩 중..."
   },
   "coupang": {

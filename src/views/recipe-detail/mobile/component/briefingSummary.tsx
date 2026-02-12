@@ -6,15 +6,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
 
+const BulletPoint = () => (
+  <div className="w-1 h-1 mt-1.5 rounded-full bg-orange-500 flex-shrink-0" />
+);
+
 const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useRecipeDetailTranslation();
-
-  const Point = () => {
-    return (
-      <div className="w-1 h-1 mt-1.5 rounded-full bg-orange-500 flex-shrink-0" />
-    );
-  };
 
   return (
     <div className="px-4">
@@ -39,7 +37,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
         <div className="flex flex-col gap-1.5">
           {briefings.slice(0, 2).map((briefing, index) => (
             <div key={index} className="flex items-start gap-2">
-              <Point />
+              <BulletPoint />
               <p className="text-xs text-gray-700 leading-relaxed">{briefing.content}</p>
             </div>
           ))}

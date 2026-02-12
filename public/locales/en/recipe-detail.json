@@ -59,6 +59,8 @@
     "berryPrompt2": "to see the recipe.",
     "currentBerry": "Berries: {{count}}",
     "viewRecipe": "View Recipe",
+    "unlockWithBerry": "Unlock with 1",
+    "toryAlt": "Tory character",
     "loading": "Loading..."
   },
   "coupang": {

@@ -4,6 +4,37 @@ import { Lock, Play } from "lucide-react";
 import { RecipeStep, StepDetail } from "../../common/hook/useRecipeDetailController";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
 
+const numberToUpperAlpha = (n: number) => String.fromCharCode(64 + n);
+
+const StepDetails = ({
+  stepDetails,
+  onDetailClick,
+}: {
+  stepDetails: StepDetail[];
+  onDetailClick?: (sec: number) => void;
+}) => {
+  return (
+    <div className="rounded-md flex flex-col gap-2">
+      {stepDetails.map((detail) => (
+        <button
+          key={detail.start}
+          type="button"
+          onClick={() => onDetailClick?.(detail.start)}
+          className="flex items-start gap-1.5 text-sm font-medium shadow-sm bg-white p-2 rounded-md text-left
+              transition-all duration-150
+              hover:bg-orange-50 hover:shadow
+              active:scale-[0.97] active:shadow-none active:bg-orange-100
+              focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
+              cursor-pointer"
+        >
+          <Play className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-orange-400 fill-orange-400" />
+          <span>{detail.text}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
 const Steps = ({
   steps,
   isEnrolled,
@@ -24,39 +55,6 @@ const Steps = ({
     if (!isEnrollingBookmark) {
       enrollBookmark(recipeId);
     }
-  };
-
-  const numberToUpperAlpha = (n: number) => {
-    return String.fromCharCode(64 + n);
-  };
-
-  const StepDetails = ({
-    stepDetails,
-    onDetailClick,
-  }: {
-    stepDetails: StepDetail[];
-    onDetailClick?: (sec: number) => void;
-  }) => {
-    return (
-      <div className="rounded-md flex flex-col gap-2">
-        {stepDetails.map((detail, index) => (
-          <button
-            key={index}
-            type="button"
-            onClick={() => onDetailClick?.(detail.start)}
-            className="flex items-start gap-1.5 text-sm font-medium shadow-sm bg-white p-2 rounded-md text-left
-                transition-all duration-150
-                hover:bg-orange-50 hover:shadow
-                active:scale-[0.97] active:shadow-none active:bg-orange-100
-                focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
-                cursor-pointer"
-          >
-            <Play className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-orange-400 fill-orange-400" />
-            <span>{detail.text}</span>
-          </button>
-        ))}
-      </div>
-    );
   };
 
   if (!isEnrolled) {
@@ -84,7 +82,9 @@ const Steps = ({
               width={13}
               height={16}
             />
-            <span className="text-xs font-bold text-orange-600">1개로 열기</span>
+            <span className="text-xs font-bold text-orange-600">
+              {t("lock.unlockWithBerry")}
+            </span>
           </button>
         </div>
         <div className="h-2" />
@@ -92,7 +92,7 @@ const Steps = ({
           {steps.map((step, index) => {
             const isFirst = index === 0;
             return (
-              <div key={index} className="relative pl-8 pb-4">
+              <div key={step.id} className="relative pl-8 pb-4">
                 {index !== steps.length - 1 && (
                   <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-orange-200" />
                 )}
@@ -125,8 +125,7 @@ const Steps = ({
           <div className="bg-gradient-to-b from-amber-50 via-orange-50 to-white pt-7 pb-4 flex flex-col items-center">
             <Image
               src="/images/tory/polite-tory.png"
-              alt=""
-              aria-hidden="true"
+              alt={t("lock.toryAlt")}
               width={100}
               height={91}
               className="object-contain drop-shadow-md"
@@ -157,7 +156,7 @@ const Steps = ({
       <div className="h-2" />
       <div className="flex flex-col">
         {steps.map((step, index) => (
-          <div key={index} className="relative pl-8 pb-4">
+          <div key={step.id} className="relative pl-8 pb-4">
             {index !== steps.length - 1 && (
               <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-orange-200" />
             )}

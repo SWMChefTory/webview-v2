@@ -249,9 +249,8 @@ export function LogoutButton({ isTablet = false }: { isTablet?: boolean }) {
         setMainRefreshToken("");
         if (window.ReactNativeWebView) {
           request(MODE.UNBLOCKING, LOGOUT);
-          console.log("logout");
         } else {
-          router.push("/auth");
+          window.location.href = "https://www.cheftories.com/ko/auth/login";
         }
       }}
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}

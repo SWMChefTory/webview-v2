@@ -62,10 +62,7 @@ function App(props: AppProps) {
         );
         return;
       }
-
-      if (window.location.pathname !== "/auth") {
-        window.location.href = "/auth";
-      }
+      window.location.href = "https://www.cheftories.com/ko/auth/login";
     });
 
     return () => {

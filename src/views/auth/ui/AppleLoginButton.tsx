@@ -58,12 +58,12 @@ export default function AppleLoginButton({
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
 
-  const APPLE_CLIENT_ID = "com.anonymous.cheftory.service";
+  const APPLE_CLIENT_ID = "com.cheftory.web";
   if (!APPLE_CLIENT_ID) {
     throw new Error("Apple Client ID is not configured");
   }
   // const redirectURI = process.env.NEXT_PUBLIC_APPLE_RETURN_URL;
-  const redirectURI = "https://app-dev.cheftories.com/api/auth/callback/apple";
+  const redirectURI = "https://app-dev.cheftories.com/api/auth/callback/apple/";
   // const redirectURI = `https://www.cheftories.com/${locale}/auth/callback/apple`;
   // const redirectURI =
   // "https://app-dev.cheftories.com/api/auth/callback/apple"

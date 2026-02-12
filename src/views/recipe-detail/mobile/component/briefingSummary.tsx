@@ -18,17 +18,15 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
 
   return (
     <div className="px-4">
-      <div
-        role="button"
-        tabIndex={0}
+      <button
+        type="button"
         onClick={() => { if (briefings.length > 2) setIsModalOpen(true); }}
-        onKeyDown={(e) => { if ((e.key === 'Enter' || e.key === ' ') && briefings.length > 2) { e.preventDefault(); setIsModalOpen(true); } }}
-        className={`bg-gray-50 rounded-xl p-4 ${briefings.length > 2 ? 'cursor-pointer active:bg-gray-100 transition-colors duration-150' : ''}`}
+        className={`bg-gray-50 rounded-xl p-4 text-left w-full ${briefings.length > 2 ? 'cursor-pointer active:bg-gray-100 transition-colors duration-150' : ''} focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2`}
       >
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-bold text-gray-900">{t("summary.reviews")}</h2>
           {briefings.length > 2 && (
-            <span className="flex items-center gap-1 text-xs text-gray-500 font-medium">
+            <span className="flex items-center gap-1 text-xs text-gray-600 font-medium">
               {t("summary.showMore")}
               <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 bg-orange-100 text-orange-600 text-[10px] font-semibold rounded-full">
                 +{briefings.length - 2}
@@ -42,11 +40,11 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
           {briefings.slice(0, 2).map((briefing, index) => (
             <div key={index} className="flex items-start gap-2">
               <Point />
-              <p className="text-xs text-gray-600 leading-relaxed">{briefing.content}</p>
+              <p className="text-xs text-gray-700 leading-relaxed">{briefing.content}</p>
             </div>
           ))}
         </div>
-      </div>
+      </button>
 
       {/* 후기 전체보기 바텀시트 */}
       <Sheet
@@ -64,7 +62,8 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
               <div className="relative px-5 pt-4 pb-4 border-b border-gray-100">
                 <button
                   type="button"
-                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors active:scale-95"
+                  aria-label="닫기"
+                  className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors active:scale-95 focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2"
                   onClick={() => setIsModalOpen(false)}
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">

@@ -17,6 +17,8 @@ import { ErrorBoundary } from "react-error-boundary";
 import { isAxiosError } from "axios";
 import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
+import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
 
 const RecipeDetailPageSkeleton = () => {
   return (
@@ -207,6 +209,20 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
   const { data: balanceData } = useFetchBalance();
   const balance = balanceData?.balance ?? 0;
 
+  const { enrollBookmark, isLoading: isEnrollingBookmark } = useEnrollBookmark();
+  const { open: openRechargeModal } = useCreditRechargeModalStore();
+
+  const handleFloatingUnlock = useCallback(() => {
+    if (isEnrollingBookmark) return;
+    enrollBookmark(recipeId, {
+      onError: (error) => {
+        if (isAxiosError(error) && error.response?.data?.errorCode === "CREDIT_001") {
+          openRechargeModal("recipe_detail");
+        }
+      },
+    });
+  }, [recipeId, isEnrollingBookmark, enrollBookmark, openRechargeModal]);
+
   // PIP POC — 기능 보류, 상단 고정 유지. 활성화 시 아래 주석 해제
   // const showPip = isPip && !pipDismissed;
   const showPip = false;
@@ -266,9 +282,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         servings={recipeSummary.servings}
       />
       <div className="flex flex-col gap-3 mt-3 px-3">
-        <div className="bg-gray-50/50 rounded-2xl py-3">
-          <Ingredients ingredients={ingredients} recipeId={recipeId} />
-        </div>
+        <Ingredients ingredients={ingredients} recipeId={recipeId} />
         {briefings && briefings.length > 0 && (
           <BriefingSummary briefings={briefings} />
         )}
@@ -280,35 +294,62 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
           balance={balance}
         />
       </div>
-      {viewStatus !== null && (
-        <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] right-4 z-10">
+      <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] right-4 z-10">
+        {viewStatus !== null ? (
           <ButtonStartCooking onClick={routeToStep} />
-        </div>
-      )}
+        ) : (
+          <ButtonUnlockRecipe
+            onClick={handleFloatingUnlock}
+            isLoading={isEnrollingBookmark}
+          />
+        )}
+      </div>
     </div>
   );
 };
 
+const floatingCtaClass =
+  "flex h-12 gap-2 px-5 items-center justify-center bg-orange-500 rounded-full shadow-lg shadow-orange-200/40 text-white font-bold text-base transition-all duration-150 hover:bg-orange-600 hover:shadow-xl active:scale-[0.95] active:shadow-md focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 cursor-pointer";
+
 const ButtonStartCooking = ({ onClick }: { onClick?: () => void }) => {
+  const { t } = useRecipeDetailTranslation();
+  return (
+    <button type="button" onClick={onClick} className={floatingCtaClass}>
+      <Image
+        src="/images/cook-pot.png"
+        alt=""
+        aria-hidden="true"
+        width={22}
+        height={18}
+      />
+      <span>{t("mobile.startCooking")}</span>
+    </button>
+  );
+};
+
+const ButtonUnlockRecipe = ({
+  onClick,
+  isLoading,
+}: {
+  onClick?: () => void;
+  isLoading?: boolean;
+}) => {
   const { t } = useRecipeDetailTranslation();
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex h-14 w-36 gap-2 items-center justify-center bg-gradient-to-r from-orange-400 to-orange-500 rounded-2xl shadow-xl shadow-gray-500/40 text-white font-bold text-xl
-        transition-all duration-150
-        hover:from-orange-500 hover:to-orange-600 hover:shadow-lg
-        active:scale-[0.95] active:shadow-md
-        cursor-pointer"
+      disabled={isLoading}
+      className={`${floatingCtaClass} disabled:opacity-50 disabled:cursor-not-allowed`}
     >
-      <span className="text-white font-bold text-xl">{t("mobile.startCooking")}</span>
       <Image
-        src="/images/cook-pot.png"
+        src="/images/berry/berry.png"
         alt=""
         aria-hidden="true"
-        width={24}
-        height={20}
+        width={18}
+        height={22}
       />
+      <span>{isLoading ? t("lock.loading") : t("lock.viewRecipe")}</span>
     </button>
   );
 };
@@ -323,6 +364,7 @@ const ButtonBack = ({ onClick }: { onClick?: () => void }) => {
         transition-all duration-150
         hover:bg-black/60
         active:scale-[0.90] active:bg-black/70
+        focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
         cursor-pointer"
     >
       <ChevronLeft className="w-5 h-5" />
@@ -359,7 +401,7 @@ const RecipeSummary = ({
         </div>
         <div className="flex flex-col">
           <div className="text-lg font-bold leading-tight text-gray-900">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
-          <div className="text-sm text-gray-500">{t("mobile.cookingTime")}</div>
+          <div className="text-sm text-gray-600">{t("mobile.cookingTime")}</div>
         </div>
       </div>
     );
@@ -379,7 +421,7 @@ const RecipeSummary = ({
         </div>
         <div className="flex flex-col">
           <div className="text-lg font-bold leading-tight text-gray-900">{t("mobile.servingsValue", { count: servings })}</div>
-          <div className="text-sm text-gray-500">{t("mobile.servingsLabel")}</div>
+          <div className="text-sm text-gray-600">{t("mobile.servingsLabel")}</div>
         </div>
       </div>
     );
@@ -387,9 +429,9 @@ const RecipeSummary = ({
 
   return (
     <div className="pt-3 px-4">
-      <h1 className="text-2xl font-bold leading-tight line-clamp-2">{title}</h1>
+      <h1 className="text-xl font-bold leading-tight line-clamp-2">{title}</h1>
       <div className="h-1.5" />
-      <p className="text-sm leading-relaxed text-gray-600 line-clamp-2">{description}</p>
+      <p className="text-sm leading-relaxed text-gray-700 line-clamp-2">{description}</p>
       <div className="pt-3 flex flex-col">
         <HorizontalLine />
         <div className="flex py-2 items-center">

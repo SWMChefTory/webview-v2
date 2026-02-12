@@ -147,6 +147,7 @@ const Ingredients = ({
             transition-colors duration-150
             hover:text-orange-700
             active:text-orange-800
+            focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded
             cursor-pointer"
         >
           <ShoppingCart className="w-4 h-4" />
@@ -162,7 +163,7 @@ const Ingredients = ({
           >
             <div className="text-center">
               <div className="font-semibold text-xs">{ingredient.name}</div>
-              <div className="text-gray-500 text-[11px]">
+              <div className="text-gray-600 text-xs">
                 {!ingredient.amount || !ingredient.unit ? (
                   <>{t("ingredients.videoRef")}</>
                 ) : (
@@ -180,10 +181,11 @@ const Ingredients = ({
         <button
           type="button"
           onClick={() => setShowAll(!showAll)}
-          className="w-full flex items-center justify-center gap-1 py-2 text-sm text-gray-600 font-medium
+          className="w-full flex items-center justify-center gap-1 py-2.5 text-sm text-gray-600 font-medium
             transition-colors duration-150
             hover:text-gray-900
             active:text-gray-900
+            focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 rounded
             cursor-pointer"
         >
           {showAll ? (

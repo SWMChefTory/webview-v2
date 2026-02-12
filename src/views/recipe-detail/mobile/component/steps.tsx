@@ -48,6 +48,7 @@ const Steps = ({
                 transition-all duration-150
                 hover:bg-orange-50 hover:shadow
                 active:scale-[0.97] active:shadow-none active:bg-orange-100
+                focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
                 cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-orange-400 fill-orange-400" />
@@ -72,6 +73,7 @@ const Steps = ({
               transition-all duration-150
               hover:bg-orange-50 hover:border-orange-300
               active:scale-[0.95]
+              focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
               disabled:opacity-50 disabled:cursor-not-allowed
               cursor-pointer"
           >
@@ -99,14 +101,14 @@ const Steps = ({
                 </div>
                 {isFirst ? (
                   <>
-                    <p className="text-base font-bold pt-0.5">{step.subtitle}</p>
+                    <h3 className="text-base font-bold pt-0.5">{step.subtitle}</h3>
                     <div className="h-2" />
                     <StepDetails stepDetails={step.details} onDetailClick={onTimeClick} />
                   </>
                 ) : (
                   <>
                     <div className="flex items-center gap-1.5 pt-0.5">
-                      <p className="text-base font-bold">{step.subtitle}</p>
+                      <h3 className="text-base font-bold">{step.subtitle}</h3>
                       <Lock className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
                     </div>
                     <div className="h-2" />
@@ -130,7 +132,7 @@ const Steps = ({
               className="object-contain drop-shadow-md"
             />
           </div>
-          <div className="px-5 pb-5 flex flex-col items-center gap-4">
+          <div className="px-5 pb-8 flex flex-col items-center gap-3">
             <div className="text-center leading-snug">
               <p className="text-[15px] font-bold text-gray-900">
                 {t("lock.berryPrompt1")}
@@ -139,29 +141,7 @@ const Steps = ({
                 {t("lock.berryPrompt2")}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={handleEnrollBookmark}
-              disabled={isEnrollingBookmark}
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-[15px]
-                  border-2 border-orange-400 border-b-[3px] border-b-orange-600 text-orange-600 bg-orange-100
-                  shadow-md shadow-orange-200/60
-                  transition-all duration-150
-                  hover:bg-orange-500 hover:text-white hover:border-orange-500 hover:shadow-lg
-                  active:scale-[0.97] active:translate-y-[1px] active:border-b-2 active:shadow-sm active:bg-orange-500 active:text-white
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                  cursor-pointer"
-            >
-              <Image
-                src="/images/berry/berry.png"
-                alt=""
-                aria-hidden="true"
-                width={18}
-                height={22}
-              />
-              {isEnrollingBookmark ? t("lock.loading") : t("lock.viewRecipe")}
-            </button>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500">
               {t("lock.currentBerry", { count: balance })}
             </span>
           </div>
@@ -184,7 +164,7 @@ const Steps = ({
             <div className="absolute left-0 top-0 text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
               {numberToUpperAlpha(index + 1)}
             </div>
-            <p className="text-base font-bold pt-0.5">{step.subtitle}</p>
+            <h3 className="text-base font-bold pt-0.5">{step.subtitle}</h3>
             <div className="h-2" />
             <StepDetails
               stepDetails={step.details}

@@ -211,12 +211,17 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         servings={recipeSummary.servings}
         formatTime={formatTime}
       />
-      <div className="flex flex-col gap-3 mt-3 px-3">
+      <div className="flex flex-col mt-3 px-3">
         <Ingredients ingredients={ingredients} recipeId={recipeId} />
         {briefings && briefings.length > 0 && (
-          <BriefingSummary briefings={briefings} />
+          <>
+            <div className="h-2" />
+            <BriefingSummary briefings={briefings} />
+          </>
         )}
+        <div className="h-3" />
         <div className="h-[1px] bg-gray-200 mx-1" />
+        <div className="h-3" />
         <Steps
           recipeId={recipeId}
           isEnrolled={viewStatus !== null}

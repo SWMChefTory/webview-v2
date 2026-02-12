@@ -58,7 +58,7 @@ export default function AppleLoginButton({
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
 
-  const APPLE_CLIENT_ID = "com.cheftory.web";
+  const APPLE_CLIENT_ID = "com.anonymous.cheftory.service";
   if (!APPLE_CLIENT_ID) {
     throw new Error("Apple Client ID is not configured");
   }

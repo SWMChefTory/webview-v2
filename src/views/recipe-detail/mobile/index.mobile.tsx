@@ -216,6 +216,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         {briefings && briefings.length > 0 && (
           <BriefingSummary briefings={briefings} />
         )}
+        <div className="h-[1px] bg-gray-200 mx-1" />
         <Steps
           recipeId={recipeId}
           isEnrolled={viewStatus !== null}

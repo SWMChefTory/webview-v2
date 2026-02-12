@@ -29,13 +29,15 @@
     "prepared": "{{count}}/{{total}} Prepared",
     "all": "Total {{count}}",
     "measure": "Measure",
-    "purchase": "Buy Ingredients from Video",
+    "purchase": "Buy Ingredients",
     "videoRef": "(See video)",
     "tooltip": "Tap prepared ingredients",
     "deselectAll": "Deselect All",
     "selectAll": "Select All",
     "ready": "Ready to Cook",
-    "start": "Start Cooking"
+    "start": "Start Cooking",
+    "showAll": "Show All",
+    "showLess": "Show Less"
   },
   "mobile": {
     "cookingTime": "Cook Time",

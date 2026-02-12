@@ -88,7 +88,7 @@ export const RecipeDetailPageReadyMobile = ({ id }: { id: string }) => {
           />
         </SSRSuspense>
         {/* Always visible back button */}
-        <div className="fixed bottom-14 left-10 z-10">
+        <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] left-4 z-10">
           <ButtonBack onClick={() => router.back()} />
         </div>
       </div>
@@ -176,7 +176,7 @@ const FirstSection = ({
 }) => {
   return (
     <>
-      <div className="fixed top-[0px] left-0 right-0 z-10">
+      <div className="fixed top-0 left-0 right-0 z-10">
         <YoutubeVideo
           videoId={videoInfo.videoId}
           title={videoInfo?.videoTitle}
@@ -224,21 +224,21 @@ const RecipeVideoSummary = ({
   const balance = balanceData?.balance ?? 0;
   return (
     <>
-      <div className="h-2" />
+      <div className="h-3" />
       {briefings && briefings.length > 0 && (
         <>
           <BriefingSummary briefings={briefings} />
           <div className="px-4">
             <HorizontalLine />
           </div>
-          <div className="h-2" />
+          <div className="h-4" />
         </>
       )}
       <Ingredients ingredients={ingredients} recipeId={recipeId} />
       <div className="px-4">
         <HorizontalLine />
       </div>
-      <div className="h-2" />
+      <div className="h-5" />
       <Steps
         recipeId={recipeId}
         isEnrolled={viewStatus !== null}
@@ -247,7 +247,7 @@ const RecipeVideoSummary = ({
         balance={balance}
       />
       {viewStatus !== null && (
-        <div className="fixed bottom-14 right-10 z-10">
+        <div className="fixed bottom-[calc(3.5rem+env(safe-area-inset-bottom))] right-4 z-10">
           <ButtonStartCooking onClick={routeToStep} />
         </div>
       )}
@@ -270,7 +270,8 @@ const ButtonStartCooking = ({ onClick }: { onClick?: () => void }) => {
       <span className="text-white font-bold text-xl">{t("mobile.startCooking")}</span>
       <Image
         src="/images/cook-pot.png"
-        alt="Cooking Pot"
+        alt=""
+        aria-hidden="true"
         width={24}
         height={20}
       />
@@ -287,7 +288,7 @@ const ButtonBack = ({ onClick }: { onClick?: () => void }) => {
       className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-gray-500/80 text-white font-bold text-base shadow-xl shadow-gray-500/40
         transition-all duration-150
         hover:bg-gray-600/90 hover:shadow-lg
-        active:scale-[0.92] active:shadow-md active:bg-gray-600
+        active:scale-[0.95] active:shadow-md active:bg-gray-600
         cursor-pointer"
     >
       <ChevronLeft className="opacity-90" />
@@ -312,13 +313,14 @@ const RecipeSummary = ({
   const CookingTime = () => {
     return (
       <div className="flex-1 flex gap-2 items-center justify-center">
-        <div className="w-[24px] h-[24px]">
+        <div className="w-6 h-6">
           <Image
             src="/images/description/cooking-time.png"
-            alt="Cooking Time"
+            alt=""
+            aria-hidden="true"
             className="object-cover object-center"
-            width={30}
-            height={30}
+            width={24}
+            height={24}
           />
         </div>
         <div className="flex flex-col">
@@ -332,12 +334,13 @@ const RecipeSummary = ({
   const Servings = () => {
     return (
       <div className="flex-1 flex gap-2 items-center justify-center">
-        <div className="w-[36px] h-[20px]">
+        <div className="w-9 h-5">
           <Image
             src="/images/description/serving-counts.png"
-            alt="Servings"
-            width={44}
-            height={28}
+            alt=""
+            aria-hidden="true"
+            width={36}
+            height={20}
           />
         </div>
         <div className="flex flex-col">
@@ -350,8 +353,9 @@ const RecipeSummary = ({
 
   return (
     <div className="pt-3 px-4">
-      <h1 className="text-xl font-bold line-clamp-2">{title}</h1>
-      <div className="text-sm text-gray-500 line-clamp-2">{description}</div>
+      <h1 className="text-2xl font-bold leading-tight line-clamp-2">{title}</h1>
+      <div className="h-1.5" />
+      <p className="text-sm leading-relaxed text-gray-600 line-clamp-2">{description}</p>
       <div className="pt-2 flex flex-col">
         <HorizontalLine />
         <div className="flex py-4 h-[72px] items-center">
@@ -366,11 +370,11 @@ const RecipeSummary = ({
 };
 
 const HorizontalLine = () => {
-  return <div className="w-full h-[1px] bg-gray-300"></div>;
+  return <div className="w-full h-[1px] bg-gray-200"></div>;
 };
 
 const HorizontalLineSkeleton = () => {
-  return <div className="w-full h-[1px] bg-gray-100"></div>;
+  return <div className="w-full h-[1px] bg-gray-200"></div>;
 };
 
 const VerticalLine = () => {

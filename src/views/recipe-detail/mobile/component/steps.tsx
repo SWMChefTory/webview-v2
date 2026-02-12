@@ -1,6 +1,4 @@
 import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
-// import { RecipeStep } from "@/src/views/recipe-step/type/recipeSteps";
-
 import Image from "next/image";
 import { RecipeStep, StepDetail } from "../../common/hook/useRecipeDetailController";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
@@ -62,14 +60,15 @@ const Steps = ({
     return (
       <div
         id="recipe-steps-section"
-        className="relative px-4 gap-2 min-h-[calc(100dvh-56.25vw)] overflow-hidden "
+        className="relative px-4 min-h-[calc(100dvh-56.25vw)] overflow-hidden"
       >
-        <div className="absolute z-[10] flex items-center justify-center inset-0 bg-gradient-to-t from-[#FDBD78] to-[#D9D9D9]/3">
+        <div className="absolute z-[10] flex items-center justify-center inset-0 bg-gradient-to-t from-orange-300 to-gray-300/5">
           <div className="flex flex-col items-center justify-end h-full pb-16 gap-2">
             <div className="w-[110px] h-[100px]">
               <Image
                 src="/images/tory/polite-tory.png"
-                alt="Recipe Detail BG"
+                alt=""
+                aria-hidden="true"
                 width={110}
                 height={100}
                 className="object-cover object-center"
@@ -85,13 +84,14 @@ const Steps = ({
                 <div className="w-[20px] h-[24px]">
                   <Image
                     src="/images/berry/berry.png"
-                    alt="Berry"
+                    alt=""
+                    aria-hidden="true"
                     width={20}
                     height={24}
                   />
                 </div>
               </div>
-              <div className="text text-gray-600 ">{t("lock.currentBerry", { count: balance })}</div>
+              <div className="text-gray-600">{t("lock.currentBerry", { count: balance })}</div>
             </div>
             <button
               type="button"
@@ -108,7 +108,7 @@ const Steps = ({
             </button>
           </div>
         </div>
-        <h2 className="gap-1 text text-lg font-bold">{t("tabs.recipe")}</h2>
+        <h2 className="text-lg font-bold">{t("tabs.recipe")}</h2>
         <div className="h-2" />
         <div className="flex flex-col gap-6">
           {steps.slice(0, 2).map((step, index) => (
@@ -133,7 +133,7 @@ const Steps = ({
   }
 
   return (
-    <div id="recipe-steps-section" className="px-4 gap-2 ">
+    <div id="recipe-steps-section" className="px-4">
       <h2 className="gap-1 text text-lg font-bold">{t("tabs.recipe")}</h2>
       <div className="h-2" />
       <div className="flex flex-col">

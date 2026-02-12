@@ -29,13 +29,15 @@
     "prepared": "준비 {{count}}개 / {{total}}개",
     "all": "전체 {{count}}개",
     "measure": "계량법",
-    "purchase": "영상 속 재료 바로 구매하기",
+    "purchase": "재료 구매",
     "videoRef": "(영상 참고)",
     "tooltip": "준비한 재료는 터치",
     "deselectAll": "전체 해제",
     "selectAll": "전체 선택",
     "ready": "준비 완료",
-    "start": "요리 시작"
+    "start": "요리 시작",
+    "showAll": "전체 보기",
+    "showLess": "접기"
   },
   "mobile": {
     "cookingTime": "요리시간",

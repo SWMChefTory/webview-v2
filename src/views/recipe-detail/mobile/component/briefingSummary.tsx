@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Sheet } from "react-modal-sheet";
+import { ChevronDown } from "lucide-react";
 import { RecipeBriefing } from "../../common/hook/useRecipeDetailController";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
@@ -17,36 +18,35 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
 
   return (
     <div className="px-4">
-      <h2 className="text text-lg font-bold">{t("summary.reviews")}</h2>
+      <h2 className="text-lg font-bold">{t("summary.reviews")}</h2>
       <div className="h-2" />
       <div className="flex flex-col gap-2">
-        {briefings.slice(0, 1).map((briefing, index) => (
+        {briefings.slice(0, 2).map((briefing, index) => (
           <div key={index} className="flex items-start gap-2">
             <Point />
-            <div className="">{briefing.content}</div>
+            <div>{briefing.content}</div>
           </div>
         ))}
       </div>
-      <div className="w-full flex justify-center px-2 py-2">
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center px-6 h-9 bg-gray-200 rounded-md text-gray-700 font-medium
-              transition-all duration-150
-              hover:bg-gray-300
-              active:scale-[0.97] active:bg-gray-300
-              cursor-pointer"
-        >
-          {briefings.length > 1 && (
-            <div>
-              {t("summary.showMore")}{" "}
-              <span className="text-xs text-gray-500">
-                +{briefings.length - 1}
-              </span>
-            </div>
-          )}
-        </button>
-      </div>
+      {briefings.length > 2 && (
+        <div className="w-full flex justify-center py-2">
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1 text-sm text-gray-600 font-medium
+                transition-colors duration-150
+                hover:text-gray-900
+                active:text-gray-900
+                cursor-pointer"
+          >
+            {t("summary.showMore")}
+            <span className="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-orange-100 text-orange-600 text-xs font-semibold rounded-full">
+              +{briefings.length - 2}
+            </span>
+            <ChevronDown className="w-4 h-4 text-gray-400" />
+          </button>
+        </div>
+      )}
 
       {/* 후기 전체보기 바텀시트 */}
       <Sheet
@@ -59,7 +59,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
             <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto" />
           </Sheet.Header>
           <Sheet.Content className="!px-0">
-            <div className="max-h-[70vh] flex flex-col overflow-hidden">
+            <div className="max-h-[75vh] flex flex-col overflow-hidden">
               {/* Header */}
               <div className="relative px-5 pt-4 pb-4 border-b border-gray-100">
                 <button
@@ -119,13 +119,16 @@ const BriefingSummarySkeleton = () => {
         <TextSkeleton fontSize="text-lg" />
       </div>
       <div className="h-2" />
-      {/* 후기 텍스트 1건 (2줄) - 실제 컴포넌트와 동일한 구조/높이 */}
+      {/* 후기 텍스트 2건 - 실제 컴포넌트와 동일한 구조(Point + 텍스트) */}
       <div className="flex flex-col gap-2">
-        <div className="flex items-start gap-2">
-          <div className="flex flex-col gap-1.5 flex-1">
-            <TextSkeleton fontSize="text-base" />
+        {[0, 1].map((i) => (
+          <div key={i} className="flex items-start gap-2">
+            <div className="w-1 h-1 mt-2.5 rounded-full bg-gray-200 flex-shrink-0" />
+            <div className="flex flex-col gap-1.5 flex-1">
+              <TextSkeleton fontSize="text-base" />
+            </div>
           </div>
-        </div>
+        ))}
       </div>
       {/* 더보기 버튼 - 실제: px-6 py-1.5 → h-8, 텍스트 "더보기 +N" → w-28 */}
       <div className="w-full flex justify-center px-2 py-2">

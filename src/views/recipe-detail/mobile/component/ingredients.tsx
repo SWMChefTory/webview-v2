@@ -143,13 +143,13 @@ const Ingredients = ({
         <button
           type="button"
           onClick={() => setPurchaseModalOpen(true)}
-          className="flex items-center gap-1 text-orange-600 text-xs font-medium
+          className="flex items-center gap-1 text-orange-600 text-sm font-medium
             transition-colors duration-150
             hover:text-orange-700
             active:text-orange-800
             cursor-pointer"
         >
-          <ShoppingCart className="w-3.5 h-3.5" />
+          <ShoppingCart className="w-4 h-4" />
           {t("ingredients.purchase")}
         </button>
       </div>
@@ -157,7 +157,7 @@ const Ingredients = ({
       <div ref={chipContainerRef} className="flex flex-wrap gap-1">
         {ingredients.map((ingredient, index) => (
           <div
-            className="inline-flex w-fit shrink-0 rounded-md border px-2 py-0.5"
+            className="inline-flex w-fit shrink-0 rounded-md border border-gray-300 px-2 py-0.5"
             key={index}
           >
             <div className="text-center">

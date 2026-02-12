@@ -20,17 +20,16 @@ import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTransl
 const RecipeVideoSummarySkeleton = () => {
   return (
     <>
-      <div className="h-2" />
       <BriefingSummarySkeleton />
       <div className="px-4">
         <HorizontalLineSkeleton />
       </div>
-      <div className="h-2" />
+      <div className="h-3" />
       <IngredientsSkeleton />
       <div className="px-4">
         <HorizontalLineSkeleton />
       </div>
-      <div className="h-2" />
+      <div className="h-3" />
     </>
   );
 };
@@ -224,21 +223,21 @@ const RecipeVideoSummary = ({
   const balance = balanceData?.balance ?? 0;
   return (
     <>
-      <div className="h-3" />
       {briefings && briefings.length > 0 && (
         <>
           <BriefingSummary briefings={briefings} />
           <div className="px-4">
             <HorizontalLine />
           </div>
-          <div className="h-4" />
+          <div className="h-3" />
         </>
       )}
       <Ingredients ingredients={ingredients} recipeId={recipeId} />
+      <div className="h-2" />
       <div className="px-4">
         <HorizontalLine />
       </div>
-      <div className="h-5" />
+      <div className="h-3" />
       <Steps
         recipeId={recipeId}
         isEnrolled={viewStatus !== null}
@@ -324,8 +323,8 @@ const RecipeSummary = ({
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-base font-bold text-gray-900">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
-          <div className="text-xs text-gray-500">{t("mobile.cookingTime")}</div>
+          <div className="text-lg font-bold leading-tight text-gray-900">{t("mobile.cookingTimeValue", { minutes: cookTime })}</div>
+          <div className="text-sm text-gray-500">{t("mobile.cookingTime")}</div>
         </div>
       </div>
     );
@@ -344,8 +343,8 @@ const RecipeSummary = ({
           />
         </div>
         <div className="flex flex-col">
-          <div className="text-base font-bold text-gray-900">{t("mobile.servingsValue", { count: servings })}</div>
-          <div className="text-xs text-gray-500">{t("mobile.servingsLabel")}</div>
+          <div className="text-lg font-bold leading-tight text-gray-900">{t("mobile.servingsValue", { count: servings })}</div>
+          <div className="text-sm text-gray-500">{t("mobile.servingsLabel")}</div>
         </div>
       </div>
     );
@@ -358,7 +357,7 @@ const RecipeSummary = ({
       <p className="text-sm leading-relaxed text-gray-600 line-clamp-2">{description}</p>
       <div className="pt-3 flex flex-col">
         <HorizontalLine />
-        <div className="flex py-3 items-center">
+        <div className="flex py-2 items-center">
           <CookingTime />
           <VerticalLine />
           <Servings />

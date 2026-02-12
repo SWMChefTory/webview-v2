@@ -77,7 +77,10 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
                   </svg>
                 </button>
                 <h2 className="text-xl font-bold text-neutral-900 pr-8">
-                  {t("summary.reviews")}
+                  {t("summary.reviews")}{" "}
+                  <span className="text-base font-medium text-gray-400">
+                    {briefings.length}
+                  </span>
                 </h2>
                 <p className="text-xs text-gray-500 mt-1">
                   {t("summary.reviewSource")}
@@ -93,7 +96,7 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
                       className="flex items-start gap-3 p-3 bg-gray-50 rounded-xl"
                     >
                       <div className="w-1.5 h-1.5 mt-2 rounded-full bg-orange-500 flex-shrink-0" />
-                      <p className="text-base text-neutral-800 leading-relaxed">
+                      <p className="text-sm text-neutral-800 leading-relaxed">
                         {briefing.content}
                       </p>
                     </div>

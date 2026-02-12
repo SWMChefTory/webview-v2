@@ -1,5 +1,6 @@
 import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
 import Image from "next/image";
+import { Play } from "lucide-react";
 import { RecipeStep, StepDetail } from "../../common/hook/useRecipeDetailController";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
 
@@ -43,13 +44,14 @@ const Steps = ({
             key={index}
             type="button"
             onClick={() => onDetailClick?.(detail.start)}
-            className="text-sm font-bold shadow-lg bg-white p-2 rounded-md text-left
+            className="flex items-start gap-1.5 text-sm font-medium shadow-sm bg-white p-2 rounded-md text-left
                 transition-all duration-150
-                hover:bg-orange-50 hover:shadow-md
-                active:scale-[0.97] active:shadow-sm active:bg-orange-100
+                hover:bg-orange-50 hover:shadow
+                active:scale-[0.97] active:shadow-none active:bg-orange-100
                 cursor-pointer"
           >
-            {detail.text}
+            <Play className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-orange-400 fill-orange-400" />
+            <span>{detail.text}</span>
           </button>
         ))}
       </div>
@@ -62,7 +64,7 @@ const Steps = ({
         id="recipe-steps-section"
         className="relative px-4 min-h-[calc(100dvh-56.25vw)] overflow-hidden"
       >
-        <div className="absolute z-[10] flex items-center justify-center inset-0 bg-gradient-to-t from-orange-300 to-gray-300/5">
+        <div className="absolute z-[10] flex items-center justify-center inset-0 bg-gradient-to-t from-orange-200/80 to-white/5">
           <div className="flex flex-col items-center justify-end h-full pb-16 gap-2">
             <div className="w-[110px] h-[100px]">
               <Image
@@ -110,11 +112,11 @@ const Steps = ({
         </div>
         <h2 className="text-lg font-bold">{t("tabs.recipe")}</h2>
         <div className="h-2" />
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           {steps.slice(0, 2).map((step, index) => (
             <div key={index} className="relative pl-8">
               {index !== 1 && (
-                <div className="absolute left-[11px] top-6 bottom-0 w-px bg-orange-200" />
+                <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-orange-200" />
               )}
               <div className="absolute left-0 top-0 text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
                 {numberToUpperAlpha(index + 1)}
@@ -134,13 +136,13 @@ const Steps = ({
 
   return (
     <div id="recipe-steps-section" className="px-4">
-      <h2 className="gap-1 text text-lg font-bold">{t("tabs.recipe")}</h2>
+      <h2 className="text-lg font-bold">{t("tabs.recipe")}</h2>
       <div className="h-2" />
       <div className="flex flex-col">
         {steps.map((step, index) => (
           <div key={index} className="relative pl-8 pb-4">
             {index !== steps.length - 1 && (
-              <div className="absolute left-[11px] top-6 bottom-0 w-px bg-orange-200" />
+              <div className="absolute left-[11px] top-6 bottom-0 w-0.5 bg-orange-200" />
             )}
             <div className="absolute left-0 top-0 text-sm font-bold text-white bg-orange-500 rounded-full w-6 h-6 flex items-center justify-center">
               {numberToUpperAlpha(index + 1)}
@@ -154,7 +156,7 @@ const Steps = ({
           </div>
         ))}
       </div>
-      <div className="h-24" />
+      <div className="h-[calc(5rem+env(safe-area-inset-bottom))]" />
     </div>
   );
 };

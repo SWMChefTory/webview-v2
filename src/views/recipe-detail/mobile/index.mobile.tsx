@@ -313,14 +313,14 @@ const RecipeSummary = ({
   const CookingTime = () => {
     return (
       <div className="flex-1 flex gap-2.5 items-center justify-center">
-        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-50">
+        <div className="w-11 h-11 flex items-center justify-center">
           <Image
-            src="/images/description/cooking-time.png"
+            src="/images/description/timer.png"
             alt=""
             aria-hidden="true"
             className="object-cover object-center"
-            width={20}
-            height={20}
+            width={34}
+            height={34}
           />
         </div>
         <div className="flex flex-col">
@@ -334,13 +334,13 @@ const RecipeSummary = ({
   const Servings = () => {
     return (
       <div className="flex-1 flex gap-2.5 items-center justify-center">
-        <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-orange-50">
+        <div className="w-11 h-11 flex items-center justify-center">
           <Image
-            src="/images/description/serving-counts.png"
+            src="/images/description/count.png"
             alt=""
             aria-hidden="true"
-            width={22}
-            height={14}
+            width={36}
+            height={22}
           />
         </div>
         <div className="flex flex-col">

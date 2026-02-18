@@ -155,7 +155,7 @@ const Ingredients = ({
         </button>
       </div>
       <div className="h-2" />
-      <div ref={chipContainerRef} className="flex flex-wrap gap-1">
+      <div ref={chipContainerRef} className="flex flex-wrap gap-1 justify-center">
         {ingredients.map((ingredient, index) => (
           <div
             className="inline-flex w-fit shrink-0 rounded-md border border-gray-300 px-2 py-0.5"

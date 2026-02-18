@@ -135,7 +135,7 @@ export function StepContainer({
 
         {/* Right */}
         <div className="flex-1 flex justify-end">
-          {!hideNextButton && !bottomCenter && (
+          {!hideNextButton && (
             <button
               onClick={onNext}
               className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"

@@ -81,7 +81,11 @@ export function OnboardingStep2() {
     nextStep: false,
   });
 
+  // cooking 상태 진입 3초 후 다음 버튼 표시
+  const [showDelayedNextButton, setShowDelayedNextButton] = useState(false);
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const delayedNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
   const prevIndex = prevStep2State !== null ? STEP_ORDER.indexOf(prevStep2State) : 0;
@@ -91,8 +95,30 @@ export function OnboardingStep2() {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (delayedNextTimerRef.current) clearTimeout(delayedNextTimerRef.current);
     };
   }, []);
+
+  // cooking 상태 진입 3초 후 다음 버튼 표시
+  useEffect(() => {
+    if (step2State === 'cooking') {
+      delayedNextTimerRef.current = setTimeout(() => {
+        setShowDelayedNextButton(true);
+      }, 4000);
+    } else {
+      setShowDelayedNextButton(false);
+      if (delayedNextTimerRef.current) {
+        clearTimeout(delayedNextTimerRef.current);
+        delayedNextTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (delayedNextTimerRef.current) {
+        clearTimeout(delayedNextTimerRef.current);
+        delayedNextTimerRef.current = null;
+      }
+    };
+  }, [step2State]);
 
   // cooking 상태를 벗어나면 마이크/음성 상태 리셋
   useEffect(() => {
@@ -302,7 +328,7 @@ export function OnboardingStep2() {
       onPrev={moveToPrevState}
       onSkip={handleSkip}
       innerStateIndex={currentIndex}
-      hideNextButton={isCookingState}
+      hideNextButton={isCookingState && !showDelayedNextButton}
       bottomCenter={micBottomCenter}
     >
       <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 min-h-0">

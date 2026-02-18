@@ -27,8 +27,10 @@ import { isAxiosError } from "axios";
 
 // 스켈레톤 로딩 컴포넌트
 const RecipeCardSkeleton = () => (
-  <div className="relative aspect-[4/3] rounded-lg bg-gray-200 animate-pulse">
-    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+  <div className="flex flex-col">
+    <div className="aspect-video rounded-md bg-gray-200 animate-pulse" />
+    <div className="mt-2 h-3 w-[80%] bg-gray-200 rounded animate-pulse" />
+    <div className="mt-1 h-3 w-[50%] bg-gray-200 rounded animate-pulse" />
   </div>
 );
 
@@ -206,8 +208,8 @@ export function OnboardingStep3() {
         >
           <p className="text-xs text-gray-600 mb-3 text-center">{t('step3.popularRecipes')}</p>
 
-          {/* Recipe Cards Grid */}
-          <div className="grid grid-cols-3 gap-2 mb-3" role="list" aria-label={t('step3.aria.popularRecipesList')}>
+          {/* Recipe Cards Grid - 홈 화면 인기 레시피와 동일한 카드 스타일 */}
+          <div className="grid grid-cols-3 gap-3 mb-3" role="list" aria-label={t('step3.aria.popularRecipesList')}>
             {popularRecipes.length === 0 ? (
               <>
                 <RecipeCardSkeleton />
@@ -223,22 +225,20 @@ export function OnboardingStep3() {
                   initial="hidden"
                   animate="visible"
                   transition={{ delay: 0.8 + index * 0.1 }}
-                  className="relative aspect-[4/3] rounded-lg overflow-hidden border border-gray-200"
+                  className="flex flex-col cursor-pointer"
                   aria-label={t('step3.aria.recipeItem', { title: recipe.recipeTitle })}
+                  onClick={() => handleComplete('recipe_detail', `/recipe/${recipe.recipeId}/detail?title=${encodeURIComponent(recipe.recipeTitle)}&videoId=${recipe.videoInfo.videoId}&description=${encodeURIComponent(recipe.detailMeta?.description ?? '')}&servings=${recipe.detailMeta?.servings ?? 0}&cookingTime=${recipe.detailMeta?.cookingTime ?? 0}`)}
                 >
-                  <Image
-                    src={recipe.videoInfo.videoThumbnailUrl}
-                    alt={recipe.recipeTitle}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 640px) 33vw, 120px"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  <div className="absolute bottom-1 left-1 right-1">
-                    <p className="text-[10px] text-white font-medium line-clamp-1 text-center">
-                      {recipe.recipeTitle}
-                    </p>
+                  <div className="overflow-hidden relative rounded-md aspect-video">
+                    <img
+                      src={recipe.videoInfo.videoThumbnailUrl || ""}
+                      alt={recipe.recipeTitle}
+                      className="block w-full h-full object-cover"
+                    />
                   </div>
+                  <p className="font-semibold w-full overflow-hidden line-clamp-2 mt-2 text-gray-800 text-xs">
+                    {recipe.recipeTitle}
+                  </p>
                 </motion.div>
               ))
             )}
@@ -246,7 +246,7 @@ export function OnboardingStep3() {
 
           {/* More Recipes Button */}
           <button
-            onClick={() => handleComplete('explore_more', '/popular-recipe')}
+            onClick={() => handleComplete('explore_more', '/recommend?recipeType=POPULAR&videoType=NORMAL')}
             className="flex items-center justify-center gap-1 text-xs text-orange-600 hover:text-orange-700 font-medium transition-colors focus-visible:underline focus-visible:underline-offset-2 min-h-[44px] w-full"
             aria-label={t('step3.aria.moreRecipesPage')}
           >

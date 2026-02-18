@@ -1,7 +1,6 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { useState } from "react";
-import React from "react";
 import { useRecipeDetailTranslation } from "../hook/useRecipeDetailTranslation";
 
 type MeasurementCategory = "dry" | "liquid" | "jang";

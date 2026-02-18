@@ -8,7 +8,7 @@ import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { type ViewStatus } from "@/src/entities/recipe";
 
-export type RecipeDetailVariant = "mobile" | "tablet" | "desktop";
+type RecipeDetailVariant = "mobile" | "tablet" | "desktop";
 export type TabName = "summary" | "recipe" | "ingredients";
 
 export type Ingredient = { name: string; amount?: number; unit?: string };
@@ -27,7 +27,7 @@ export type RecipeMeta = {
   cookingTime?: number;
 };
 
-export interface RecipeDetailControllerProps {
+interface RecipeDetailControllerProps {
   videoInfo: { videoId?: string; videoTitle?: string };
   recipeSummary: RecipeMeta;
   ingredients: Ingredient[];

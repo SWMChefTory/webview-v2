@@ -61,14 +61,8 @@ export default function AppleLoginButton({
   const [sdkError, setSdkError] = useState<string | null>(null);
 
   const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
-  if (!APPLE_CLIENT_ID) {
-    throw new Error("Apple Client ID is not configured");
-  }
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!siteUrl) {
-    throw new Error("NEXT_PUBLIC_SITE_URL is not configured");
-  }
-  const redirectURI = `${siteUrl}/api/auth/callback/apple`;
+  const redirectURI = siteUrl ? `${siteUrl}/api/auth/callback/apple` : "";
 
   const initializeSDK = useCallback(() => {
     if (!APPLE_CLIENT_ID) {
@@ -164,7 +158,7 @@ export default function AppleLoginButton({
     }
   };
 
-  if (!APPLE_CLIENT_ID) {
+  if (!APPLE_CLIENT_ID || !siteUrl) {
     return (
       <div className="w-full p-4 border border-red-300 bg-red-50 rounded-lg text-center text-sm text-red-600">
         Apple login is not configured. Please check your environment variables.

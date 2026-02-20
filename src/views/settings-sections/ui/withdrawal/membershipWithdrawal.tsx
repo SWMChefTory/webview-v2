@@ -3,7 +3,7 @@ import { FiEdit2 } from "react-icons/fi";
 import WriteLongTextModal from "./writeLongTextModal";
 import { request, MODE } from "@/src/shared/client/native/client";
 import { useQueryClient } from "@tanstack/react-query";
-import { setMainAccessToken } from "@/src/shared/client/main/client";
+import { clearAuthTokens } from "@/src/shared/client/main/client";
 import { useUser } from "@/src/shared/model/user";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
@@ -140,7 +140,7 @@ export default function MemberShipWithdrawalPage() {
                 feedback: feedbacks[key] || "",
               }));
               queryClient.clear();
-              setMainAccessToken("");
+              clearAuthTokens();
               request(MODE.UNBLOCKING, DELETE_USER, withdrawalData);
             }}
             disabled={Object.keys(selectedItems).length === 0}

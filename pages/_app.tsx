@@ -32,7 +32,13 @@ import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
 import { Agentation } from "agentation";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 import { authEventBus } from "@/src/shared/client/main/authEventBus";
-import { getMainAccessToken } from "@/src/shared/client/main/client";
+import {
+  getMainAccessToken,
+  setMainAccessToken,
+  setMainRefreshToken,
+  clearAuthTokens,
+} from "@/src/shared/client/main/client";
+import { isNativeApp, isWebBrowser } from "@/src/shared/lib/platform";
 
 export default appWithTranslation(App);
 
@@ -55,17 +61,20 @@ function App(props: AppProps) {
 
   useEffect(() => {
     authEventBus.register(() => {
+      clearAuthTokens();
       queryClient.clear();
 
-      if (window.ReactNativeWebView) {
-        window.ReactNativeWebView.postMessage(
+      if (isNativeApp()) {
+        window.ReactNativeWebView!.postMessage(
           JSON.stringify({ type: "LOGOUT" })
         );
         return;
       }
       // 이미 /auth에 있으면 새로고침 방지
       if (window.location.pathname.endsWith("/auth")) return;
-      window.location.href = "/auth";
+      // 현재 경로를 redirect 파라미터로 전달하여 로그인 후 복귀
+      const currentPath = window.location.pathname + window.location.search;
+      window.location.href = `/auth?redirect=${encodeURIComponent(currentPath)}`;
     });
 
     return () => {
@@ -111,12 +120,13 @@ function AppInner({ Component, pageProps }: AppProps) {
   // 웹 브라우저 전용: 토큰 없으면 /auth로 리다이렉트
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if ((window as unknown as Record<string, unknown>).ReactNativeWebView) return;
+    if (isNativeApp()) return;
     if (router.pathname === "/auth") return;
 
     const token = getMainAccessToken();
     if (!token) {
-      router.replace("/auth");
+      // 현재 경로를 redirect 파라미터로 전달하여 로그인 후 복귀
+      router.replace(`/auth?redirect=${encodeURIComponent(router.asPath)}`);
     }
   }, [router.pathname]);
 
@@ -326,7 +336,7 @@ function RouteDialog({
 const useInit = () => {
   useEffect(() => {
     // 웹 브라우저 환경에서만 URL 파라미터 추출
-    if (typeof window !== "undefined" && !window.ReactNativeWebView) {
+    if (isWebBrowser()) {
       const params = new URLSearchParams(window.location.search);
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
@@ -335,8 +345,8 @@ const useInit = () => {
 
       // 토큰이 있으면 localStorage에 저장
       if (accessToken && refreshToken) {
-        localStorage.setItem("MAIN_ACCESS_TOKEN", accessToken);
-        localStorage.setItem("MAIN_REFRESH_TOKEN", refreshToken);
+        setMainAccessToken(accessToken);
+        setMainRefreshToken(refreshToken);
 
         // locale도 저장 (i18n 설정용)
         if (locale) {
@@ -359,7 +369,7 @@ const useInit = () => {
     }
 
     // Native bridge communication (기존 로직 유지)
-    if (window.ReactNativeWebView) {
+    if (isNativeApp()) {
       //사파리 전용
       window.addEventListener("message", communication);
       //크로미움 전용
@@ -368,7 +378,7 @@ const useInit = () => {
 
     return () => {
       console.log("brigdeEnd");
-      if (window.ReactNativeWebView) {
+      if (isNativeApp()) {
         window.removeEventListener("message", communication);
         document.removeEventListener("message" as any, communication);
       }

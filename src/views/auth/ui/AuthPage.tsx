@@ -14,6 +14,7 @@ import {
   setMainAccessToken,
   setMainRefreshToken,
 } from "@/src/shared/client/main/client";
+import { isNativeApp, isWebBrowser } from "@/src/shared/lib/platform";
 
 interface Character {
   title: string;
@@ -31,6 +32,19 @@ export default function AuthPage() {
   }) as Character[];
   const locale = i18n.language;
 
+  // 로그인 후 복귀할 경로 (인증 가드에서 전달)
+  const redirect = router.query.redirect as string | undefined;
+  const redirectPath = (() => {
+    if (!redirect) return "/";
+    try {
+      const url = new URL(redirect, window.location.origin);
+      if (url.origin !== window.location.origin) return "/";
+      return url.pathname + url.search;
+    } catch {
+      return "/";
+    }
+  })();
+
   const [origin, setOrigin] = useState<string>("");
   const [signupModalOpen, setSignupModalOpen] = useState(false);
   const [pendingIdToken, setPendingIdToken] = useState<string>("");
@@ -40,7 +54,7 @@ export default function AuthPage() {
     setOrigin(window.location.origin);
 
     // 웹 브라우저: 이미 로그인 상태면 홈으로 리다이렉트
-    if (!(window as unknown as Record<string, unknown>).ReactNativeWebView) {
+    if (isWebBrowser()) {
       const token = getMainAccessToken();
       if (token) {
         router.replace("/");
@@ -56,8 +70,8 @@ export default function AuthPage() {
     return () => clearInterval(interval);
   }, [characters.length]);
 
-  const handleSuccess = () => { 
-    router.push("/");
+  const handleSuccess = () => {
+    router.push(redirectPath);
   };
 
   const handleError = (errorMessage: string) => {
@@ -66,7 +80,7 @@ export default function AuthPage() {
   };
 
   const handleUserNotFound = (idToken: string, provider: OAuthProvider) => {
-    if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).ReactNativeWebView) {
+    if (isNativeApp()) {
       handleError("Account not found. Please sign up in the app.");
       return;
     }
@@ -82,7 +96,7 @@ export default function AuthPage() {
       setMainRefreshToken(refreshToken);
     }
     setSignupModalOpen(false);
-    router.push("/");
+    router.push(redirectPath);
   };
 
   return (

@@ -6,10 +6,9 @@ import { motion } from "motion/react";
 import { useFetchUserModel } from "@/src/entities/user";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import {
-  setMainAccessToken,
-  setMainRefreshToken,
-} from "@/src/shared/client/main/client";
+import { clearAuthTokens } from "@/src/shared/client/main/client";
+import { useQueryClient } from "@tanstack/react-query";
+import { isNativeApp } from "@/src/shared/lib/platform";
 import { ReactNode } from "react";
 import { useSettingsTranslation } from "../hooks/useSettingsTranslation";
 import { useFetchBalance } from "@/src/entities/balance/model/useFetchBalance";
@@ -241,13 +240,13 @@ const LOGOUT = "LOGOUT";
  */
 export function LogoutButton({ isTablet = false }: { isTablet?: boolean }) {
   const { t } = useSettingsTranslation();
-  const router = useRouter();
+  const queryClient = useQueryClient();
   return (
     <motion.div
       onClick={() => {
-        setMainAccessToken("");
-        setMainRefreshToken("");
-        if (window.ReactNativeWebView) {
+        clearAuthTokens();
+        queryClient.clear();
+        if (isNativeApp()) {
           request(MODE.UNBLOCKING, LOGOUT);
         } else {
           window.location.href = "/auth";
@@ -292,7 +291,7 @@ export function ContactButton({ isTablet = false }: { isTablet?: boolean }) {
   return (
     <motion.div
       onClick={() => {
-        if (typeof window !== "undefined" && window.ReactNativeWebView) {
+        if (isNativeApp()) {
           request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", { url: KAKAO_OPEN_CHAT_URL });
         } else {
           window.open(KAKAO_OPEN_CHAT_URL, "_blank");

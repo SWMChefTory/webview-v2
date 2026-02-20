@@ -4,6 +4,16 @@ import Image from "next/image";
 import { useTranslation } from "next-i18next";
 import GoogleLoginButton from "@/src/views/auth/ui/GoogleLoginButton";
 import AppleLoginButton from "@/src/views/auth/ui/AppleLoginButton";
+import TermsAgreementModal from "@/src/views/auth/ui/TermsAgreementModal";
+import {
+  OAuthProvider,
+  type OAuthLoginResponse,
+} from "@/src/views/auth/hooks/useOAuthLogin";
+import {
+  getMainAccessToken,
+  setMainAccessToken,
+  setMainRefreshToken,
+} from "@/src/shared/client/main/client";
 
 interface Character {
   title: string;
@@ -22,9 +32,20 @@ export default function AuthPage() {
   const locale = i18n.language;
 
   const [origin, setOrigin] = useState<string>("");
+  const [signupModalOpen, setSignupModalOpen] = useState(false);
+  const [pendingIdToken, setPendingIdToken] = useState<string>("");
+  const [pendingProvider, setPendingProvider] = useState<OAuthProvider>(OAuthProvider.GOOGLE);
 
   useEffect(() => {
     setOrigin(window.location.origin);
+
+    // 웹 브라우저: 이미 로그인 상태면 홈으로 리다이렉트
+    if (!(window as unknown as Record<string, unknown>).ReactNativeWebView) {
+      const token = getMainAccessToken();
+      if (token) {
+        router.replace("/");
+      }
+    }
   }, []);
 
   useEffect(() => {
@@ -42,6 +63,26 @@ export default function AuthPage() {
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
     setTimeout(() => setError(null), 5000);
+  };
+
+  const handleUserNotFound = (idToken: string, provider: OAuthProvider) => {
+    if (typeof window !== "undefined" && (window as unknown as Record<string, unknown>).ReactNativeWebView) {
+      handleError("Account not found. Please sign up in the app.");
+      return;
+    }
+    setPendingIdToken(idToken);
+    setPendingProvider(provider);
+    setSignupModalOpen(true);
+  };
+
+  const handleSignupComplete = (response: OAuthLoginResponse) => {
+    const { accessToken, refreshToken } = response;
+    if (typeof window !== "undefined") {
+      setMainAccessToken(accessToken);
+      setMainRefreshToken(refreshToken);
+    }
+    setSignupModalOpen(false);
+    router.push("/");
   };
 
   return (
@@ -185,6 +226,7 @@ export default function AuthPage() {
                 }
                 onSuccess={handleSuccess}
                 onError={handleError}
+                onUserNotFound={handleUserNotFound}
               />
 
               <div className="relative">
@@ -203,6 +245,7 @@ export default function AuthPage() {
                 }
                 onSuccess={handleSuccess}
                 onError={handleError}
+                onUserNotFound={handleUserNotFound}
               />
             </div>
 
@@ -281,6 +324,13 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
+      <TermsAgreementModal
+        open={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
+        idToken={pendingIdToken}
+        provider={pendingProvider}
+        onComplete={handleSignupComplete}
+      />
     </div>
   );
 }

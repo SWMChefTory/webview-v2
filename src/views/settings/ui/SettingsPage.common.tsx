@@ -250,7 +250,7 @@ export function LogoutButton({ isTablet = false }: { isTablet?: boolean }) {
         if (window.ReactNativeWebView) {
           request(MODE.UNBLOCKING, LOGOUT);
         } else {
-          window.location.href = "https://www.cheftories.com/ko/auth/login";
+          window.location.href = "/auth";
         }
       }}
       whileTap={{ backgroundColor: "rgba(0, 0, 0, 0.1)" }}

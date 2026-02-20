@@ -15,12 +15,14 @@ interface GoogleLoginButtonProps {
   redirectUrl: string;
   onSuccess: () => void;
   onError: (error: string) => void;
+  onUserNotFound?: (idToken: string, provider: import("@/src/views/auth/hooks/useOAuthLogin").OAuthProvider) => void;
 }
 
 const GoogleLoginButtonInner = ({
   onSuccess,
   onError,
   redirectUrl,
+  onUserNotFound,
 }: GoogleLoginButtonProps) => {
   const router = useRouter();
   const { loginWithIdToken } = useOAuthLogin();
@@ -51,6 +53,7 @@ const GoogleLoginButtonInner = ({
       onRoute: handleRoute,
       onSuccess,
       onError,
+      onUserNotFound,
     });
   };
 

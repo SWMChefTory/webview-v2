@@ -9,8 +9,6 @@ import {
   OAuthProvider,
   useOAuthLogin,
 } from "@/src/views/auth/hooks/useOAuthLogin";
-import { useEffect, useState } from "react";
-
 interface GoogleLoginButtonProps {
   redirectUrl: string;
   onSuccess: () => void;
@@ -74,7 +72,7 @@ const GoogleLoginButtonInner = ({
 };
 
 const GoogleLoginButton = (props: GoogleLoginButtonProps) => {
-  const [GOOGLE_CLIENT_ID, setGOOGLE_CLIENT_ID] = useState<string | undefined>(process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   if (GOOGLE_CLIENT_ID === undefined) {
     return (

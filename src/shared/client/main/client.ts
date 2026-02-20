@@ -114,26 +114,20 @@ client.interceptors.response.use(
 
 class TokenRefreshManager {
   private refreshPromise: Promise<string> | null = null;
-  private isRefreshing = false;
 
   //토큰 재발급
   //다른 동시에 두번 호출하면 다른 refreshToken이 달라져 문제 발생
   async refreshToken(): Promise<string> {
     // 이미 갱신 중이면 기존 Promise 반환
-    if (this.isRefreshing && this.refreshPromise) {
+    if (this.refreshPromise) {
       return this.refreshPromise;
     }
 
-    this.isRefreshing = true;
-    this.refreshPromise = this.executeRefresh();
-
-    try {
-      return await this.refreshPromise;
-    } finally {
-      // 갱신 완료 후 상태 초기화
-      this.isRefreshing = false;
+    this.refreshPromise = this.executeRefresh().finally(() => {
       this.refreshPromise = null;
-    }
+    });
+
+    return this.refreshPromise;
   }
 
   private async executeRefresh(): Promise<string> {

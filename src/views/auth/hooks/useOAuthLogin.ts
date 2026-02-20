@@ -59,7 +59,7 @@ export function isUserNotFoundError(error: unknown): boolean {
   const err = error as Record<string, unknown>;
   const response = err.response as Record<string, unknown> | undefined;
   const data = response?.data as Record<string, unknown> | undefined;
-  return data?.code === "USER_001";
+  return data?.errorCode === "USER_001";
 }
 
 async function oauthLogin({ idToken, provider }: LoginRequest): Promise<OAuthLoginResponse> {

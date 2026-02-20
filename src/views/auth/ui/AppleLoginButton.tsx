@@ -44,12 +44,14 @@ interface AppleLoginButtonProps {
   redirectUrl: string;
   onSuccess: () => void;
   onError: (error: string) => void;
+  onUserNotFound?: (idToken: string, provider: import("@/src/views/auth/hooks/useOAuthLogin").OAuthProvider) => void;
 }
 
 export default function AppleLoginButton({
   redirectUrl,
   onSuccess,
   onError,
+  onUserNotFound,
 }: AppleLoginButtonProps) {
   const router = useRouter();
   const { loginWithIdToken } = useOAuthLogin();
@@ -58,18 +60,15 @@ export default function AppleLoginButton({
   const [isSDKLoaded, setIsSDKLoaded] = useState(false);
   const [sdkError, setSdkError] = useState<string | null>(null);
 
-  const APPLE_CLIENT_ID = "com.cheftory.web";
+  const APPLE_CLIENT_ID = process.env.NEXT_PUBLIC_APPLE_CLIENT_ID;
   if (!APPLE_CLIENT_ID) {
     throw new Error("Apple Client ID is not configured");
   }
-  // const redirectURI = process.env.NEXT_PUBLIC_APPLE_RETURN_URL;
-  const redirectURI = "https://app-dev.cheftories.com/api/auth/callback/apple";
-  // const redirectURI = `https://www.cheftories.com/${locale}/auth/callback/apple`;
-  // const redirectURI =
-  // "https://app-dev.cheftories.com/api/auth/callback/apple"
-  if (!redirectURI) {
-    throw new Error("Apple Redirect URI is not configured");
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) {
+    throw new Error("NEXT_PUBLIC_SITE_URL is not configured");
   }
+  const redirectURI = `${siteUrl}/api/auth/callback/apple`;
 
   const initializeSDK = useCallback(() => {
     if (!APPLE_CLIENT_ID) {
@@ -158,6 +157,7 @@ export default function AppleLoginButton({
         onRoute: handleRoute,
         onSuccess,
         onError,
+        onUserNotFound,
       });
     } finally {
       setIsLoading(false);

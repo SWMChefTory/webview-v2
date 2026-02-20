@@ -24,6 +24,17 @@ type LoginRequest = {
   provider: OAuthProvider;
 };
 
+export type SignupRequest = {
+  idToken: string;
+  provider: OAuthProvider;
+  nickname: string;
+  gender: null;
+  dateOfBirth: null;
+  isMarketingAgreed: boolean;
+  isPrivacyAgreed: boolean;
+  isTermsOfUseAgreed: boolean;
+};
+
 function isErrorWithMessage(error: unknown): error is { message: string } {
   if (typeof error !== "object" || error === null) return false;
   if (!("message" in error)) return false;
@@ -43,11 +54,24 @@ export function handleOAuthLoginError(
   return `${providerName} login failed. Please try again.`;
 }
 
+export function isUserNotFoundError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const err = error as Record<string, unknown>;
+  const response = err.response as Record<string, unknown> | undefined;
+  const data = response?.data as Record<string, unknown> | undefined;
+  return data?.code === "USER_001";
+}
+
 async function oauthLogin({ idToken, provider }: LoginRequest): Promise<OAuthLoginResponse> {
   const response = await client.post("/account/login/oauth", {
     idToken,
     provider,
   });
+  return OAuthLoginResponseSchema.parse(response.data);
+}
+
+export async function oauthSignup(data: SignupRequest): Promise<OAuthLoginResponse> {
+  const response = await client.post("/account/signup/oauth", data);
   return OAuthLoginResponseSchema.parse(response.data);
 }
 
@@ -57,6 +81,7 @@ type LoginWithIdTokenParams = {
   onRoute: () => void;
   onSuccess?: () => void;
   onError?: (error: string) => void;
+  onUserNotFound?: (idToken: string, provider: OAuthProvider) => void;
 };
 
 export function useOAuthLogin() {
@@ -66,6 +91,7 @@ export function useOAuthLogin() {
     onRoute,
     onSuccess,
     onError,
+    onUserNotFound,
   }: LoginWithIdTokenParams) => {
     if (!idToken) {
       const errorMessage = `${provider} login failed: No idToken received`;
@@ -89,6 +115,10 @@ export function useOAuthLogin() {
       onRoute();
       onSuccess?.();
     } catch (error) {
+      if (isUserNotFoundError(error) && onUserNotFound) {
+        onUserNotFound(idToken, provider);
+        return;
+      }
       const errorMessage = handleOAuthLoginError(error, provider);
       console.error(`[${provider} Login Error]`, errorMessage);
       onError?.(errorMessage);

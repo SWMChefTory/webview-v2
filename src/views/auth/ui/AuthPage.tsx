@@ -10,6 +10,7 @@ import {
   type OAuthLoginResponse,
 } from "@/src/views/auth/hooks/useOAuthLogin";
 import {
+  getMainAccessToken,
   setMainAccessToken,
   setMainRefreshToken,
 } from "@/src/shared/client/main/client";
@@ -37,6 +38,14 @@ export default function AuthPage() {
 
   useEffect(() => {
     setOrigin(window.location.origin);
+
+    // 웹 브라우저: 이미 로그인 상태면 홈으로 리다이렉트
+    if (!(window as unknown as Record<string, unknown>).ReactNativeWebView) {
+      const token = getMainAccessToken();
+      if (token) {
+        router.replace("/");
+      }
+    }
   }, []);
 
   useEffect(() => {

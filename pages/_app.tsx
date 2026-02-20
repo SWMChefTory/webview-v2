@@ -32,6 +32,7 @@ import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
 import { Agentation } from "agentation";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 import { authEventBus } from "@/src/shared/client/main/authEventBus";
+import { getMainAccessToken } from "@/src/shared/client/main/client";
 
 export default appWithTranslation(App);
 
@@ -62,7 +63,7 @@ function App(props: AppProps) {
         );
         return;
       }
-      window.location.href = "https://www.cheftories.com/ko/auth/login";
+      window.location.href = "/auth";
     });
 
     return () => {
@@ -103,6 +104,18 @@ function AppInner({ Component, pageProps }: AppProps) {
       router.replace('/onboarding');
     }
   }, [_hasHydrated, isOnboardingCompleted, router.pathname]);
+
+  // 웹 브라우저 전용: 토큰 없으면 /auth로 리다이렉트
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if ((window as unknown as Record<string, unknown>).ReactNativeWebView) return;
+    if (router.pathname === "/auth") return;
+
+    const token = getMainAccessToken();
+    if (!token) {
+      router.replace("/auth");
+    }
+  }, [router.pathname]);
 
   function handleRecipeDeepLink({ path }: { path: string }) {
     const recipeId = path.split("/")[2];

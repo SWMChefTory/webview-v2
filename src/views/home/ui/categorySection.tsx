@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import {
   RecommendType,
   toRecommendType,
-} from "@/src/entities/recommend-recipe/type/recommendType";
+} from "@/src/entities/recommend-recipe";
 // import {
 //   CuisineType,
 //   toCuisineType,

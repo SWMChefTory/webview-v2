@@ -6,7 +6,6 @@ import { useHomeTranslation } from "@/src/views/home/hooks/useHomeTranslation";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { ProfileButton } from "@/src/shared/ui/header/header";
 import { FloatingButton } from "@/src/views/home/ui/floatingButton";
-import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
 import { BalanceWithRecharge } from "./balanceWithRecharge";
 import { MyRecipes } from "@/src/views/home/ui/myRecipe";
 import { PopularRecipes } from "@/src/views/home/ui/popularRecipes";
@@ -32,7 +31,6 @@ export interface HomePageProps {
     popularShorts: React.ReactNode;
   };
   floatingButton: React.ReactNode;
-  renderToast: (viewportClassName: string) => React.ReactNode;
 }
 
 export function useHomePageController(variant: HomePageVariant): HomePageProps {
@@ -107,10 +105,5 @@ export function useHomePageController(variant: HomePageVariant): HomePageProps {
       popularShorts: <PopularShortsRecipes />,
     },
     floatingButton: <FloatingButton />,
-    renderToast: (viewportClassName: string) => (
-      <RecipeCreateToast>
-        <Toast.Viewport className={viewportClassName} />
-      </RecipeCreateToast>
-    ),
   };
 }

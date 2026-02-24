@@ -8,22 +8,27 @@ import {
   BalanceSection,
   LogoutButton,
   WithdrawalButton,
+  ContactButton,
 } from "./SettingsPage.common";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
+import { VersionInfoSection } from "./VersionInfoSection";
 
 export interface SettingsPageProps {
   onBack: () => void;
   t: (key: string) => string;
   userSection: React.ReactNode;
   balanceSection: React.ReactNode;
+  versionSection: React.ReactNode;
   navigation: {
     goToPrivacyPolicy: () => void;
     goToTerms: () => void;
     resetOnboarding: () => void;
+    goToVersionInfo: () => void;
   };
   actionButtons: {
     logout: React.ReactNode;
     withdrawal: React.ReactNode;
+    contact: React.ReactNode;
   };
 }
 
@@ -48,6 +53,10 @@ export function useSettingsPageController(
     router.push('/onboarding');
   };
 
+  const handleGoToVersionInfo = () => {
+    router.push("/user/settings/version-info");
+  };
+
   return {
     onBack: () => router.push("/"),
     t,
@@ -57,14 +66,17 @@ export function useSettingsPageController(
       </SSRSuspense>
     ),
     balanceSection: <BalanceSection isTablet={isTablet} />,
+    versionSection: <VersionInfoSection isTablet={isTablet} onClick={handleGoToVersionInfo} />,
     navigation: {
       goToPrivacyPolicy: () => router.push("/user/settings/privacy-policy"),
       goToTerms: () => router.push("/user/settings/terms-and-conditions"),
       resetOnboarding: handleResetOnboarding,
+      goToVersionInfo: handleGoToVersionInfo,
     },
     actionButtons: {
       logout: <LogoutButton isTablet={isTablet} />,
       withdrawal: <WithdrawalButton isTablet={isTablet} />,
+      contact: <ContactButton isTablet={isTablet} />,
     },
   };
 }

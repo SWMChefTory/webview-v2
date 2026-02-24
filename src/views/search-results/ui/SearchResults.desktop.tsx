@@ -28,7 +28,6 @@ export function SearchResultsSkeletonDesktop() {
 export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
   const {
     searchResults,
-    totalElements,
     loadMoreRef,
     isFetchingNextPage,
     translations,
@@ -49,9 +48,6 @@ export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
               {translations.headerSuffix}
             </span>
           </div>
-          <p className="text-xl text-gray-500 mt-4">
-            {translations.headerTotalCount(totalElements)}
-          </p>
         </div>
 
         <div className="pb-16">

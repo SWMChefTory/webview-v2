@@ -3,11 +3,8 @@ import Link from "next/link";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { Skeleton } from "@/components/ui/skeleton";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { useFetchRecipeProgress } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { RecipeStatus } from "@/src/entities/user-recipe/type/type";
 import {
   AlreadyEnrolledChip,
-  CreatingStatusChip,
 } from "../../../shared/ui/chip/recipeCreatingStatusChip";
 
 /**
@@ -16,12 +13,12 @@ import {
 
 /**
  * "인기 레시피" 타이틀 (텍스트 + 화살표)
- * 클릭 시 /popular-recipe로 이동
+ * 클릭 시 /recommend?recipeType=POPULAR&videoType=NORMAL 로 이동
  */
 export const PopularRecipesTitleReady = () => {
   const { t } = useHomeTranslation();
   return (
-    <Link href="/popular-recipe">
+    <Link href="/recommend?recipeType=POPULAR&videoType=NORMAL">
       <div className="pl-4 md:pl-0 flex items-center">
         <div className="text-xl md:text-2xl lg:text-2xl xl:text-3xl font-semibold">{t("popularRecipes")}</div>
         <IoChevronForwardOutline className="size-6 md:size-7 lg:size-7 xl:size-8" color="black" />

@@ -10,7 +10,7 @@ import {
   RecipeDetailsCardSkeleton,
 } from "@/src/views/user-recipe/ui/recipeCard";
 import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
-import { type UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { type UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,

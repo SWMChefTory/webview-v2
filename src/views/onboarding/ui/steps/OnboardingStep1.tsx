@@ -4,6 +4,7 @@ import { StepContainer } from "../components/StepContainer";
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { getOnboardingDuration } from "../OnboardingPage.controller";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
@@ -61,14 +62,18 @@ export function OnboardingStep1() {
 
   const transitionConfig = createSlideTransition(shouldAnimate);
 
-  // 건너뛰기: 온보딩 완료 (index.tsx의 useEffect가 '/'로 리다이렉트)
+  // 건너뛰기: global_step (1-4)와 체류 시간 기록
   const handleSkip = useCallback(() => {
+    // Step 1은 global_step 1-4 (youtube=1, share_sheet=2, create_confirm=3, home_saved=4)
+    const global_step = currentIndex + 1;
+    const duration_ms = getOnboardingDuration();
+
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
-      step: currentStep,
-      step_count: 3,
+      global_step,
+      duration_ms,
     });
     completeOnboarding();
-  }, [currentStep, completeOnboarding]);
+  }, [currentIndex, completeOnboarding]);
 
   // 타이틀/서브타이틀 텍스트
   const title = useMemo((): string => {
@@ -93,11 +98,7 @@ export function OnboardingStep1() {
   const moveToNextState = useCallback(() => {
     if (isTransitioningRef.current) return;
     triggerHaptic();
-    track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-      step: currentStep,
-      step_count: 3,
-      sub_step: step1State,
-    });
+    // 세부 스텝 완료 이벤트 제거 - 전체 완료/건너뛰기 시점에만 기록
 
     setPrevStep1State(step1State);
     if (currentIndex < STEP_ORDER.length - 1) {
@@ -107,7 +108,7 @@ export function OnboardingStep1() {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => nextStep(), TIMING.NEXT_STEP_DELAY_MS);
     }
-  }, [currentIndex, step1State, currentStep, nextStep, triggerHaptic]);
+  }, [currentIndex, step1State, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {

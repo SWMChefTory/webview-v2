@@ -198,3 +198,37 @@ html[data-slide="prev"]::view-transition-new(root) {
   from { transform: translateX(-10%); filter: brightness(0.5); opacity: 0; }
   to { transform: translateX(0); filter: brightness(1); opacity: 1; }
 }
+
+
+
+@font-face {
+  font-family: "NanumSquare";
+  src: url("/fonts/NanumSquareL.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "NanumSquare";
+  src: url("/fonts/NanumSquareR.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "NanumSquare";
+  src: url("/fonts/NanumSquareB.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "NanumSquare";
+  src: url("/fonts/NanumSquareEB.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+}
+
+
+/* NanumSquare 폰트 전역 적용, 폰트 바꾸는 이유 아니면 삭제하지 마세요. */
+body {
+  font-family: "NanumSquare", -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Noto Sans KR", system-ui, sans-serif;
+}

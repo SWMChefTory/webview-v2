@@ -6,6 +6,7 @@ import { HandsFreeModeTooltipCompact } from "../components/HandsFreeModeTooltip"
 import { useOnboardingStore } from "../../stores/useOnboardingStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { getOnboardingDuration } from "../OnboardingPage.controller";
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import Image from "next/image";
@@ -15,7 +16,7 @@ import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
 import { BasicIntent } from "@/src/views/recipe-step/lib/parseIntent";
 
 // Step 2 상태 타입
-type Step2State = 'summary' | 'ingredients' | 'steps' | 'cooking';
+type Step2State = 'overview' | 'detail' | 'cooking';
 
 // 음성 인식 상태
 type VoiceStatus = 'idle' | 'listening' | 'recognized' | 'failed';
@@ -25,22 +26,20 @@ type VoiceTaskState = 'play_video' | 'next_step' | 'completed';
 
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step2State, string> = {
-  summary: '/images/onboarding/app-detail_1.png',
-  ingredients: '/images/onboarding/app-detail_2.png',
-  steps: '/images/onboarding/app-detail_3.png',
+  overview: '/images/onboarding/app-detail-2_2.png',
+  detail: '/images/onboarding/app-detail-2_1.png',
   cooking: '/images/onboarding/app-cooking_home.png',
 };
 
 // 각 상태별 이미지 alt 텍스트 키
 const STEP_ALT_KEYS: Record<Step2State, string> = {
-  summary: 'step2.alt.summary',
-  ingredients: 'step2.alt.ingredients',
-  steps: 'step2.alt.steps',
+  overview: 'step2.alt.overview',
+  detail: 'step2.alt.detail',
   cooking: 'step2.alt.cooking',
 };
 
 // 상태 순서
-const STEP_ORDER: Step2State[] = ['summary', 'ingredients', 'steps', 'cooking'];
+const STEP_ORDER: Step2State[] = ['overview', 'detail', 'cooking'];
 
 // 체크 아이콘 컴포넌트
 const CheckIcon = () => (
@@ -61,11 +60,11 @@ const CheckIcon = () => (
 
 export function OnboardingStep2() {
   const { t } = useOnboardingTranslation();
-  const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection } = useOnboardingStore();
+  const { nextStep, prevStep, currentStep, completeOnboarding, navigationDirection, setVoiceTasksCompleted } = useOnboardingStore();
   const { triggerHaptic } = useHapticFeedback();
 
   const [step2State, setStep2State] = useState<Step2State>(
-    navigationDirection === 'backward' ? 'cooking' : 'summary'
+    navigationDirection === 'backward' ? 'cooking' : 'overview'
   );
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
@@ -80,7 +79,11 @@ export function OnboardingStep2() {
     nextStep: false,
   });
 
+  // cooking 상태 진입 2초 후 다음 버튼 표시
+  const [showDelayedNextButton, setShowDelayedNextButton] = useState(false);
+
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const delayedNextTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const currentIndex = STEP_ORDER.indexOf(step2State);
   const prevIndex = prevStep2State !== null ? STEP_ORDER.indexOf(prevStep2State) : 0;
@@ -90,8 +93,30 @@ export function OnboardingStep2() {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
+      if (delayedNextTimerRef.current) clearTimeout(delayedNextTimerRef.current);
     };
   }, []);
+
+  // cooking 상태 진입 2초 후 다음 버튼 표시
+  useEffect(() => {
+    if (step2State === 'cooking') {
+      delayedNextTimerRef.current = setTimeout(() => {
+        setShowDelayedNextButton(true);
+      }, 2000);
+    } else {
+      setShowDelayedNextButton(false);
+      if (delayedNextTimerRef.current) {
+        clearTimeout(delayedNextTimerRef.current);
+        delayedNextTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (delayedNextTimerRef.current) {
+        clearTimeout(delayedNextTimerRef.current);
+        delayedNextTimerRef.current = null;
+      }
+    };
+  }, [step2State]);
 
   // cooking 상태를 벗어나면 마이크/음성 상태 리셋
   useEffect(() => {
@@ -111,21 +136,24 @@ export function OnboardingStep2() {
 
   const transitionConfig = createSlideTransition(shouldAnimate);
 
-  // 건너뛰기: 온보딩 완료 (index.tsx의 useEffect가 '/'로 리다이렉트)
+  // 건너뛰기: global_step (5-7)와 체류 시간 기록
   const handleSkip = useCallback(() => {
+    // Step 2는 global_step 5-7 (overview=5, detail=6, cooking=7)
+    const global_step = currentIndex + 5;
+    const duration_ms = getOnboardingDuration();
+
     track(AMPLITUDE_EVENT.ONBOARDING_SKIP, {
-      step: currentStep,
-      step_count: 3,
+      global_step,
+      duration_ms,
     });
     completeOnboarding();
-  }, [currentStep, completeOnboarding]);
+  }, [currentIndex, completeOnboarding]);
 
   // 타이틀/서브타이틀 텍스트
   const title = useMemo((): string => {
     switch (step2State) {
-      case 'summary': return t('step2.summary.title');
-      case 'ingredients': return t('step2.ingredients.title');
-      case 'steps': return t('step2.steps.title');
+      case 'overview': return t('step2.overview.title');
+      case 'detail': return t('step2.detail.title');
       case 'cooking': return t('step2.cooking.title');
     }
   }, [step2State, t]);
@@ -143,9 +171,8 @@ export function OnboardingStep2() {
       }
     }
     switch (step2State) {
-      case 'summary': return t('step2.summary.guide');
-      case 'ingredients': return t('step2.ingredients.guide');
-      case 'steps': return t('step2.steps.guide');
+      case 'overview': return t('step2.overview.guide');
+      case 'detail': return t('step2.detail.guide');
       // cooking 상태는 위에서 처리됨
     }
   }, [step2State, voiceTaskState, t]);
@@ -154,12 +181,7 @@ export function OnboardingStep2() {
   const moveToNextState = useCallback(() => {
     if (isTransitioningRef.current) return;
     triggerHaptic();
-    track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-      step: currentStep,
-      step_count: 3,
-      sub_step: step2State,
-      voice_method: 'manual_click',
-    });
+    // 세부 스텝 완료 이벤트 제거 - 전체 완료/건너뛰기 시점에만 기록
 
     setPrevStep2State(step2State);
     if (currentIndex < STEP_ORDER.length - 1) {
@@ -168,7 +190,7 @@ export function OnboardingStep2() {
       isTransitioningRef.current = true;
       nextStep();
     }
-  }, [currentIndex, step2State, currentStep, nextStep, triggerHaptic]);
+  }, [currentIndex, step2State, nextStep, triggerHaptic]);
 
   // 이전 상태로 이동
   const moveToPrevState = useCallback(() => {
@@ -183,8 +205,6 @@ export function OnboardingStep2() {
 
   // 음성 인식 핸들러 (2단계 과제 시스템)
   const handleIntentRecognized = useCallback((intent: BasicIntent) => {
-    console.log('[OnboardingStep2] Intent recognized:', intent, 'current task:', voiceTaskState);
-
     // VIDEO PLAY 인식 (1단계 과제)
     if (intent === 'VIDEO PLAY' && voiceTaskState === 'play_video' && !completedTasks.playVideo) {
       triggerHaptic();
@@ -192,12 +212,7 @@ export function OnboardingStep2() {
       setVoiceTaskState('next_step');
       setVoiceStatus('recognized');
 
-      track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-        step: currentStep,
-        step_count: 3,
-        sub_step: 'voice_task_play_video',
-        voice_method: 'voice',
-      });
+      // 음성 과제 완료 이벤트 제거 - 완료 시점에만 기록
 
       // 인식 성공 상태를 잠시 보여주다가 다음 대기 상태로
       timerRef.current = setTimeout(() => {
@@ -215,22 +230,17 @@ export function OnboardingStep2() {
       setVoiceTaskState('completed');
       setVoiceStatus('recognized');
 
-      track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-        step: currentStep,
-        step_count: 3,
-        sub_step: 'voice_task_next_step',
-        voice_method: 'voice',
-      });
+      // 두 음성 과제 모두 완료 시 store에 기록
+      if (completedTasks.playVideo) {
+        setVoiceTasksCompleted(true);
+      }
+
+      // 음성 과제 완료 이벤트 제거 - 완료 시점에만 기록
 
       // 두 과제 완료 후 다음 스텝으로 이동
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(() => {
-        track(AMPLITUDE_EVENT.ONBOARDING_STEP_COMPLETE, {
-          step: currentStep,
-          step_count: 3,
-          sub_step: step2State,
-          voice_method: 'voice',
-        });
+        // 세부 스텝 완료 이벤트 제거 - 전체 완료 시점에만 기록
         nextStep();
       }, TIMING.VOICE_SUCCESS_DELAY_MS);
       return;
@@ -245,7 +255,7 @@ export function OnboardingStep2() {
       }, 1000);
       return;
     }
-  }, [voiceTaskState, completedTasks, currentStep, nextStep, triggerHaptic]);
+  }, [voiceTaskState, completedTasks, nextStep, triggerHaptic]);
 
   // 음성 인식 실패 시 처리
   const handleVoiceError = useCallback(() => {
@@ -312,7 +322,7 @@ export function OnboardingStep2() {
       onPrev={moveToPrevState}
       onSkip={handleSkip}
       innerStateIndex={currentIndex}
-      hideNextButton={isCookingState}
+      hideNextButton={isCookingState && !showDelayedNextButton}
       bottomCenter={micBottomCenter}
     >
       <div className="w-full flex-1 flex flex-col items-center justify-center gap-2 min-h-0">

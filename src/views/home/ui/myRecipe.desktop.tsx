@@ -9,7 +9,7 @@ import {
   useFetchAllRecipes,
   useFetchCategoryRecipes,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
-import type { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import type { UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
 import { UserRecipeCardReady } from "@/src/views/home/ui/userRecipeCard";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { ViewMoreCard } from "@/src/shared/ui/card";

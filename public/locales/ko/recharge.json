@@ -18,13 +18,17 @@
     "copySuccess": "링크가 복사되었어요",
     "copyError": "복사에 실패했어요",
     "noRemainingCount": "충전 횟수를 모두 사용했어요",
-    "remainingCount": "남은 횟수: {{count}}회"
+    "remainingCount": "남은 횟수: {{count}}회",
+    "shareContent": "🍳 셰프토리에서 레시피 공유하고 맛있는 요리를 만들어보세요!\n\n나만의 레시피를 정리하고, 친구들과 공유하며 요리 실력을 UP!\n\n지금 바로 시작해보세요 👇\n{{url}}"
   },
   "kakao": {
     "title": "카카오톡으로 공유하기",
     "description": "복사된 링크를 카카오톡으로\n친구에게 공유해주세요",
     "backButton": "뒤로가기",
-    "shareButton": "카카오톡으로 공유하기"
+    "shareButton": "카카오톡으로 공유하기",
+    "sharing": "공유 중...",
+    "chargeSuccess": "{{amount}}베리가 충전되었어요!",
+    "chargeFailed": "충전에 실패했습니다. 다시 시도해주세요."
   },
   "success": {
     "title": "공유가 완료되었어요!",

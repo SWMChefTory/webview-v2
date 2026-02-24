@@ -1,7 +1,9 @@
 import { MODE, request } from "@/src/shared/client/native/client";
+import { isNativeApp } from "@/src/shared/lib/platform";
 import axios, { isAxiosError } from "axios";
 import camelcaseKeys from "camelcase-keys";
 import snakecaseKeys from "snakecase-keys";
+import { authEventBus } from "./authEventBus";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -77,13 +79,13 @@ client.interceptors.response.use(
     ) {
       originalRequest.isSecondRequest = true;
 
-      if (!window) {
+      if (typeof window === "undefined") {
         console.warn("서버 환경에서 외부 호출 시도");
         return Promise.reject(new Error("REFRESH_TOKEN_ERROR"));
       }
 
       //네이티브 환경에서
-      if (window.ReactNativeWebView) {
+      if (isNativeApp()) {
         // Native app: 기존 로직 유지
         // DELETE : 네이티브로 토큰 갱신 로직 삭제하고 자체 토큰 갱신 로직 사용 예정
         return request(MODE.BLOCKING, "REFRESH_TOKEN", null)
@@ -92,7 +94,8 @@ client.interceptors.response.use(
             return clientResolvingError(originalRequest);
           })
           .catch((error) => {
-            return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
+            authEventBus.emit(new TokenRefreshFailedError("Token refresh failed", error));
+            return Promise.reject(error);
           });
       }
 
@@ -100,7 +103,8 @@ client.interceptors.response.use(
       return tokenRefreshManager.refreshToken().then(() => {
         return clientResolvingError(originalRequest);
       }).catch((error) => {
-        return Promise.reject(new TokenRefreshFailedError("Token refresh failed", error));
+        authEventBus.emit(new TokenRefreshFailedError("Token refresh failed", error));
+        return Promise.reject(error);
       });
     }
     return Promise.reject(error);
@@ -110,46 +114,35 @@ client.interceptors.response.use(
 
 class TokenRefreshManager {
   private refreshPromise: Promise<string> | null = null;
-  private isRefreshing = false;
 
   //토큰 재발급
   //다른 동시에 두번 호출하면 다른 refreshToken이 달라져 문제 발생
   async refreshToken(): Promise<string> {
     // 이미 갱신 중이면 기존 Promise 반환
-    if (this.isRefreshing && this.refreshPromise) {
+    if (this.refreshPromise) {
       return this.refreshPromise;
     }
 
-    this.isRefreshing = true;
-    this.refreshPromise = this.executeRefresh();
-
-    try {
-      return await this.refreshPromise;
-    } finally {
-      // 갱신 완료 후 상태 초기화
-      this.isRefreshing = false;
+    this.refreshPromise = this.executeRefresh().finally(() => {
       this.refreshPromise = null;
-    }
+    });
+
+    return this.refreshPromise;
   }
 
   private async executeRefresh(): Promise<string> {
     try {
       const refreshToken = getMainRefreshToken();
-      console.log(
-        "token을 갱신하기 위해 refreshToken을 가져옵니다.",
-        refreshToken
-      );
       if (!refreshToken) {
         throw new Error("No refresh token");
       }
 
       const response = await reissueRefreshToken(refreshToken);
-      setMainAccessToken(response.access_token);
-      setMainRefreshToken(response.refresh_token);
-      return response.access_token;
+      setMainAccessToken(response.accessToken);
+      setMainRefreshToken(response.refreshToken);
+      return response.accessToken;
     } catch (error) {
-      localStorage.removeItem(MAIN_ACCESS_TOKEN_KEY);
-      localStorage.removeItem(MAIN_REFRESH_TOKEN_KEY);
+      clearAuthTokens();
       throw error;
     }
   }
@@ -158,8 +151,8 @@ class TokenRefreshManager {
 const tokenRefreshManager = new TokenRefreshManager();
 
 interface ReissueTokenResponse {
-  access_token: string;
-  refresh_token: string;
+  accessToken: string;
+  refreshToken: string;
 }
 interface RawReissueTokenRequest {
   refresh_token: string;
@@ -197,6 +190,11 @@ export const getMainRefreshToken = () => {
 
 export const setMainRefreshToken = (token: string) => {
   localStorage.setItem(MAIN_REFRESH_TOKEN_KEY, token);
+};
+
+export const clearAuthTokens = () => {
+  localStorage.removeItem(MAIN_ACCESS_TOKEN_KEY);
+  localStorage.removeItem(MAIN_REFRESH_TOKEN_KEY);
 };
 
 export class TokenRefreshFailedError extends Error {

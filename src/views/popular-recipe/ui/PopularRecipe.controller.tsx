@@ -1,25 +1,22 @@
 import React from "react";
 import { useTranslation } from "next-i18next";
-import { RecipeCreateToast } from "@/src/entities/user-recipe/ui/toast";
-import { Viewport } from "@radix-ui/react-toast";
-import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
+import { RecommendType } from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/recommend-recipe";
 import { useInfiniteScroll } from "@/src/shared/hooks";
-import type { PopularSummaryRecipe } from "@/src/entities/popular-recipe/api/api";
+import type { RecommendRecipe } from "@/src/entities/recommend-recipe";
 
 export type PopularRecipeVariant = "mobile" | "tablet" | "desktop";
 
 export interface PopularRecipePageProps {
   title: string;
-  renderToast: (viewportClassName: string) => React.ReactNode;
 }
 
 export interface PopularRecipeContentProps {
-  recipes: PopularSummaryRecipe[];
+  recipes: RecommendRecipe[];
   isFetchingNextPage: boolean;
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
-  renderToast: (viewportClassName: string) => React.ReactNode;
 }
 
 export function usePopularRecipeController(
@@ -29,23 +26,21 @@ export function usePopularRecipeController(
 
   return {
     title: t("popularRecipes"),
-    renderToast: (viewportClassName: string) => (
-      <RecipeCreateToast>
-        <Viewport className={viewportClassName} />
-      </RecipeCreateToast>
-    ),
   };
 }
 
 export function usePopularRecipeContent(
   variant: PopularRecipeVariant
-): Omit<PopularRecipeContentProps, "renderToast"> {
+): PopularRecipeContentProps {
   const {
-    data: recipes,
+    entities: recipes,
     isFetchingNextPage,
     fetchNextPage,
     hasNextPage,
-  } = useFetchPopularRecipe(VideoType.NORMAL);
+  } = useFetchRecommendRecipes({
+    recommendType: RecommendType.POPULAR,
+    videoType: VideoType.NORMAL,
+  });
 
   const { loadMoreRef } = useInfiniteScroll(
     fetchNextPage,

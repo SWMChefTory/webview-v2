@@ -7,12 +7,12 @@ import {
   fetchCategories,
   deleteCategory as deleteCategoryApi,
   createCategory as createCategoryApi,
-} from "../api/api";
+} from "./api/api";
 import { ALL_RECIPES } from "@/src/entities/user-recipe/model/useUserRecipe";
 import {
   ALL_RECIPES as USER_RECIPE_QUERY_KEY,
 } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { Category as CategoryResponse } from "@/src/shared/schema/categorySchema";
+import { Category as CategoryResponse } from "@/src/entities/schema/recipe/categorySchema";
 
 export class Category {
   id!: string;

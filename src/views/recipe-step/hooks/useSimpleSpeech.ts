@@ -3,8 +3,12 @@ import { useEffect, useRef, useState } from "react";
 // TEN VAD exports (너가 올린 index 기준)
 import {
   getMainAccessToken,
+  getMainRefreshToken,
   setMainAccessToken,
+  setMainRefreshToken,
+  reissueRefreshToken,
 } from "@/src/shared/client/main/client";
+import { isNativeApp } from "@/src/shared/lib/platform";
 import { MODE, request } from "@/src/shared/client/native/client";
 import { TenVADInstance, VADInstance, VADModuleLoader } from "ten-vad-lib";
 
@@ -132,8 +136,10 @@ export const useSimpleSpeech = ({
       if (recipeIdRef.current)
         url.searchParams.append("recipe_id", recipeIdRef.current);
 
-      console.log("[STT] WebSocket 연결 시도:", url.toString());
-      console.log("[STT] 토큰 유무:", !!token);
+      // 보안: 토큰이 포함된 URL을 로그에 노출하지 않음
+      if (process.env.NODE_ENV === "development") {
+        console.log("[STT] WebSocket 연결 시도 (토큰:", !!token ? "있음" : "없음", ")");
+      }
 
       const ws = new WebSocket(url.toString());
       ws.binaryType = "arraybuffer";
@@ -169,16 +175,24 @@ export const useSimpleSpeech = ({
         // 1008: Policy Violation (토큰 인증 실패)
         if (e.code === 1008 && isMountedRef.current) {
           try {
-            // 토큰 갱신
-            const result = await request(MODE.BLOCKING, "REFRESH_TOKEN", null);
-            setMainAccessToken(result.token);
+            if (isNativeApp()) {
+              const result = await request(MODE.BLOCKING, "REFRESH_TOKEN", null);
+              setMainAccessToken(result.token);
+            } else {
+              // 웹 브라우저: backend API로 토큰 갱신
+              const refreshToken = getMainRefreshToken();
+              if (!refreshToken) throw new Error("No refresh token");
+              const response = await reissueRefreshToken(refreshToken);
+              setMainAccessToken(response.accessToken);
+              setMainRefreshToken(response.refreshToken);
+            }
 
             // 토큰 갱신 성공 후 즉시 재연결
             if (isMountedRef.current) {
               openWS();
             }
           } catch (error) {
-            console.error("[STT] 토큰 갱신 실패:");
+            console.error("[STT] 토큰 갱신 실패:", error);
             setError("인증 정보를 갱신할 수 없습니다. 다시 로그인해주세요.");
           }
         }

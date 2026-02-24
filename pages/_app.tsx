@@ -31,6 +31,14 @@ import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
 import { Agentation } from "agentation";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
+import { authEventBus } from "@/src/shared/client/main/authEventBus";
+import {
+  getMainAccessToken,
+  setMainAccessToken,
+  setMainRefreshToken,
+  clearAuthTokens,
+} from "@/src/shared/client/main/client";
+import { isNativeApp, isWebBrowser } from "@/src/shared/lib/platform";
 
 export default appWithTranslation(App);
 
@@ -47,9 +55,32 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      }),
+      })
   );
   useAmplitude();
+
+  useEffect(() => {
+    authEventBus.register(() => {
+      clearAuthTokens();
+      queryClient.clear();
+
+      if (isNativeApp()) {
+        window.ReactNativeWebView!.postMessage(
+          JSON.stringify({ type: "LOGOUT" })
+        );
+        return;
+      }
+      // 이미 /auth에 있으면 새로고침 방지
+      if (window.location.pathname.endsWith("/auth")) return;
+      // 현재 경로를 redirect 파라미터로 전달하여 로그인 후 복귀
+      const currentPath = window.location.pathname + window.location.search;
+      window.location.href = `/auth?redirect=${encodeURIComponent(currentPath)}`;
+    });
+
+    return () => {
+      authEventBus.unregister();
+    };
+  }, [queryClient]);
 
   return (
     <>
@@ -80,10 +111,24 @@ function AppInner({ Component, pageProps }: AppProps) {
     if (!_hasHydrated) return;
 
     // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
-    if (!isOnboardingCompleted && router.pathname !== '/onboarding') {
+    // /auth는 스킵: 로그인 전에는 온보딩 리다이렉트 불필요
+    if (!isOnboardingCompleted && router.pathname !== '/onboarding' && router.pathname !== '/auth') {
       router.replace('/onboarding');
     }
   }, [_hasHydrated, isOnboardingCompleted, router.pathname]);
+
+  // 웹 브라우저 전용: 토큰 없으면 /auth로 리다이렉트
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isNativeApp()) return;
+    if (router.pathname === "/auth") return;
+
+    const token = getMainAccessToken();
+    if (!token) {
+      // 현재 경로를 redirect 파라미터로 전달하여 로그인 후 복귀
+      router.replace(`/auth?redirect=${encodeURIComponent(router.asPath)}`);
+    }
+  }, [router.pathname]);
 
   function handleRecipeDeepLink({ path }: { path: string }) {
     const recipeId = path.split("/")[2];
@@ -115,7 +160,7 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     );
   }
 
@@ -132,7 +177,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      },
+      }
     );
     return cleanup;
   }, []);
@@ -142,7 +187,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
         handleRecipeDeepLink({ path: payload.route });
-      },
+      }
     );
     return () => {
       cleanup();
@@ -192,7 +237,6 @@ function AppInner({ Component, pageProps }: AppProps) {
 }
 
 export function NetworkFallback({
-  error,
   onRetry,
 }: {
   error: unknown;
@@ -290,11 +334,9 @@ function RouteDialog({
 }
 
 const useInit = () => {
-  // const { user, isLoading, error } = useFetchUserModelNotSuspense();
-
   useEffect(() => {
     // 웹 브라우저 환경에서만 URL 파라미터 추출
-    if (typeof window !== "undefined" && !window.ReactNativeWebView) {
+    if (isWebBrowser()) {
       const params = new URLSearchParams(window.location.search);
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
@@ -303,8 +345,8 @@ const useInit = () => {
 
       // 토큰이 있으면 localStorage에 저장
       if (accessToken && refreshToken) {
-        localStorage.setItem("MAIN_ACCESS_TOKEN", accessToken);
-        localStorage.setItem("MAIN_REFRESH_TOKEN", refreshToken);
+        setMainAccessToken(accessToken);
+        setMainRefreshToken(refreshToken);
 
         // locale도 저장 (i18n 설정용)
         if (locale) {
@@ -327,7 +369,7 @@ const useInit = () => {
     }
 
     // Native bridge communication (기존 로직 유지)
-    if (window.ReactNativeWebView) {
+    if (isNativeApp()) {
       //사파리 전용
       window.addEventListener("message", communication);
       //크로미움 전용
@@ -336,7 +378,7 @@ const useInit = () => {
 
     return () => {
       console.log("brigdeEnd");
-      if (window.ReactNativeWebView) {
+      if (isNativeApp()) {
         window.removeEventListener("message", communication);
         document.removeEventListener("message" as any, communication);
       }

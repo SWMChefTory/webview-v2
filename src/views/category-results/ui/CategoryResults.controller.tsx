@@ -5,12 +5,13 @@ import {
 import {
   useFetchRecommendRecipes,
 } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
-import type { RecommendRecipe } from "@/src/entities/recommend-recipe/api/api";
+import type { RecommendRecipe } from "@/src/entities/recommend-recipe";
 import { CuisineType, toCuisineType } from "@/src/entities/category/type/cuisineType";
-import { RecommendType, toRecommendType } from "@/src/entities/recommend-recipe/type/recommendType";
+import { RecommendType, toRecommendType } from "@/src/entities/recommend-recipe";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
-import { useCategoryResultsTranslation } from "@/src/entities/category-results/hooks/useCategoryResultsTranslation";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { useCategoryResultsTranslation } from "@/src/views/category-results/hooks/useCategoryResultsTranslation";
+import { VideoTypeQuery } from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/schema";
 import { RecipeCardEntryPoint } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { useInfiniteScroll } from "@/src/shared/hooks";
 
@@ -31,7 +32,8 @@ export interface CategoryResultsControllerProps {
 
 export function useCategoryResultsController(
   categoryType: string,
-  _variant: CategoryResultsVariant
+  _variant: CategoryResultsVariant,
+  videoTypeParam?: string
 ): CategoryResultsControllerProps {
   const { t } = useCategoryResultsTranslation();
   const { t: categoryT } = useCategoryTranslation();
@@ -40,12 +42,19 @@ export function useCategoryResultsController(
   const cuisineType = toCuisineType(categoryType);
   const isRecommend = recommendType !== undefined;
 
+  const videoType =
+    typeof videoTypeParam === "string" &&
+    Object.values(VideoTypeQuery).includes(videoTypeParam as VideoTypeQuery)
+      ? (videoTypeParam as VideoTypeQuery)
+      : undefined;
+
   const cuisineQuery = useFetchCuisineRecipes({
     cuisineType: cuisineType ?? CuisineType.KOREAN,
   });
 
   const recommendQuery = useFetchRecommendRecipes({
     recommendType: recommendType ?? RecommendType.POPULAR,
+    ...(videoType ? { videoType } : {}),
   });
 
   const query = isRecommend ? recommendQuery : cuisineQuery;

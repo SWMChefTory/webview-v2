@@ -5,7 +5,9 @@
       "title": "레시피 생성하기",
       "placeholder": "유튜브 링크를 입력해주세요",
       "invalidUrl": "해당 입력은 유튜브 링크가 아니에요",
-      "submit": "완료"
+      "submit": "완료",
+      "unknownUrl": "URL을 모르시나요?",
+      "searchOnYouTube": "YouTube에서 찾기"
     },
     "tutorial": {
       "title": "레시피 생성하기",
@@ -22,11 +24,11 @@
     },
     "berry": {
       "insufficientMessage": "베리가 부족합니다. 충전하시겠어요?",
-      "confirmCreate": "베리 {{cost}}개로 레시피를 생성하시겠어요?",
+      "confirmCreate": "베리 {{cost}}개로 레시피를 등록하시겠어요?",
       "currentBalance": "현재 베리 {{balance}}개",
       "buttonCreate": "생성할게요",
       "buttonRecharge": "충전할게요",
-      "createWithOne": "베리 1개로 생성하기",
+      "createWithOne": "베리 1개로 등록하기",
       "usesOne": "등록 시 베리 1개가 소모돼요"
     },
     "modal": {

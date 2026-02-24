@@ -12,7 +12,6 @@ export function HomePageDesktopLayout({
   header,
   sections,
   floatingButton,
-  renderToast,
 }: HomePageProps) {
   return (
     <div className="min-h-screen w-full bg-white">
@@ -41,7 +40,6 @@ export function HomePageDesktopLayout({
       </div>
 
       {floatingButton}
-      {renderToast("fixed right-8 xl:right-10 top-4 z-1000 w-[400px]")}
     </div>
   );
 }

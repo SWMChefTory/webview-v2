@@ -25,7 +25,7 @@ export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
     handleTrackTouchNavigation,
   } = controller;
 
-  const id = recipe.videoInfo.id;
+  const id = recipe.videoInfo.videoId;
 
   return (
     <div className="flex flex-row w-full h-screen overflow-hidden bg-black items-center lg:max-w-[1920px] lg:mx-auto relative">
@@ -40,7 +40,7 @@ export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
 
       <TutorialStarter recipeId={id} />
       <Video
-        videoId={recipe.videoInfo.id}
+        videoId={recipe.videoInfo.videoId}
         title={recipe.videoInfo.videoTitle}
         ref={videoRef}
         onInternallyChangeTime={
@@ -49,7 +49,7 @@ export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
         isLandscape={true}
       />
       <ProgressBar
-        steps={steps}
+        steps={recipe.recipeSteps ?? []}
         currentDetailStepIndex={currentDetailIndex}
         currentStepIndex={currentIndex}
         isLandscape={true}
@@ -61,7 +61,7 @@ export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
           currentDetailStepIndex={currentDetailIndex}
           currentStepIndex={currentIndex}
           onChangeStep={handleChangeStepWithVideoTime}
-          steps={steps}
+          steps={recipe.recipeSteps ?? []}
           isLandscape={true}
           recipeId={id}
           onTrackTouchNavigation={handleTrackTouchNavigation}

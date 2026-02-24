@@ -3,8 +3,8 @@ import { useOnboardingTranslation } from "../../hooks/useOnboardingTranslation";
 import { cn } from "@/lib/utils";
 
 /** 각 스텝의 내부 하위 스텝 수 (그룹핑용) */
-const STEP_GROUPS = [4, 4, 1] as const;
-const TOTAL_STEPS = STEP_GROUPS.reduce((a, b) => a + b, 0); // 9
+const STEP_GROUPS = [4, 3, 1] as const;
+const TOTAL_STEPS = STEP_GROUPS.reduce((a, b) => a + b, 0); // 8
 
 interface StepContainerProps {
   children: React.ReactNode;
@@ -20,15 +20,15 @@ interface StepContainerProps {
 }
 
 /**
- * 전역 하위 스텝 인덱스 계산 (1~9)
+ * 전역 하위 스텝 인덱스 계산 (1~8)
  * - Step 1: 4개 하위 스텝 → 1~4
- * - Step 2: 4개 하위 스텝 → 5~8
- * - Step 3: 1개 하위 스텝 → 9
+ * - Step 2: 3개 하위 스텝 → 5~7
+ * - Step 3: 1개 하위 스텝 → 8
  */
 const getGlobalStepIndex = (currentStep: number, innerIndex?: number): number => {
   if (currentStep === 1) return (innerIndex ?? 0) + 1;
   if (currentStep === 2) return (innerIndex ?? 0) + 5;
-  return 9;
+  return 8;
 };
 
 export function StepContainer({
@@ -70,7 +70,7 @@ export function StepContainer({
         </button>
       )}
 
-      {/* Segmented Progress Bar (4+4+1 그룹핑) */}
+      {/* Segmented Progress Bar (4+3+1 그룹핑) */}
       <div
         className="flex justify-center items-center gap-3 pt-2 pb-2"
         role="progressbar"
@@ -135,7 +135,7 @@ export function StepContainer({
 
         {/* Right */}
         <div className="flex-1 flex justify-end">
-          {!hideNextButton && !bottomCenter && (
+          {!hideNextButton && (
             <button
               onClick={onNext}
               className="min-h-[44px] px-6 py-2 rounded-full text-sm font-semibold text-white transition-all shadow-md active:scale-95 bg-orange-500 hover:bg-orange-600 hover:shadow-lg"

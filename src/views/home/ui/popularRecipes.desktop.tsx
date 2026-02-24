@@ -1,6 +1,10 @@
-import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
+import {
+  useFetchRecommendRecipes,
+  RecommendType,
+  VideoTypeQuery,
+} from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/schema";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { ViewMoreCard } from "@/src/shared/ui/card";
 import {
@@ -40,7 +44,10 @@ const PopularRecipesTemplateDesktop = ({
 };
 
 function RecipeCardSectionReady() {
-  const { data: recipes } = useFetchPopularRecipe(VideoType.NORMAL);
+  const { entities: recipes } = useFetchRecommendRecipes({
+    recommendType: RecommendType.POPULAR,
+    videoType: VideoTypeQuery.NORMAL,
+  });
 
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
@@ -51,15 +58,23 @@ function RecipeCardSectionReady() {
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
           recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoType}
-          recipeVideoUrl={recipe.videoUrl}
+          recipeVideoType={
+            recipe.videoInfo.videoType === "SHORTS"
+              ? VideoType.SHORTS
+              : VideoType.NORMAL
+          }
+          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
           entryPoint="popular_normal"
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={
             <RecipeCardReady
               recipe={{
                 id: recipe.recipeId,
                 isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoThumbnailUrl,
+                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
                 recipeTitle: recipe.recipeTitle,
                 isViewd: recipe.isViewed,
               }}
@@ -68,7 +83,7 @@ function RecipeCardSectionReady() {
           }
         />
       ))}
-      <ViewMoreCard href="/popular-recipe" />
+      <ViewMoreCard href="/recommend?recipeType=POPULAR&videoType=NORMAL" />
     </div>
   );
 }

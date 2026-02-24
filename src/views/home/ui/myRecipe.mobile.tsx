@@ -18,7 +18,7 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
-import { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
 
 /**
  * MyRecipes 섹션 - 모바일 버전 (0 ~ 767px)

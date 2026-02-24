@@ -11,28 +11,34 @@ export function ClipboardStep() {
   const [isCopying, setIsCopying] = useState(false);
   const { t } = useRechargeTranslation();
 
-  // 표시용 링크 (홈페이지)
-  const displayLink = "https://www.cheftories.com";
+  // 표시용 링크 (홈페이지) - 환경변수 사용
+  const displayLink = process.env.NEXT_PUBLIC_SHARE_URL ?? "https://www.cheftories.com";
 
-  // 실제 복사될 콘텐츠 (서비스 소개 + 홈페이지 링크)
+  // 실제 복사될 콘텐츠 (서비스 소개 + 홈페이지 링크) - i18n 적용
   const getShareContent = () => {
-    return `🍳 셰프토리에서 레시피 공유하고 맛있는 요리를 만들어보세요!\n\n나만의 레시피를 정리하고, 친구들과 공유하며 요리 실력을 UP!\n\n지금 바로 시작해보세요 👇\nhttps://www.cheftories.com`;
+    return t('clipboard.shareContent', { url: displayLink });
   };
 
   const handleCopy = useCallback(async () => {
+    // 더블 클릭 방지
+    if (isCopying) return;
+
     setIsCopying(true);
     const shareContent = getShareContent();
     const result = await copyToClipboard(shareContent);
 
     if (result.success) {
       toast.success(t('clipboard.copySuccess'), { duration: 1500 });
-      setTimeout(() => setStep('kakao'), 500);
+      // step 변경과 로딩 상태 해제를 동시에 처리
+      setTimeout(() => {
+        setStep('kakao');
+        setIsCopying(false);
+      }, 500);
     } else {
       toast.error(t('clipboard.copyError'), { duration: 2000 });
+      setIsCopying(false);
     }
-
-    setIsCopying(false);
-  }, [setStep, t]);
+  }, [isCopying, setStep, t]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[280px] h-full">

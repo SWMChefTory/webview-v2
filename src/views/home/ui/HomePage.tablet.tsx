@@ -12,7 +12,6 @@ export function HomePageTabletLayout({
   header,
   sections,
   floatingButton,
-  renderToast,
 }: HomePageProps) {
   return (
     <div className="min-h-screen w-full bg-white">
@@ -41,7 +40,6 @@ export function HomePageTabletLayout({
       </div>
 
       {floatingButton}
-      {renderToast("fixed right-6 top-2 z-1000 w-[360px]")}
     </div>
   );
 }

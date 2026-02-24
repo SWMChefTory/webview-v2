@@ -4,4 +4,4 @@
 
 export type RechargeStep = 'clipboard' | 'kakao' | 'success';
 
-export type RechargeSource = 'home_header' | 'settings';
+export type RechargeSource = 'home_header' | 'settings' | 'recipe_detail';

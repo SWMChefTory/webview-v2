@@ -1,6 +1,7 @@
-import { useFetchPopularRecipe } from "@/src/entities/popular-recipe/model/usePopularRecipe";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
+import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
+import { VideoType } from "@/src/entities/schema";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import {
@@ -57,11 +58,14 @@ const PopularShortsRecipesTemplateMobile = ({
  */
 const ShortPopularRecipesSectionReady = () => {
   const {
-    data: recipes,
+    entities: recipes,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useFetchPopularRecipe(VideoType.SHORTS);
+  } = useFetchRecommendRecipes({
+    recommendType: RecommendType.POPULAR,
+    videoType: VideoTypeQuery.SHORTS,
+  });
 
   const handleReachEnd = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
@@ -78,15 +82,19 @@ const ShortPopularRecipesSectionReady = () => {
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
           recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoType}
-          recipeVideoUrl={recipe.videoUrl}
+          recipeVideoType={VideoType.SHORTS}
+          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
           entryPoint="popular_shorts"
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={
             <ShortsRecipeCardReady
               recipe={{
                 id: recipe.recipeId,
                 isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoThumbnailUrl,
+                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
                 recipeTitle: recipe.recipeTitle,
               }}
               isTablet={false}

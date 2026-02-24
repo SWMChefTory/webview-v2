@@ -67,17 +67,13 @@
     "voice": {
       "tooltip": "Say \"Next Step!\""
     },
-    "summary": {
-      "title": "Recipe Summary",
-      "guide": "Check recipe information"
+    "overview": {
+      "title": "Recipe Info",
+      "guide": "Check video info and cooking time"
     },
-    "ingredients": {
-      "title": "Ingredients",
-      "guide": "Check required ingredients"
-    },
-    "steps": {
-      "title": "Cooking Steps",
-      "guide": "Follow step-by-step cooking method"
+    "detail": {
+      "title": "Ingredients & Reviews",
+      "guide": "Check ingredients and cooking steps"
     },
     "cooking": {
       "title": "Hands-Free Cooking Mode",
@@ -116,9 +112,8 @@
     },
     "micTutorial": "Tap the mic button",
     "alt": {
-      "summary": "Recipe summary screen",
-      "ingredients": "Ingredients list screen",
-      "steps": "Cooking steps screen",
+      "overview": "Recipe info screen",
+      "detail": "Ingredients and reviews screen",
       "cooking": "Cooking mode home screen"
     },
     "tooltip": {

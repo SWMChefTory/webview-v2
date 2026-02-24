@@ -2,8 +2,19 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
-import GoogleLoginButton from "@/src/shared/ui/auth/GoogleLoginButton";
-import AppleLoginButton from "@/src/shared/ui/auth/AppleLoginButton";
+import GoogleLoginButton from "@/src/views/auth/ui/GoogleLoginButton";
+import AppleLoginButton from "@/src/views/auth/ui/AppleLoginButton";
+import TermsAgreementModal from "@/src/views/auth/ui/TermsAgreementModal";
+import {
+  OAuthProvider,
+  type OAuthLoginResponse,
+} from "@/src/views/auth/hooks/useOAuthLogin";
+import {
+  getMainAccessToken,
+  setMainAccessToken,
+  setMainRefreshToken,
+} from "@/src/shared/client/main/client";
+import { isNativeApp, isWebBrowser } from "@/src/shared/lib/platform";
 
 interface Character {
   title: string;
@@ -16,8 +27,40 @@ export default function AuthPage() {
   const { t, i18n } = useTranslation("auth");
   const [error, setError] = useState<string | null>(null);
   const [currentCharacter, setCurrentCharacter] = useState(0);
-  const characters = t("welcome.characters", { returnObjects: true }) as Character[];
+  const characters = t("welcome.characters", {
+    returnObjects: true,
+  }) as Character[];
   const locale = i18n.language;
+
+  // 로그인 후 복귀할 경로 (인증 가드에서 전달)
+  const redirect = router.query.redirect as string | undefined;
+  const redirectPath = (() => {
+    if (!redirect) return "/";
+    try {
+      const url = new URL(redirect, window.location.origin);
+      if (url.origin !== window.location.origin) return "/";
+      return url.pathname + url.search;
+    } catch {
+      return "/";
+    }
+  })();
+
+  const [origin, setOrigin] = useState<string>("");
+  const [signupModalOpen, setSignupModalOpen] = useState(false);
+  const [pendingIdToken, setPendingIdToken] = useState<string>("");
+  const [pendingProvider, setPendingProvider] = useState<OAuthProvider>(OAuthProvider.GOOGLE);
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+
+    // 웹 브라우저: 이미 로그인 상태면 홈으로 리다이렉트
+    if (isWebBrowser()) {
+      const token = getMainAccessToken();
+      if (token) {
+        router.replace("/");
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -28,12 +71,32 @@ export default function AuthPage() {
   }, [characters.length]);
 
   const handleSuccess = () => {
-    router.push("/");
+    router.push(redirectPath);
   };
 
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
     setTimeout(() => setError(null), 5000);
+  };
+
+  const handleUserNotFound = (idToken: string, provider: OAuthProvider) => {
+    if (isNativeApp()) {
+      handleError("Account not found. Please sign up in the app.");
+      return;
+    }
+    setPendingIdToken(idToken);
+    setPendingProvider(provider);
+    setSignupModalOpen(true);
+  };
+
+  const handleSignupComplete = (response: OAuthLoginResponse) => {
+    const { accessToken, refreshToken } = response;
+    if (typeof window !== "undefined") {
+      setMainAccessToken(accessToken);
+      setMainRefreshToken(refreshToken);
+    }
+    setSignupModalOpen(false);
+    router.push(redirectPath);
   };
 
   return (
@@ -160,9 +223,7 @@ export default function AuthPage() {
               <h2 className="text-2xl font-bold text-gray-900">
                 {t("loginTitle")}
               </h2>
-              <p className="text-sm text-gray-600">
-                {t("loginDescription")}
-              </p>
+              <p className="text-sm text-gray-600">{t("loginDescription")}</p>
             </div>
 
             {error && (
@@ -173,9 +234,14 @@ export default function AuthPage() {
 
             <div className="space-y-4">
               <GoogleLoginButton
-                redirectUrl={process.env.NEXT_PUBLIC_APP_URL || "https://app.cheftories.com"}
+                redirectUrl={
+                  origin ||
+                  process.env.NEXT_PUBLIC_SITE_URL ||
+                  ""
+                }
                 onSuccess={handleSuccess}
                 onError={handleError}
+                onUserNotFound={handleUserNotFound}
               />
 
               <div className="relative">
@@ -183,16 +249,19 @@ export default function AuthPage() {
                   <div className="w-full border-t border-gray-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    {t("or")}
-                  </span>
+                  <span className="px-2 bg-white text-gray-500">{t("or")}</span>
                 </div>
               </div>
 
               <AppleLoginButton
-                redirectUrl={process.env.NEXT_PUBLIC_APP_URL || "https://app.cheftories.com"}
+                redirectUrl={
+                  origin ||
+                  process.env.NEXT_PUBLIC_SITE_URL ||
+                  ""
+                }
                 onSuccess={handleSuccess}
                 onError={handleError}
+                onUserNotFound={handleUserNotFound}
               />
             </div>
 
@@ -271,6 +340,13 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
+      <TermsAgreementModal
+        open={signupModalOpen}
+        onClose={() => setSignupModalOpen(false)}
+        idToken={pendingIdToken}
+        provider={pendingProvider}
+        onComplete={handleSignupComplete}
+      />
     </div>
   );
 }

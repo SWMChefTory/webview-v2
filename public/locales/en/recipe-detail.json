@@ -4,7 +4,11 @@
     "description": "This video might not be a cooking video or access could be restricted. Please try another video.",
     "retry": "Retry",
     "back": "Back",
-    "home": "Home"
+    "home": "Home",
+    "failedRecipeTitle": "Failed recipe...",
+    "failedRecipeDescription": "Tory brought a failed recipe.\nWe'll show you a completed one next time!",
+    "goBack": "Go Back",
+    "failedRecipeAlt": "Failed recipe"
   },
   "tabs": {
     "summary": "Summary",
@@ -18,19 +22,56 @@
     "timeMinute": "{{minutes}}m max",
     "servings": "{{count}} servings",
     "reviews": "Actual User Reviews",
-    "reviewSource": "Created based on YouTube comments."
+    "reviewSource": "Created based on YouTube comments.",
+    "showMore": "Show more"
   },
   "ingredients": {
     "prepared": "{{count}}/{{total}} Prepared",
     "all": "Total {{count}}",
     "measure": "Measure",
-    "purchase": "Buy Ingredients from Video",
+    "purchase": "Buy Ingredients",
     "videoRef": "(See video)",
     "tooltip": "Tap prepared ingredients",
     "deselectAll": "Deselect All",
     "selectAll": "Select All",
     "ready": "Ready to Cook",
-    "start": "Start Cooking"
+    "start": "Start Cooking",
+    "showAll": "Show All",
+    "showLess": "Show Less"
+  },
+  "mobile": {
+    "cookingTime": "Cook Time",
+    "cookingTimeValue": "{{minutes}} min",
+    "servingsLabel": "Servings",
+    "servingsValue": "{{count}} servings",
+    "startCooking": "Start Cooking",
+    "quickAccess": {
+      "guideTitle": "What to check first?",
+      "guideDescription": "Jump to sections with buttons below",
+      "ingredients": "Ingredients",
+      "ingredientsCount": "{{count}} items",
+      "recipe": "Recipe",
+      "stepsCount": "{{count}} steps"
+    }
+  },
+  "lock": {
+    "berryPrompt1": "Give Tory 1 berry",
+    "berryPrompt2": "to see the recipe.",
+    "currentBerry": "Berries: {{count}}",
+    "viewRecipe": "View Recipe",
+    "unlockWithBerry": "Unlock with 1",
+    "toryAlt": "Tory character",
+    "loading": "Loading..."
+  },
+  "coupang": {
+    "title": "Ingredients you need,\nget them on Coupang!",
+    "disclaimer": "We earn a small commission as part of the Coupang Partners program.",
+    "noProducts": "No products found",
+    "rocket": "Rocket",
+    "price": "₩{{price}}"
+  },
+  "video": {
+    "iframeTitle": "{{title}} Video"
   },
   "measurement": {
     "title": "Measurement Guide",

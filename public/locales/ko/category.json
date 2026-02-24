@@ -12,6 +12,8 @@
   },
   "recommend": {
     "CHEF": "쉐프",
-    "TRENDING": "급상승"
+    "TRENDING": "급상승",
+    "POPULAR": "인기",
+    "SHORTS_POPULAR": "쇼츠 인기"
   }
 }

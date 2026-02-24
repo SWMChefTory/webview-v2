@@ -6,6 +6,7 @@ import {
   RecipeCardSkeleton,
   EmptyState,
 } from "./CategoryResults.common";
+import { VideoType } from "@/src/entities/schema";
 
 export function CategoryResultsSkeletonDesktop() {
   return (
@@ -26,8 +27,10 @@ export function CategoryResultsSkeletonDesktop() {
 
 export function CategoryResultsContentDesktop({
   categoryType,
+  videoType,
 }: {
   categoryType: string;
+  videoType?: string;
 }) {
   const {
     recipes,
@@ -39,7 +42,7 @@ export function CategoryResultsContentDesktop({
     getVideoType,
     getEntryPoint,
     getVideoUrl,
-  } = useCategoryResultsController(categoryType, "desktop");
+  } = useCategoryResultsController(categoryType, "desktop", videoType);
 
   if (recipes.length === 0) {
     return <EmptyState t={t} />;
@@ -71,9 +74,13 @@ export function CategoryResultsContentDesktop({
               recipeId={recipe.recipeId}
               recipeTitle={recipe.recipeTitle}
               recipeIsViewed={recipe.isViewed ?? false}
-              recipeVideoType={getVideoType(recipe)}
+              recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
               entryPoint={getEntryPoint()}
               recipeVideoUrl={getVideoUrl(recipe)}
+              videoId={recipe.videoInfo.videoId}
+              description={recipe.detailMeta?.description}
+              servings={recipe.detailMeta?.servings}
+              cookingTime={recipe.detailMeta?.cookingTime}
               trigger={
                 <RecipeCardReady
                   recipeTitle={recipe.recipeTitle}

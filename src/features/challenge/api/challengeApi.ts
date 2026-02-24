@@ -1,6 +1,6 @@
 import client from "@/src/shared/client/main/client";
-import { fetchAllRecipesSummary } from "@/src/entities/user-recipe/model/api";
-import type { UserRecipe } from "@/src/entities/user-recipe/model/schema";
+import { fetchAllRecipesSummary } from "@/src/entities/user-recipe/model/api/api";
+import type { UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
 import {
   ParticipantSchema,
   NonParticipantSchema,
@@ -144,10 +144,10 @@ function convertUserRecipeToChallengeRecipe(
 ): ChallengeRecipe {
   return {
     recipeId: recipe.recipeId,
-    recipeTitle: recipe.title,
-    videoThumbnailUrl: recipe.videoInfo.thumbnailUrl,
-    videoId: recipe.videoInfo.id,
-    videoSeconds: recipe.videoInfo.seconds,
+    recipeTitle: recipe.videoInfo.videoTitle,
+    videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+    videoId: recipe.videoInfo.videoId,
+    videoSeconds: recipe.videoInfo.videoSeconds,
     servings: recipe.recipeDetailMeta?.servings,
     cookingTime: recipe.recipeDetailMeta?.cookingTime,
     tags: recipe.tags,

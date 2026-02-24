@@ -2,10 +2,10 @@ import { FaRegClock } from "react-icons/fa";
 import { BsPeople } from "react-icons/bs";
 import { ThumbnailSkeleton, ThumbnailReady } from "./thumbnail";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { Recipe } from "@/src/entities/recipe-searched/useRecipeSearched";
-import { VideoType } from "@/src/entities/recommend-recipe/type/videoType";
+import { Recipe } from "@/src/entities/recipe-searched/model/useRecipeSearched";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { SearchResultsTranslations, SearchResultsVariant } from "./SearchResults.controller";
+import { VideoType } from "@/src/entities/schema";
 
 interface VariantStyles {
   article: string;
@@ -99,6 +99,10 @@ export function SearchedRecipeCard({
           recipeIsViewed={recipe.isViewed}
           recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
           recipeVideoUrl={recipe.videoUrl}
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={thumbnailContent}
           entryPoint="search_result"
         />
@@ -135,9 +139,13 @@ export function SearchedRecipeCard({
           recipeId={recipe.recipeId}
           recipeTitle={recipe.recipeTitle}
           recipeCreditCost={recipe.creditCost}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
+            recipeIsViewed={recipe.isViewed}
+            recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
           recipeVideoUrl={recipe.videoUrl}
+          videoId={recipe.videoInfo.videoId}
+          description={recipe.detailMeta.description}
+          servings={recipe.detailMeta.servings}
+          cookingTime={recipe.detailMeta.cookingTime}
           trigger={thumbnailContent}
           entryPoint="search_result"
         />

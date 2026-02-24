@@ -12,6 +12,8 @@
   },
   "recommend": {
     "CHEF": "Chef",
-    "TRENDING": "Trending"
+    "TRENDING": "Trending",
+    "POPULAR": "Popular",
+    "SHORTS_POPULAR": "Popular Shorts"
   }
 }

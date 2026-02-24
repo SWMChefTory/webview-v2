@@ -18,13 +18,17 @@
     "copySuccess": "Link copied",
     "copyError": "Failed to copy",
     "noRemainingCount": "All recharge attempts used",
-    "remainingCount": "{{count}} attempts remaining"
+    "remainingCount": "{{count}} attempts remaining",
+    "shareContent": "🍳 Share recipes and cook delicious meals on Cheftory!\n\nOrganize your own recipes, share with friends, and improve your cooking skills!\n\nStart now 👇\n{{url}}"
   },
   "kakao": {
     "title": "Share via KakaoTalk",
     "description": "Share the copied link with\nfriends on KakaoTalk",
     "backButton": "Back",
-    "shareButton": "Share via KakaoTalk"
+    "shareButton": "Share via KakaoTalk",
+    "sharing": "Sharing...",
+    "chargeSuccess": "{{amount}} berries charged!",
+    "chargeFailed": "Charge failed. Please try again."
   },
   "success": {
     "title": "Share completed!",

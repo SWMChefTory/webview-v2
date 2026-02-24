@@ -5,7 +5,9 @@
       "title": "Create Recipe",
       "placeholder": "Please enter a YouTube link",
       "invalidUrl": "This input is not a valid YouTube link",
-      "submit": "Done"
+      "submit": "Done",
+      "unknownUrl": "Don't know the URL?",
+      "searchOnYouTube": "Search on YouTube"
     },
     "tutorial": {
       "title": "Create Recipe",

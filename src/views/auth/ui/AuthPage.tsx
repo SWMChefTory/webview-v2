@@ -236,7 +236,8 @@ export default function AuthPage() {
               <GoogleLoginButton
                 redirectUrl={
                   origin ||
-                  "https://app.cheftories.com"
+                  process.env.NEXT_PUBLIC_SITE_URL ||
+                  ""
                 }
                 onSuccess={handleSuccess}
                 onError={handleError}
@@ -255,7 +256,8 @@ export default function AuthPage() {
               <AppleLoginButton
                 redirectUrl={
                   origin ||
-                  "https://app.cheftories.com"
+                  process.env.NEXT_PUBLIC_SITE_URL ||
+                  ""
                 }
                 onSuccess={handleSuccess}
                 onError={handleError}

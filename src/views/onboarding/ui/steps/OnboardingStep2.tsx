@@ -16,7 +16,7 @@ import { PREVIEW_BUTTON, TIMING } from "../shared/constants";
 import { BasicIntent } from "@/src/views/recipe-step/lib/parseIntent";
 
 // Step 2 상태 타입
-type Step2State = 'summary' | 'ingredients' | 'steps' | 'cooking';
+type Step2State = 'overview' | 'detail' | 'cooking';
 
 // 음성 인식 상태
 type VoiceStatus = 'idle' | 'listening' | 'recognized' | 'failed';
@@ -26,22 +26,20 @@ type VoiceTaskState = 'play_video' | 'next_step' | 'completed';
 
 // 각 상태별 이미지 경로
 const STEP_IMAGES: Record<Step2State, string> = {
-  summary: '/images/onboarding/app-detail_1.png',
-  ingredients: '/images/onboarding/app-detail_2.png',
-  steps: '/images/onboarding/app-detail_3.png',
+  overview: '/images/onboarding/app-detail-2_2.png',
+  detail: '/images/onboarding/app-detail-2_1.png',
   cooking: '/images/onboarding/app-cooking_home.png',
 };
 
 // 각 상태별 이미지 alt 텍스트 키
 const STEP_ALT_KEYS: Record<Step2State, string> = {
-  summary: 'step2.alt.summary',
-  ingredients: 'step2.alt.ingredients',
-  steps: 'step2.alt.steps',
+  overview: 'step2.alt.overview',
+  detail: 'step2.alt.detail',
   cooking: 'step2.alt.cooking',
 };
 
 // 상태 순서
-const STEP_ORDER: Step2State[] = ['summary', 'ingredients', 'steps', 'cooking'];
+const STEP_ORDER: Step2State[] = ['overview', 'detail', 'cooking'];
 
 // 체크 아이콘 컴포넌트
 const CheckIcon = () => (
@@ -66,7 +64,7 @@ export function OnboardingStep2() {
   const { triggerHaptic } = useHapticFeedback();
 
   const [step2State, setStep2State] = useState<Step2State>(
-    navigationDirection === 'backward' ? 'cooking' : 'summary'
+    navigationDirection === 'backward' ? 'cooking' : 'overview'
   );
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatus>('idle');
   const [prevStep2State, setPrevStep2State] = useState<Step2State | null>(null);
@@ -104,7 +102,7 @@ export function OnboardingStep2() {
     if (step2State === 'cooking') {
       delayedNextTimerRef.current = setTimeout(() => {
         setShowDelayedNextButton(true);
-      }, 4000);
+      }, 2000);
     } else {
       setShowDelayedNextButton(false);
       if (delayedNextTimerRef.current) {
@@ -138,9 +136,9 @@ export function OnboardingStep2() {
 
   const transitionConfig = createSlideTransition(shouldAnimate);
 
-  // 건너뛰기: global_step (5-8)와 체류 시간 기록
+  // 건너뛰기: global_step (5-7)와 체류 시간 기록
   const handleSkip = useCallback(() => {
-    // Step 2는 global_step 5-8 (summary=5, ingredients=6, steps=7, cooking=8)
+    // Step 2는 global_step 5-7 (overview=5, detail=6, cooking=7)
     const global_step = currentIndex + 5;
     const duration_ms = getOnboardingDuration();
 
@@ -154,9 +152,8 @@ export function OnboardingStep2() {
   // 타이틀/서브타이틀 텍스트
   const title = useMemo((): string => {
     switch (step2State) {
-      case 'summary': return t('step2.summary.title');
-      case 'ingredients': return t('step2.ingredients.title');
-      case 'steps': return t('step2.steps.title');
+      case 'overview': return t('step2.overview.title');
+      case 'detail': return t('step2.detail.title');
       case 'cooking': return t('step2.cooking.title');
     }
   }, [step2State, t]);
@@ -174,9 +171,8 @@ export function OnboardingStep2() {
       }
     }
     switch (step2State) {
-      case 'summary': return t('step2.summary.guide');
-      case 'ingredients': return t('step2.ingredients.guide');
-      case 'steps': return t('step2.steps.guide');
+      case 'overview': return t('step2.overview.guide');
+      case 'detail': return t('step2.detail.guide');
       // cooking 상태는 위에서 처리됨
     }
   }, [step2State, voiceTaskState, t]);

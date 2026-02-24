@@ -82,7 +82,7 @@ export function OnboardingStep3() {
 
     // 트래킹 및 상태 변경 — 단순화된 3개 핵심 속성
     track(AMPLITUDE_EVENT.ONBOARDING_COMPLETE, {
-      global_step: 9,                      // 항상 9 (완료 스텝)
+      global_step: 8,                      // 항상 8 (완료 스텝)
       exit_type,                            // 'start_cooking' | 'explore' | 'explore_more'
       voice_tasks_completed,                // 음성 과제 완료 여부 (store에서 가져옴)
       duration_ms: getOnboardingDuration(), // 총 체류 시간

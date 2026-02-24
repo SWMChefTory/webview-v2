@@ -52,13 +52,8 @@ function ActiveMicButton({ onNext, onError, onListeningChange, onIntentRecognize
         ? intent
         : intent?.base_intent ?? intent?.intent ?? "";
 
-      // 디버깅 로그
-      console.log("[OnboardingMicButton] rawIntent:", rawIntent);
-
       // parseIntent 사용 (조리모드와 동일)
       const parsedIntent = parseIntent(rawIntent);
-
-      console.log("[OnboardingMicButton] parsedIntent:", parsedIntent);
 
       // 상위로 인식된 인텐트 전달 (2단계 과제 시스템용)
       onIntentRecognized?.(parsedIntent);

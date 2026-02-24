@@ -79,7 +79,7 @@ export function OnboardingStep2() {
     nextStep: false,
   });
 
-  // cooking 상태 진입 3초 후 다음 버튼 표시
+  // cooking 상태 진입 2초 후 다음 버튼 표시
   const [showDelayedNextButton, setShowDelayedNextButton] = useState(false);
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -97,7 +97,7 @@ export function OnboardingStep2() {
     };
   }, []);
 
-  // cooking 상태 진입 3초 후 다음 버튼 표시
+  // cooking 상태 진입 2초 후 다음 버튼 표시
   useEffect(() => {
     if (step2State === 'cooking') {
       delayedNextTimerRef.current = setTimeout(() => {
@@ -205,8 +205,6 @@ export function OnboardingStep2() {
 
   // 음성 인식 핸들러 (2단계 과제 시스템)
   const handleIntentRecognized = useCallback((intent: BasicIntent) => {
-    console.log('[OnboardingStep2] Intent recognized:', intent, 'current task:', voiceTaskState);
-
     // VIDEO PLAY 인식 (1단계 과제)
     if (intent === 'VIDEO PLAY' && voiceTaskState === 'play_video' && !completedTasks.playVideo) {
       triggerHaptic();

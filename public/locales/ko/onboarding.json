@@ -67,17 +67,13 @@
     "voice": {
       "tooltip": "\"다음 단계!\"라고 말해보세요"
     },
-    "summary": {
-      "title": "레시피 요약",
-      "guide": "레시피 정보를 확인해요"
+    "overview": {
+      "title": "레시피 정보",
+      "guide": "영상 정보와 조리 시간을 확인하세요"
     },
-    "ingredients": {
-      "title": "요리 재료",
-      "guide": "필요한 재료를 확인하세요"
-    },
-    "steps": {
-      "title": "요리 순서",
-      "guide": "단계별 요리 방법을 따라해요"
+    "detail": {
+      "title": "재료와 후기",
+      "guide": "필요한 재료와 조리 단계를 확인하세요"
     },
     "cooking": {
       "title": "핸즈프리 요리 모드",
@@ -116,9 +112,8 @@
     },
     "micTutorial": "마이크 버튼을 클릭해보세요",
     "alt": {
-      "summary": "레시피 요약 화면",
-      "ingredients": "재료 목록 화면",
-      "steps": "조리 단계 화면",
+      "overview": "레시피 정보 화면",
+      "detail": "재료와 후기 화면",
       "cooking": "쿠킹 모드 홈 화면"
     },
     "tooltip": {

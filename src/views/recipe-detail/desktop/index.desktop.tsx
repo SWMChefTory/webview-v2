@@ -24,7 +24,7 @@ import {
 } from "../common/hook/useRecipeDetailController";
 import {
   RecipeReportModal,
-  useRecipeReportModalStore,
+  RecipeMoreMenu,
 } from "@/src/widgets/recipe-report-modal";
 
 export const RecipeDetailPageSkeletonDesktop = () => (
@@ -234,7 +234,6 @@ const RecipeContentDesktop = ({
   const { data: balanceData } = useFetchBalance();
   const balance = balanceData?.balance ?? 0;
   const isEnrolled = viewStatus !== null;
-  const { open: openReportModal } = useRecipeReportModalStore();
 
   const [activeTab, setActiveTab] = useState<TabName>("summary");
   const [expanded, setExpanded] = useState<Set<number>>(
@@ -243,6 +242,14 @@ const RecipeContentDesktop = ({
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [measurementOpen, setMeasurementOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleMenuToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuAnchorEl(e.currentTarget as HTMLElement);
+    setIsMenuOpen(true);
+  };
 
   const cookTime = recipe_summary?.cookingTime ?? 0;
   const description = recipe_summary?.description ?? "";
@@ -315,7 +322,7 @@ const RecipeContentDesktop = ({
                       <button
                         type="button"
                         aria-label="Report"
-                        onClick={() => openReportModal(recipeId)}
+                        onClick={handleMenuToggle}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
                           transition-all duration-150
                           hover:bg-gray-200
@@ -698,6 +705,12 @@ const RecipeContentDesktop = ({
         onOpenChange={setPurchaseModalOpen}
         ingredients={ingredients}
         recipeId={recipeId}
+      />
+      <RecipeMoreMenu
+        recipeId={recipeId}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        anchorEl={menuAnchorEl}
       />
       <RecipeReportModal />
     </>

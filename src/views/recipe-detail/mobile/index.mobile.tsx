@@ -22,7 +22,7 @@ import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark"
 import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
 import {
   RecipeReportModal,
-  useRecipeReportModalStore,
+  RecipeMoreMenu,
 } from "@/src/widgets/recipe-report-modal";
 
 const RecipeDetailPageSkeleton = () => {
@@ -390,7 +390,9 @@ const RecipeSummary = ({
 }: RecipeSummaryProps) => {
   const { t } = useRecipeDetailTranslation();
   const [descExpanded, setDescExpanded] = useState(false);
-  const { open: openReportModal } = useRecipeReportModalStore();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const suffix = useMemo(() => `... ${t("summary.showMore")}`, [t]);
 
@@ -412,9 +414,11 @@ const RecipeSummary = ({
     [toggleExpanded],
   );
 
-  const handleReportClick = useCallback(() => {
-    openReportModal(recipeId);
-  }, [openReportModal, recipeId]);
+  const handleMenuToggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuAnchorEl(e.currentTarget as HTMLElement);
+    setIsMenuOpen(true);
+  }, []);
 
   return (
     <div className="pt-3 px-4">
@@ -422,8 +426,9 @@ const RecipeSummary = ({
         <h1 className="text-xl font-bold leading-tight line-clamp-2 flex-1">{title}</h1>
         <button
           type="button"
-          aria-label="Report"
-          onClick={handleReportClick}
+          ref={buttonRef}
+          aria-label={t("report.buttonLabel")}
+          onClick={handleMenuToggle}
           className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
             transition-all duration-150
             hover:bg-gray-100
@@ -477,6 +482,14 @@ const RecipeSummary = ({
         </div>
         <HorizontalLine />
       </div>
+
+      {/* 더보기 메뉴 */}
+      <RecipeMoreMenu
+        recipeId={recipeId}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        anchorEl={menuAnchorEl}
+      />
     </div>
   );
 };

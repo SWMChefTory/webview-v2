@@ -24,7 +24,7 @@ import {
 } from "../common/hook/useRecipeDetailController";
 import {
   RecipeReportModal,
-  useRecipeReportModalStore,
+  RecipeMoreMenu,
 } from "@/src/widgets/recipe-report-modal";
 
 export const RecipeDetailPageSkeletonTablet = () => (
@@ -233,6 +233,14 @@ const RecipeContentTablet = ({
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [measurementOpen, setMeasurementOpen] = useState(false);
   const [purchaseModalOpen, setPurchaseModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleMenuToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuAnchorEl(e.currentTarget as HTMLElement);
+    setIsMenuOpen(true);
+  };
 
   const cookTime = recipe_summary?.cookingTime ?? 0;
   const description = recipe_summary?.description ?? "";
@@ -286,10 +294,7 @@ const RecipeContentTablet = ({
                       <button
                         type="button"
                         aria-label="Report"
-                        onClick={() => {
-                          const { open: openReportModal } = useRecipeReportModalStore.getState();
-                          openReportModal(recipeId);
-                        }}
+                        onClick={handleMenuToggle}
                         className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
                           transition-all duration-150
                           hover:bg-gray-200
@@ -601,6 +606,12 @@ const RecipeContentTablet = ({
         onOpenChange={setPurchaseModalOpen}
         ingredients={ingredients}
         recipeId={recipeId}
+      />
+      <RecipeMoreMenu
+        recipeId={recipeId}
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        anchorEl={menuAnchorEl}
       />
       <RecipeReportModal />
     </>

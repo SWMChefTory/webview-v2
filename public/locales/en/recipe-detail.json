@@ -124,6 +124,9 @@
   },
   "report": {
     "buttonLabel": "More options",
+    "menu": {
+      "report": "Report"
+    },
     "title": "Report",
     "back": "Back",
     "reason": {

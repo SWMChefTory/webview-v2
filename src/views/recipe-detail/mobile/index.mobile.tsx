@@ -3,7 +3,7 @@ import { useRecipeDetailController } from "../common/hook/useRecipeDetailControl
 import { useTextTruncation } from "../common/hook/useTextTruncation";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, MoreVertical } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
 import {
@@ -20,6 +20,10 @@ import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTransl
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
 import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
+import {
+  RecipeReportModal,
+  useRecipeReportModalStore,
+} from "@/src/widgets/recipe-report-modal";
 
 const RecipeDetailPageSkeleton = () => {
   return (
@@ -210,6 +214,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         cookTime={recipeSummary.cookingTime}
         servings={recipeSummary.servings}
         formatTime={formatTime}
+        recipeId={recipeId}
       />
       <div className="flex flex-col mt-3 px-3">
         <Ingredients ingredients={ingredients} recipeId={recipeId} />
@@ -240,6 +245,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
           />
         )}
       </div>
+      <RecipeReportModal />
     </div>
   );
 };
@@ -314,6 +320,7 @@ type RecipeSummaryProps = {
   cookTime?: number;
   servings?: number;
   formatTime: (min: number) => string;
+  recipeId: string;
 };
 
 const CookingTime = ({
@@ -379,9 +386,11 @@ const RecipeSummary = ({
   cookTime,
   servings,
   formatTime,
+  recipeId,
 }: RecipeSummaryProps) => {
   const { t } = useRecipeDetailTranslation();
   const [descExpanded, setDescExpanded] = useState(false);
+  const { open: openReportModal } = useRecipeReportModalStore();
 
   const suffix = useMemo(() => `... ${t("summary.showMore")}`, [t]);
 
@@ -403,9 +412,28 @@ const RecipeSummary = ({
     [toggleExpanded],
   );
 
+  const handleReportClick = useCallback(() => {
+    openReportModal(recipeId);
+  }, [openReportModal, recipeId]);
+
   return (
     <div className="pt-3 px-4">
-      <h1 className="text-xl font-bold leading-tight line-clamp-2">{title}</h1>
+      <div className="flex items-start gap-2">
+        <h1 className="text-xl font-bold leading-tight line-clamp-2 flex-1">{title}</h1>
+        <button
+          type="button"
+          aria-label="Report"
+          onClick={handleReportClick}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
+            transition-all duration-150
+            hover:bg-gray-100
+            active:scale-[0.90]
+            focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
+            cursor-pointer"
+        >
+          <MoreVertical className="w-5 h-5" />
+        </button>
+      </div>
       <div className="h-1.5" />
       <span
         ref={measurerRef}

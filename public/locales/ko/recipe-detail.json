@@ -121,5 +121,26 @@
         "spoon": "½ 숟가락"
       }
     }
+  },
+  "report": {
+    "buttonLabel": "더보기",
+    "title": "신고하기",
+    "back": "뒤로",
+    "reason": {
+      "INAPPROPRIATE_CONTENT": "부적절한 콘텐츠",
+      "MISINFORMATION": "잘못된 정보",
+      "LOW_QUALITY": "낮은 품질",
+      "OTHER": "기타"
+    },
+    "descriptionPlaceholder": "자세한 내용을 입력해주세요 (선택사항)",
+    "descriptionCount": "{{count}}/500",
+    "submit": "신고하기",
+    "submitting": "신고 중...",
+    "success": "신고가 접수되었습니다",
+    "error": {
+      "DUPLICATE": "이미 신고한 레시피입니다",
+      "NETWORK": "네트워크 오류가 발생했습니다",
+      "UNKNOWN": "신고 중 오류가 발생했습니다"
+    }
   }
 }

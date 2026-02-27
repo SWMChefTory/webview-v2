@@ -121,5 +121,26 @@
         "spoon": "½ spoon"
       }
     }
+  },
+  "report": {
+    "buttonLabel": "More options",
+    "title": "Report",
+    "back": "Back",
+    "reason": {
+      "INAPPROPRIATE_CONTENT": "Inappropriate content",
+      "MISINFORMATION": "Misinformation",
+      "LOW_QUALITY": "Low quality",
+      "OTHER": "Other"
+    },
+    "descriptionPlaceholder": "Provide more details (optional)",
+    "descriptionCount": "{{count}}/500",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "success": "Report submitted successfully",
+    "error": {
+      "DUPLICATE": "You have already reported this recipe",
+      "NETWORK": "Network error occurred",
+      "UNKNOWN": "An error occurred while reporting"
+    }
   }
 }

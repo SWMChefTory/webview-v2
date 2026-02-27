@@ -2,6 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Header, { BackButton } from "@/src/shared/ui/header/header";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
+import { MoreVertical } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import Image from "next/image";
 import { SectionFallback } from "../index";
@@ -21,6 +22,10 @@ import {
   type RecipeBriefing,
   type RecipeMeta,
 } from "../common/hook/useRecipeDetailController";
+import {
+  RecipeReportModal,
+  useRecipeReportModalStore,
+} from "@/src/widgets/recipe-report-modal";
 
 export const RecipeDetailPageSkeletonTablet = () => (
   <div className="min-h-screen bg-gray-50">
@@ -276,7 +281,25 @@ const RecipeContentTablet = ({
               {(!!description || cookTime > 0 || servings > 0 || (tags?.length ?? 0) > 0) && (
                 <section className="p-8 rounded-2xl border border-gray-200 bg-gray-50/50">
                   {!!description && (
-                    <p className="text-lg leading-8 text-neutral-900">{description}</p>
+                    <div className="flex items-start gap-3">
+                      <p className="text-lg leading-8 text-neutral-900 flex-1">{description}</p>
+                      <button
+                        type="button"
+                        aria-label="Report"
+                        onClick={() => {
+                          const { open: openReportModal } = useRecipeReportModalStore.getState();
+                          openReportModal(recipeId);
+                        }}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
+                          transition-all duration-150
+                          hover:bg-gray-200
+                          active:scale-[0.90]
+                          focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
+                          cursor-pointer shrink-0"
+                      >
+                        <MoreVertical className="w-5 h-5" />
+                      </button>
+                    </div>
                   )}
 
                   {(cookTime > 0 || servings > 0) && (
@@ -579,6 +602,7 @@ const RecipeContentTablet = ({
         ingredients={ingredients}
         recipeId={recipeId}
       />
+      <RecipeReportModal />
     </>
   );
 };

@@ -5,6 +5,7 @@ import {
   RecipeCardSkeleton,
   EmptyState,
 } from "./SearchResults.common";
+import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
 
 export function SearchResultsSkeletonTablet() {
   return (
@@ -35,7 +36,7 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
   } = useSearchResultsController(keyword);
 
   if (searchResults.length === 0) {
-    return <EmptyState variant="tablet" translations={translations} />;
+    return <EmptyState variant="tablet" translations={translations} keyword={keyword} />;
   }
 
   return (
@@ -49,6 +50,8 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
             </span>
           </div>
         </div>
+
+        <YoutubeSearchBanner keyword={keyword} />
 
         <div className="pb-12">
           <div className="grid grid-cols-3 gap-8">

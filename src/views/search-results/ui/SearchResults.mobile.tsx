@@ -3,6 +3,7 @@ import { useSearchResultsController } from "./SearchResults.controller";
 import { EmptyState } from "./SearchResults.common";
 import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSkeleton, NormalVerticalListSkeleton } from "@/src/widgets/recipe-cards-section";
 import { VideoType } from "@/src/entities/schema";
+import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -27,7 +28,7 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
   } = useSearchResultsController(keyword);
 
   if (searchResults.length === 0) {
-    return <EmptyState variant="mobile" translations={translations} />;
+    return <EmptyState variant="mobile" translations={translations} keyword={keyword} />;
   }
 
   const shortsRecipes = searchResults.filter(
@@ -50,6 +51,8 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           </span>
         </div>
       </div>
+
+      <YoutubeSearchBanner keyword={keyword} />
 
       <div className="px-4 pb-28">
         <ShortsRecipeListMobile

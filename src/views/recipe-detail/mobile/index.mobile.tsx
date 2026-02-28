@@ -215,6 +215,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         servings={recipeSummary.servings}
         formatTime={formatTime}
         recipeId={recipeId}
+        isEnrolled={viewStatus !== null}
       />
       <div className="flex flex-col mt-3 px-3">
         <Ingredients ingredients={ingredients} recipeId={recipeId} />
@@ -321,6 +322,7 @@ type RecipeSummaryProps = {
   servings?: number;
   formatTime: (min: number) => string;
   recipeId: string;
+  isEnrolled: boolean;
 };
 
 const CookingTime = ({
@@ -387,6 +389,7 @@ const RecipeSummary = ({
   servings,
   formatTime,
   recipeId,
+  isEnrolled,
 }: RecipeSummaryProps) => {
   const { t } = useRecipeDetailTranslation();
   const [descExpanded, setDescExpanded] = useState(false);
@@ -424,20 +427,22 @@ const RecipeSummary = ({
     <div className="pt-3 px-4">
       <div className="flex items-start gap-2">
         <h1 className="text-xl font-bold leading-tight line-clamp-2 flex-1">{title}</h1>
-        <button
-          type="button"
-          ref={buttonRef}
-          aria-label={t("report.buttonLabel")}
-          onClick={handleMenuToggle}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
-            transition-all duration-150
-            hover:bg-gray-100
-            active:scale-[0.90]
-            focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
-            cursor-pointer"
-        >
-          <MoreVertical className="w-5 h-5" />
-        </button>
+        {isEnrolled && (
+          <button
+            type="button"
+            ref={buttonRef}
+            aria-label={t("report.buttonLabel")}
+            onClick={handleMenuToggle}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
+              transition-all duration-150
+              hover:bg-gray-100
+              active:scale-[0.90]
+              focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
+              cursor-pointer"
+          >
+            <MoreVertical className="w-5 h-5" />
+          </button>
+        )}
       </div>
       <div className="h-1.5" />
       <span
@@ -483,13 +488,15 @@ const RecipeSummary = ({
         <HorizontalLine />
       </div>
 
-      {/* 더보기 메뉴 */}
-      <RecipeMoreMenu
-        recipeId={recipeId}
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        anchorEl={menuAnchorEl}
-      />
+      {/* 더보기 메뉴 - 구매한 레시피만 표시 */}
+      {isEnrolled && (
+        <RecipeMoreMenu
+          recipeId={recipeId}
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          anchorEl={menuAnchorEl}
+        />
+      )}
     </div>
   );
 };

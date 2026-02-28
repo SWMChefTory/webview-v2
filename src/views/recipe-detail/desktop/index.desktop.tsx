@@ -319,19 +319,21 @@ const RecipeContentDesktop = ({
                       <p className="text-lg leading-8 text-neutral-900 flex-1">
                         {description}
                       </p>
-                      <button
-                        type="button"
-                        aria-label="Report"
-                        onClick={handleMenuToggle}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
-                          transition-all duration-150
-                          hover:bg-gray-200
-                          active:scale-[0.90]
-                          focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
-                          cursor-pointer shrink-0"
-                      >
-                        <MoreVertical className="w-5 h-5" />
-                      </button>
+                      {isEnrolled && (
+                        <button
+                          type="button"
+                          aria-label="Report"
+                          onClick={handleMenuToggle}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
+                            transition-all duration-150
+                            hover:bg-gray-200
+                            active:scale-[0.90]
+                            focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
+                            cursor-pointer shrink-0"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -706,12 +708,14 @@ const RecipeContentDesktop = ({
         ingredients={ingredients}
         recipeId={recipeId}
       />
-      <RecipeMoreMenu
-        recipeId={recipeId}
-        isOpen={isMenuOpen}
-        onClose={() => setIsMenuOpen(false)}
-        anchorEl={menuAnchorEl}
-      />
+      {isEnrolled && (
+        <RecipeMoreMenu
+          recipeId={recipeId}
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          anchorEl={menuAnchorEl}
+        />
+      )}
       <RecipeReportModal />
     </>
   );

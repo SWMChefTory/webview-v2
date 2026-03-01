@@ -5,12 +5,14 @@ import { useYoutubeSearchBannerTranslation } from "../hooks/useYoutubeSearchBann
 
 interface YoutubeSearchBannerProps {
   keyword: string;
+  source?: string;
 }
 
 export const YoutubeSearchBanner = memo(function YoutubeSearchBanner({
   keyword,
+  source = "search_result",
 }: YoutubeSearchBannerProps) {
-  const { openYoutubeSearch } = useYoutubeSearch(keyword);
+  const { openYoutubeSearch } = useYoutubeSearch(keyword, source);
   const translations = useYoutubeSearchBannerTranslation();
 
   if (!keyword.trim()) return null;
@@ -19,7 +21,7 @@ export const YoutubeSearchBanner = memo(function YoutubeSearchBanner({
     <button
       type="button"
       onClick={openYoutubeSearch}
-      className="w-full flex items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer"
+      className="w-full flex items-center justify-between gap-2 px-4 py-2.5 bg-orange-50 hover:bg-orange-100 active:bg-orange-200 border-2 border-orange-200 rounded-xl transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-2 min-w-0">
         {/* 유튜브 아이콘 */}
@@ -40,8 +42,8 @@ export const YoutubeSearchBanner = memo(function YoutubeSearchBanner({
       </div>
 
       {/* 외부 링크 아이콘 */}
-      <div className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-white shadow-sm">
-        <ExternalLink className="w-4 h-4 text-gray-600" />
+      <div className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-orange-500 shadow-sm">
+        <ExternalLink className="w-4 h-4 text-white" />
       </div>
     </button>
   );

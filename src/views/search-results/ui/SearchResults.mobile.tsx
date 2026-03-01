@@ -52,7 +52,9 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
         </div>
       </div>
 
-      <YoutubeSearchBanner keyword={keyword} />
+      <div className="px-4 mb-4">
+        <YoutubeSearchBanner keyword={keyword} source="search_result" />
+      </div>
 
       <div className="px-4 pb-28">
         <ShortsRecipeListMobile

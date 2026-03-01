@@ -286,7 +286,7 @@ export function EmptyState({ variant, translations, keyword }: EmptyStateProps) 
       </div>
       {keyword && (
         <div className="mt-4 w-full max-w-sm">
-          <YoutubeSearchBanner keyword={keyword} />
+          <YoutubeSearchBanner keyword={keyword} source="empty_state" />
         </div>
       )}
     </div>

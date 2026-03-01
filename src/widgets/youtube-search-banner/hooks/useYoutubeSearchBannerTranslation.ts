@@ -5,6 +5,5 @@ export function useYoutubeSearchBannerTranslation() {
 
   return {
     title: (keyword: string) => t("youtubeSearch.title", { keyword }),
-    button: t("youtubeSearch.button"),
   };
 }

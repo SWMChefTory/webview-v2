@@ -1,27 +1,27 @@
+import { isNativeApp } from "@/src/shared/lib/platform";
+import { MODE, request } from "@/src/shared/client/native/client";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+
 /**
  * 유튜브 검색 연결 훅
- * - 유튜브 앱 딥링크 시도
- * - 실패 시 웹 URL 폴백
+ * - 네이티브 앱: 브릿지를 통해 외부 브라우저에서 유튜브 열기
+ * - 웹 브라우저: 새 탭에서 유튜브 열기
  */
-export function useYoutubeSearch(keyword: string) {
+export function useYoutubeSearch(keyword: string, source: string) {
   const openYoutubeSearch = () => {
     if (!keyword.trim()) return;
 
     const encodedKeyword = encodeURIComponent(keyword.trim());
-
-    // 유튜브 앱 딥링크 (모바일)
-    const youtubeAppUrl = `vnd.youtube://search?query=${encodedKeyword}`;
-
-    // 유튜브 웹 URL (폴백)
     const youtubeWebUrl = `https://www.youtube.com/results?search_query=${encodedKeyword}`;
 
-    // 딥링크 시도
-    window.location.href = youtubeAppUrl;
+    track(AMPLITUDE_EVENT.YOUTUBE_SEARCH_CLICK, { keyword, source });
 
-    // 500ms 후 웹으로 폴백 (앱이 없으면 딥링크 실패)
-    setTimeout(() => {
-      window.open(youtubeWebUrl, '_blank');
-    }, 500);
+    if (isNativeApp()) {
+      request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", { url: youtubeWebUrl });
+    } else {
+      window.open(youtubeWebUrl, "_blank");
+    }
   };
 
   return {

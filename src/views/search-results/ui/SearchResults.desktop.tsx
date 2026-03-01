@@ -51,7 +51,9 @@ export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
           </div>
         </div>
 
-        <YoutubeSearchBanner keyword={keyword} />
+        <div className="mb-8">
+          <YoutubeSearchBanner keyword={keyword} source="search_result" />
+        </div>
 
         <div className="pb-16">
           <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 lg:gap-8">

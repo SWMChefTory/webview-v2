@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { ExternalLink } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { useYoutubeSearch } from "../hooks/useYoutubeSearch";
 import { useYoutubeSearchBannerTranslation } from "../hooks/useYoutubeSearchBannerTranslation";
 
@@ -21,7 +21,7 @@ export const YoutubeSearchBanner = memo(function YoutubeSearchBanner({
     <button
       type="button"
       onClick={openYoutubeSearch}
-      className="w-full flex items-center justify-between gap-2 px-4 py-2.5 bg-orange-50 hover:bg-orange-100 active:bg-orange-200 border-2 border-orange-200 rounded-xl transition-colors cursor-pointer"
+      className="w-full flex items-center justify-between gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 active:bg-gray-100 border border-gray-200 rounded-xl transition-colors cursor-pointer"
     >
       <div className="flex items-center gap-2 min-w-0">
         {/* 유튜브 아이콘 */}
@@ -36,15 +36,13 @@ export const YoutubeSearchBanner = memo(function YoutubeSearchBanner({
         </div>
 
         {/* 텍스트 */}
-        <span className="text-sm text-gray-700 truncate">
+        <span className="text-sm text-gray-600 truncate">
           {translations.title(keyword)}
         </span>
       </div>
 
-      {/* 외부 링크 아이콘 */}
-      <div className="shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-orange-500 shadow-sm">
-        <ExternalLink className="w-4 h-4 text-white" />
-      </div>
+      {/* 화살표 아이콘 */}
+      <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />
     </button>
   );
 });

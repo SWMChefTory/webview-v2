@@ -6,6 +6,7 @@ import { Recipe } from "@/src/entities/recipe-searched/model/useRecipeSearched";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { SearchResultsTranslations, SearchResultsVariant } from "./SearchResults.controller";
 import { VideoType } from "@/src/entities/schema";
+import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
 
 interface VariantStyles {
   article: string;
@@ -264,9 +265,10 @@ const emptyStateStyles: Record<SearchResultsVariant, EmptyStateStyles> = {
 interface EmptyStateProps {
   variant: SearchResultsVariant;
   translations: SearchResultsTranslations;
+  keyword?: string;
 }
 
-export function EmptyState({ variant, translations }: EmptyStateProps) {
+export function EmptyState({ variant, translations, keyword }: EmptyStateProps) {
   const styles = emptyStateStyles[variant];
 
   return (
@@ -282,6 +284,11 @@ export function EmptyState({ variant, translations }: EmptyStateProps) {
         <h3 className={styles.title}>{translations.emptyTitle}</h3>
         <p className={styles.subtitle}>{translations.emptySubtitle}</p>
       </div>
+      {keyword && (
+        <div className="mt-4 w-full max-w-sm">
+          <YoutubeSearchBanner keyword={keyword} source="empty_state" />
+        </div>
+      )}
     </div>
   );
 }

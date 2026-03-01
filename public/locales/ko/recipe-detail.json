@@ -125,7 +125,8 @@
   "report": {
     "buttonLabel": "더보기",
     "menu": {
-      "report": "신고하기"
+      "report": "신고하기",
+      "contact": "문의하기"
     },
     "title": "신고하기",
     "back": "뒤로",

@@ -125,7 +125,8 @@
   "report": {
     "buttonLabel": "More options",
     "menu": {
-      "report": "Report"
+      "report": "Report",
+      "contact": "Contact Us"
     },
     "title": "Report",
     "back": "Back",

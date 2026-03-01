@@ -42,7 +42,7 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       <div className="max-w-[1024px] mx-auto w-full px-8">
-        <div className="py-10">
+        <div className="pt-10 pb-4">
           <div className="flex items-baseline gap-4">
             <h1 className="text-4xl font-bold text-gray-900 truncate tracking-tight">{keyword}</h1>
             <span className="text-2xl font-medium text-gray-500 shrink-0">

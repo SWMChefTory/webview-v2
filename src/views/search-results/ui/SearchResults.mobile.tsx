@@ -43,7 +43,7 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
-      <div className="px-4 py-6">
+      <div className="px-4 pt-6 pb-3">
         <div className="flex items-baseline gap-2">
           <h1 className="text-2xl font-bold text-gray-900 truncate">{keyword}</h1>
           <span className="text-lg font-medium text-gray-600 shrink-0">

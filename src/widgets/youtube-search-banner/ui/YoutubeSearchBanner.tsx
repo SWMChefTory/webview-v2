@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { ChevronRight } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { useYoutubeSearch } from "../hooks/useYoutubeSearch";
 import { useYoutubeSearchBannerTranslation } from "../hooks/useYoutubeSearchBannerTranslation";
 
@@ -41,8 +41,8 @@ export const YoutubeSearchBanner = memo(function YoutubeSearchBanner({
         </span>
       </div>
 
-      {/* 화살표 아이콘 */}
-      <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />
+      {/* 외부 링크 아이콘 */}
+      <ExternalLink className="shrink-0 w-4 h-4 text-gray-400" />
     </button>
   );
 });

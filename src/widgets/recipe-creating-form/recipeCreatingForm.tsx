@@ -52,6 +52,7 @@ export function RecipeCreatingView() {
       track(AMPLITUDE_EVENT.RECIPE_CREATE_START_URL, {
         entry_point: entryPoint,
         has_prefilled_url: url.trim().length > 0,
+        is_from_share: entryPoint === "external_share",
       });
       hasTrackedStartRef.current = true;
     }

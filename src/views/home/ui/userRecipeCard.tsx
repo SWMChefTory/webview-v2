@@ -20,6 +20,8 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useElapsedTime } from "@/src/features/format/recipe-info/useElapsedTime";
 import { useLangcode } from "@/src/shared/translation/useLangCode";
 import { useTranslation } from "next-i18next";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export const UserRecipeCardReady = ({
   userRecipe,
@@ -39,6 +41,7 @@ export const UserRecipeCardReady = ({
           recipeId={userRecipe.recipeId}
           title={userRecipe.recipeTitle}
           videoId={userRecipe.videoInfo.videoId}
+          videoType={userRecipe.videoInfo.videoType}
           description={userRecipe.recipeDetailMeta?.description}
           servings={userRecipe.recipeDetailMeta?.servings}
           cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
@@ -230,6 +233,7 @@ const RecipeProgressReady = ({
   recipeId,
   title,
   videoId,
+  videoType,
   description,
   servings,
   cookingTime,
@@ -238,6 +242,7 @@ const RecipeProgressReady = ({
   recipeId: string;
   title?: string;
   videoId: string;
+  videoType: string;
   description: string | undefined;
   servings: number | undefined;
   cookingTime: number | undefined;
@@ -252,6 +257,12 @@ const RecipeProgressReady = ({
       recipeStatusCurrent === RecipeStatus.SUCCESS ||
       recipeStatusBefore === RecipeStatus.SUCCESS
     ) {
+      track(AMPLITUDE_EVENT.USER_RECIPE_CLICK, {
+        source: "home",
+        recipe_id: recipeId,
+        recipe_title: title,
+        video_type: videoType,
+      });
       router.push({
         pathname: `/recipe/${recipeId}/detail`,
         query: { title, videoId, description, servings, cookingTime },

@@ -38,6 +38,8 @@ import {
 } from "@/src/features/format/recipe-info/formatRecipeProperties";
 import { useTranslation } from "next-i18next";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const RecipeDetailsCardReady = ({
   userRecipe,
@@ -67,10 +69,16 @@ const RecipeDetailsCardReady = ({
         recipeId={userRecipe.recipeId}
         title={userRecipe.recipeTitle}
         videoId={userRecipe.videoInfo.videoId}
+        videoType={userRecipe.videoInfo.videoType}
         description={userRecipe.recipeDetailMeta?.description}
         servings={userRecipe.recipeDetailMeta?.servings}
         cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
-        onLongPress={() => setIsCategorySelectOpen(true)}
+        onLongPress={() => {
+          track(AMPLITUDE_EVENT.USER_CATEGORY_MOVE_OPEN, {
+            recipe_id: userRecipe.recipeId,
+          });
+          setIsCategorySelectOpen(true);
+        }}
         recipeStatusBefore={userRecipe.recipeStatus}
       />
       {/* </SSRSuspense> */}
@@ -127,6 +135,7 @@ const RecipeOverlay = ({
   recipeId,
   title,
   videoId,
+  videoType,
   description,
   servings,
   cookingTime,
@@ -136,6 +145,7 @@ const RecipeOverlay = ({
   recipeId: string;
   title?: string;
   videoId: string;
+  videoType: string;
   description?: string;
   servings?: number;
   cookingTime?: number;
@@ -153,6 +163,12 @@ const RecipeOverlay = ({
       recipeStatusCurrent === RecipeStatus.SUCCESS ||
       recipeStatusBefore === RecipeStatus.SUCCESS
     ) {
+      track(AMPLITUDE_EVENT.USER_RECIPE_CLICK, {
+        source: "user_recipe",
+        recipe_id: recipeId,
+        recipe_title: title,
+        video_type: videoType,
+      });
       router.push({
         pathname: `/recipe/${recipeId}/detail`,
         query: { title, videoId, description, servings, cookingTime },
@@ -494,12 +510,23 @@ const CategorySelect = ({
                   className={`px-2 flex items-center gap-2 truncate rounded-md p-1 ${
                     category.id !== selectedCategoryId || "text-gray-500"
                   }`}
-                  onClick={async () => {
+                  onClick={() => {
                     if (category.id !== selectedCategoryId) {
-                      updateCategory({
-                        recipeId,
-                        targetCategoryId: category.id,
-                      });
+                      updateCategory(
+                        {
+                          recipeId,
+                          targetCategoryId: category.id,
+                        },
+                        {
+                          onSuccess: () => {
+                            track(AMPLITUDE_EVENT.USER_CATEGORY_MOVE_SUCCESS, {
+                              recipe_id: recipeId,
+                              target_category_id: category.id,
+                              target_category_name: category.name,
+                            });
+                          },
+                        },
+                      );
                     }
                   }}
                   whileTap={

@@ -13,6 +13,7 @@ interface RecipeStepDesktopProps {
 export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
   const router = useRouter();
   const {
+    recipeId,
     recipe,
     isInRepeat,
     videoRef,
@@ -25,20 +26,28 @@ export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
     handleTrackTouchNavigation,
   } = controller;
 
-  const id = recipe.videoInfo.videoId;
-
   return (
     <div className="flex flex-row w-full h-screen overflow-hidden bg-black items-center lg:max-w-[1920px] lg:mx-auto relative">
       <button
         onClick={() => router.back()}
         className="absolute top-8 left-8 z-50 w-14 h-14 flex items-center justify-center bg-black/40 hover:bg-white/10 hover:scale-110 active:scale-95 rounded-full text-white backdrop-blur-md transition-all duration-300 border border-white/20 shadow-2xl group"
       >
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="group-hover:-translate-x-0.5 transition-transform">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="group-hover:-translate-x-0.5 transition-transform"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
         </svg>
       </button>
 
-      <TutorialStarter recipeId={id} />
+      <TutorialStarter recipeId={recipeId} />
       <Video
         videoId={recipe.videoInfo.videoId}
         title={recipe.videoInfo.videoTitle}
@@ -63,7 +72,7 @@ export function RecipeStepDesktop({ controller }: RecipeStepDesktopProps) {
           onChangeStep={handleChangeStepWithVideoTime}
           steps={recipe.recipeSteps ?? []}
           isLandscape={true}
-          recipeId={id}
+          recipeId={recipeId}
           onTrackTouchNavigation={handleTrackTouchNavigation}
         />
         <FloatingControlBar controller={controller} isLandscape={true} />

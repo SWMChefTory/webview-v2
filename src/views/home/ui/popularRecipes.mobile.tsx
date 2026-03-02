@@ -1,10 +1,7 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
-import { VideoType } from "@/src/entities/schema";
-import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
-import { RecipeCardNormal } from "@/src/widgets/recipe-cards-section/RecipeCardsSection.mobile";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,

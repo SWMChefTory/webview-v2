@@ -3,6 +3,7 @@ export enum RecipeStatus {
     SUCCESS = "SUCCESS",
     FAILED = "FAILED",
     BLOCKED = "BLOCKED",
+    BANNED = "BANNED",
 }
 
 export enum RecipeProgressDetail {

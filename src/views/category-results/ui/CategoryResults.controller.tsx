@@ -2,17 +2,19 @@ import {
   useFetchCuisineRecipes,
   CuisineRecipe,
 } from "@/src/entities/cuisine-recipe/model/useCuisineRecipe";
-import {
-  useFetchRecommendRecipes,
-} from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
+import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import type { RecommendRecipe } from "@/src/entities/recommend-recipe";
-import { CuisineType, toCuisineType } from "@/src/entities/category/type/cuisineType";
-import { RecommendType, toRecommendType } from "@/src/entities/recommend-recipe";
+import {
+  CuisineType,
+  toCuisineType,
+} from "@/src/entities/category/type/cuisineType";
+import {
+  RecommendType,
+  toRecommendType,
+} from "@/src/entities/recommend-recipe";
 import { useCategoryTranslation } from "@/src/entities/category/hooks/useCategoryTranslation";
 import { useCategoryResultsTranslation } from "@/src/views/category-results/hooks/useCategoryResultsTranslation";
 import { VideoTypeQuery } from "@/src/entities/recommend-recipe";
-import { VideoType } from "@/src/entities/schema";
-import { RecipeCardEntryPoint } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
 import { useInfiniteScroll } from "@/src/shared/hooks";
 
 export type CategoryResultsVariant = "mobile" | "tablet" | "desktop";
@@ -25,15 +27,12 @@ export interface CategoryResultsControllerProps {
   isRecommendType: boolean;
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   t: (key: string, options?: Record<string, unknown>) => string;
-  getVideoType: (recipe: CuisineRecipe | RecommendRecipe) => VideoType;
-  getEntryPoint: () => RecipeCardEntryPoint;
-  getVideoUrl: (recipe: CuisineRecipe | RecommendRecipe) => string;
 }
 
 export function useCategoryResultsController(
   categoryType: string,
   _variant: CategoryResultsVariant,
-  videoTypeParam?: string
+  videoTypeParam?: string,
 ): CategoryResultsControllerProps {
   const { t } = useCategoryResultsTranslation();
   const { t: categoryT } = useCategoryTranslation();
@@ -75,22 +74,8 @@ export function useCategoryResultsController(
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    { rootMargin: "50px" }
+    { rootMargin: "50px" },
   );
-
-  const getVideoType = (recipe: CuisineRecipe | RecommendRecipe): VideoType => {
-    return recipe.videoInfo.videoType === "SHORTS"
-      ? VideoType.SHORTS
-      : VideoType.NORMAL;
-  };
-
-  const getEntryPoint = (): RecipeCardEntryPoint => {
-    return isRecommend ? "category_recommend" : "category_cuisine";
-  };
-
-  const getVideoUrl = (recipe: CuisineRecipe | RecommendRecipe): string => {
-    return `https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`;
-  };
 
   return {
     recipes,
@@ -100,8 +85,5 @@ export function useCategoryResultsController(
     isRecommendType: isRecommend,
     loadMoreRef,
     t,
-    getVideoType,
-    getEntryPoint,
-    getVideoUrl,
   };
 }

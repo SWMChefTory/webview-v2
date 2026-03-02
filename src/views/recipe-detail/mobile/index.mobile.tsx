@@ -20,6 +20,8 @@ import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTransl
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
 import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import {
   RecipeReportModal,
   RecipeMoreMenu,
@@ -180,14 +182,35 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
   const { data: balanceData } = useFetchBalance();
   const balance = balanceData?.balance ?? 0;
 
-  const { enrollBookmark, isLoading: isEnrollingBookmark } = useEnrollBookmark();
+  const { enrollBookmark, isLoading: isEnrollingBookmark } =
+    useEnrollBookmark();
   const { open: openRechargeModal } = useCreditRechargeModalStore();
 
   const handleFloatingUnlock = useCallback(() => {
     if (isEnrollingBookmark) return;
+    track(AMPLITUDE_EVENT.RECIPE_ENROLL_CLICK, {
+      recipe_id: recipeId,
+      source: "floating_button",
+    });
     enrollBookmark(recipeId, {
+      onSuccess: () => {
+        track(AMPLITUDE_EVENT.RECIPE_ENROLL_SUCCESS, {
+          recipe_id: recipeId,
+          source: "floating_button",
+        });
+      },
       onError: (error) => {
-        if (isAxiosError(error) && error.response?.data?.errorCode === "CREDIT_001") {
+        track(AMPLITUDE_EVENT.RECIPE_ENROLL_FAIL, {
+          recipe_id: recipeId,
+          source: "floating_button",
+          error_code: isAxiosError(error)
+            ? error.response?.data?.errorCode
+            : undefined,
+        });
+        if (
+          isAxiosError(error) &&
+          error.response?.data?.errorCode === "CREDIT_001"
+        ) {
           openRechargeModal("recipe_detail");
         }
       },
@@ -222,7 +245,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         {briefings && briefings.length > 0 && (
           <>
             <div className="h-2" />
-            <BriefingSummary briefings={briefings} />
+            <BriefingSummary briefings={briefings} recipeId={recipeId} />
           </>
         )}
         <div className="h-3" />
@@ -347,7 +370,9 @@ const CookingTime = ({
       </div>
       <div className="flex flex-col">
         <div className="text-lg font-bold leading-tight text-gray-900">
-          {cookTime ? formatTime(cookTime) : t("mobile.cookingTimeValue", { minutes: 0 })}
+          {cookTime
+            ? formatTime(cookTime)
+            : t("mobile.cookingTimeValue", { minutes: 0 })}
         </div>
         <div className="text-sm text-gray-600">{t("mobile.cookingTime")}</div>
       </div>
@@ -355,11 +380,7 @@ const CookingTime = ({
   );
 };
 
-const ServingsInfo = ({
-  servings,
-}: {
-  servings?: number;
-}) => {
+const ServingsInfo = ({ servings }: { servings?: number }) => {
   const { t } = useRecipeDetailTranslation();
   return (
     <div className="flex-1 flex gap-2.5 items-center justify-center">
@@ -426,7 +447,9 @@ const RecipeSummary = ({
   return (
     <div className="pt-3 px-4">
       <div className="flex items-start gap-2">
-        <h1 className="text-xl font-bold leading-tight line-clamp-2 flex-1">{title}</h1>
+        <h1 className="text-xl font-bold leading-tight line-clamp-2 flex-1">
+          {title}
+        </h1>
         {isEnrolled && (
           <button
             type="button"
@@ -508,4 +531,3 @@ const HorizontalLine = () => {
 const VerticalLine = () => {
   return <div className="w-[1px] h-full bg-gray-300"></div>;
 };
-

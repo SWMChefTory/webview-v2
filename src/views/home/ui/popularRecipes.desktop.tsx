@@ -3,9 +3,9 @@ import {
   RecommendType,
   VideoTypeQuery,
 } from "@/src/entities/recommend-recipe";
-import { VideoType } from "@/src/entities/schema";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
-import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { ViewMoreCard } from "@/src/shared/ui/card";
 import {
   PopularRecipesTitleReady,
@@ -44,6 +44,7 @@ const PopularRecipesTemplateDesktop = ({
 };
 
 function RecipeCardSectionReady() {
+  const router = useRouter();
   const { entities: recipes } = useFetchRecommendRecipes({
     recommendType: RecommendType.POPULAR,
     videoType: VideoTypeQuery.NORMAL,
@@ -52,36 +53,31 @@ function RecipeCardSectionReady() {
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
       {recipes.slice(0, 5).map((recipe) => (
-        <RecipeCardWrapper
+        <div
           key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeTitle={recipe.recipeTitle}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={
-            recipe.videoInfo.videoType === "SHORTS"
-              ? VideoType.SHORTS
-              : VideoType.NORMAL
-          }
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          entryPoint="popular_normal"
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={
-            <RecipeCardReady
-              recipe={{
-                id: recipe.recipeId,
-                isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                recipeTitle: recipe.recipeTitle,
-                isViewd: recipe.isViewed,
-              }}
-              isTablet={true}
-            />
-          }
-        />
+          className="cursor-pointer"
+          onClick={() => {
+            navigateToRecipeDetail(router, {
+              recipeId: recipe.recipeId,
+              recipeTitle: recipe.recipeTitle,
+              videoId: recipe.videoInfo.videoId,
+              description: recipe.detailMeta.description,
+              servings: recipe.detailMeta.servings,
+              cookingTime: recipe.detailMeta.cookingTime,
+            });
+          }}
+        >
+          <RecipeCardReady
+            recipe={{
+              id: recipe.recipeId,
+              isViewed: recipe.isViewed,
+              videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+              recipeTitle: recipe.recipeTitle,
+              isViewd: recipe.isViewed,
+            }}
+            isTablet={true}
+          />
+        </div>
       ))}
       <ViewMoreCard href="/recommend?recipeType=POPULAR&videoType=NORMAL" />
     </div>

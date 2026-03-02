@@ -1,8 +1,8 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
-import { VideoType } from "@/src/entities/schema";
-import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { useCallback } from "react";
 import {
   PopularRecipesTitleReady,
@@ -54,6 +54,7 @@ const PopularRecipesTemplateTablet = ({
  * 가로 스크롤 + 더보기 링크
  */
 function RecipeCardSectionReady() {
+  const router = useRouter();
   const {
     entities: recipes,
     isFetchingNextPage,
@@ -77,34 +78,31 @@ function RecipeCardSectionReady() {
       onReachEnd={handleReachEnd}
     >
       {recipes.map((recipe) => (
-        <RecipeCardWrapper
+        <div
           key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeTitle={recipe.recipeTitle}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={
-            recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
-          }
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          entryPoint="popular_normal"
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={
-            <RecipeCardReady
-              recipe={{
-                id: recipe.recipeId,
-                isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                recipeTitle: recipe.recipeTitle,
-                isViewd: recipe.isViewed,
-              }}
-              isTablet={true}
-            />
-          }
-        />
+          className="cursor-pointer"
+          onClick={() => {
+            navigateToRecipeDetail(router, {
+              recipeId: recipe.recipeId,
+              recipeTitle: recipe.recipeTitle,
+              videoId: recipe.videoInfo.videoId,
+              description: recipe.detailMeta.description,
+              servings: recipe.detailMeta.servings,
+              cookingTime: recipe.detailMeta.cookingTime,
+            });
+          }}
+        >
+          <RecipeCardReady
+            recipe={{
+              id: recipe.recipeId,
+              isViewed: recipe.isViewed,
+              videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+              recipeTitle: recipe.recipeTitle,
+              isViewd: recipe.isViewed,
+            }}
+            isTablet={true}
+          />
+        </div>
       ))}
 
       {isFetchingNextPage && <RecipeCardSkeleton isTablet={true} />}

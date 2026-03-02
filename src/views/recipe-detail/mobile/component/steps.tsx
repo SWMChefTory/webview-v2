@@ -3,15 +3,19 @@ import Image from "next/image";
 import { Lock, Play } from "lucide-react";
 import { RecipeStep, StepDetail } from "../../common/hook/useRecipeDetailController";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const numberToUpperAlpha = (n: number) => String.fromCharCode(64 + n);
 
 const StepDetails = ({
   stepDetails,
   onDetailClick,
+  recipeId,
 }: {
   stepDetails: StepDetail[];
   onDetailClick?: (sec: number) => void;
+  recipeId?: string;
 }) => {
   return (
     <div className="rounded-md flex flex-col gap-2">
@@ -19,7 +23,15 @@ const StepDetails = ({
         <button
           key={detail.start}
           type="button"
-          onClick={() => onDetailClick?.(detail.start)}
+          onClick={() => {
+            if (onDetailClick && recipeId) {
+              track(AMPLITUDE_EVENT.RECIPE_DETAIL_VIDEO_SEEK, {
+                recipe_id: recipeId,
+                seek_time: detail.start,
+              });
+            }
+            onDetailClick?.(detail.start);
+          }}
           className="flex items-start gap-1.5 text-sm font-medium shadow-sm bg-white p-2 rounded-md text-left
               transition-all duration-150
               hover:bg-orange-50 hover:shadow
@@ -53,7 +65,24 @@ const Steps = ({
     useEnrollBookmark();
   const handleEnrollBookmark = () => {
     if (!isEnrollingBookmark) {
-      enrollBookmark(recipeId);
+      track(AMPLITUDE_EVENT.RECIPE_ENROLL_CLICK, {
+        recipe_id: recipeId,
+        source: "step_unlock_button",
+      });
+      enrollBookmark(recipeId, {
+        onSuccess: () => {
+          track(AMPLITUDE_EVENT.RECIPE_ENROLL_SUCCESS, {
+            recipe_id: recipeId,
+            source: "step_unlock_button",
+          });
+        },
+        onError: (error) => {
+          track(AMPLITUDE_EVENT.RECIPE_ENROLL_FAIL, {
+            recipe_id: recipeId,
+            source: "step_unlock_button",
+          });
+        },
+      });
     }
   };
 
@@ -103,7 +132,7 @@ const Steps = ({
                   <>
                     <h3 className="text-base font-bold pt-0.5">{step.subtitle}</h3>
                     <div className="h-2" />
-                    <StepDetails stepDetails={step.details} onDetailClick={onTimeClick} />
+                    <StepDetails stepDetails={step.details} onDetailClick={onTimeClick} recipeId={recipeId} />
                   </>
                 ) : (
                   <>
@@ -168,6 +197,7 @@ const Steps = ({
             <StepDetails
               stepDetails={step.details}
               onDetailClick={onTimeClick}
+              recipeId={recipeId}
             />
           </div>
         ))}

@@ -1,8 +1,8 @@
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
-import { VideoType } from "@/src/entities/schema";
-import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
 import {
   PopularShortsRecipesTitleReady,
@@ -57,6 +57,7 @@ const PopularShortsRecipesTemplateMobile = ({
  * HorizontalScrollArea + 무한 스크롤
  */
 const ShortPopularRecipesSectionReady = () => {
+  const router = useRouter();
   const {
     entities: recipes,
     isFetchingNextPage,
@@ -76,31 +77,30 @@ const ShortPopularRecipesSectionReady = () => {
   return (
     <HorizontalScrollArea onReachEnd={handleReachEnd}>
       {recipes.map((recipe) => (
-        <RecipeCardWrapper
+        <div
           key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeTitle={recipe.recipeTitle}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={VideoType.SHORTS}
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          entryPoint="popular_shorts"
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={
-            <ShortsRecipeCardReady
-              recipe={{
-                id: recipe.recipeId,
-                isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                recipeTitle: recipe.recipeTitle,
-              }}
-              isTablet={false}
-            />
-          }
-        />
+          className="cursor-pointer"
+          onClick={() => {
+            navigateToRecipeDetail(router, {
+              recipeId: recipe.recipeId,
+              recipeTitle: recipe.recipeTitle,
+              videoId: recipe.videoInfo.videoId,
+              description: recipe.detailMeta.description,
+              servings: recipe.detailMeta.servings,
+              cookingTime: recipe.detailMeta.cookingTime,
+            });
+          }}
+        >
+          <ShortsRecipeCardReady
+            recipe={{
+              id: recipe.recipeId,
+              isViewed: recipe.isViewed,
+              videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+              recipeTitle: recipe.recipeTitle,
+            }}
+            isTablet={false}
+          />
+        </div>
       ))}
       {isFetchingNextPage && <ShortsRecipeCardSkeleton isTablet={false} />}
     </HorizontalScrollArea>

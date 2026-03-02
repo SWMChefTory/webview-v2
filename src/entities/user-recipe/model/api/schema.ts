@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { RecipeDetailMetaSchema, RecipeTagSchema } from "@/src/entities/schema/recipe/recipeSchema";
-import { VideoInfoSchema } from "../../../schema/recipe/videoInfoSchema";
 import { RecipeStatus } from "@/src/shared/enums/recipe";
+import { VideoType } from "@/src/entities/schema";
 
 /**
  * 북마크/시청정보
@@ -19,9 +19,18 @@ export const ViewStatusSchema = z.object({
 
 export type ViewStatus = z.infer<typeof ViewStatusSchema>;
 
+const VideoInfoSchema = z.object({
+  videoId: z.string(),
+  channelTitle: z.string(),
+  videoThumbnailUrl: z.string(),
+  videoSeconds: z.number(),
+  videoType: z.enum([VideoType.SHORTS, VideoType.NORMAL]),
+});
+
 export const UserRecipeSchema = z.object({
   recipeId: z.string(),
   viewStatus: ViewStatusSchema.optional(),
+  recipeTitle: z.string().optional(),
   videoInfo: VideoInfoSchema,
   recipeDetailMeta: RecipeDetailMetaSchema.optional(),
   tags: z.array(RecipeTagSchema).optional(),

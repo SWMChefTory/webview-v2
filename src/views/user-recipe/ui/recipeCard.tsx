@@ -65,7 +65,7 @@ const RecipeDetailsCardReady = ({
       > */}
       <RecipeOverlay
         recipeId={userRecipe.recipeId}
-        title={userRecipe.videoInfo.videoTitle}
+        title={userRecipe.recipeTitle}
         videoId={userRecipe.videoInfo.videoId}
         description={userRecipe.recipeDetailMeta?.description}
         servings={userRecipe.recipeDetailMeta?.servings}
@@ -84,7 +84,7 @@ const RecipeDetailsCardReady = ({
         <div className="absolute top-1 right-1 z-[10]">
           <TimerTag
             recipeId={userRecipe.recipeId}
-            recipeName={userRecipe.videoInfo.videoTitle}
+            recipeName={userRecipe.recipeTitle}
           />
         </div>
         <ThumbnailReady
@@ -102,7 +102,7 @@ const RecipeDetailsCardReady = ({
           isDesktop ? "w-full gap-2" : "lg:gap-1.5 overflow-x-hidden"
         }`}
       >
-        <TitleReady title={userRecipe.videoInfo.videoTitle} />
+        <TitleReady title={userRecipe.recipeTitle} />
         <DetailSectionReady
           tags={userRecipe.tags || []}
           cookTime={userRecipe.recipeDetailMeta?.cookingTime ?? 0}
@@ -134,7 +134,7 @@ const RecipeOverlay = ({
   onLongPress,
 }: {
   recipeId: string;
-  title: string;
+  title?: string;
   videoId: string;
   description?: string;
   servings?: number;

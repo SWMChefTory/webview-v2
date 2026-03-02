@@ -57,7 +57,8 @@
     },
     "progress": {
         "creating": "Creating Recipe",
-        "failed": "Failed to create recipe"
+        "failed": "Failed to create recipe",
+        "blocked": "This recipe has been blocked"
     },
     "dialog": {
         "title": "Create Recipe",

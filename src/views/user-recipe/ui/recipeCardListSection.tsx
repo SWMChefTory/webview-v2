@@ -24,11 +24,13 @@ export const RecipeListSectionReady = ({
   const { data: categories } = useFetchCategories();
 
   if (selectedCategoryId === ALL_RECIPES) {
-    return <RecipeAllListSectionReady isTablet={isTablet} isDesktop={isDesktop} />;
+    return (
+      <RecipeAllListSectionReady isTablet={isTablet} isDesktop={isDesktop} />
+    );
   }
 
   const selectedCategory = categories.find(
-    (category) => category.id === selectedCategoryId
+    (category) => category.id === selectedCategoryId,
   );
 
   if (!selectedCategory) {
@@ -137,7 +139,10 @@ const RecipeListSectionTemplate = ({
     <div
       onScroll={(event: React.UIEvent<HTMLDivElement>) => {
         const target = event.currentTarget;
-        if (target.scrollTop + target.clientHeight >= target.scrollHeight - 10) {
+        if (
+          target.scrollTop + target.clientHeight >=
+          target.scrollHeight - 10
+        ) {
           onScrollEnd();
         }
       }}
@@ -158,12 +163,16 @@ const RecipeListSectionTemplate = ({
               key={recipe.recipeId}
               userRecipe={recipe}
               selectedCategoryId={
-                selectedCategoryId === ALL_RECIPES ? undefined : selectedCategoryId
+                selectedCategoryId === ALL_RECIPES
+                  ? undefined
+                  : selectedCategoryId
               }
               isDesktop={isDesktop}
             />
           ))}
-          {isFetchingNextPage && <RecipeDetailsCardSkeleton isDesktop={isDesktop} />}
+          {isFetchingNextPage && (
+            <RecipeDetailsCardSkeleton isDesktop={isDesktop} />
+          )}
         </div>
       ) : (
         <div className="flex flex-col w-full h-full items-center justify-center px-4">
@@ -219,7 +228,10 @@ export const RecipeListSectionSkeleton = ({
         }
       >
         {Array.from({ length: isDesktop ? 8 : 3 }).map((_, i) => (
-          <RecipeDetailsCardSkeleton key={`skeleton-${i}`} isDesktop={isDesktop} />
+          <RecipeDetailsCardSkeleton
+            key={`skeleton-${i}`}
+            isDesktop={isDesktop}
+          />
         ))}
       </div>
     </div>

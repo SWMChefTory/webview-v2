@@ -3,7 +3,7 @@ import { useRecipeDetailController } from "../common/hook/useRecipeDetailControl
 import { useTextTruncation } from "../common/hook/useTextTruncation";
 import Image from "next/image";
 import { useSafeArea } from "@/src/shared/safearea/useSafaArea";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, MoreVertical } from "lucide-react";
 import { useFetchBalance } from "@/src/entities/balance";
 import { VideoPadding, YoutubeVideo } from "./component/youtubeVideo";
 import {
@@ -22,6 +22,10 @@ import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark"
 import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import {
+  RecipeReportModal,
+  RecipeMoreMenu,
+} from "@/src/widgets/recipe-report-modal";
 
 const RecipeDetailPageSkeleton = () => {
   return (
@@ -178,7 +182,8 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
   const { data: balanceData } = useFetchBalance();
   const balance = balanceData?.balance ?? 0;
 
-  const { enrollBookmark, isLoading: isEnrollingBookmark } = useEnrollBookmark();
+  const { enrollBookmark, isLoading: isEnrollingBookmark } =
+    useEnrollBookmark();
   const { open: openRechargeModal } = useCreditRechargeModalStore();
 
   const handleFloatingUnlock = useCallback(() => {
@@ -198,9 +203,14 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         track(AMPLITUDE_EVENT.RECIPE_ENROLL_FAIL, {
           recipe_id: recipeId,
           source: "floating_button",
-          error_code: isAxiosError(error) ? error.response?.data?.errorCode : undefined,
+          error_code: isAxiosError(error)
+            ? error.response?.data?.errorCode
+            : undefined,
         });
-        if (isAxiosError(error) && error.response?.data?.errorCode === "CREDIT_001") {
+        if (
+          isAxiosError(error) &&
+          error.response?.data?.errorCode === "CREDIT_001"
+        ) {
           openRechargeModal("recipe_detail");
         }
       },
@@ -227,6 +237,8 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         cookTime={recipeSummary.cookingTime}
         servings={recipeSummary.servings}
         formatTime={formatTime}
+        recipeId={recipeId}
+        isEnrolled={viewStatus !== null}
       />
       <div className="flex flex-col mt-3 px-3">
         <Ingredients ingredients={ingredients} recipeId={recipeId} />
@@ -257,6 +269,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
           />
         )}
       </div>
+      <RecipeReportModal />
     </div>
   );
 };
@@ -331,6 +344,8 @@ type RecipeSummaryProps = {
   cookTime?: number;
   servings?: number;
   formatTime: (min: number) => string;
+  recipeId: string;
+  isEnrolled: boolean;
 };
 
 const CookingTime = ({
@@ -355,7 +370,9 @@ const CookingTime = ({
       </div>
       <div className="flex flex-col">
         <div className="text-lg font-bold leading-tight text-gray-900">
-          {cookTime ? formatTime(cookTime) : t("mobile.cookingTimeValue", { minutes: 0 })}
+          {cookTime
+            ? formatTime(cookTime)
+            : t("mobile.cookingTimeValue", { minutes: 0 })}
         </div>
         <div className="text-sm text-gray-600">{t("mobile.cookingTime")}</div>
       </div>
@@ -363,11 +380,7 @@ const CookingTime = ({
   );
 };
 
-const ServingsInfo = ({
-  servings,
-}: {
-  servings?: number;
-}) => {
+const ServingsInfo = ({ servings }: { servings?: number }) => {
   const { t } = useRecipeDetailTranslation();
   return (
     <div className="flex-1 flex gap-2.5 items-center justify-center">
@@ -396,9 +409,14 @@ const RecipeSummary = ({
   cookTime,
   servings,
   formatTime,
+  recipeId,
+  isEnrolled,
 }: RecipeSummaryProps) => {
   const { t } = useRecipeDetailTranslation();
   const [descExpanded, setDescExpanded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = useState<HTMLElement | null>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   const suffix = useMemo(() => `... ${t("summary.showMore")}`, [t]);
 
@@ -420,9 +438,35 @@ const RecipeSummary = ({
     [toggleExpanded],
   );
 
+  const handleMenuToggle = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMenuAnchorEl(e.currentTarget as HTMLElement);
+    setIsMenuOpen(true);
+  }, []);
+
   return (
     <div className="pt-3 px-4">
-      <h1 className="text-xl font-bold leading-tight line-clamp-2">{title}</h1>
+      <div className="flex items-start gap-2">
+        <h1 className="text-xl font-bold leading-tight line-clamp-2 flex-1">
+          {title}
+        </h1>
+        {isEnrolled && (
+          <button
+            type="button"
+            ref={buttonRef}
+            aria-label={t("report.buttonLabel")}
+            onClick={handleMenuToggle}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-600
+              transition-all duration-150
+              hover:bg-gray-100
+              active:scale-[0.90]
+              focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2
+              cursor-pointer"
+          >
+            <MoreVertical className="w-5 h-5" />
+          </button>
+        )}
+      </div>
       <div className="h-1.5" />
       <span
         ref={measurerRef}
@@ -466,6 +510,16 @@ const RecipeSummary = ({
         </div>
         <HorizontalLine />
       </div>
+
+      {/* 더보기 메뉴 - 구매한 레시피만 표시 */}
+      {isEnrolled && (
+        <RecipeMoreMenu
+          recipeId={recipeId}
+          isOpen={isMenuOpen}
+          onClose={() => setIsMenuOpen(false)}
+          anchorEl={menuAnchorEl}
+        />
+      )}
     </div>
   );
 };
@@ -477,4 +531,3 @@ const HorizontalLine = () => {
 const VerticalLine = () => {
   return <div className="w-[1px] h-full bg-gray-300"></div>;
 };
-

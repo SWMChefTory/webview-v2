@@ -135,6 +135,8 @@ export const enum AMPLITUDE_EVENT {
 
   /** 검색창 트렌딩 레시피 카드 클릭 */
   SEARCH_TREND_RECIPE_CLICK = "search_trend_recipe_click",
+  /** 유튜브 검색 배너 클릭 */
+  YOUTUBE_SEARCH_CLICK = "youtube_search_click",
 
   // ─────────────────────────────────────────────────────────────
   // 요리 모드 (Cooking Mode / Hands-free Mode)

@@ -33,6 +33,8 @@ import { CategoryCreatingView } from "@/src/widgets/category-creating-view/categ
 import { useCategoryCreatingTranslation } from "../hooks/useCategoryCreatingTranslation";
 import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 import { useTranslation } from "next-i18next";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export enum CategoryMode {
   SELECT,
@@ -99,7 +101,14 @@ const CategoryListReady = ({
           type: ChipType.FILTER,
           name: t("category.all"),
           // accessary: totalElements,
-          onClick: () => setSelectedCategoryId?.(ALL_RECIPES),
+          onClick: () => {
+            track(AMPLITUDE_EVENT.USER_CATEGORY_SELECT, {
+              source: "user_recipe",
+              category_id: "all",
+              category_name: t("category.all"),
+            });
+            setSelectedCategoryId?.(ALL_RECIPES);
+          },
           isSelected: selectedCategoryId === ALL_RECIPES,
         }}
         isDarkMode={true}
@@ -111,11 +120,22 @@ const CategoryListReady = ({
             type: ChipType.FILTER,
             name: category.name,
             accessary: category.count,
-            onClick: () => setSelectedCategoryId?.(category.id),
+            onClick: () => {
+              track(AMPLITUDE_EVENT.USER_CATEGORY_SELECT, {
+                source: "user_recipe",
+                category_id: category.id,
+                category_name: category.name,
+              });
+              setSelectedCategoryId?.(category.id);
+            },
             onClickLong: () => {
               if(selectedCategoryId===category.id){
                 return;
               }
+              track(AMPLITUDE_EVENT.USER_CATEGORY_DELETE_OPEN, {
+                category_id: category.id,
+                category_name: category.name,
+              });
               setCategoryToDelete(category);
             },
             isSelected: selectedCategoryId === category.id,
@@ -130,6 +150,7 @@ const CategoryListReady = ({
           name: t("category.add"),
           accessary: IoMdAdd,
           onClick: () => {
+            track(AMPLITUDE_EVENT.USER_CATEGORY_CREATE_OPEN);
             setIsOpen(true);
           },
         }}
@@ -171,9 +192,17 @@ function CategoryDeleteAlert({
   const handleCancel = () => {
     onClose();
   };
-  const handleDelete = async () => {
-    await deleteCategory(category.id);
-    onClose();
+  const handleDelete = () => {
+    deleteCategory(category.id, {
+      onSuccess: () => {
+        track(AMPLITUDE_EVENT.USER_CATEGORY_DELETE_SUCCESS, {
+          category_id: category.id,
+          category_name: category.name,
+          recipe_count: category.count,
+        });
+        onClose();
+      },
+    });
   };
   if (isPending) {
     return (

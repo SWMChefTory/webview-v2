@@ -61,7 +61,7 @@ export function useDeleteCategory() {
   const queryClient = useQueryClient();
 
   const {
-    mutateAsync: deleteCategory,
+    mutate: deleteCategory,
     isPending,
     error,
   } = useMutation({
@@ -80,7 +80,7 @@ export function useDeleteCategory() {
 export function useCreateCategory() {
   const queryClient = useQueryClient();
   const {
-    mutateAsync: createCategory,
+    mutate: createCategory,
     isPending,
     error,
   } = useMutation({

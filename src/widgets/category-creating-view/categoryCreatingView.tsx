@@ -4,6 +4,8 @@ import { FormInput, FormButton } from "@/src/shared/form/components";
 import { useCreateCategory } from "@/src/entities/category/model/useCategory";
 import { useAnimate, useMotionValue } from "motion/react";
 import { useCategoryCreatingTranslation } from "@/src/views/user-recipe/hooks/useCategoryCreatingTranslation";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export function CategoryCreatingView({
   isOpen,
@@ -24,10 +26,16 @@ export function CategoryCreatingView({
 
   const handleSubmit = () => {
     if (isSubmittable({ name }) && !isTooLong({ name })) {
-      createCategory(name);
-      setHasEverTyped(false);
-      setName("");
-      setIsOpen(false);
+      createCategory(name, {
+        onSuccess: () => {
+          track(AMPLITUDE_EVENT.USER_CATEGORY_CREATE_SUCCESS, {
+            category_name: name.trim(),
+          });
+          setHasEverTyped(false);
+          setName("");
+          setIsOpen(false);
+        },
+      });
     }
   };
 

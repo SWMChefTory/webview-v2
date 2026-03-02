@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import Image from "next/image";
 import { useTranslation } from "next-i18next";
+import { useFetchRecipeOverview } from "@/src/entities/recipe-overview";
 
 const RecipeErollModal = () => {
   const { recipeId } = useRecipeEnrollModalStore();
@@ -65,12 +66,7 @@ const Content = ({
     return <ContentInProgress recipeId={recipeId} onClose={onClose} />;
   }
 
-  return (
-    <ContentWithOverlay
-      recipeId={recipeId}
-      onClose={onClose}
-    />
-  );
+  return <ContentWithOverlay recipeId={recipeId} onClose={onClose} />;
 };
 
 // ContentReady 위에 상태별 오버레이를 표시하는 컴포넌트
@@ -116,7 +112,9 @@ const ContentTemplate = ({
             />
           </svg>
         </div>
-        <span className="text-sm font-bold text-gray-600 text-white">{t("recipeCreating.modal.registered")}</span>
+        <span className="text-sm font-bold text-gray-600 text-white">
+          {t("recipeCreating.modal.registered")}
+        </span>
       </div>
       <div className="bg-white rounded-[20px] overflow-hidden">
         <div className="w-full aspect-video rounded-t-[20px] overflow-hidden">
@@ -137,7 +135,7 @@ const ContentSkeleton = () => {
         <Skeleton className="w-5 h-5 rounded-full" />
         <Skeleton className="h-4 w-20" />
       </div>
-      
+
       <div className="bg-white rounded-[20px] overflow-hidden">
         <div className="w-full aspect-video rounded-t-[20px] overflow-hidden">
           <Skeleton className="w-full h-full" />
@@ -147,7 +145,7 @@ const ContentSkeleton = () => {
           <Skeleton className="h-6 w-3/4" />
         </div>
       </div>
-      
+
       <div className="bg-white rounded-b-[20px] overflow-hidden">
         <Skeleton className="h-12" />
       </div>
@@ -178,7 +176,9 @@ const ContentInProgress = ({
 
       <div className="bg-white rounded-[20px] pt-6 px-6 pb-4 w-full">
         <div className="flex items-center justify-center gap-2 pt-[16px]">
-          <p className="text-xl font-bold text-gray-900">{t("recipeCreating.modal.creating")}</p>
+          <p className="text-xl font-bold text-gray-900">
+            {t("recipeCreating.modal.creating")}
+          </p>
           <Spinner className="size-6 text-orange-500" />
         </div>
         <div className="text-sm text-gray-500 mt-2 text-center">
@@ -223,7 +223,7 @@ const ContentReady = ({
   recipeId: string;
   onClose: () => void;
 }) => {
-  const { data: recipe } = useFetchRecipe(recipeId);
+  const { data: recipe } = useFetchRecipeOverview(recipeId);
   const router = useRouter();
   const { t } = useTranslation("common");
 
@@ -232,11 +232,11 @@ const ContentReady = ({
     router.push({
       pathname: `/recipe/${recipeId}/detail`,
       query: {
-        title: recipe.videoInfo.videoTitle,
-        videoId: recipe.videoInfo.videoId,
-        description: recipe.recipeDetailMeta?.description,
-        servings: recipe.recipeDetailMeta?.servings,
-        cookingTime: recipe.recipeDetailMeta?.cookingTime,
+        title: recipe.recipeTitle,
+        videoId: recipe.videoId,
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookingTime,
       },
     });
   };
@@ -245,14 +245,14 @@ const ContentReady = ({
     <ContentTemplate
       thumbnail={
         <img
-          src={recipe.videoInfo.videoThumbnailUrl}
+          src={recipe.videoThumbnailUrl}
           alt="tory"
           className="w-full h-full object-cover object-center"
         />
       }
       title={
         <h2 className="text-lg font-bold text-gray-900 line-clamp-1">
-          {recipe.videoInfo.videoTitle}
+          {recipe.recipeTitle}
         </h2>
       }
       button={

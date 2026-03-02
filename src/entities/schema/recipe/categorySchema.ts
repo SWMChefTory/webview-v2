@@ -7,7 +7,8 @@ const CategorySchema = z.object({
 });
 
 const CategoriesSchema = z.object({
-    categories: z.array(CategorySchema),
+  categories: z.array(CategorySchema),
+  totalCount: z.number(),
 });
 
 export type Category = z.infer<typeof CategorySchema>;

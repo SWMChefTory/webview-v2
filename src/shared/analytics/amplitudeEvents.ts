@@ -222,6 +222,36 @@ export const enum AMPLITUDE_EVENT {
   CATEGORY_RECIPE_CLICK = "category_recipe_click",
 
   // ─────────────────────────────────────────────────────────────
+  // 나의 레시피 (User Recipe)
+  // 홈 및 나의 레시피 페이지에서의 사용자 행동 추적
+  // @see docs/amplitude/details/user-recipe.md
+  // ─────────────────────────────────────────────────────────────
+
+  /** 나의 레시피 카테고리 칩 클릭 (홈/나의 레시피 페이지) */
+  USER_CATEGORY_SELECT = "user_category_select",
+
+  /** 나의 레시피 카드 클릭 → 상세 페이지 이동 */
+  USER_RECIPE_CLICK = "user_recipe_click",
+
+  /** 카테고리 생성 모달 열기 (+ 버튼 클릭) */
+  USER_CATEGORY_CREATE_OPEN = "user_category_create_open",
+
+  /** 카테고리 생성 완료 */
+  USER_CATEGORY_CREATE_SUCCESS = "user_category_create_success",
+
+  /** 카테고리 삭제 다이얼로그 열기 (길게 누르기) */
+  USER_CATEGORY_DELETE_OPEN = "user_category_delete_open",
+
+  /** 카테고리 삭제 완료 */
+  USER_CATEGORY_DELETE_SUCCESS = "user_category_delete_success",
+
+  /** 카테고리 이동 다이얼로그 열기 (레시피 길게 누르기) */
+  USER_CATEGORY_MOVE_OPEN = "user_category_move_open",
+
+  /** 레시피 카테고리 이동 완료 */
+  USER_CATEGORY_MOVE_SUCCESS = "user_category_move_success",
+
+  // ─────────────────────────────────────────────────────────────
   // 결제 (Recharge)
   // 결제 버튼을 누르는지 추적
   // ─────────────────────────────────────────────────────────────

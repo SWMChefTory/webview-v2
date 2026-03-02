@@ -206,6 +206,10 @@ export function useCreateRecipe() {
   };
 }
 
+export function useDeleteRecipe() {
+
+}
+
 export const QUERY_KEY_RECIPE_PROGRESS = "recipeProgress";
 
 class RecipeProgressStatus {

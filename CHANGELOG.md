@@ -7,6 +7,13 @@
 
 ---
 
+## [1.1.8] - 2026-03-02
+
+### 나의 레시피(사용자 레시피) 분석 및 기능 강화
+
+- **데이터 기반 개선**: 카테고리 선택, 추가, 삭제 등 주요 동작에 Amplitude 이벤트 추적 연동 (`USER_CATEGORY_SELECT`, `USER_CATEGORY_CREATE_OPEN`, `USER_CATEGORY_DELETE_SUCCESS` 등)
+
+
 ## [1.1.7] - 2026-03-02
 
 ### Amplitude 이벤트 구조 개선

@@ -4,6 +4,7 @@ import { parseWithErrLog } from "@/src/entities/schema/logger/zodErrorLogger";
 
 export async function fetchCategories() {
   const response = await client.get("/recipes/categories");
+  console.log(JSON)
   return parseWithErrLog(CategoriesSchema, response.data);
 }
 

@@ -42,7 +42,9 @@ export function useRecipeStepPageController(id: string) {
   const voiceActiveTimerRef = useRef<number | null>(null);
   const videoRef = useRef<VideoRefProps | null>(null);
   const timerErrorPopoverRef = useRef<popoverHandle | undefined>(undefined);
-  const micButtonPopoverRef = useRef<micButtonPopoverHandle | undefined>(undefined);
+  const micButtonPopoverRef = useRef<micButtonPopoverHandle | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     return () => {
@@ -52,8 +54,13 @@ export function useRecipeStepPageController(id: string) {
     };
   }, []);
 
-  const { steps, currentIndex, currentDetailIndex, chageStepByTime, changeStepByIndex } =
-    useRecipeStepController({ recipeId: id });
+  const {
+    steps,
+    currentIndex,
+    currentDetailIndex,
+    chageStepByTime,
+    changeStepByIndex,
+  } = useRecipeStepController({ recipeId: id });
 
   const hasTrackedStartRef = useRef(false);
   const prevStepRef = useRef<number | null>(null);
@@ -65,7 +72,7 @@ export function useRecipeStepPageController(id: string) {
 
     const totalDetails = steps.reduce(
       (sum, step) => sum + step.details.length,
-      0
+      0,
     );
 
     hasTrackedStartRef.current = true;
@@ -130,7 +137,7 @@ export function useRecipeStepPageController(id: string) {
         time: steps[stepIndex].details[stepDetailIndex].start,
       });
     },
-    [steps, changeStepByIndex]
+    [steps, changeStepByIndex],
   );
 
   const { handleTimerIntent } = useHandleTimerVoiceIntent({
@@ -159,9 +166,8 @@ export function useRecipeStepPageController(id: string) {
     },
     onIntent: (intent: unknown) => {
       const intentObj = intent as { base_intent?: string } | string;
-      const rawIntent = typeof intentObj === "string" 
-        ? intentObj 
-        : intentObj?.base_intent;
+      const rawIntent =
+        typeof intentObj === "string" ? intentObj : intentObj?.base_intent;
       const parsedIntent = parseIntent(rawIntent);
 
       if (parsedIntent === "NEXT") {
@@ -299,7 +305,8 @@ export function useRecipeStepPageController(id: string) {
           currentStep: currentIndex,
           currentDetail: currentDetailIndex,
         });
-        const [, ingredientName, ingredientAmount, _ingredientUnit] = ingredient;
+        const [, ingredientName, ingredientAmount, _ingredientUnit] =
+          ingredient;
         if (ingredientAmount === "0") {
           handleMicButtonPopover(`영상을 참조해주세요.`);
         }
@@ -311,7 +318,7 @@ export function useRecipeStepPageController(id: string) {
           return _ingredientUnit;
         })();
         handleMicButtonPopover(
-          `${ingredientName} ${ingredientAmount} ${ingredientUnit} 필요해요.`
+          `${ingredientName} ${ingredientAmount} ${ingredientUnit} 필요해요.`,
         );
         return;
       }
@@ -339,7 +346,7 @@ export function useRecipeStepPageController(id: string) {
       }
       chageStepByTime(time);
     },
-    [steps, currentIndex, chageStepByTime]
+    [steps, currentIndex, chageStepByTime],
   );
 
   const handleTrackTouchNavigation = useCallback(() => {
@@ -374,6 +381,7 @@ export function useRecipeStepPageController(id: string) {
   }, []);
 
   return {
+    recipeId: id,
     router,
     orientation,
     recipe,
@@ -407,4 +415,6 @@ export function useRecipeStepPageController(id: string) {
   };
 }
 
-export type RecipeStepControllerReturn = ReturnType<typeof useRecipeStepPageController>;
+export type RecipeStepControllerReturn = ReturnType<
+  typeof useRecipeStepPageController
+>;

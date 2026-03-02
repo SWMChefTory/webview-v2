@@ -5,6 +5,7 @@ import { StepsContent } from "./stepsContent";
 import { TutorialStarter } from "./tutorialStarter";
 import { FloatingControlBar } from "./RecipeStep.common";
 import type { RecipeStepControllerReturn } from "./RecipeStep.controller";
+import { id } from "zod/v4/locales";
 
 interface RecipeStepMobileProps {
   controller: RecipeStepControllerReturn;
@@ -12,6 +13,7 @@ interface RecipeStepMobileProps {
 
 export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
   const {
+    recipeId,
     router,
     recipe,
     isInRepeat,
@@ -25,11 +27,9 @@ export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
     handleTrackTouchNavigation,
   } = controller;
 
-  const id = recipe.videoInfo.videoId;
-
   return (
     <div className="flex flex-col w-[100vw] h-[100vh] overflow-hidden bg-black items-center lg:max-w-[1920px] lg:mx-auto">
-      <TutorialStarter recipeId={id} />
+      <TutorialStarter recipeId={recipeId} />
       <Header
         leftContent={
           <BackButton
@@ -64,7 +64,7 @@ export function RecipeStepMobile({ controller }: RecipeStepMobileProps) {
           onChangeStep={handleChangeStepWithVideoTime}
           steps={recipe.recipeSteps ?? []}
           isLandscape={false}
-          recipeId={id}
+          recipeId={recipeId}
           onTrackTouchNavigation={handleTrackTouchNavigation}
         />
         <FloatingControlBar controller={controller} isLandscape={false} />

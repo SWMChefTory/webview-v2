@@ -6,6 +6,7 @@ import {
   RecipeCardSkeleton,
   EmptyState,
 } from "./CategoryResults.common";
+import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
 
 export function CategoryResultsSkeletonTablet() {
   return (
@@ -47,6 +48,8 @@ export function CategoryResultsContentTablet({
     return <EmptyState t={t} />;
   }
 
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS');
+
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       <div className="max-w-[1024px] mx-auto w-full px-8 py-10">
@@ -65,9 +68,9 @@ export function CategoryResultsContentTablet({
 
       <div className="max-w-[1024px] mx-auto w-full px-8 pb-12">
         <div className="grid grid-cols-3 gap-8">
-          {recipes.map((recipe) => (
+          {recipes.map((recipe, index) => (
+            <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
             <RecipeCardWrapper
-              key={recipe.recipeId}
               recipeCreditCost={recipe.creditCost}
               recipeId={recipe.recipeId}
               recipeTitle={recipe.recipeTitle}
@@ -79,6 +82,7 @@ export function CategoryResultsContentTablet({
               description={recipe.detailMeta?.description}
               servings={recipe.detailMeta?.servings}
               cookingTime={recipe.detailMeta?.cookingTime}
+              onTrackClick={() => trackClick(recipe.recipeId, index)}
               trigger={
                 <RecipeCardReady
                   recipeTitle={recipe.recipeTitle}
@@ -92,6 +96,7 @@ export function CategoryResultsContentTablet({
                 />
               }
             />
+            </div>
           ))}
 
           {isFetchingNextPage && (

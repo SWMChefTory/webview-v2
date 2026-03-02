@@ -11,6 +11,7 @@ import {
   PopularRecipeContentProps,
 } from "./PopularRecipe.controller";
 import { VideoType } from "@/src/entities/schema";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function PopularRecipeMobile() {
   const props = usePopularRecipeController("mobile");
@@ -32,28 +33,31 @@ function PopularRecipeMobileLayout({ title}: PopularRecipePageProps) {
 
 function PopularRecipesContent() {
   const { recipes, isFetchingNextPage, onScroll } = usePopularRecipeContent("mobile");
+  const { observeRef, trackClick } = useRecipeTracking('POPULAR_RECIPES');
 
   return (
     <div className="overflow-y-scroll h-[100vh] no-scrollbar" onScroll={onScroll}>
       <div className="grid grid-cols-2 gap-2 min-h-[100.5vh]">
-        {recipes.map((recipe) => (
-          <RecipeCardWrapper
-            key={recipe.recipeId}
-            recipeId={recipe.recipeId}
-            recipeCreditCost={recipe.creditCost}
-            recipeTitle={recipe.recipeTitle}
-            recipeIsViewed={recipe.isViewed}
-            recipeVideoType={
-              recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
-            }
-            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-            entryPoint="popular_normal"
-            videoId={recipe.videoInfo.videoId}
-            description={recipe.detailMeta.description}
-            servings={recipe.detailMeta.servings}
-            cookingTime={recipe.detailMeta.cookingTime}
-            trigger={<PopularRecipeCard recipe={recipe} />}
-          />
+        {recipes.map((recipe, index) => (
+          <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+            <RecipeCardWrapper
+              recipeId={recipe.recipeId}
+              recipeCreditCost={recipe.creditCost}
+              recipeTitle={recipe.recipeTitle}
+              recipeIsViewed={recipe.isViewed}
+              recipeVideoType={
+                recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+              }
+              recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+              entryPoint="popular_normal"
+              videoId={recipe.videoInfo.videoId}
+              description={recipe.detailMeta.description}
+              servings={recipe.detailMeta.servings}
+              cookingTime={recipe.detailMeta.cookingTime}
+              onTrackClick={() => trackClick(recipe.recipeId, index)}
+              trigger={<PopularRecipeCard recipe={recipe} />}
+            />
+          </div>
         ))}
         {isFetchingNextPage && (
           <>

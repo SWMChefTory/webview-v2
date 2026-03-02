@@ -6,6 +6,7 @@ import { VideoType } from "@/src/entities/schema";
 
 import { useInfiniteScroll } from "@/src/shared/hooks";
 import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import Trend from "@/src/views/home/ui/assets/trend.png";
@@ -27,6 +28,7 @@ const TrendRecipeGrid = () => {
     { rootMargin: "50px" }
   );
   const { t } = useSearchOverlayTranslation();
+  const { observeRef, trackClick } = useRecipeTracking('SEARCH_TRENDING');
 
   if (recipes.length === 0) {
     return (
@@ -40,28 +42,30 @@ const TrendRecipeGrid = () => {
 
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 2xl:gap-8">
-      {recipes.map((recipe) => (
-        <RecipeCardWrapper
-          key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeIsViewed={recipe.isViewed}
-          recipeTitle={recipe.recipeTitle}
-          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={
-            <TrendRecipeCard
-              videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-              recipeTitle={recipe.recipeTitle}
-              isViewed={recipe.isViewed}
-            />
-          }
-          entryPoint="search_trend"
-        />
+      {recipes.map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+          <RecipeCardWrapper
+            recipeId={recipe.recipeId}
+            recipeCreditCost={recipe.creditCost}
+            recipeIsViewed={recipe.isViewed}
+            recipeTitle={recipe.recipeTitle}
+            recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
+            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+            videoId={recipe.videoInfo.videoId}
+            description={recipe.detailMeta.description}
+            servings={recipe.detailMeta.servings}
+            cookingTime={recipe.detailMeta.cookingTime}
+            onTrackClick={() => trackClick(recipe.recipeId, index)}
+            trigger={
+              <TrendRecipeCard
+                videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                recipeTitle={recipe.recipeTitle}
+                isViewed={recipe.isViewed}
+              />
+            }
+            entryPoint="search_trend"
+          />
+        </div>
       ))}
 
       {isFetchingNextPage && (

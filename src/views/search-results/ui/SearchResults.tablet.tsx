@@ -6,6 +6,7 @@ import {
   EmptyState,
 } from "./SearchResults.common";
 import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
+import { useRecipeTracking } from '@/src/shared/tracking';
 
 export function SearchResultsSkeletonTablet() {
   return (
@@ -35,6 +36,10 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
     onRecipeClick,
   } = useSearchResultsController(keyword);
 
+  const { observeRef, trackClick } = useRecipeTracking('SEARCH_RESULTS', {
+    resetKey: keyword,
+  });
+
   if (searchResults.length === 0) {
     return <EmptyState variant="tablet" translations={translations} keyword={keyword} />;
   }
@@ -58,14 +63,21 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
         <div className="pb-12">
           <div className="grid grid-cols-3 gap-8">
             {searchResults.map((recipe, index) => (
-              <SearchedRecipeCard
+              <div
                 key={recipe.recipeId}
-                recipe={recipe}
-                position={index + 1}
-                variant="tablet"
-                translations={translations}
-                onRecipeClick={onRecipeClick}
-              />
+                ref={(el) => observeRef(el, recipe.recipeId, index)}
+              >
+                <SearchedRecipeCard
+                  recipe={recipe}
+                  position={index + 1}
+                  variant="tablet"
+                  translations={translations}
+                  onRecipeClick={(recipe, position) => {
+                    trackClick(recipe.recipeId, index);
+                    onRecipeClick(recipe, position);
+                  }}
+                />
+              </div>
             ))}
             {isFetchingNextPage && (
               <>

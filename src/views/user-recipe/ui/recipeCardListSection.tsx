@@ -11,6 +11,7 @@ import {
 } from "@/src/views/user-recipe/ui/recipeCard";
 import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 import { type UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
@@ -22,9 +23,12 @@ export const RecipeListSectionReady = ({
   isDesktop?: boolean;
 }) => {
   const { data: categories } = useFetchCategories();
+  const { observeRef, trackClick } = useRecipeTracking('USER_RECIPES', {
+    resetKey: selectedCategoryId,
+  });
 
   if (selectedCategoryId === ALL_RECIPES) {
-    return <RecipeAllListSectionReady isTablet={isTablet} isDesktop={isDesktop} />;
+    return <RecipeAllListSectionReady isTablet={isTablet} isDesktop={isDesktop} observeRef={observeRef} trackClick={trackClick} />;
   }
 
   const selectedCategory = categories.find(
@@ -41,6 +45,8 @@ export const RecipeListSectionReady = ({
       categoryName={selectedCategory.name}
       isTablet={isTablet}
       isDesktop={isDesktop}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -48,9 +54,13 @@ export const RecipeListSectionReady = ({
 const RecipeAllListSectionReady = ({
   isTablet,
   isDesktop,
+  observeRef,
+  trackClick,
 }: {
   isTablet: boolean;
   isDesktop: boolean;
+  observeRef: (node: HTMLElement | null, recipeId: string, position: number) => void;
+  trackClick: (recipeId: string, position: number) => void;
 }) => {
   const {
     entities: recipes,
@@ -72,6 +82,8 @@ const RecipeAllListSectionReady = ({
       }}
       isFetchingNextPage={isFetchingNextPage}
       selectedCategoryId={ALL_RECIPES}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -81,11 +93,15 @@ const RecipeCategoryListSectionReady = ({
   categoryName,
   isTablet,
   isDesktop,
+  observeRef,
+  trackClick,
 }: {
   categoryId: string;
   categoryName: string;
   isTablet: boolean;
   isDesktop: boolean;
+  observeRef: (node: HTMLElement | null, recipeId: string, position: number) => void;
+  trackClick: (recipeId: string, position: number) => void;
 }) => {
   const {
     entities: recipes,
@@ -108,6 +124,8 @@ const RecipeCategoryListSectionReady = ({
       }}
       isFetchingNextPage={isFetchingNextPage}
       selectedCategoryId={categoryId}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -121,6 +139,8 @@ const RecipeListSectionTemplate = ({
   onScrollEnd,
   isFetchingNextPage,
   selectedCategoryId,
+  observeRef,
+  trackClick,
 }: {
   recipes: UserRecipe[];
   isCategory: boolean;
@@ -130,6 +150,8 @@ const RecipeListSectionTemplate = ({
   onScrollEnd: () => void;
   isFetchingNextPage: boolean;
   selectedCategoryId: string | typeof ALL_RECIPES;
+  observeRef: (node: HTMLElement | null, recipeId: string, position: number) => void;
+  trackClick: (recipeId: string, position: number) => void;
 }) => {
   const { t } = useUserRecipeTranslation();
 
@@ -153,15 +175,17 @@ const RecipeListSectionTemplate = ({
               : "flex flex-col w-full gap-2 lg:gap-4 xl:gap-6"
           }
         >
-          {recipes.map((recipe) => (
-            <RecipeDetailsCardReady
-              key={recipe.recipeId}
-              userRecipe={recipe}
-              selectedCategoryId={
-                selectedCategoryId === ALL_RECIPES ? undefined : selectedCategoryId
-              }
-              isDesktop={isDesktop}
-            />
+          {recipes.map((recipe, index) => (
+            <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+              <RecipeDetailsCardReady
+                userRecipe={recipe}
+                selectedCategoryId={
+                  selectedCategoryId === ALL_RECIPES ? undefined : selectedCategoryId
+                }
+                isDesktop={isDesktop}
+                onTrackClick={() => trackClick(recipe.recipeId, index)}
+              />
+            </div>
           ))}
           {isFetchingNextPage && <RecipeDetailsCardSkeleton isDesktop={isDesktop} />}
         </div>

@@ -12,6 +12,7 @@ import {
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
+import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
 
 export function PopularRecipesDesktop() {
   return (
@@ -49,11 +50,13 @@ function RecipeCardSectionReady() {
     videoType: VideoTypeQuery.NORMAL,
   });
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_RECIPES');
+
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-      {recipes.slice(0, 5).map((recipe) => (
+      {recipes.slice(0, 5).map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
         <RecipeCardWrapper
-          key={recipe.recipeId}
           recipeId={recipe.recipeId}
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
@@ -69,6 +72,7 @@ function RecipeCardSectionReady() {
           description={recipe.detailMeta.description}
           servings={recipe.detailMeta.servings}
           cookingTime={recipe.detailMeta.cookingTime}
+          onTrackClick={() => trackClick(recipe.recipeId, index)}
           trigger={
             <RecipeCardReady
               recipe={{
@@ -82,6 +86,7 @@ function RecipeCardSectionReady() {
             />
           }
         />
+        </div>
       ))}
       <ViewMoreCard href="/recommend?recipeType=POPULAR&videoType=NORMAL" />
     </div>

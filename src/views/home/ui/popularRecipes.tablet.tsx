@@ -10,6 +10,7 @@ import {
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
+import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
 
 /**
  * PopularRecipes 섹션 - 태블릿 버전 (768px ~)
@@ -70,15 +71,17 @@ function RecipeCardSectionReady() {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_RECIPES');
+
   return (
     <HorizontalScrollArea
       moreLink="/recommend?recipeType=POPULAR&videoType=NORMAL"
       gap="gap-5"
       onReachEnd={handleReachEnd}
     >
-      {recipes.map((recipe) => (
+      {recipes.map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
         <RecipeCardWrapper
-          key={recipe.recipeId}
           recipeId={recipe.recipeId}
           recipeCreditCost={recipe.creditCost}
           recipeTitle={recipe.recipeTitle}
@@ -92,6 +95,7 @@ function RecipeCardSectionReady() {
           description={recipe.detailMeta.description}
           servings={recipe.detailMeta.servings}
           cookingTime={recipe.detailMeta.cookingTime}
+          onTrackClick={() => trackClick(recipe.recipeId, index)}
           trigger={
             <RecipeCardReady
               recipe={{
@@ -105,6 +109,7 @@ function RecipeCardSectionReady() {
             />
           }
         />
+        </div>
       ))}
 
       {isFetchingNextPage && <RecipeCardSkeleton isTablet={true} />}

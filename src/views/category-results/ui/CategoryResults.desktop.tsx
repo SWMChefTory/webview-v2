@@ -7,6 +7,7 @@ import {
   EmptyState,
 } from "./CategoryResults.common";
 import { VideoType } from "@/src/entities/schema";
+import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
 
 export function CategoryResultsSkeletonDesktop() {
   return (
@@ -48,6 +49,8 @@ export function CategoryResultsContentDesktop({
     return <EmptyState t={t} />;
   }
 
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS');
+
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50">
       <div className="max-w-[1600px] mx-auto w-full px-8 py-12 lg:py-16">
@@ -66,10 +69,9 @@ export function CategoryResultsContentDesktop({
 
       <div className="max-w-[1600px] mx-auto w-full px-8 pb-16">
         <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 lg:gap-8">
-          {recipes.map((recipe) => (
-            <div key={recipe.recipeId} className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom">
+          {recipes.map((recipe, index) => (
+            <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)} className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom">
             <RecipeCardWrapper
-              key={recipe.recipeId}
               recipeCreditCost={recipe.creditCost}
               recipeId={recipe.recipeId}
               recipeTitle={recipe.recipeTitle}
@@ -81,6 +83,7 @@ export function CategoryResultsContentDesktop({
               description={recipe.detailMeta?.description}
               servings={recipe.detailMeta?.servings}
               cookingTime={recipe.detailMeta?.cookingTime}
+              onTrackClick={() => trackClick(recipe.recipeId, index)}
               trigger={
                 <RecipeCardReady
                   recipeTitle={recipe.recipeTitle}

@@ -4,6 +4,7 @@ import { EmptyState } from "./SearchResults.common";
 import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSkeleton, NormalVerticalListSkeleton } from "@/src/widgets/recipe-cards-section";
 import { VideoType } from "@/src/entities/schema";
 import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
+import { useRecipeTracking } from '@/src/shared/tracking';
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -26,6 +27,10 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
     isFetchingNextPage,
     translations,
   } = useSearchResultsController(keyword);
+
+  const { observeRef, trackClick } = useRecipeTracking('SEARCH_RESULTS', {
+    resetKey: keyword,
+  });
 
   if (searchResults.length === 0) {
     return <EmptyState variant="mobile" translations={translations} keyword={keyword} />;
@@ -64,6 +69,8 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           getVideoUrl={(recipe) => recipe.videoUrl}
           cardServing={translations.cardServing}
           cardMinute={translations.cardMinute}
+          observeRef={observeRef}
+          onTrackClick={trackClick}
         />
         <NormalRecipeListMobile
           recipes={normalRecipes}
@@ -75,6 +82,8 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           cardBadge={translations.cardBadge}
           cardServing={translations.cardServing}
           cardMinute={translations.cardMinute}
+          observeRef={observeRef}
+          onTrackClick={trackClick}
         />
       </div>
     </div>

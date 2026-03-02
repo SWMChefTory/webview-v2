@@ -8,10 +8,11 @@ import {
 import {
   usePopularRecipeController,
   usePopularRecipeContent,
-  PopularRecipePageProps, 
+  PopularRecipePageProps,
   PopularRecipeContentProps,
 } from "./PopularRecipe.controller";
 import { VideoType } from "@/src/entities/schema";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function PopularRecipeDesktop() {
   const props = usePopularRecipeController("desktop");
@@ -33,29 +34,34 @@ function PopularRecipeDesktopLayout({ title }: PopularRecipePageProps) {
 
 function PopularRecipesContent() {
   const { recipes, isFetchingNextPage, loadMoreRef } = usePopularRecipeContent("desktop");
+  const { observeRef, trackClick } = useRecipeTracking('POPULAR_RECIPES');
 
   return (
     <div className="pb-16">
       <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 lg:gap-8 min-h-[50vh]">
-        {recipes.map((recipe) => (
-          <div key={recipe.recipeId} className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom">
-          <RecipeCardWrapper
+        {recipes.map((recipe, index) => (
+          <div
             key={recipe.recipeId}
-            recipeId={recipe.recipeId}
-            recipeCreditCost={recipe.creditCost}
-            recipeTitle={recipe.recipeTitle}
-            recipeIsViewed={recipe.isViewed}
-            recipeVideoType={
-              recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
-            }
-            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-            entryPoint="popular_normal"
-            videoId={recipe.videoInfo.videoId}
-            description={recipe.detailMeta.description}
-            servings={recipe.detailMeta.servings}
-            cookingTime={recipe.detailMeta.cookingTime}
-            trigger={<PopularRecipeCard recipe={recipe} isTablet />}
-          />
+            ref={(el) => observeRef(el, recipe.recipeId, index)}
+            className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom"
+          >
+            <RecipeCardWrapper
+              recipeId={recipe.recipeId}
+              recipeCreditCost={recipe.creditCost}
+              recipeTitle={recipe.recipeTitle}
+              recipeIsViewed={recipe.isViewed}
+              recipeVideoType={
+                recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL
+              }
+              recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+              entryPoint="popular_normal"
+              videoId={recipe.videoInfo.videoId}
+              description={recipe.detailMeta.description}
+              servings={recipe.detailMeta.servings}
+              cookingTime={recipe.detailMeta.cookingTime}
+              onTrackClick={() => trackClick(recipe.recipeId, index)}
+              trigger={<PopularRecipeCard recipe={recipe} isTablet />}
+            />
           </div>
         ))}
         {isFetchingNextPage && (

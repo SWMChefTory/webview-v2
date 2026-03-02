@@ -24,6 +24,7 @@ type RecipeCardWrapperProps = {
   description?: string;
   servings?: number;
   cookingTime?: number;
+  onTrackClick?: () => void;
 };
 
 //이 요소를 부모로 두면 자식 요소를 클릭하면 다이어로그가 열리도록 함.
@@ -35,23 +36,27 @@ export function RecipeCardWrapper({
   servings,
   cookingTime,
   trigger,
+  onTrackClick,
 }: RecipeCardWrapperProps) {
   const router = useRouter();
 
+  const handleCardClick = () => {
+    onTrackClick?.();
+    router.push({
+      pathname: `/recipe/${recipeId}/detail`,
+      query: {
+        title: recipeTitle,
+        videoId,
+        description,
+        servings,
+        cookingTime,
+      },
+    });
+  };
+
   return (
     <div
-      onClick={() => {
-        router.push({
-          pathname: `/recipe/${recipeId}/detail`,
-          query: {
-            title: recipeTitle,
-            videoId,
-            description,
-            servings,
-            cookingTime,
-          },
-        });
-      }}
+      onClick={handleCardClick}
       className="cursor-pointer"
     >
       {trigger}

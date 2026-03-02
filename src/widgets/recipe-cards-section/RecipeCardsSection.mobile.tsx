@@ -34,6 +34,8 @@ export function ShortsRecipeListMobile<
   getVideoUrl,
   cardServing,
   cardMinute,
+  observeRef,
+  onTrackClick,
 }: {
   recipes: TRecipe[];
   entryPoint: RecipeCardEntryPoint;
@@ -41,6 +43,8 @@ export function ShortsRecipeListMobile<
   getVideoUrl: (recipe: TRecipe) => string;
   cardServing: (count: number) => string;
   cardMinute: (count: number) => string;
+  observeRef?: (node: HTMLElement | null, recipeId: string, position: number) => void;
+  onTrackClick?: (recipeId: string, position: number) => void;
 }) {
   if (recipes.length === 0) return null;
 
@@ -49,8 +53,12 @@ export function ShortsRecipeListMobile<
       <div
         className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {recipes.map((recipe) => (
-          <div key={recipe.recipeId} className="w-[150px] shrink-0 snap-start">
+        {recipes.map((recipe, index) => (
+          <div
+            key={recipe.recipeId}
+            className="w-[150px] shrink-0 snap-start"
+            ref={(el) => observeRef?.(el, recipe.recipeId, index)}
+          >
             <RecipeCardWrapper
               recipeCreditCost={recipe.creditCost}
               recipeId={recipe.recipeId}
@@ -63,6 +71,7 @@ export function ShortsRecipeListMobile<
               description={recipe.detailMeta?.description}
               servings={recipe.detailMeta?.servings}
               cookingTime={recipe.detailMeta?.cookingTime}
+              onTrackClick={() => onTrackClick?.(recipe.recipeId, index)}
               trigger={
                 <RecipeCardShorts
                   cardServing={cardServing}
@@ -93,6 +102,8 @@ export function NormalRecipeListMobile<
   cardBadge,
   cardServing,
   cardMinute,
+  observeRef,
+  onTrackClick,
 }: {
   recipes: TRecipe[];
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
@@ -103,11 +114,17 @@ export function NormalRecipeListMobile<
   cardBadge: string;
   cardServing: (count: number) => string;
   cardMinute: (count: number) => string;
+  observeRef?: (node: HTMLElement | null, recipeId: string, position: number) => void;
+  onTrackClick?: (recipeId: string, position: number) => void;
 }) {
   return (
     <section className="space-y-6 w-full">
-      {recipes.map((recipe) => (
-        <div key={recipe.recipeId} className="w-full">
+      {recipes.map((recipe, index) => (
+        <div
+          key={recipe.recipeId}
+          className="w-full"
+          ref={(el) => observeRef?.(el, recipe.recipeId, index)}
+        >
           <RecipeCardWrapper
             recipeCreditCost={recipe.creditCost}
             recipeId={recipe.recipeId}
@@ -120,6 +137,7 @@ export function NormalRecipeListMobile<
             description={recipe.detailMeta?.description}
             servings={recipe.detailMeta?.servings}
             cookingTime={recipe.detailMeta?.cookingTime}
+            onTrackClick={() => onTrackClick?.(recipe.recipeId, index)}
             trigger={
               <RecipeCardNormal
                 cardBadge={cardBadge}

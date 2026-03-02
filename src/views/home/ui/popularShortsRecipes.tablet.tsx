@@ -4,6 +4,7 @@ import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
 import { VideoType } from "@/src/entities/schema";
 import { RecipeCardWrapper } from "../../../widgets/recipe-creating-modal/recipeCardWrapper";
 import { useCallback } from "react";
+import { useRecipeTracking } from "@/src/shared/tracking";
 import {
   PopularShortsRecipesTitleReady,
   ShortsRecipeCardReady,
@@ -72,34 +73,38 @@ const ShortPopularRecipesSectionReady = () => {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_SHORTS');
+
   return (
     <HorizontalScrollArea gap="gap-4" onReachEnd={handleReachEnd}>
-      {recipes.map((recipe) => (
-        <RecipeCardWrapper
-          key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeTitle={recipe.recipeTitle}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          entryPoint="popular_shorts"
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={
-            <ShortsRecipeCardReady
-              recipe={{
-                id: recipe.recipeId,
-                isViewed: recipe.isViewed,
-                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-                recipeTitle: recipe.recipeTitle,
-              }}
-              isTablet={true}
-            />
-          }
-        />
+      {recipes.map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+          <RecipeCardWrapper
+            recipeId={recipe.recipeId}
+            recipeCreditCost={recipe.creditCost}
+            recipeTitle={recipe.recipeTitle}
+            recipeIsViewed={recipe.isViewed}
+            recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
+            recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
+            entryPoint="popular_shorts"
+            videoId={recipe.videoInfo.videoId}
+            description={recipe.detailMeta.description}
+            servings={recipe.detailMeta.servings}
+            cookingTime={recipe.detailMeta.cookingTime}
+            onTrackClick={() => trackClick(recipe.recipeId, index)}
+            trigger={
+              <ShortsRecipeCardReady
+                recipe={{
+                  id: recipe.recipeId,
+                  isViewed: recipe.isViewed,
+                  videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+                  recipeTitle: recipe.recipeTitle,
+                }}
+                isTablet={true}
+              />
+            }
+          />
+        </div>
       ))}
 
       {isFetchingNextPage && <ShortsRecipeCardSkeleton isTablet={true} />}

@@ -2,6 +2,7 @@ import { useCategoryResultsController } from "./CategoryResults.controller";
 import { EmptyState } from "./CategoryResults.common";
 import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSkeleton, NormalVerticalListSkeleton } from "@/src/widgets/recipe-cards-section";
 import { VideoType } from "@/src/entities/schema";
+import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
 
 export function CategoryResultsSkeletonMobile() {
   return (
@@ -47,6 +48,8 @@ export function CategoryResultsContentMobile({
   const cardServing = (count: number) => t("card.serving", { count });
   const cardMinute = (count: number) => t("card.minute", { count });
 
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS');
+
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       <div className="px-2 pb-28 pt-4">
@@ -57,6 +60,8 @@ export function CategoryResultsContentMobile({
           getVideoUrl={getVideoUrl}
           cardServing={cardServing}
           cardMinute={cardMinute}
+          observeRef={observeRef}
+          onTrackClick={trackClick}
         />
         <NormalRecipeListMobile
           recipes={normalRecipes}
@@ -68,6 +73,8 @@ export function CategoryResultsContentMobile({
           cardBadge={t("card.badge")}
           cardServing={cardServing}
           cardMinute={cardMinute}
+          observeRef={observeRef}
+          onTrackClick={trackClick}
         />
       </div>
     </div>

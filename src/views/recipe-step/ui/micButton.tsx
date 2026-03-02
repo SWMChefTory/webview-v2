@@ -68,6 +68,10 @@ export function VoiceGuideMicStep({
       total_steps: steps.length,
       is_completed: true,
     });
+    track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_COMPLETE, {
+      recipe_id: recipeId,
+      total_steps: steps.length,
+    });
     handleNextStep({ index: currentStepIndex }); // 내부에서 terminate() 호출됨
   };
 

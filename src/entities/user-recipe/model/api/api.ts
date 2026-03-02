@@ -27,7 +27,6 @@ export async function fetchAllRecipesSummary({
   })();
 
   const data = response.data;
-  console.log("data!!!!!!!!!!!!!!!!!!!!!!",JSON.stringify(data,null,2));
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.recentRecipes.map((recipe: any) => transformRecipe(recipe)),
@@ -73,9 +72,9 @@ export async function fetchCategorizedRecipesSummary({
 const transformRecipe = (recipe: any) => {
   return {
     recipeId: recipe.recipeId,
+    recipeTitle: recipe.recipeTitle,
     videoInfo: {
       videoId: recipe.videoId,
-      videoTitle: recipe.recipeTitle,
       channelTitle: recipe.channelTitle,
       videoThumbnailUrl: recipe.videoThumbnailUrl,
       videoSeconds: recipe.videoSeconds,
@@ -91,15 +90,15 @@ const transformRecipe = (recipe: any) => {
     },
     recipeDetailMeta: recipe.description
       ? {
-          description: recipe.description,
-          servings: recipe.servings,
-          cookingTime: recipe.cookTime,
-        }
+        description: recipe.description,
+        servings: recipe.servings,
+        cookingTime: recipe.cookTime,
+      }
       : undefined,
     tags: recipe.tags
       ? recipe.tags.map((tag: any) => ({
-          name: tag.name,
-        }))
+        name: tag.name,
+      }))
       : undefined,
     createdAt: new Date(recipe.createdAt),
   };
@@ -120,12 +119,6 @@ export async function createRecipe(videoUrl: string): Promise<string> {
 
 const RecipeProgressDetailSchema = z.object({
   recipeStatus: z.enum(RecipeStatus),
-  recipeProgressStatuses: z.array(
-    z.object({
-      progressStep: z.enum(RecipeProgressStep),
-      progressDetail: z.enum(RecipeProgressDetail),
-    })
-  ),
 });
 
 export type RecipeCreateStatusResponse = z.infer<

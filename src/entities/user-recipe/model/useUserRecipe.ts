@@ -17,9 +17,6 @@ import { createRecipe } from "@/src/entities/user-recipe/model/api/api";
 import { useEffect, useRef, useState } from "react";
 import { CATEGORY_QUERY_KEY } from "../../category/model/useCategory";
 
-import { VideoType } from "@/src/entities/schema";
-import { track } from "@/src/shared/analytics/amplitude";
-import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { BALANCE_QUERY_KEY } from "../../balance/model/useFetchBalance";
 import { CUISINE_RECIPE_QUERY_KEY } from "../../cuisine-recipe/model/useCuisineRecipe";
@@ -58,14 +55,6 @@ export const useFetchCategoryRecipes = (category: {
   return result;
 };
 
-// 에러 타입 추출 헬퍼 함수
-function getErrorType(error: Error): string {
-  const message = error.message.toLowerCase();
-  if (message.includes("network") || message.includes("fetch"))
-    return "network";
-  if (message.includes("timeout")) return "timeout";
-  return "server";
-}
 
 const isValidYouTubeUrl = (url: string): boolean => {
   const youtubePatterns = [
@@ -135,7 +124,7 @@ export function useUpdateCategoryOfRecipe() {
       return updateCategory({ recipeId, targetCategoryId });
     },
     onSuccess: (data) => {
-      
+
       queryClient.invalidateQueries({
         queryKey: [ALL_RECIPES],
       });
@@ -151,12 +140,17 @@ export function useUpdateCategoryOfRecipe() {
   };
 }
 
+export type CreateRecipeResult = { recipeId: string; standardUrl: string };
+export type CreateRecipeVariables = {
+  youtubeUrl: string;
+  targetCategoryId?: string | null;
+};
+
 export function useCreateRecipe() {
   const queryClient = useQueryClient();
   const { open } = useRecipeEnrollModalStore();
 
   const {
-    mutateAsync,
     mutate,
     data,
     isPending: isLoading,
@@ -165,23 +159,7 @@ export function useCreateRecipe() {
     mutationFn: async ({
       youtubeUrl,
       targetCategoryId = null,
-      recipeId: existingRecipeId,
-      videoType,
-      recipeTitle,
-    }: {
-      youtubeUrl: string;
-      targetCategoryId?: string | null;
-      recipeId?: string;
-      videoType?: VideoType;
-      recipeTitle?: string;
-      // Amplitude 추적용 필드 (4단계에서 사용)
-      _source?: string;
-      _entryPoint?: string;
-      _creationMethod?: "card" | "url";
-      _hasTargetCategory?: boolean;
-      _videoUrl?: string;
-      _videoId?: string;
-    }) => {
+    }: CreateRecipeVariables) => {
       validateUrl(youtubeUrl);
       const standardUrl = convertToStandardYouTubeUrl(youtubeUrl);
       const recipeId = await createRecipe(standardUrl);
@@ -189,38 +167,8 @@ export function useCreateRecipe() {
         await updateCategory({ recipeId, targetCategoryId });
       return { recipeId, standardUrl };
     },
-    onMutate: async ({
-      youtubeUrl,
-      recipeId: existingRecipeId,
-      videoType,
-      recipeTitle,
-    }) => {
-      if (!existingRecipeId) {
-        return null;
-      }
-      if (!videoType) {
-        throw new Error("videoType is required");
-      }
-    },
     throwOnError: false,
-    onSuccess: (data, variables) => {
-      if (variables._creationMethod === "card") {
-        // 카드 경로 성공
-        track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_CARD, {
-          entry_point: variables._source,
-          video_type: variables.videoType || "NORMAL",
-          recipe_id: data.recipeId,
-        });
-      } else if (variables._creationMethod === "url") {
-        track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_URL, {
-          entry_point: variables._entryPoint,
-          recipe_id: data.recipeId,
-          has_target_category: variables._hasTargetCategory || false,
-          video_url: variables._videoUrl,
-          video_id: variables._videoId,
-        });
-      }
-
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [ALL_RECIPES],
         type: "all",
@@ -247,33 +195,13 @@ export function useCreateRecipe() {
       });
       open(data.recipeId);
     },
-    onError: (error, _vars, ctx) => {
-      const errorType = getErrorType(error);
-      if (_vars._creationMethod === "card") {
-        // 카드 경로 실패
-        track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_CARD, {
-          entry_point: _vars._source,
-          error_type: errorType,
-          error_message: error.message,
-        });
-      } else if (_vars._creationMethod === "url") {
-        // URL 경로 실패
-        track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_URL, {
-          entry_point: _vars._entryPoint,
-          error_type: errorType,
-          error_message: error.message,
-          video_url: _vars._videoUrl,
-          video_id: _vars._videoId,
-        });
-      }
-    },
+    onError: () => { },
   });
   return {
     recipeId: data ?? null,
     isLoading,
     error,
     create: mutate,
-    createAsync: mutateAsync,
     validateUrl,
   };
 }
@@ -292,9 +220,6 @@ class RecipeProgressStatus {
   public static create(data: RecipeCreateStatusResponse) {
     return new RecipeProgressStatus({
       recipeStatus: data.recipeStatus,
-      recipeProgressDetails: data.recipeProgressStatuses.map(
-        (status) => status.progressDetail
-      ),
     });
   }
 }
@@ -321,7 +246,6 @@ export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
     select: (data) => RecipeProgressStatus.create(data),
   });
 
-  const [isInProgressBefore, setIsInProgressBefore] = useState<boolean>(false);
   const timerRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   useEffect(() => {
@@ -329,15 +253,15 @@ export const useFetchRecipeProgressWithRefetch = (recipeId: string) => {
       timerRef.current = setInterval(() => {
         refetch();
       }, 1000);
-      setIsInProgressBefore(true);
     }
     if (progress.recipeStatus === RecipeStatus.FAILED) {
       clearInterval(timerRef.current);
-      setIsInProgressBefore(false);
     }
-    if (isInProgressBefore && progress.recipeStatus === RecipeStatus.SUCCESS) {
+    if (progress.recipeStatus === RecipeStatus.BANNED || progress.recipeStatus === RecipeStatus.BLOCKED) {
       clearInterval(timerRef.current);
-      setIsInProgressBefore(false);
+    }
+    if (progress.recipeStatus === RecipeStatus.SUCCESS) {
+      clearInterval(timerRef.current);
       queryClient.invalidateQueries({
         queryKey: [RECIPE_QUERY_KEY, recipeId],
       });

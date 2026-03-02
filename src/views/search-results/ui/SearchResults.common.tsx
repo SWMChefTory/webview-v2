@@ -3,9 +3,13 @@ import { BsPeople } from "react-icons/bs";
 import { ThumbnailSkeleton, ThumbnailReady } from "./thumbnail";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { Recipe } from "@/src/entities/recipe-searched/model/useRecipeSearched";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
-import { SearchResultsTranslations, SearchResultsVariant } from "./SearchResults.controller";
-import { VideoType } from "@/src/entities/schema";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
+import {
+  SearchResultsTranslations,
+  SearchResultsVariant,
+} from "./SearchResults.controller";
+import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
 
 interface VariantStyles {
   article: string;
@@ -24,33 +28,42 @@ const variantStyles: Record<SearchResultsVariant, VariantStyles> = {
   mobile: {
     article: "w-full group cursor-pointer",
     titleWrapper: "mt-3 space-y-2.5",
-    title: "text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors",
-    thumbnailWrapper: "relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200",
-    badge: "absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10",
+    title:
+      "text-base font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors",
+    thumbnailWrapper:
+      "relative overflow-hidden rounded-xl shadow-sm group-hover:shadow-md transition-shadow duration-200",
+    badge:
+      "absolute top-2 left-2 bg-stone-600/50 px-2 py-1 rounded-full text-xs text-white z-10",
     metaWrapper: "flex items-center gap-3 text-sm text-gray-600",
     iconSize: 14,
     tagWrapper: "flex gap-2 line-clamp-1",
     tag: "text-xs font-semibold text-orange-600 whitespace-nowrap",
-    description: "text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]",
+    description:
+      "text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]",
   },
   tablet: {
     article: "w-full active:scale-[0.98] transition-transform duration-200",
     titleWrapper: "mt-4 space-y-3",
     title: "text-base font-bold text-gray-900 truncate",
     thumbnailWrapper: "relative overflow-hidden rounded-xl shadow-sm",
-    badge: "absolute top-2 left-2 bg-stone-600/50 px-2.5 py-1.5 rounded-full text-xs text-white z-10",
+    badge:
+      "absolute top-2 left-2 bg-stone-600/50 px-2.5 py-1.5 rounded-full text-xs text-white z-10",
     metaWrapper: "flex items-center gap-4 text-sm text-gray-600",
     iconSize: 14,
     tagWrapper: "flex gap-2 line-clamp-1",
     tag: "text-xs font-semibold text-orange-600 whitespace-nowrap",
-    description: "text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]",
+    description:
+      "text-sm text-gray-600 line-clamp-2 leading-relaxed min-h-[2.75rem]",
   },
   desktop: {
-    article: "w-full group cursor-pointer hover:-translate-y-1 hover:shadow-xl rounded-2xl p-4 transition-all duration-300 bg-white border border-transparent hover:border-gray-100",
+    article:
+      "w-full group cursor-pointer hover:-translate-y-1 hover:shadow-xl rounded-2xl p-4 transition-all duration-300 bg-white border border-transparent hover:border-gray-100",
     titleWrapper: "space-y-3",
-    title: "text-lg font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors",
+    title:
+      "text-lg font-bold text-gray-900 truncate group-hover:text-orange-600 transition-colors",
     thumbnailWrapper: "relative overflow-hidden rounded-xl shadow-sm mb-4",
-    badge: "absolute top-2 left-2 bg-stone-600/50 px-2.5 py-1.5 rounded-full text-xs text-white z-10",
+    badge:
+      "absolute top-2 left-2 bg-stone-600/50 px-2.5 py-1.5 rounded-full text-xs text-white z-10",
     metaWrapper: "flex items-center gap-4 text-sm text-gray-600",
     iconSize: 16,
     tagWrapper: "flex gap-2 line-clamp-1",
@@ -74,14 +87,24 @@ export function SearchedRecipeCard({
   translations,
   onRecipeClick,
 }: SearchedRecipeCardProps) {
+  const router = useRouter();
   const styles = variantStyles[variant];
   const { detailMeta, tags } = recipe;
 
+  const handleClick = () => {
+    onRecipeClick(recipe, position);
+    navigateToRecipeDetail(router, {
+      recipeId: recipe.recipeId,
+      recipeTitle: recipe.recipeTitle,
+      videoId: recipe.videoInfo.videoId,
+      description: recipe.detailMeta.description,
+      servings: recipe.detailMeta.servings,
+      cookingTime: recipe.detailMeta.cookingTime,
+    });
+  };
+
   const thumbnailContent = (
-    <div
-      onClick={() => onRecipeClick(recipe, position)}
-      className={styles.thumbnailWrapper}
-    >
+    <div className={styles.thumbnailWrapper}>
       <ThumbnailReady imgUrl={recipe.videoInfo.videoThumbnailUrl} />
       {recipe.isViewed && (
         <div className={styles.badge}>{translations.cardBadge}</div>
@@ -91,37 +114,30 @@ export function SearchedRecipeCard({
 
   if (variant === "desktop") {
     return (
-      <article className={styles.article}>
-        <RecipeCardWrapper
-          recipeId={recipe.recipeId}
-          recipeTitle={recipe.recipeTitle}
-          recipeCreditCost={recipe.creditCost}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={recipe.videoUrl}
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={thumbnailContent}
-          entryPoint="search_result"
-        />
+      <article className={styles.article} onClick={handleClick}>
+        {thumbnailContent}
         <div className={styles.titleWrapper}>
           <h3 className={styles.title}>{recipe.recipeTitle}</h3>
           <div className={styles.metaWrapper}>
             <div className="flex items-center gap-1.5">
               <BsPeople size={styles.iconSize} className="shrink-0" />
-              <span className="font-medium">{translations.cardServing(detailMeta.servings)}</span>
+              <span className="font-medium">
+                {translations.cardServing(detailMeta.servings)}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <FaRegClock size={styles.iconSize} className="shrink-0" />
-              <span className="font-medium">{translations.cardMinute(detailMeta.cookingTime)}</span>
+              <span className="font-medium">
+                {translations.cardMinute(detailMeta.cookingTime)}
+              </span>
             </div>
           </div>
           <div className="flex gap-2 overflow-hidden">
             <div className={styles.tagWrapper}>
               {tags.slice(0, 3).map((tag, index) => (
-                <span key={index} className={styles.tag}>#{tag.name}</span>
+                <span key={index} className={styles.tag}>
+                  #{tag.name}
+                </span>
               ))}
             </div>
           </div>
@@ -132,37 +148,30 @@ export function SearchedRecipeCard({
   }
 
   return (
-    <article className={styles.article}>
+    <article className={styles.article} onClick={handleClick}>
       <div className={styles.titleWrapper}>
         <h3 className={styles.title}>{recipe.recipeTitle}</h3>
-        <RecipeCardWrapper
-          recipeId={recipe.recipeId}
-          recipeTitle={recipe.recipeTitle}
-          recipeCreditCost={recipe.creditCost}
-            recipeIsViewed={recipe.isViewed}
-            recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={recipe.videoUrl}
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={thumbnailContent}
-          entryPoint="search_result"
-        />
+        {thumbnailContent}
         <div className={styles.metaWrapper}>
           <div className="flex items-center gap-1.5">
             <BsPeople size={styles.iconSize} className="shrink-0" />
-            <span className="font-medium">{translations.cardServing(detailMeta.servings)}</span>
+            <span className="font-medium">
+              {translations.cardServing(detailMeta.servings)}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <FaRegClock size={styles.iconSize} className="shrink-0" />
-            <span className="font-medium">{translations.cardMinute(detailMeta.cookingTime)}</span>
+            <span className="font-medium">
+              {translations.cardMinute(detailMeta.cookingTime)}
+            </span>
           </div>
         </div>
         <div className="flex gap-2 overflow-hidden">
           <div className={styles.tagWrapper}>
             {tags.slice(0, 3).map((tag, index) => (
-              <span key={index} className={styles.tag}>#{tag.name}</span>
+              <span key={index} className={styles.tag}>
+                #{tag.name}
+              </span>
             ))}
           </div>
         </div>
@@ -246,14 +255,16 @@ const emptyStateStyles: Record<SearchResultsVariant, EmptyStateStyles> = {
     subtitle: "text-s text-gray-600",
   },
   tablet: {
-    wrapper: "flex flex-col w-full h-full items-center justify-center pt-20 px-6",
+    wrapper:
+      "flex flex-col w-full h-full items-center justify-center pt-20 px-6",
     imageWrapper: "w-56 h-56 mb-10",
     textWrapper: "text-center space-y-4",
     title: "font-bold text-2xl text-gray-900",
     subtitle: "text-base text-gray-600",
   },
   desktop: {
-    wrapper: "flex flex-col w-full h-full items-center justify-center pt-32 px-8",
+    wrapper:
+      "flex flex-col w-full h-full items-center justify-center pt-32 px-8",
     imageWrapper: "w-64 h-64 mb-12",
     textWrapper: "text-center space-y-5",
     title: "font-bold text-3xl text-gray-900",
@@ -264,9 +275,14 @@ const emptyStateStyles: Record<SearchResultsVariant, EmptyStateStyles> = {
 interface EmptyStateProps {
   variant: SearchResultsVariant;
   translations: SearchResultsTranslations;
+  keyword?: string;
 }
 
-export function EmptyState({ variant, translations }: EmptyStateProps) {
+export function EmptyState({
+  variant,
+  translations,
+  keyword,
+}: EmptyStateProps) {
   const styles = emptyStateStyles[variant];
 
   return (
@@ -282,6 +298,11 @@ export function EmptyState({ variant, translations }: EmptyStateProps) {
         <h3 className={styles.title}>{translations.emptyTitle}</h3>
         <p className={styles.subtitle}>{translations.emptySubtitle}</p>
       </div>
+      {keyword && (
+        <div className="mt-4 w-full max-w-sm">
+          <YoutubeSearchBanner keyword={keyword} source="empty_state" />
+        </div>
+      )}
     </div>
   );
 }

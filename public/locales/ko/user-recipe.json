@@ -57,7 +57,8 @@
     },
     "progress": {
         "creating": "레시피 생성중",
-        "failed": "레시피를 만드는데 실패했어요"
+        "failed": "레시피를 만드는데 실패했어요",
+        "blocked": "이 레시피는 차단되었어요"
     },
     "dialog": {
         "title": "레시피 생성",

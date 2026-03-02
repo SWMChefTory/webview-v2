@@ -6,20 +6,23 @@ import { useProgressTimer } from "@/src/features/timer/useProgressTimer";
 import { formatTime } from "@/src/features/timer/utils/time";
 import { useHandleTimers } from "@/src/features/timer/useInProgressTimers";
 import { LuTimer } from "react-icons/lu";
-import { filterActiveTimers, findEarliestFinishTimer } from "@/src/features/timer/utils/query";
+import {
+  filterActiveTimers,
+  findEarliestFinishTimer,
+} from "@/src/features/timer/utils/query";
 
 export function TimerTag({
   recipeId,
   recipeName,
 }: {
   recipeId: string;
-  recipeName: string;
+  recipeName?: string;
 }) {
-  const timers = useTimers(recipeId, recipeName);
+  const timers = useTimers(recipeId, recipeName ?? "");
   const activeTimers = filterActiveTimers(timers);
   const { handleFinishTimerSuccessfully } = useHandleTimers({
     recipeId,
-    recipeName,
+    recipeName: recipeName ?? "",
   });
   if (activeTimers.length === 0) {
     return null;

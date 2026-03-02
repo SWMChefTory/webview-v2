@@ -5,6 +5,8 @@ import { IngredientPurchaseModal } from "../../common/component/IngredientPurcha
 import { Ingredient } from "../../common/hook/useRecipeDetailController";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const Ingredients = ({
   ingredients,
@@ -180,7 +182,15 @@ const Ingredients = ({
       {overflow.is && (
         <button
           type="button"
-          onClick={() => setShowAll(!showAll)}
+          onClick={() => {
+            if (!showAll) {
+              track(AMPLITUDE_EVENT.RECIPE_DETAIL_INGREDIENT_DETAIL_CLICK, {
+                recipe_id: recipeId,
+                hidden_count: overflow.count,
+              });
+            }
+            setShowAll(!showAll);
+          }}
           className="w-full flex items-center justify-center gap-1 py-2.5 text-sm text-gray-600 font-medium
             transition-colors duration-150
             hover:text-gray-900

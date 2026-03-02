@@ -17,10 +17,8 @@ import { BsPeople } from "react-icons/bs";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import { useCreateRecipe } from "@/src/entities/user-recipe/model/useUserRecipe";
-import { VideoTypeQuery } from "@/src/entities/recipe-searched";
 import type { ChallengeRecipe } from "../model/schema";
 import { useTranslation } from "next-i18next";
-import { VideoType } from "@/src/entities/schema";
 
 interface ChallengeRecipeCardProps {
   recipe: ChallengeRecipe;
@@ -60,11 +58,6 @@ export function ChallengeRecipeCard({ recipe }: ChallengeRecipeCardProps) {
     create({
       youtubeUrl: recipe.videoUrl!,
       targetCategoryId: null,
-      recipeId: recipe.recipeId,
-      videoType: recipe.videoType as VideoType,
-      recipeTitle: recipe.recipeTitle,
-      _source: "challenge",
-      _creationMethod: "card",
     });
     // 나의 레시피 등록 후 바로 상세 페이지로 이동
     router.push({

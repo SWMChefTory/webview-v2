@@ -18,5 +18,9 @@
     "description": "Do you want to create a recipe for <bold>{{name}}</bold>?",
     "cancel": "Cancel",
     "confirm": "Create"
+  },
+  "youtubeSearch": {
+    "title": "Search \"{{keyword}}\" on YouTube",
+    "button": "YouTube"
   }
 }

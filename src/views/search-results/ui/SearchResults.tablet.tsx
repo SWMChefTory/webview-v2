@@ -5,6 +5,7 @@ import {
   RecipeCardSkeleton,
   EmptyState,
 } from "./SearchResults.common";
+import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
 
 export function SearchResultsSkeletonTablet() {
   return (
@@ -35,19 +36,23 @@ export function SearchResultsContentTablet({ keyword }: { keyword: string }) {
   } = useSearchResultsController(keyword);
 
   if (searchResults.length === 0) {
-    return <EmptyState variant="tablet" translations={translations} />;
+    return <EmptyState variant="tablet" translations={translations} keyword={keyword} />;
   }
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
       <div className="max-w-[1024px] mx-auto w-full px-8">
-        <div className="py-10">
+        <div className="pt-10 pb-4">
           <div className="flex items-baseline gap-4">
             <h1 className="text-4xl font-bold text-gray-900 truncate tracking-tight">{keyword}</h1>
             <span className="text-2xl font-medium text-gray-500 shrink-0">
               {translations.headerSuffix}
             </span>
           </div>
+        </div>
+
+        <div className="mb-6">
+          <YoutubeSearchBanner keyword={keyword} source="search_result" />
         </div>
 
         <div className="pb-12">

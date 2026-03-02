@@ -5,12 +5,14 @@ import { RecipeBriefing } from "../../common/hook/useRecipeDetailController";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TextSkeleton } from "@/src/shared/ui/skeleton";
 import { useRecipeDetailTranslation } from "../../common/hook/useRecipeDetailTranslation";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const BulletPoint = () => (
   <div className="w-1 h-1 mt-1.5 rounded-full bg-orange-500 flex-shrink-0" />
 );
 
-const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
+const BriefingSummary = ({ briefings, recipeId }: { briefings: RecipeBriefing[]; recipeId: string }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { t } = useRecipeDetailTranslation();
 
@@ -18,7 +20,15 @@ const BriefingSummary = ({ briefings }: { briefings: RecipeBriefing[] }) => {
     <div className="px-4">
       <button
         type="button"
-        onClick={() => { if (briefings.length > 2) setIsModalOpen(true); }}
+        onClick={() => {
+          if (briefings.length > 2) {
+            track(AMPLITUDE_EVENT.RECIPE_DETAIL_COMMENT_DETAIL_CLICK, {
+              recipe_id: recipeId,
+              comment_count: briefings.length,
+            });
+            setIsModalOpen(true);
+          }
+        }}
         className={`bg-gray-50 rounded-xl p-4 text-left w-full ${briefings.length > 2 ? 'cursor-pointer active:bg-gray-100 transition-colors duration-150' : ''} focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2`}
       >
         <div className="flex items-center justify-between">

@@ -159,7 +159,11 @@ const UserRecipesSectionTemplate = ({
       onReachEnd={onReachEnd}
     >
       {userRecipes.map((recipe) => (
-        <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} isTablet={true} />
+        <UserRecipeCardReady
+          userRecipe={recipe}
+          key={recipe.recipeId}
+          isTablet={true}
+        />
       ))}
       {isFetchingNextPage && <UserRecipeCardSkeleton isTablet={true} />}
     </HorizontalScrollArea>

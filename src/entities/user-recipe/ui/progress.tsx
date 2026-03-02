@@ -1,4 +1,4 @@
-import { RecipeStatus } from "@/src/shared/enums/recipe";
+import { RecipeStatus } from "@/src/entities/user-recipe/";
 import { Spinner } from "@/components/ui/spinner";
 import { useQueryClient } from "@tanstack/react-query";
 import { ALL_RECIPES, useFetchRecipeProgress } from "../model/useUserRecipe";
@@ -18,9 +18,17 @@ export const ProgressDetailsCheckList = ({
     <div className="flex flex-col gap-1 md:gap-1.5 lg:gap-2 pt-[16] md:pt-4 lg:pt-5 flex-start p-[8] md:p-2.5 lg:p-3 bg-gray-800/80 rounded-md md:rounded-md lg:rounded-lg h-full justify-start w-full items-center z-999">
       <div className="text-white font-bold text-lg md:text-lg lg:text-xl">
         {recipeStatusCurrent !== RecipeStatus.FAILED && t("progress.creating")}
-      </div>  
+      </div>
+      {(recipeStatusCurrent === RecipeStatus.BANNED ||
+        recipeStatusCurrent === RecipeStatus.BLOCKED) && (
+        <div className="text-white font-bold text-lg md:text-lg lg:text-xl">
+          {t("progress.blocked")}
+        </div>
+      )}
       <div className="flex flex-1 w-full items-center justify-center">
-        {recipeStatusCurrent === RecipeStatus.FAILED ? (
+        {recipeStatusCurrent === RecipeStatus.FAILED ||
+        recipeStatusCurrent === RecipeStatus.BANNED ||
+        recipeStatusCurrent === RecipeStatus.BLOCKED ? (
           <div
             className="text-white font-bold text-lg md:text-lg lg:text-xl"
             onClick={

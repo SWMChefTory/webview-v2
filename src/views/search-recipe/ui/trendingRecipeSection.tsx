@@ -2,10 +2,12 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 
 import { useFetchRecommendRecipes } from "@/src/entities/recommend-recipe/model/useRecommendRecipe";
 import { RecommendType } from "@/src/entities/recommend-recipe/";
-import { VideoType } from "@/src/entities/schema";
 
 import { useInfiniteScroll } from "@/src/shared/hooks";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 import { Skeleton } from "@/components/ui/skeleton";
 import Trend from "@/src/views/home/ui/assets/trend.png";
@@ -13,6 +15,7 @@ import Trend from "@/src/views/home/ui/assets/trend.png";
 import { useSearchOverlayTranslation } from "../hooks/useSearchOverlayTranslation";
 
 const TrendRecipeGrid = () => {
+  const router = useRouter();
   const {
     entities: recipes,
     hasNextPage,
@@ -41,27 +44,30 @@ const TrendRecipeGrid = () => {
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 2xl:gap-8">
       {recipes.map((recipe) => (
-        <RecipeCardWrapper
+        <div
           key={recipe.recipeId}
-          recipeId={recipe.recipeId}
-          recipeCreditCost={recipe.creditCost}
-          recipeIsViewed={recipe.isViewed}
-          recipeTitle={recipe.recipeTitle}
-          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={`https://www.youtube.com/watch?v=${recipe.videoInfo.videoId}`}
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={
-            <TrendRecipeCard
-              videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-              recipeTitle={recipe.recipeTitle}
-              isViewed={recipe.isViewed}
-            />
-          }
-          entryPoint="search_trend"
-        />
+          className="cursor-pointer"
+          onClick={() => {
+            track(AMPLITUDE_EVENT.SEARCH_TREND_RECIPE_CLICK, {
+              recipe_id: recipe.recipeId,
+              recipe_title: recipe.recipeTitle,
+            });
+            navigateToRecipeDetail(router, {
+              recipeId: recipe.recipeId,
+              recipeTitle: recipe.recipeTitle,
+              videoId: recipe.videoInfo.videoId,
+              description: recipe.detailMeta.description,
+              servings: recipe.detailMeta.servings,
+              cookingTime: recipe.detailMeta.cookingTime,
+            });
+          }}
+        >
+          <TrendRecipeCard
+            videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+            recipeTitle={recipe.recipeTitle}
+            isViewed={recipe.isViewed}
+          />
+        </div>
       ))}
 
       {isFetchingNextPage && (

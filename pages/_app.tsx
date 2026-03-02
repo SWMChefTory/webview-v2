@@ -1,7 +1,7 @@
 // _app.tsx (pages 라우터)
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { communication } from "@/src/shared/client/native/client";
 import {
   MODE,
@@ -39,6 +39,7 @@ import {
   clearAuthTokens,
 } from "@/src/shared/client/main/client";
 import { isNativeApp, isWebBrowser } from "@/src/shared/lib/platform";
+import { useFetchRecipe } from "@/src/entities/recipe";
 
 export default appWithTranslation(App);
 
@@ -55,7 +56,7 @@ function App(props: AppProps) {
             refetchOnMount: false,
           },
         },
-      })
+      }),
   );
   useAmplitude();
 
@@ -66,7 +67,7 @@ function App(props: AppProps) {
 
       if (isNativeApp()) {
         window.ReactNativeWebView!.postMessage(
-          JSON.stringify({ type: "LOGOUT" })
+          JSON.stringify({ type: "LOGOUT" }),
         );
         return;
       }
@@ -112,8 +113,12 @@ function AppInner({ Component, pageProps }: AppProps) {
 
     // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
     // /auth는 스킵: 로그인 전에는 온보딩 리다이렉트 불필요
-    if (!isOnboardingCompleted && router.pathname !== '/onboarding' && router.pathname !== '/auth') {
-      router.replace('/onboarding');
+    if (
+      !isOnboardingCompleted &&
+      router.pathname !== "/onboarding" &&
+      router.pathname !== "/auth"
+    ) {
+      router.replace("/onboarding");
     }
   }, [_hasHydrated, isOnboardingCompleted, router.pathname]);
 
@@ -160,7 +165,7 @@ function AppInner({ Component, pageProps }: AppProps) {
 
   function nextPaint() {
     return new Promise<void>((resolve) =>
-      requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+      requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
     );
   }
 
@@ -177,7 +182,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       (_type, payload) => {
         const info = RecipeCreationInfoSchema.parse(payload);
         open(info.videoUrl, "external_share");
-      }
+      },
     );
     return cleanup;
   }, []);
@@ -187,7 +192,7 @@ function AppInner({ Component, pageProps }: AppProps) {
       UNBLOCKING_HANDLER_TYPE.ROUTE,
       (_type, payload) => {
         handleRecipeDeepLink({ path: payload.route });
-      }
+      },
     );
     return () => {
       cleanup();
@@ -224,10 +229,12 @@ function AppInner({ Component, pageProps }: AppProps) {
             <RecipeCreatingView />
             <CreditRechargeModal />
             {recipeDetailLinkUrl && (
-              <RouteDialog
-                deepLinkUrl={recipeDetailLinkUrl}
-                setDeepLinkUrl={setRecipeDetailLinkUrl}
-              />
+              <Suspense>
+                <RouteDialog
+                  deepLinkUrl={recipeDetailLinkUrl}
+                  setDeepLinkUrl={setRecipeDetailLinkUrl}
+                />
+              </Suspense>
             )}
           </ErrorBoundary>
         )}
@@ -297,6 +304,10 @@ function RouteDialog({
   setDeepLinkUrl: (deepLinkUrl: string | undefined) => void;
 }) {
   const router = useRouter();
+  const recipeId = deepLinkUrl.split("/")[2];
+  const { data: recipe } = useFetchRecipe(recipeId!);
+  const recipeTitle = recipe.videoInfo.videoTitle;
+
   return (
     <>
       <Dialog.Root open={true}>
@@ -305,9 +316,12 @@ function RouteDialog({
           onClick={() => setDeepLinkUrl(undefined)}
         />
         <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] bg-white rounded-lg p-6 flex flex-col gap-2 z-[100]">
-          <Dialog.Title className="text-center">
-            해당 레시피로 이동하시겠습니까?
+          <Dialog.Title className="text-center font-bold">
+            {recipeTitle}
           </Dialog.Title>
+          <Dialog.Description className="text-center text-sm text-gray-600">
+            해당 레시피로 이동하시겠습니까?
+          </Dialog.Description>
           <div className="h-[12]"></div>
           <div className="flex flex-1 gap-2">
             <Button
@@ -362,9 +376,9 @@ const useInit = () => {
 
       // 충전 복귀 처리
       if (isRecharge === "true") {
-        window.dispatchEvent(new CustomEvent('rechargeComplete'));
+        window.dispatchEvent(new CustomEvent("rechargeComplete"));
         const cleanUrl = window.location.origin + window.location.pathname;
-        window.history.replaceState({}, '', cleanUrl);
+        window.history.replaceState({}, "", cleanUrl);
       }
     }
 

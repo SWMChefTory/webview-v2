@@ -4,6 +4,7 @@ import { LoopSettingButton } from "./loopSettingButton";
 import { MicButton, VoiceGuideModal, VoiceGuideMicStep } from "./micButton";
 import { VoiceGuideTimerStep } from "./timerTutorialStep";
 import type { RecipeStepControllerReturn } from "./RecipeStep.controller";
+import { id } from "zod/v4/locales";
 
 interface FloatingControlBarProps {
   controller: RecipeStepControllerReturn;
@@ -15,6 +16,7 @@ export function FloatingControlBar({
   isLandscape,
 }: FloatingControlBarProps) {
   const {
+    recipeId,
     recipe,
     analytics,
     isInRepeat,
@@ -29,7 +31,6 @@ export function FloatingControlBar({
     handleVoiceGuideClose,
   } = controller;
 
-  const id = recipe.videoInfo.videoId;
   const recipeName = recipe.videoInfo.videoTitle;
 
   return (
@@ -44,23 +45,23 @@ export function FloatingControlBar({
           <VoiceGuideTimerStep
             trigger={
               <TimerButton
-                recipeId={id}
+                recipeId={recipeId}
                 recipeName={recipeName}
                 errorPopoverRef={timerErrorPopoverRef}
               />
             }
-            recipeId={id}
+            recipeId={recipeId}
           />
         ) : (
           <TimerBottomSheet
             trigger={
               <TimerButton
-                recipeId={id}
+                recipeId={recipeId}
                 recipeName={recipeName}
                 errorPopoverRef={timerErrorPopoverRef}
               />
             }
-            recipeId={id}
+            recipeId={recipeId}
             recipeName={recipeName}
             isDarkMode={true}
             isLandscape={isLandscape}
@@ -77,7 +78,7 @@ export function FloatingControlBar({
                 onClick={handleMicButtonClickWithTutorial}
               />
             }
-            recipeId={id}
+            recipeId={recipeId}
           />
         ) : (
           <MicButton

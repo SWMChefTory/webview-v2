@@ -7,13 +7,49 @@
 
 ---
 
-## [Unreleased]
+## [1.1.7] - 2026-03-02
 
-### 추가 예정
-- 준비 중인 기능들
+### Amplitude 이벤트 구조 개선
 
-### 수정 예정
-- 알려진 버그들
+- **이벤트 enum 정리**: 카드 생성 이벤트 4개 삭제 (`recipe_create_start_card`, `recipe_create_submit_card`, `recipe_create_success_card`, `recipe_create_fail_card`), 쿠팡 이벤트 3개 리네이밍 (`coupang_modal_open` → `coupang_purchase_open`, `coupang_modal_close` → `coupang_purchase_close`, `coupang_product_click` → `coupang_item_click`)
+- **신규 이벤트 10개 추가**: `recipe_enroll_click/success/fail`, `recipe_detail_comment_detail_click`, `recipe_detail_ingredient_detail_click`, `recipe_detail_video_seek`, `search_trend_recipe_click`, `category_view`, `category_recipe_click`, `tutorial_handsfree_complete`
+- **entity 훅에서 track() 제거**: `useUserRecipe.ts`의 `onSuccess`/`onError` 콜백에서 Amplitude 추적 코드 제거, 컴포넌트 레벨 mutate 콜백(`create(variables, { onSuccess, onError })`)으로 이동
+- **recipeCreatingForm.tsx**: `mutateAsync` + try/catch 패턴에서 `mutate` + `{ onSuccess, onError }` 콜백 패턴으로 변경
+
+### RecipeCardWrapper 제거 및 네비게이션 리팩토링
+
+- **RecipeCardWrapper 컴포넌트 완전 삭제**: `recipeCardWrapper.tsx` 파일 및 `RecipeCardEntryPoint` 타입 제거
+- **`navigateToRecipeDetail` 유틸리티 생성**: `src/shared/navigation/navigateToRecipeDetail.ts` — 레시피 상세 페이지 이동 로직을 공통 함수로 추출
+- **14개 파일에서 RecipeCardWrapper → 인라인 onClick 전환**:
+  - `trendingRecipeSection.tsx`: 직접 `track()` + `navigateToRecipeDetail()` 호출
+  - `RecipeCardsSection.mobile.tsx`: `entryPoint`/`getVideoType`/`getVideoUrl` props 제거, `onRecipeClick` 콜백 패턴으로 변경
+  - `CategoryResults.controller.tsx`: `getEntryPoint`, `getVideoType`, `getVideoUrl` 메서드 제거
+  - `CategoryResults.mobile/tablet/desktop.tsx`: 인라인 `CATEGORY_RECIPE_CLICK` 추적 + `navigateToRecipeDetail` 호출
+  - `SearchResults.common.tsx`: `handleClick`에서 `onRecipeClick` + `navigateToRecipeDetail` 직접 호출
+  - `SearchResults.mobile.tsx`: 제거된 props 정리
+  - `PopularRecipe.mobile/tablet/desktop.tsx`: 인라인 `navigateToRecipeDetail` 호출
+  - `popularRecipes.tablet/desktop.tsx`: 동일
+  - `popularShortsRecipes.mobile/tablet/desktop.tsx`: 동일
+  - `popularRecipes.mobile.tsx`: 미사용 import 제거
+
+### 레시피 신고 기능
+
+- **신고하기 기능 추가**: 레시피 상세 페이지에 더보기 메뉴 → 신고하기 기능 구현
+- **RecipeReportModal 위젯**: 신고 사유 선택 및 제출 UI
+- **RecipeMoreMenu 위젯**: 드롭다운 방식의 더보기 메뉴
+- **recipe-report entity**: 신고 API 연동 및 Zod 스키마 정의
+
+### 유튜브 검색 배너
+
+- **검색 결과 페이지에 유튜브 검색 배너 추가**: 검색 결과 및 빈 결과 화면에서 유튜브로 바로 검색할 수 있는 배너 위젯
+- **딥링크 이중 실행 버그 수정**
+
+### 기타 수정
+
+- **레시피 차단 상태 번역 추가**: `progress.blocked` 키 추가 (ko: "이 레시피는 차단되었어요", en: "This recipe has been blocked"), BANNED/BLOCKED 상태 텍스트 표시 로직 수정
+- **recipe title null 허용**: 레시피 스키마에서 `recipeTitle`을 nullable로 변경
+- **ChallengeRecipeCard**: 카드 이벤트 관련 필드 제거
+- **IngredientPurchaseModal**: 리네이밍된 쿠팡 이벤트 enum 적용
 
 ---
 

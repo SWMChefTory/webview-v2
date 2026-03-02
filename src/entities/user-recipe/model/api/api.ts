@@ -27,12 +27,12 @@ export async function fetchAllRecipesSummary({
   })();
 
   const data = response.data;
-  console.log(JSON.stringify(data), "!!!!!!!!!!!!!!!!!!!!!!!!!!");
   return parseWithErrLog(PaginatedSchema, {
     ...data,
     data: data.recentRecipes.map((recipe: any) => transformRecipe(recipe)),
   });
 }
+
 
 export async function fetchCategorizedRecipesSummary({
   categoryId,

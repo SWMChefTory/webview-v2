@@ -5,7 +5,7 @@ import {
 
 export const RECIPE_QUERY_KEY = "recipes";
 
-//유저가 소유한 레시피 정보 조회
+//조회를 수행하는 레시피 호출
 export const useFetchRecipe = (id: string) => {
   const { data } = useSuspenseQuery({
     queryKey: [RECIPE_QUERY_KEY, id],
@@ -14,4 +14,4 @@ export const useFetchRecipe = (id: string) => {
   return { data };
 };
 
-export type {ViewStatus} from "./api/api";
+export type { ViewStatus } from "./api/api";

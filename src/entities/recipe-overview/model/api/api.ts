@@ -5,6 +5,7 @@ import {
   type RecipeOverview,
 } from "@/src/entities/recipe-overview/model/api/schema/recipeOverviewSchema";
 
+//조회를 수행하지 않는 레시피 호출
 export const fetchRecipeOverview = async (
   id: string,
 ): Promise<RecipeOverview> => {

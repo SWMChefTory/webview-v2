@@ -1,9 +1,8 @@
 import type React from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
-import type { RecipeCardEntryPoint } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
-import { VideoType } from "@/src/entities/schema";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 
 type Tag = { name: string };
 
@@ -29,19 +28,17 @@ export function ShortsRecipeListMobile<
   TRecipe extends RecipeCardsSectionRecipe
 >({
   recipes,
-  entryPoint,
-  getVideoType,
-  getVideoUrl,
+  onRecipeClick,
   cardServing,
   cardMinute,
 }: {
   recipes: TRecipe[];
-  entryPoint: RecipeCardEntryPoint;
-  getVideoType: (recipe: TRecipe) => VideoType;
-  getVideoUrl: (recipe: TRecipe) => string;
+  onRecipeClick?: (recipe: TRecipe) => void;
   cardServing: (count: number) => string;
   cardMinute: (count: number) => string;
 }) {
+  const router = useRouter();
+
   if (recipes.length === 0) return null;
 
   return (
@@ -50,29 +47,28 @@ export function ShortsRecipeListMobile<
         className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {recipes.map((recipe) => (
-          <div key={recipe.recipeId} className="w-[150px] shrink-0 snap-start">
-            <RecipeCardWrapper
-              recipeCreditCost={recipe.creditCost}
-              recipeId={recipe.recipeId}
+          <div
+            key={recipe.recipeId}
+            className="w-[150px] shrink-0 snap-start cursor-pointer"
+            onClick={() => {
+              onRecipeClick?.(recipe);
+              navigateToRecipeDetail(router, {
+                recipeId: recipe.recipeId,
+                recipeTitle: recipe.recipeTitle,
+                videoId: recipe.videoInfo.videoId,
+                description: recipe.detailMeta?.description,
+                servings: recipe.detailMeta?.servings,
+                cookingTime: recipe.detailMeta?.cookingTime,
+              });
+            }}
+          >
+            <RecipeCardShorts
+              cardServing={cardServing}
+              cardMinute={cardMinute}
               recipeTitle={recipe.recipeTitle}
-              recipeIsViewed={recipe.isViewed ?? false}
-              recipeVideoType={getVideoType(recipe)}
-              entryPoint={entryPoint}
-              recipeVideoUrl={getVideoUrl(recipe)}
-              videoId={recipe.videoInfo.videoId}
-              description={recipe.detailMeta?.description}
-              servings={recipe.detailMeta?.servings}
-              cookingTime={recipe.detailMeta?.cookingTime}
-              trigger={
-                <RecipeCardShorts
-                  cardServing={cardServing}
-                  cardMinute={cardMinute}
-                  recipeTitle={recipe.recipeTitle}
-                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                  servings={recipe.detailMeta?.servings ?? 0}
-                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                />
-              }
+              videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+              servings={recipe.detailMeta?.servings ?? 0}
+              cookingTime={recipe.detailMeta?.cookingTime ?? 0}
             />
           </div>
         ))}
@@ -87,9 +83,7 @@ export function NormalRecipeListMobile<
   recipes,
   loadMoreRef,
   isFetchingNextPage,
-  entryPoint,
-  getVideoType,
-  getVideoUrl,
+  onRecipeClick,
   cardBadge,
   cardServing,
   cardMinute,
@@ -97,43 +91,42 @@ export function NormalRecipeListMobile<
   recipes: TRecipe[];
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
   isFetchingNextPage: boolean;
-  entryPoint: RecipeCardEntryPoint;
-  getVideoType: (recipe: TRecipe) => VideoType;
-  getVideoUrl: (recipe: TRecipe) => string;
+  onRecipeClick?: (recipe: TRecipe) => void;
   cardBadge: string;
   cardServing: (count: number) => string;
   cardMinute: (count: number) => string;
 }) {
+  const router = useRouter();
+
   return (
     <section className="space-y-6 w-full">
       {recipes.map((recipe) => (
-        <div key={recipe.recipeId} className="w-full">
-          <RecipeCardWrapper
-            recipeCreditCost={recipe.creditCost}
-            recipeId={recipe.recipeId}
+        <div
+          key={recipe.recipeId}
+          className="w-full cursor-pointer"
+          onClick={() => {
+            onRecipeClick?.(recipe);
+            navigateToRecipeDetail(router, {
+              recipeId: recipe.recipeId,
+              recipeTitle: recipe.recipeTitle,
+              videoId: recipe.videoInfo.videoId,
+              description: recipe.detailMeta?.description,
+              servings: recipe.detailMeta?.servings,
+              cookingTime: recipe.detailMeta?.cookingTime,
+            });
+          }}
+        >
+          <RecipeCardNormal
+            cardBadge={cardBadge}
+            cardServing={cardServing}
+            cardMinute={cardMinute}
             recipeTitle={recipe.recipeTitle}
-            recipeIsViewed={recipe.isViewed ?? false}
-            recipeVideoType={getVideoType(recipe)}
-            entryPoint={entryPoint}
-            recipeVideoUrl={getVideoUrl(recipe)}
-            videoId={recipe.videoInfo.videoId}
-            description={recipe.detailMeta?.description}
-            servings={recipe.detailMeta?.servings}
-            cookingTime={recipe.detailMeta?.cookingTime}
-            trigger={
-              <RecipeCardNormal
-                cardBadge={cardBadge}
-                cardServing={cardServing}
-                cardMinute={cardMinute}
-                recipeTitle={recipe.recipeTitle}
-                videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                isViewed={recipe.isViewed ?? false}
-                servings={recipe.detailMeta?.servings ?? 0}
-                cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                tags={recipe.tags ?? []}
-                description={recipe.detailMeta?.description ?? ""}
-              />
-            }
+            videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+            isViewed={recipe.isViewed ?? false}
+            servings={recipe.detailMeta?.servings ?? 0}
+            cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+            tags={recipe.tags ?? []}
+            description={recipe.detailMeta?.description ?? ""}
           />
         </div>
       ))}
@@ -302,28 +295,22 @@ export function RecipeCardNormal({
 function RecipeCardNormalSkeleton() {
   return (
     <div className="w-full rounded-2xl bg-white overflow-hidden border border-gray-100">
-      {/* Thumbnail: aspect-[16/9] — 실제와 동일 */}
       <div className="relative w-full aspect-[16/9]">
         <Skeleton className="absolute inset-0 h-full w-full rounded-none bg-gray-200" />
-        {/* MetaPills: py-1(4+4) + text-xs leading-none(12px) = 20px → h-5 */}
         <div className="absolute top-2 left-2 flex items-center gap-2">
           <Skeleton className="h-5 w-14 rounded-full bg-gray-300/70" />
           <Skeleton className="h-5 w-14 rounded-full bg-gray-300/70" />
         </div>
       </div>
-      {/* Content area: p-2 — 실제와 동일한 구조/간격 */}
       <div className="p-2">
-        {/* Title: pt-2 + text-sm(20px) × 2줄 = h-4+space-y-2+h-4 = 40px */}
         <div className="pt-2 px-1 space-y-2">
           <Skeleton className="h-4 w-4/5 rounded bg-gray-200" />
           <Skeleton className="h-4 w-3/5 rounded bg-gray-200" />
         </div>
-        {/* Desc: mt-2 + text-xs leading-relaxed(~20px) × 2줄 = h-4+space-y-2+h-4 = 40px */}
         <div className="mt-2 px-1 space-y-2">
           <Skeleton className="h-4 w-full rounded bg-gray-200" />
           <Skeleton className="h-4 w-2/3 rounded bg-gray-200" />
         </div>
-        {/* Tags: mt-3 + text-xs(16px) × 1줄 = h-4 */}
         <div className="mt-3 px-1 flex gap-2">
           <Skeleton className="h-4 w-14 rounded bg-gray-200" />
           <Skeleton className="h-4 w-14 rounded bg-gray-200" />
@@ -337,14 +324,11 @@ function RecipeCardShortsSkeleton() {
   return (
     <div className="rounded-2xl overflow-hidden bg-gray-200/60 aspect-[9/16] relative">
       <Skeleton className="absolute inset-0 h-full w-full rounded-none" />
-      {/* MetaPills: py-1(4+4) + text-xs leading-none(12px) = 20px → h-5 */}
       <div className="absolute top-2 left-2 flex items-center gap-2">
         <Skeleton className="h-5 w-14 rounded-full bg-gray-300/70" />
         <Skeleton className="h-5 w-14 rounded-full bg-gray-300/70" />
       </div>
-      {/* Bottom gradient: h-20 — 실제와 동일 */}
       <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/40 via-black/10 to-transparent" />
-      {/* Title: text-xs(~16px line-height) × 2줄 = 32px → h-3.5+space-y-1+h-3.5 = 32px */}
       <div className="absolute bottom-2 left-2 right-2 space-y-1">
         <Skeleton className="h-3.5 w-3/4 rounded bg-gray-300/70" />
         <Skeleton className="h-3.5 w-1/2 rounded bg-gray-300/70" />
@@ -380,4 +364,3 @@ export function NormalVerticalListSkeleton() {
     </section>
   );
 }
-

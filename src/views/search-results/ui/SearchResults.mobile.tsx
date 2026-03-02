@@ -2,7 +2,6 @@ import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { useSearchResultsController } from "./SearchResults.controller";
 import { EmptyState } from "./SearchResults.common";
 import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSkeleton, NormalVerticalListSkeleton } from "@/src/widgets/recipe-cards-section";
-import { VideoType } from "@/src/entities/schema";
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -24,6 +23,7 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
     loadMoreRef,
     isFetchingNextPage,
     translations,
+    onRecipeClick,
   } = useSearchResultsController(keyword);
 
   if (searchResults.length === 0) {
@@ -36,9 +36,6 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
   const normalRecipes = searchResults.filter(
     (r) => r.videoInfo.videoType === "NORMAL"
   );
-
-  const getVideoType = (recipe: (typeof searchResults)[number]) =>
-    recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL;
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">
@@ -54,9 +51,10 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
       <div className="px-4 pb-28">
         <ShortsRecipeListMobile
           recipes={shortsRecipes}
-          entryPoint="search_result"
-          getVideoType={getVideoType}
-          getVideoUrl={(recipe) => recipe.videoUrl}
+          onRecipeClick={(recipe) => {
+            const index = searchResults.findIndex((r) => r.recipeId === recipe.recipeId);
+            onRecipeClick(recipe, index);
+          }}
           cardServing={translations.cardServing}
           cardMinute={translations.cardMinute}
         />
@@ -64,9 +62,10 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           recipes={normalRecipes}
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
-          entryPoint="search_result"
-          getVideoType={getVideoType}
-          getVideoUrl={(recipe) => recipe.videoUrl}
+          onRecipeClick={(recipe) => {
+            const index = searchResults.findIndex((r) => r.recipeId === recipe.recipeId);
+            onRecipeClick(recipe, index);
+          }}
           cardBadge={translations.cardBadge}
           cardServing={translations.cardServing}
           cardMinute={translations.cardMinute}

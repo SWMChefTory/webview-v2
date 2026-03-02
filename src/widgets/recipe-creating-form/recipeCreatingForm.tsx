@@ -31,9 +31,9 @@ import RecipeErollModal from "../recipe-creating-modal/recipeErollModal";
 export function RecipeCreatingView() {
   const [hasEverTyped, setHasEverTyped] = useState(false);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null
+    null,
   );
-  const { isLoading: isCreating, error, createAsync } = useCreateRecipe();
+  const { isLoading: isCreating, error, create } = useCreateRecipe();
   const {
     isOpen,
     videoUrl: url,
@@ -78,7 +78,7 @@ export function RecipeCreatingView() {
     return url.length > 0 && isValidYoutubeUrl(url);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     if (isSubmittable()) {
       // Video ID 추출
       const videoId = extractYouTubeVideoId(url);
@@ -92,21 +92,40 @@ export function RecipeCreatingView() {
         video_id: videoId || undefined,
       });
 
-      try {
-        await createAsync({
+      create(
+        {
           youtubeUrl: url,
           targetCategoryId: selectedCategoryId,
-          _entryPoint: entryPoint || "floating_button",
-          _creationMethod: "url",
-          _hasTargetCategory: !!selectedCategoryId,
-          _videoUrl: url.trim(),
-          _videoId: videoId || undefined,
-        });
-      } catch (error) {
-        return;
-      }
-      setHasEverTyped(false);
-      close();
+        },
+        {
+          onSuccess: (data) => {
+            track(AMPLITUDE_EVENT.RECIPE_CREATE_SUCCESS_URL, {
+              entry_point: entryPoint || "floating_button",
+              recipe_id: data.recipeId,
+              has_target_category: !!selectedCategoryId,
+              video_url: url.trim(),
+              video_id: videoId || undefined,
+            });
+            setHasEverTyped(false);
+            close();
+          },
+          onError: (e) => {
+            const message = e.message.toLowerCase();
+            let errorType = "server";
+            if (message.includes("network") || message.includes("fetch"))
+              errorType = "network";
+            if (message.includes("timeout")) errorType = "timeout";
+
+            track(AMPLITUDE_EVENT.RECIPE_CREATE_FAIL_URL, {
+              entry_point: entryPoint || "floating_button",
+              error_type: errorType,
+              error_message: e.message,
+              video_url: url.trim(),
+              video_id: videoId || undefined,
+            });
+          },
+        },
+      );
     }
   };
 
@@ -155,7 +174,10 @@ export function RecipeCreatingView() {
                 <div className="mt-3 flex justify-center">
                   <button
                     onClick={() => {
-                      request(MODE.UNBLOCKING, UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE);
+                      request(
+                        MODE.UNBLOCKING,
+                        UNBLOCKING_HANDLER_TYPE.OPEN_YOUTUBE,
+                      );
                       close();
                     }}
                     className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 transition-colors py-1 px-2 rounded-lg hover:bg-red-50"

@@ -65,7 +65,7 @@ export const IngredientPurchaseModal = ({
     if (hasTrackedClose.current) return;
     hasTrackedClose.current = true;
 
-    track(AMPLITUDE_EVENT.COUPANG_MODAL_CLOSE, {
+    track(AMPLITUDE_EVENT.COUPANG_PURCHASE_CLOSE, {
       recipe_id: recipeId,
       products_displayed: productsDisplayedRef.current,
       products_clicked: clickedProducts.current.length,
@@ -82,7 +82,7 @@ export const IngredientPurchaseModal = ({
       hasTrackedClose.current = false;
       productsDisplayedRef.current = 0;
 
-      track(AMPLITUDE_EVENT.COUPANG_MODAL_OPEN, {
+      track(AMPLITUDE_EVENT.COUPANG_PURCHASE_OPEN, {
         recipe_id: recipeId,
         ingredient_count: ingredients.length,
       });
@@ -99,7 +99,7 @@ export const IngredientPurchaseModal = ({
   const handleProductClick = (product: IngredientProduct, index: number) => {
     clickedProducts.current.push(product.id);
 
-    track(AMPLITUDE_EVENT.COUPANG_PRODUCT_CLICK, {
+    track(AMPLITUDE_EVENT.COUPANG_ITEM_CLICK, {
       recipe_id: recipeId,
       ingredient_name: product.name,
       product_id: product.id,

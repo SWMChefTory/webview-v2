@@ -37,7 +37,7 @@ export const UserRecipeCardReady = ({
       <SSRSuspense fallback={<RecipeProgressSkeleton />}>
         <RecipeProgressReady
           recipeId={userRecipe.recipeId}
-          title={userRecipe.videoInfo.videoTitle}
+          title={userRecipe.recipeTitle}
           videoId={userRecipe.videoInfo.videoId}
           description={userRecipe.recipeDetailMeta?.description}
           servings={userRecipe.recipeDetailMeta?.servings}
@@ -55,7 +55,7 @@ export const UserRecipeCardReady = ({
         <div className="absolute top-3 right-3 z-10">
           <TimerTag
             recipeId={userRecipe.recipeId}
-            recipeName={userRecipe.videoInfo.videoTitle}
+            recipeName={userRecipe.recipeTitle}
           />
         </div>
         <div className="absolute inset-0">
@@ -72,7 +72,7 @@ export const UserRecipeCardReady = ({
       </div>
       <div className="w-full mt-3">
         <TitleReady
-          title={userRecipe.videoInfo.videoTitle}
+          title={userRecipe.recipeTitle}
           className={
             isTablet
               ? "lg:text-lg lg:leading-snug group-hover:text-black transition-colors"
@@ -236,7 +236,7 @@ const RecipeProgressReady = ({
   recipeStatusBefore,
 }: {
   recipeId: string;
-  title: string;
+  title?: string;
   videoId: string;
   description: string | undefined;
   servings: number | undefined;

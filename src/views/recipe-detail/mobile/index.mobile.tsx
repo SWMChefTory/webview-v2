@@ -20,6 +20,8 @@ import { useRecipeDetailTranslation } from "../common/hook/useRecipeDetailTransl
 import { Skeleton } from "@/components/ui/skeleton";
 import { useEnrollBookmark } from "@/src/entities/user-recipe/model/useBookmark";
 import { useCreditRechargeModalStore } from "@/src/widgets/credit-recharge-modal/creditRechargeModalStore";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 const RecipeDetailPageSkeleton = () => {
   return (
@@ -181,8 +183,23 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
 
   const handleFloatingUnlock = useCallback(() => {
     if (isEnrollingBookmark) return;
+    track(AMPLITUDE_EVENT.RECIPE_ENROLL_CLICK, {
+      recipe_id: recipeId,
+      source: "floating_button",
+    });
     enrollBookmark(recipeId, {
+      onSuccess: () => {
+        track(AMPLITUDE_EVENT.RECIPE_ENROLL_SUCCESS, {
+          recipe_id: recipeId,
+          source: "floating_button",
+        });
+      },
       onError: (error) => {
+        track(AMPLITUDE_EVENT.RECIPE_ENROLL_FAIL, {
+          recipe_id: recipeId,
+          source: "floating_button",
+          error_code: isAxiosError(error) ? error.response?.data?.errorCode : undefined,
+        });
         if (isAxiosError(error) && error.response?.data?.errorCode === "CREDIT_001") {
           openRechargeModal("recipe_detail");
         }
@@ -216,7 +233,7 @@ const RecipeDetailContent = ({ recipeId }: { recipeId: string }) => {
         {briefings && briefings.length > 0 && (
           <>
             <div className="h-2" />
-            <BriefingSummary briefings={briefings} />
+            <BriefingSummary briefings={briefings} recipeId={recipeId} />
           </>
         )}
         <div className="h-3" />

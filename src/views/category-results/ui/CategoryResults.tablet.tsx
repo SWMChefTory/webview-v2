@@ -1,11 +1,15 @@
+import { useEffect } from "react";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { useCategoryResultsController } from "./CategoryResults.controller";
 import {
   RecipeCardReady,
   RecipeCardSkeleton,
   EmptyState,
 } from "./CategoryResults.common";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 export function CategoryResultsSkeletonTablet() {
   return (
@@ -31,17 +35,24 @@ export function CategoryResultsContentTablet({
   categoryType: string;
   videoType?: string;
 }) {
+  const router = useRouter();
   const {
     recipes,
     totalElements,
     categoryName,
     isFetchingNextPage,
+    isRecommendType,
     loadMoreRef,
     t,
-    getVideoType,
-    getEntryPoint,
-    getVideoUrl,
   } = useCategoryResultsController(categoryType, "tablet", videoType);
+
+  useEffect(() => {
+    track(AMPLITUDE_EVENT.CATEGORY_VIEW, {
+      category_type: categoryType,
+      category_name: categoryName,
+      recipe_count: recipes.length,
+    });
+  }, [categoryType]);
 
   if (recipes.length === 0) {
     return <EmptyState t={t} />;
@@ -66,32 +77,36 @@ export function CategoryResultsContentTablet({
       <div className="max-w-[1024px] mx-auto w-full px-8 pb-12">
         <div className="grid grid-cols-3 gap-8">
           {recipes.map((recipe) => (
-            <RecipeCardWrapper
+            <div
               key={recipe.recipeId}
-              recipeCreditCost={recipe.creditCost}
-              recipeId={recipe.recipeId}
-              recipeTitle={recipe.recipeTitle}
-              recipeIsViewed={recipe.isViewed ?? false}
-              recipeVideoType={getVideoType(recipe)}
-              entryPoint={getEntryPoint()}
-              recipeVideoUrl={getVideoUrl(recipe)}
-              videoId={recipe.videoInfo.videoId}
-              description={recipe.detailMeta?.description}
-              servings={recipe.detailMeta?.servings}
-              cookingTime={recipe.detailMeta?.cookingTime}
-              trigger={
-                <RecipeCardReady
-                  recipeTitle={recipe.recipeTitle}
-                  videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
-                  isViewed={recipe.isViewed ?? false}
-                  servings={recipe.detailMeta?.servings ?? 0}
-                  cookingTime={recipe.detailMeta?.cookingTime ?? 0}
-                  tags={recipe.tags ?? []}
-                  description={recipe.detailMeta?.description ?? ""}
-                  isTablet
-                />
-              }
-            />
+              className="cursor-pointer"
+              onClick={() => {
+                track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
+                  recipe_id: recipe.recipeId,
+                  recipe_title: recipe.recipeTitle,
+                  category_type: isRecommendType ? "category_recommend" : "category_cuisine",
+                });
+                navigateToRecipeDetail(router, {
+                  recipeId: recipe.recipeId,
+                  recipeTitle: recipe.recipeTitle,
+                  videoId: recipe.videoInfo.videoId,
+                  description: recipe.detailMeta?.description,
+                  servings: recipe.detailMeta?.servings,
+                  cookingTime: recipe.detailMeta?.cookingTime,
+                });
+              }}
+            >
+              <RecipeCardReady
+                recipeTitle={recipe.recipeTitle}
+                videoThumbnailUrl={recipe.videoInfo.videoThumbnailUrl}
+                isViewed={recipe.isViewed ?? false}
+                servings={recipe.detailMeta?.servings ?? 0}
+                cookingTime={recipe.detailMeta?.cookingTime ?? 0}
+                tags={recipe.tags ?? []}
+                description={recipe.detailMeta?.description ?? ""}
+                isTablet
+              />
+            </div>
           ))}
 
           {isFetchingNextPage && (

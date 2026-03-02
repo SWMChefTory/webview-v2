@@ -3,9 +3,9 @@ import { BsPeople } from "react-icons/bs";
 import { ThumbnailSkeleton, ThumbnailReady } from "./thumbnail";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
 import { Recipe } from "@/src/entities/recipe-searched/model/useRecipeSearched";
-import { RecipeCardWrapper } from "@/src/widgets/recipe-creating-modal/recipeCardWrapper";
+import { useRouter } from "next/router";
+import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { SearchResultsTranslations, SearchResultsVariant } from "./SearchResults.controller";
-import { VideoType } from "@/src/entities/schema";
 
 interface VariantStyles {
   article: string;
@@ -74,14 +74,24 @@ export function SearchedRecipeCard({
   translations,
   onRecipeClick,
 }: SearchedRecipeCardProps) {
+  const router = useRouter();
   const styles = variantStyles[variant];
   const { detailMeta, tags } = recipe;
 
+  const handleClick = () => {
+    onRecipeClick(recipe, position);
+    navigateToRecipeDetail(router, {
+      recipeId: recipe.recipeId,
+      recipeTitle: recipe.recipeTitle,
+      videoId: recipe.videoInfo.videoId,
+      description: recipe.detailMeta.description,
+      servings: recipe.detailMeta.servings,
+      cookingTime: recipe.detailMeta.cookingTime,
+    });
+  };
+
   const thumbnailContent = (
-    <div
-      onClick={() => onRecipeClick(recipe, position)}
-      className={styles.thumbnailWrapper}
-    >
+    <div className={styles.thumbnailWrapper}>
       <ThumbnailReady imgUrl={recipe.videoInfo.videoThumbnailUrl} />
       {recipe.isViewed && (
         <div className={styles.badge}>{translations.cardBadge}</div>
@@ -91,21 +101,8 @@ export function SearchedRecipeCard({
 
   if (variant === "desktop") {
     return (
-      <article className={styles.article}>
-        <RecipeCardWrapper
-          recipeId={recipe.recipeId}
-          recipeTitle={recipe.recipeTitle}
-          recipeCreditCost={recipe.creditCost}
-          recipeIsViewed={recipe.isViewed}
-          recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={recipe.videoUrl}
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={thumbnailContent}
-          entryPoint="search_result"
-        />
+      <article className={styles.article} onClick={handleClick}>
+        {thumbnailContent}
         <div className={styles.titleWrapper}>
           <h3 className={styles.title}>{recipe.recipeTitle}</h3>
           <div className={styles.metaWrapper}>
@@ -132,23 +129,10 @@ export function SearchedRecipeCard({
   }
 
   return (
-    <article className={styles.article}>
+    <article className={styles.article} onClick={handleClick}>
       <div className={styles.titleWrapper}>
         <h3 className={styles.title}>{recipe.recipeTitle}</h3>
-        <RecipeCardWrapper
-          recipeId={recipe.recipeId}
-          recipeTitle={recipe.recipeTitle}
-          recipeCreditCost={recipe.creditCost}
-            recipeIsViewed={recipe.isViewed}
-            recipeVideoType={recipe.videoInfo.videoType === "SHORTS" ? VideoType.SHORTS : VideoType.NORMAL}
-          recipeVideoUrl={recipe.videoUrl}
-          videoId={recipe.videoInfo.videoId}
-          description={recipe.detailMeta.description}
-          servings={recipe.detailMeta.servings}
-          cookingTime={recipe.detailMeta.cookingTime}
-          trigger={thumbnailContent}
-          entryPoint="search_result"
-        />
+        {thumbnailContent}
         <div className={styles.metaWrapper}>
           <div className="flex items-center gap-1.5">
             <BsPeople size={styles.iconSize} className="shrink-0" />

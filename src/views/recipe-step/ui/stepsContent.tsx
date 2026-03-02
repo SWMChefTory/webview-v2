@@ -247,7 +247,13 @@ function VoiceGuideStep({
               >
                 <p
                   onClick={() => {
-                    // 중간 단계 버튼: 다음 단계로 이동만 하고 종료 이벤트는 발송하지 않음
+                    // 마지막 단계에서 스킵하면 튜토리얼 완료로 간주
+                    if (currentStepIndex === steps.length - 1) {
+                      track(AMPLITUDE_EVENT.TUTORIAL_HANDSFREE_COMPLETE, {
+                        recipe_id: recipeId,
+                        total_steps: steps.length,
+                      });
+                    }
                     handleNextStep({ index: currentStepIndex });
                   }}
                 >

@@ -42,21 +42,8 @@ export const enum AMPLITUDE_EVENT {
   /** 핸즈프리 튜토리얼 종료 (완료 또는 중도 이탈) */
   TUTORIAL_HANDSFREE_STEP_END = "tutorial_handsfree_step_end",
 
-  // ─────────────────────────────────────────────────────────────
-  // 레시피 생성 - 카드 경로 (앱 내 기존 레시피 선택)
-  // ─────────────────────────────────────────────────────────────
-
-  /** 레시피 카드 클릭하여 다이얼로그 열림 */
-  RECIPE_CREATE_START_CARD = "recipe_create_start_card",
-
-  /** 다이얼로그에서 "생성" 버튼 클릭 */
-  RECIPE_CREATE_SUBMIT_CARD = "recipe_create_submit_card",
-
-  /** 카드 경로 레시피 생성 성공 */
-  RECIPE_CREATE_SUCCESS_CARD = "recipe_create_success_card",
-
-  /** 카드 경로 레시피 생성 실패 */
-  RECIPE_CREATE_FAIL_CARD = "recipe_create_fail_card",
+  /** 핸즈프리 튜토리얼 완료 */
+  TUTORIAL_HANDSFREE_COMPLETE = "tutorial_handsfree_complete",
 
   // ─────────────────────────────────────────────────────────────
   // 레시피 생성 - URL 경로 (직접 입력 / 외부 공유)
@@ -98,20 +85,26 @@ export const enum AMPLITUDE_EVENT {
   /** 요리 시작 버튼 클릭 */
   RECIPE_DETAIL_COOKING_START = "recipe_detail_cooking_start",
 
+  /** 댓글 더보기 클릭 (mobile 전용) */
+  RECIPE_DETAIL_COMMENT_DETAIL_CLICK = "recipe_detail_comment_detail_click",
+
+  /** 재료 더보기 클릭 (mobile 전용) */
+  RECIPE_DETAIL_INGREDIENT_DETAIL_CLICK = "recipe_detail_ingredient_detail_click",
+
   // ─────────────────────────────────────────────────────────────
   // 쿠팡 (Coupang)
   // 쿠팡 파트너스 모달에서의 사용자 행동 추적 (매출 직결)
   // @see /frontend/docs/3.coupang/amplitude-coupang-implementation.md
   // ─────────────────────────────────────────────────────────────
 
-  /** 쿠팡 모달 열림 (재료 구매 배너 클릭) */
-  COUPANG_MODAL_OPEN = "coupang_modal_open",
+  /** 재료 구매 모달 열림 */
+  COUPANG_PURCHASE_OPEN = "coupang_purchase_open",
 
   /** 쿠팡 상품 클릭 (쿠팡앱 이동) */
-  COUPANG_PRODUCT_CLICK = "coupang_product_click",
+  COUPANG_ITEM_CLICK = "coupang_item_click",
 
-  /** 쿠팡 모달 닫힘 (집계 이벤트) */
-  COUPANG_MODAL_CLOSE = "coupang_modal_close",
+  /** 재료 구매 모달 닫힘 (집계 이벤트) */
+  COUPANG_PURCHASE_CLOSE = "coupang_purchase_close",
 
   // ─────────────────────────────────────────────────────────────
   // 설정/계정 (Settings/Account)
@@ -139,6 +132,9 @@ export const enum AMPLITUDE_EVENT {
 
   /** 검색 결과에서 레시피 카드 클릭 */
   SEARCH_RESULT_CLICK = "search_result_click",
+
+  /** 검색창 트렌딩 레시피 카드 클릭 */
+  SEARCH_TREND_RECIPE_CLICK = "search_trend_recipe_click",
 
   // ─────────────────────────────────────────────────────────────
   // 요리 모드 (Cooking Mode / Hands-free Mode)
@@ -197,6 +193,31 @@ export const enum AMPLITUDE_EVENT {
 
   /** 챌린지 레시피 카드 클릭 */
   CHALLENGE_RECIPE_CLICK = "challenge_recipe_click",
+
+  // ─────────────────────────────────────────────────────────────
+  // 레시피 등록/북마크 (Recipe Enroll)
+  // 북마크 행동 추적 — recipe_enroll_success는 북극성 지표
+  // ─────────────────────────────────────────────────────────────
+
+  /** 북마크 버튼 클릭 */
+  RECIPE_ENROLL_CLICK = "recipe_enroll_click",
+
+  /** 북마크 성공 ⭐ 북극성 지표 */
+  RECIPE_ENROLL_SUCCESS = "recipe_enroll_success",
+
+  /** 북마크 실패 */
+  RECIPE_ENROLL_FAIL = "recipe_enroll_fail",
+
+  // ─────────────────────────────────────────────────────────────
+  // 카테고리 (Category)
+  // 카테고리 결과 페이지 추적
+  // ─────────────────────────────────────────────────────────────
+
+  /** 카테고리 결과 페이지 진입 */
+  CATEGORY_VIEW = "category_view",
+
+  /** 카테고리 결과에서 레시피 카드 클릭 */
+  CATEGORY_RECIPE_CLICK = "category_recipe_click",
 
   // ─────────────────────────────────────────────────────────────
   // 결제 (Recharge)

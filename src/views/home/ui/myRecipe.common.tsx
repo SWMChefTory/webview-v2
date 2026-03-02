@@ -15,6 +15,8 @@ import RecipeBook from "@/src/views/home/ui/assets/recipe-book.png";
 import { useRouter } from "next/router";
 import { useHomeTranslation } from "../hooks/useHomeTranslation";
 import { useTranslation } from "next-i18next";
+import { track } from "@/src/shared/analytics/amplitude";
+import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 
 /**
  * 공통 컴포넌트: 모바일/태블릿 모두 사용
@@ -78,6 +80,11 @@ export const CategoryListReady = ({
           name: t("category.all"),
           accessary:  0,
           onClick: () => {
+            track(AMPLITUDE_EVENT.USER_CATEGORY_SELECT, {
+              source: "home",
+              category_id: "all",
+              category_name: t("category.all"),
+            });
             setSelectedCategory?.(ALL_RECIPES);
           },
           isSelected: selectedCategory === ALL_RECIPES,
@@ -91,6 +98,11 @@ export const CategoryListReady = ({
             name: category.name,
             accessary: category.count,
             onClick: () => {
+              track(AMPLITUDE_EVENT.USER_CATEGORY_SELECT, {
+                source: "home",
+                category_id: category.id,
+                category_name: category.name,
+              });
               setSelectedCategory?.(category);
             },
             isSelected: (selectedCategory as Category).id === category.id,

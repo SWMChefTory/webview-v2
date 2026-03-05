@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Trend from "@/src/views/home/ui/assets/trend.png";
 
 import { useSearchOverlayTranslation } from "../hooks/useSearchOverlayTranslation";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 const TrendRecipeGrid = () => {
   const router = useRouter();
@@ -41,13 +42,17 @@ const TrendRecipeGrid = () => {
     );
   }
 
+  const { observeRef, trackClick } = useRecipeTracking('SEARCH_TRENDING');
+
   return (
     <div className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-6 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 2xl:gap-8">
-      {recipes.map((recipe) => (
+      {recipes.map((recipe, index) => (
         <div
           key={recipe.recipeId}
           className="cursor-pointer"
+          ref={(el) => observeRef(el, recipe.recipeId, index)}
           onClick={() => {
+            trackClick(recipe.recipeId, index);
             track(AMPLITUDE_EVENT.SEARCH_TREND_RECIPE_CLICK, {
               recipe_id: recipe.recipeId,
               recipe_title: recipe.recipeTitle,

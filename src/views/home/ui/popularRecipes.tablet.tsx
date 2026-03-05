@@ -4,6 +4,7 @@ import { RecommendType, VideoTypeQuery } from "@/src/entities/recommend-recipe";
 import { useRouter } from "next/router";
 import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { useCallback } from "react";
+import { useRecipeTracking } from "@/src/shared/tracking";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,
@@ -71,17 +72,21 @@ function RecipeCardSectionReady() {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_RECIPES');
+
   return (
     <HorizontalScrollArea
       moreLink="/recommend?recipeType=POPULAR&videoType=NORMAL"
       gap="gap-5"
       onReachEnd={handleReachEnd}
     >
-      {recipes.map((recipe) => (
+      {recipes.map((recipe, index) => (
         <div
           key={recipe.recipeId}
           className="cursor-pointer"
+          ref={(el) => observeRef(el, recipe.recipeId, index)}
           onClick={() => {
+            trackClick(recipe.recipeId, index);
             navigateToRecipeDetail(router, {
               recipeId: recipe.recipeId,
               recipeTitle: recipe.recipeTitle,

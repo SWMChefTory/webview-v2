@@ -7,6 +7,7 @@ import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
 import { useRouter } from "next/router";
 import { navigateToRecipeDetail } from "@/src/shared/navigation/navigateToRecipeDetail";
 import { ViewMoreCard } from "@/src/shared/ui/card";
+import { useRecipeTracking } from "@/src/shared/tracking";
 import {
   PopularRecipesTitleReady,
   RecipeCardReady,
@@ -50,13 +51,17 @@ function RecipeCardSectionReady() {
     videoType: VideoTypeQuery.NORMAL,
   });
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_RECIPES');
+
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-      {recipes.slice(0, 5).map((recipe) => (
+      {recipes.slice(0, 5).map((recipe, index) => (
         <div
           key={recipe.recipeId}
           className="cursor-pointer"
+          ref={(el) => observeRef(el, recipe.recipeId, index)}
           onClick={() => {
+            trackClick(recipe.recipeId, index);
             navigateToRecipeDetail(router, {
               recipeId: recipe.recipeId,
               recipeTitle: recipe.recipeTitle,

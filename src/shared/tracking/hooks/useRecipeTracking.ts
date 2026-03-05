@@ -9,8 +9,12 @@ export function useRecipeTracking(
 ): RecipeTrackingReturn {
   const [requestId, setRequestId] = useState(() => crypto.randomUUID());
 
+  const prevResetKey = useRef(options?.resetKey);
   useEffect(() => {
-    setRequestId(crypto.randomUUID());
+    if (prevResetKey.current !== options?.resetKey) {
+      setRequestId(crypto.randomUUID());
+      prevResetKey.current = options?.resetKey;
+    }
   }, [options?.resetKey]);
 
   const requestIdRef = useRef(requestId);

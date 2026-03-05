@@ -51,17 +51,21 @@ export function useImpressionObserver({
 
   // IntersectionObserver 초기화 (한 번만 — refs로 최신 값 참조)
   useEffect(() => {
+    const bufferCurrent = buffer.current;
+    const elementMetaCurrent = elementMeta.current;
+    const recipeElementMapCurrent = recipeElementMap.current;
+
     observer.current = new IntersectionObserver(
       (entries) => {
         let changed = false;
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
-          const meta = elementMeta.current.get(entry.target);
+          const meta = elementMetaCurrent.get(entry.target);
           if (!meta) continue;
           if (impressedSet.current.has(meta.recipeId)) continue;
 
           impressedSet.current.add(meta.recipeId);
-          buffer.current.push({
+          bufferCurrent.push({
             recipeId: meta.recipeId,
             position: meta.position,
             timestamp: Date.now(),
@@ -71,8 +75,8 @@ export function useImpressionObserver({
         if (changed) {
           if (timerRef.current !== null) clearTimeout(timerRef.current);
           timerRef.current = setTimeout(() => {
-            if (buffer.current.length === 0) return;
-            const items = buffer.current.splice(0);
+            if (bufferCurrent.length === 0) return;
+            const items = bufferCurrent.splice(0);
             sendImpressions({
               requestId: requestIdRef.current,
               surfaceType: surfaceTypeRef.current,
@@ -86,8 +90,8 @@ export function useImpressionObserver({
 
     return () => {
       if (timerRef.current !== null) clearTimeout(timerRef.current);
-      if (buffer.current.length > 0) {
-        const items = buffer.current.splice(0);
+      if (bufferCurrent.length > 0) {
+        const items = bufferCurrent.splice(0);
         flushImpressions({
           requestId: requestIdRef.current,
           surfaceType: surfaceTypeRef.current,
@@ -96,8 +100,8 @@ export function useImpressionObserver({
       }
       observer.current?.disconnect();
       observer.current = null;
-      elementMeta.current.clear();
-      recipeElementMap.current.clear();
+      elementMetaCurrent.clear();
+      recipeElementMapCurrent.clear();
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

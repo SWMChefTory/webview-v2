@@ -45,9 +45,16 @@ export function CategoryResultsContentMobile({
     });
   }, [categoryType]);
 
-  const onRecipeClick = useCallback(
+  const shortsRecipes = recipes.filter(
+    (r) => r.videoInfo.videoType === "SHORTS"
+  );
+  const normalRecipes = recipes.filter(
+    (r) => r.videoInfo.videoType === "NORMAL"
+  );
+
+  const onShortsRecipeClick = useCallback(
     (recipe: RecipeCardsSectionRecipe) => {
-      const index = recipes.findIndex((r) => r.recipeId === recipe.recipeId);
+      const index = shortsRecipes.findIndex((r) => r.recipeId === recipe.recipeId);
       trackClick(recipe.recipeId, index);
       track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
         recipe_id: recipe.recipeId,
@@ -55,19 +62,25 @@ export function CategoryResultsContentMobile({
         category_type: isRecommendType ? "category_recommend" : "category_cuisine",
       });
     },
-    [isRecommendType, trackClick, recipes]
+    [isRecommendType, trackClick, shortsRecipes]
+  );
+
+  const onNormalRecipeClick = useCallback(
+    (recipe: RecipeCardsSectionRecipe) => {
+      const index = normalRecipes.findIndex((r) => r.recipeId === recipe.recipeId);
+      trackClick(recipe.recipeId, index);
+      track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
+        recipe_id: recipe.recipeId,
+        recipe_title: recipe.recipeTitle,
+        category_type: isRecommendType ? "category_recommend" : "category_cuisine",
+      });
+    },
+    [isRecommendType, trackClick, normalRecipes]
   );
 
   if (recipes.length === 0) {
     return <EmptyState t={t} />;
   }
-
-  const shortsRecipes = recipes.filter(
-    (r) => r.videoInfo.videoType === "SHORTS"
-  );
-  const normalRecipes = recipes.filter(
-    (r) => r.videoInfo.videoType === "NORMAL"
-  );
 
   const cardServing = (count: number) => t("card.serving", { count });
   const cardMinute = (count: number) => t("card.minute", { count });
@@ -78,7 +91,7 @@ export function CategoryResultsContentMobile({
         <ShortsRecipeListMobile
           recipes={shortsRecipes}
           observeRef={observeRef}
-          onRecipeClick={onRecipeClick}
+          onRecipeClick={onShortsRecipeClick}
           cardServing={cardServing}
           cardMinute={cardMinute}
         />
@@ -87,7 +100,7 @@ export function CategoryResultsContentMobile({
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
           observeRef={observeRef}
-          onRecipeClick={onRecipeClick}
+          onRecipeClick={onNormalRecipeClick}
           cardBadge={t("card.badge")}
           cardServing={cardServing}
           cardMinute={cardMinute}

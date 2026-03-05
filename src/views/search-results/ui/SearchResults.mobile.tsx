@@ -64,7 +64,7 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           recipes={shortsRecipes}
           observeRef={observeRef}
           onRecipeClick={(recipe) => {
-            const index = searchResults.findIndex(
+            const index = shortsRecipes.findIndex(
               (r) => r.recipeId === recipe.recipeId,
             );
             trackClick(recipe.recipeId, index);
@@ -79,7 +79,7 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           isFetchingNextPage={isFetchingNextPage}
           observeRef={observeRef}
           onRecipeClick={(recipe) => {
-            const index = searchResults.findIndex(
+            const index = normalRecipes.findIndex(
               (r) => r.recipeId === recipe.recipeId,
             );
             trackClick(recipe.recipeId, index);

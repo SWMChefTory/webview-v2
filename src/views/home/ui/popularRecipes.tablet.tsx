@@ -10,7 +10,7 @@ import {
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
 import { HorizontalScrollArea } from "./horizontalScrollArea";
-import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 /**
  * PopularRecipes 섹션 - 태블릿 버전 (768px ~)

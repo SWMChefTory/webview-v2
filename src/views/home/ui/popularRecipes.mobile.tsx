@@ -12,7 +12,7 @@ import {
 } from "./popularRecipes.common";
 import { useCallback } from "react";
 import Link from "next/link";
-import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 /**
  * PopularRecipes 섹션 - 모바일 버전 (0 ~ 767px)

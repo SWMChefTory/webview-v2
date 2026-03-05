@@ -2,7 +2,7 @@ import { useCategoryResultsController } from "./CategoryResults.controller";
 import { EmptyState } from "./CategoryResults.common";
 import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSkeleton, NormalVerticalListSkeleton } from "@/src/widgets/recipe-cards-section";
 import { VideoType } from "@/src/entities/schema";
-import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function CategoryResultsSkeletonMobile() {
   return (
@@ -48,7 +48,9 @@ export function CategoryResultsContentMobile({
   const cardServing = (count: number) => t("card.serving", { count });
   const cardMinute = (count: number) => t("card.minute", { count });
 
-  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS');
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS', {
+    resetKey: categoryType,
+  });
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50/20">

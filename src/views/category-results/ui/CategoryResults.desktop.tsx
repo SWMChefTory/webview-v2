@@ -7,7 +7,7 @@ import {
   EmptyState,
 } from "./CategoryResults.common";
 import { VideoType } from "@/src/entities/schema";
-import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function CategoryResultsSkeletonDesktop() {
   return (
@@ -49,7 +49,9 @@ export function CategoryResultsContentDesktop({
     return <EmptyState t={t} />;
   }
 
-  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS');
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS', {
+    resetKey: categoryType,
+  });
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-gradient-to-b from-white to-gray-50">

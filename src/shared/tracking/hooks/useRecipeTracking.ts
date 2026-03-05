@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { SurfaceType, RecipeTrackingReturn, RecipeTrackingOptions } from '../model/types';
 import { sendImpressions, sendClick } from '../api/trackingApi';
 import { useImpressionObserver } from './useImpressionObserver';
@@ -13,6 +13,13 @@ export function useRecipeTracking(
     setRequestId(crypto.randomUUID());
   }, [options?.resetKey]);
 
+  const requestIdRef = useRef(requestId);
+  const surfaceTypeRef = useRef(surfaceType);
+  useEffect(() => {
+    requestIdRef.current = requestId;
+    surfaceTypeRef.current = surfaceType;
+  }, [requestId, surfaceType]);
+
   const { observeRef, impressedSet } = useImpressionObserver({
     requestId,
     surfaceType,
@@ -26,16 +33,16 @@ export function useRecipeTracking(
 
       if (!impressedSet.current.has(recipeId)) {
         sendImpressions({
-          requestId,
-          surfaceType,
+          requestId: requestIdRef.current,
+          surfaceType: surfaceTypeRef.current,
           impressions: [{ recipeId, position, timestamp }],
         });
         impressedSet.current.add(recipeId);
       }
 
-      sendClick({ requestId, surfaceType, recipeId, position, timestamp });
+      sendClick({ requestId: requestIdRef.current, surfaceType: surfaceTypeRef.current, recipeId, position, timestamp });
     },
-    [requestId, surfaceType, impressedSet]
+    [impressedSet]
   );
 
   return { requestId, observeRef, trackClick };

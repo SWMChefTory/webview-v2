@@ -24,7 +24,9 @@ export const MyRecipesDesktop = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
   >(ALL_RECIPES);
-  const { observeRef, trackClick } = useRecipeTracking('HOME_MY_RECIPES');
+  const { observeRef, trackClick } = useRecipeTracking('HOME_MY_RECIPES', {
+    resetKey: selectedCategory === ALL_RECIPES ? 'ALL' : selectedCategory.id,
+  });
 
   return (
     <MyRecipesTemplateDesktop

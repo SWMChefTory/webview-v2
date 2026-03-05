@@ -12,7 +12,7 @@ import {
   RecipeCardReady,
   RecipeCardSkeleton,
 } from "./popularRecipes.common";
-import { useRecipeTracking } from "@/src/shared/tracking/hooks/useRecipeTracking";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function PopularRecipesDesktop() {
   return (

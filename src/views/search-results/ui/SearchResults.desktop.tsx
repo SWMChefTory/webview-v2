@@ -7,7 +7,6 @@ import {
 } from "./SearchResults.common";
 import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
 import { useRecipeTracking } from "@/src/shared/tracking";
-import { useCallback } from "react";
 
 export function SearchResultsSkeletonDesktop() {
   return (
@@ -40,11 +39,6 @@ export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
     resetKey: keyword,
   });
 
-  const handleRecipeClick = useCallback((recipe: Parameters<typeof onRecipeClick>[0], position: number) => {
-    trackClick(recipe.recipeId, position);
-    onRecipeClick(recipe, position);
-  }, [trackClick, onRecipeClick]);
-
   if (searchResults.length === 0) {
     return <EmptyState variant="desktop" translations={translations} keyword={keyword} />;
   }
@@ -74,7 +68,10 @@ export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
                   position={index + 1}
                   variant="desktop"
                   translations={translations}
-                  onRecipeClick={handleRecipeClick}
+                  onRecipeClick={(r, _amplitudePosition) => {
+                    trackClick(r.recipeId, index);
+                    onRecipeClick(r, _amplitudePosition);
+                  }}
                 />
               </div>
             ))}

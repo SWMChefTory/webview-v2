@@ -5,6 +5,7 @@ import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSke
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import type { RecipeCardsSectionRecipe } from "@/src/widgets/recipe-cards-section/RecipeCardsSection.mobile";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function CategoryResultsSkeletonMobile() {
   return (
@@ -32,6 +33,9 @@ export function CategoryResultsContentMobile({
     loadMoreRef,
     t,
   } = useCategoryResultsController(categoryType, "mobile", videoType);
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS', {
+    resetKey: categoryType,
+  });
 
   useEffect(() => {
     track(AMPLITUDE_EVENT.CATEGORY_VIEW, {
@@ -43,13 +47,15 @@ export function CategoryResultsContentMobile({
 
   const onRecipeClick = useCallback(
     (recipe: RecipeCardsSectionRecipe) => {
+      const index = recipes.findIndex((r) => r.recipeId === recipe.recipeId);
+      trackClick(recipe.recipeId, index);
       track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
         recipe_id: recipe.recipeId,
         recipe_title: recipe.recipeTitle,
         category_type: isRecommendType ? "category_recommend" : "category_cuisine",
       });
     },
-    [isRecommendType]
+    [isRecommendType, trackClick, recipes]
   );
 
   if (recipes.length === 0) {
@@ -71,6 +77,7 @@ export function CategoryResultsContentMobile({
       <div className="px-2 pb-28 pt-4">
         <ShortsRecipeListMobile
           recipes={shortsRecipes}
+          observeRef={observeRef}
           onRecipeClick={onRecipeClick}
           cardServing={cardServing}
           cardMinute={cardMinute}
@@ -79,6 +86,7 @@ export function CategoryResultsContentMobile({
           recipes={normalRecipes}
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
+          observeRef={observeRef}
           onRecipeClick={onRecipeClick}
           cardBadge={t("card.badge")}
           cardServing={cardServing}

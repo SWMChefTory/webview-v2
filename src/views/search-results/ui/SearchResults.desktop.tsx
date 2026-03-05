@@ -6,6 +6,8 @@ import {
   EmptyState,
 } from "./SearchResults.common";
 import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
+import { useRecipeTracking } from "@/src/shared/tracking";
+import { useCallback } from "react";
 
 export function SearchResultsSkeletonDesktop() {
   return (
@@ -34,6 +36,14 @@ export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
     translations,
     onRecipeClick,
   } = useSearchResultsController(keyword);
+  const { observeRef, trackClick } = useRecipeTracking('SEARCH_RESULTS', {
+    resetKey: keyword,
+  });
+
+  const handleRecipeClick = useCallback((recipe: Parameters<typeof onRecipeClick>[0], position: number) => {
+    trackClick(recipe.recipeId, position);
+    onRecipeClick(recipe, position);
+  }, [trackClick, onRecipeClick]);
 
   if (searchResults.length === 0) {
     return <EmptyState variant="desktop" translations={translations} keyword={keyword} />;
@@ -58,13 +68,13 @@ export function SearchResultsContentDesktop({ keyword }: { keyword: string }) {
         <div className="pb-16">
           <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 lg:gap-8">
             {searchResults.map((recipe, index) => (
-              <div key={recipe.recipeId} className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom">
+              <div key={recipe.recipeId} className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom" ref={(el) => observeRef(el, recipe.recipeId, index)}>
                 <SearchedRecipeCard
                   recipe={recipe}
                   position={index + 1}
                   variant="desktop"
                   translations={translations}
-                  onRecipeClick={onRecipeClick}
+                  onRecipeClick={handleRecipeClick}
                 />
               </div>
             ))}

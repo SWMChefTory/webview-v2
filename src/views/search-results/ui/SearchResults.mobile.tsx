@@ -8,6 +8,7 @@ import {
   NormalVerticalListSkeleton,
 } from "@/src/widgets/recipe-cards-section";
 import { YoutubeSearchBanner } from "@/src/widgets/youtube-search-banner";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function SearchResultsSkeletonMobile() {
   return (
@@ -31,6 +32,9 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
     translations,
     onRecipeClick,
   } = useSearchResultsController(keyword);
+  const { observeRef, trackClick } = useRecipeTracking('SEARCH_RESULTS', {
+    resetKey: keyword,
+  });
 
   if (searchResults.length === 0) {
     return (
@@ -58,10 +62,12 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
       <div className="px-4 pb-28">
         <ShortsRecipeListMobile
           recipes={shortsRecipes}
+          observeRef={observeRef}
           onRecipeClick={(recipe) => {
             const index = searchResults.findIndex(
               (r) => r.recipeId === recipe.recipeId,
             );
+            trackClick(recipe.recipeId, index);
             onRecipeClick(recipe, index);
           }}
           cardServing={translations.cardServing}
@@ -71,10 +77,12 @@ export function SearchResultsContentMobile({ keyword }: { keyword: string }) {
           recipes={normalRecipes}
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
+          observeRef={observeRef}
           onRecipeClick={(recipe) => {
             const index = searchResults.findIndex(
               (r) => r.recipeId === recipe.recipeId,
             );
+            trackClick(recipe.recipeId, index);
             onRecipeClick(recipe, index);
           }}
           cardBadge={translations.cardBadge}

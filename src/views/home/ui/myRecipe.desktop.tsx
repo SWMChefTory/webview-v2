@@ -18,11 +18,16 @@ import {
   CategoryListSkeleton,
   CategoryListReady,
 } from "./myRecipe.common";
+import { useRecipeTracking } from "@/src/shared/tracking";
+import type { RecipeTrackingReturn } from "@/src/shared/tracking";
 
 export const MyRecipesDesktop = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
   >(ALL_RECIPES);
+  const { observeRef, trackClick } = useRecipeTracking('HOME_MY_RECIPES', {
+    resetKey: selectedCategory === ALL_RECIPES ? 'ALL' : selectedCategory.id,
+  });
 
   return (
     <MyRecipesTemplateDesktop
@@ -37,7 +42,7 @@ export const MyRecipesDesktop = () => {
       }
       userRecipesSection={
         <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
-          <UserRecipesSection selectedCategory={selectedCategory} />
+          <UserRecipesSection selectedCategory={selectedCategory} observeRef={observeRef} trackClick={trackClick} />
         </SSRSuspense>
       }
     />
@@ -66,36 +71,45 @@ const MyRecipesTemplateDesktop = ({
   );
 };
 
+type TrackingProps = {
+  observeRef: RecipeTrackingReturn['observeRef'];
+  trackClick: RecipeTrackingReturn['trackClick'];
+};
+
 const UserRecipesSection = ({
   selectedCategory,
+  observeRef,
+  trackClick,
 }: {
   selectedCategory: Category | typeof ALL_RECIPES;
-}) => {
+} & TrackingProps) => {
   if (selectedCategory === ALL_RECIPES) {
-    return <UserRecipesAllSection />;
+    return <UserRecipesAllSection observeRef={observeRef} trackClick={trackClick} />;
   }
 
-  return <UserRecipesCategorySection category={selectedCategory} />;
+  return <UserRecipesCategorySection category={selectedCategory} observeRef={observeRef} trackClick={trackClick} />;
 };
 
-const UserRecipesAllSection = () => {
+const UserRecipesAllSection = ({ observeRef, trackClick }: TrackingProps) => {
   const { entities: userRecipes } = useFetchAllRecipes();
-  return <UserRecipesGrid userRecipes={userRecipes} />;
+  return <UserRecipesGrid userRecipes={userRecipes} observeRef={observeRef} trackClick={trackClick} />;
 };
 
-const UserRecipesCategorySection = ({ category }: { category: Category }) => {
+const UserRecipesCategorySection = ({ category, observeRef, trackClick }: { category: Category } & TrackingProps) => {
   const { entities: userRecipes } = useFetchCategoryRecipes({
     id: category.id,
     name: category.name,
   });
-  return <UserRecipesGrid userRecipes={userRecipes} />;
+  return <UserRecipesGrid userRecipes={userRecipes} observeRef={observeRef} trackClick={trackClick} />;
 };
 
 const UserRecipesGrid = ({
   userRecipes,
+  observeRef,
+  trackClick,
 }: {
   userRecipes: UserRecipe[];
-}) => {
+} & TrackingProps) => {
   if (userRecipes.length === 0) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -106,8 +120,14 @@ const UserRecipesGrid = ({
 
   return (
     <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6">
-      {userRecipes.slice(0, 5).map((recipe) => (
-        <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} isTablet={true} />
+      {userRecipes.slice(0, 5).map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+          <UserRecipeCardReady
+            userRecipe={recipe}
+            isTablet={true}
+            onTrackClick={() => trackClick(recipe.recipeId, index)}
+          />
+        </div>
       ))}
       <ViewMoreCard href="/user/recipes" />
     </div>

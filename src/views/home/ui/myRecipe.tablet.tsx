@@ -15,6 +15,8 @@ import {
 } from "@/src/views/home/ui/userRecipeCard";
 
 import { useCallback, useState } from "react";
+import { useRecipeTracking } from "@/src/shared/tracking";
+import type { RecipeTrackingReturn } from "@/src/shared/tracking";
 
 import {
   CategoryListReady,
@@ -32,6 +34,9 @@ export const MyRecipesTablet = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
   >(ALL_RECIPES);
+  const { observeRef, trackClick } = useRecipeTracking('HOME_MY_RECIPES', {
+    resetKey: selectedCategory === ALL_RECIPES ? 'ALL' : selectedCategory.id,
+  });
 
   return (
     <MyRecipesTemplateTablet
@@ -46,7 +51,7 @@ export const MyRecipesTablet = () => {
       }
       userRecipesSection={
         <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
-          <UserRecipesSection selectedCategory={selectedCategory} />
+          <UserRecipesSection selectedCategory={selectedCategory} observeRef={observeRef} trackClick={trackClick} />
         </SSRSuspense>
       }
     />
@@ -78,18 +83,25 @@ const MyRecipesTemplateTablet = ({
   );
 };
 
-const UserRecipesSection = ({
-  selectedCategory,
-}: {
-  selectedCategory: Category | typeof ALL_RECIPES;
-}) => {
-  if (selectedCategory === ALL_RECIPES) {
-    return <UserRecipesAllSection />;
-  }
-  return <UserRecipesCategorySection category={selectedCategory} />;
+type TrackingProps = {
+  observeRef: RecipeTrackingReturn['observeRef'];
+  trackClick: RecipeTrackingReturn['trackClick'];
 };
 
-const UserRecipesAllSection = () => {
+const UserRecipesSection = ({
+  selectedCategory,
+  observeRef,
+  trackClick,
+}: {
+  selectedCategory: Category | typeof ALL_RECIPES;
+} & TrackingProps) => {
+  if (selectedCategory === ALL_RECIPES) {
+    return <UserRecipesAllSection observeRef={observeRef} trackClick={trackClick} />;
+  }
+  return <UserRecipesCategorySection category={selectedCategory} observeRef={observeRef} trackClick={trackClick} />;
+};
+
+const UserRecipesAllSection = ({ observeRef, trackClick }: TrackingProps) => {
   const {
     entities: userRecipes,
     fetchNextPage,
@@ -108,11 +120,13 @@ const UserRecipesAllSection = () => {
       userRecipes={userRecipes}
       onReachEnd={handleReachEnd}
       isFetchingNextPage={isFetchingNextPage}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
 
-const UserRecipesCategorySection = ({ category }: { category: Category }) => {
+const UserRecipesCategorySection = ({ category, observeRef, trackClick }: { category: Category } & TrackingProps) => {
   const {
     entities: userRecipes,
     fetchNextPage,
@@ -131,6 +145,8 @@ const UserRecipesCategorySection = ({ category }: { category: Category }) => {
       userRecipes={userRecipes}
       onReachEnd={handleReachEnd}
       isFetchingNextPage={isFetchingNextPage}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -139,11 +155,13 @@ const UserRecipesSectionTemplate = ({
   userRecipes,
   onReachEnd,
   isFetchingNextPage,
+  observeRef,
+  trackClick,
 }: {
   userRecipes: UserRecipe[];
   onReachEnd: () => void;
   isFetchingNextPage: boolean;
-}) => {
+} & TrackingProps) => {
   if (userRecipes.length === 0) {
     return (
       <div className="flex items-center justify-center py-12 px-6">
@@ -158,12 +176,14 @@ const UserRecipesSectionTemplate = ({
       gap="gap-5"
       onReachEnd={onReachEnd}
     >
-      {userRecipes.map((recipe) => (
-        <UserRecipeCardReady
-          userRecipe={recipe}
-          key={recipe.recipeId}
-          isTablet={true}
-        />
+      {userRecipes.map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+          <UserRecipeCardReady
+            userRecipe={recipe}
+            isTablet={true}
+            onTrackClick={() => trackClick(recipe.recipeId, index)}
+          />
+        </div>
       ))}
       {isFetchingNextPage && <UserRecipeCardSkeleton isTablet={true} />}
     </HorizontalScrollArea>

@@ -31,11 +31,13 @@ export function ShortsRecipeListMobile<
   onRecipeClick,
   cardServing,
   cardMinute,
+  observeRef,
 }: {
   recipes: TRecipe[];
   onRecipeClick?: (recipe: TRecipe) => void;
   cardServing: (count: number) => string;
   cardMinute: (count: number) => string;
+  observeRef?: (el: HTMLDivElement | null, recipeId: string, index: number) => void;
 }) {
   const router = useRouter();
 
@@ -46,9 +48,10 @@ export function ShortsRecipeListMobile<
       <div
         className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {recipes.map((recipe) => (
+        {recipes.map((recipe, index) => (
           <div
             key={recipe.recipeId}
+            ref={(el) => observeRef?.(el, recipe.recipeId, index)}
             className="w-[150px] shrink-0 snap-start cursor-pointer"
             onClick={() => {
               onRecipeClick?.(recipe);
@@ -87,6 +90,7 @@ export function NormalRecipeListMobile<
   cardBadge,
   cardServing,
   cardMinute,
+  observeRef,
 }: {
   recipes: TRecipe[];
   loadMoreRef: React.RefObject<HTMLDivElement | null>;
@@ -95,14 +99,16 @@ export function NormalRecipeListMobile<
   cardBadge: string;
   cardServing: (count: number) => string;
   cardMinute: (count: number) => string;
+  observeRef?: (el: HTMLDivElement | null, recipeId: string, index: number) => void;
 }) {
   const router = useRouter();
 
   return (
     <section className="space-y-6 w-full">
-      {recipes.map((recipe) => (
+      {recipes.map((recipe, index) => (
         <div
           key={recipe.recipeId}
+          ref={(el) => observeRef?.(el, recipe.recipeId, index)}
           className="w-full cursor-pointer"
           onClick={() => {
             onRecipeClick?.(recipe);

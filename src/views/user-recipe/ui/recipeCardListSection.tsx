@@ -11,21 +11,29 @@ import {
 } from "@/src/views/user-recipe/ui/recipeCard";
 import { useUserRecipeTranslation } from "../hooks/useUserRecipeTranslation";
 import { type UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
+import type { RecipeTrackingReturn } from "@/src/shared/tracking";
+
+type TrackingProps = {
+  observeRef: RecipeTrackingReturn['observeRef'];
+  trackClick: RecipeTrackingReturn['trackClick'];
+};
 
 export const RecipeListSectionReady = ({
   selectedCategoryId,
   isTablet = false,
   isDesktop = false,
+  observeRef,
+  trackClick,
 }: {
   selectedCategoryId: string | typeof ALL_RECIPES;
   isTablet?: boolean;
   isDesktop?: boolean;
-}) => {
+} & TrackingProps) => {
   const { data: categories } = useFetchCategories();
 
   if (selectedCategoryId === ALL_RECIPES) {
     return (
-      <RecipeAllListSectionReady isTablet={isTablet} isDesktop={isDesktop} />
+      <RecipeAllListSectionReady isTablet={isTablet} isDesktop={isDesktop} observeRef={observeRef} trackClick={trackClick} />
     );
   }
 
@@ -43,6 +51,8 @@ export const RecipeListSectionReady = ({
       categoryName={selectedCategory.name}
       isTablet={isTablet}
       isDesktop={isDesktop}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -50,10 +60,12 @@ export const RecipeListSectionReady = ({
 const RecipeAllListSectionReady = ({
   isTablet,
   isDesktop,
+  observeRef,
+  trackClick,
 }: {
   isTablet: boolean;
   isDesktop: boolean;
-}) => {
+} & TrackingProps) => {
   const {
     entities: recipes,
     fetchNextPage,
@@ -74,6 +86,8 @@ const RecipeAllListSectionReady = ({
       }}
       isFetchingNextPage={isFetchingNextPage}
       selectedCategoryId={ALL_RECIPES}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -83,12 +97,14 @@ const RecipeCategoryListSectionReady = ({
   categoryName,
   isTablet,
   isDesktop,
+  observeRef,
+  trackClick,
 }: {
   categoryId: string;
   categoryName: string;
   isTablet: boolean;
   isDesktop: boolean;
-}) => {
+} & TrackingProps) => {
   const {
     entities: recipes,
     fetchNextPage,
@@ -110,6 +126,8 @@ const RecipeCategoryListSectionReady = ({
       }}
       isFetchingNextPage={isFetchingNextPage}
       selectedCategoryId={categoryId}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -123,6 +141,8 @@ const RecipeListSectionTemplate = ({
   onScrollEnd,
   isFetchingNextPage,
   selectedCategoryId,
+  observeRef,
+  trackClick,
 }: {
   recipes: UserRecipe[];
   isCategory: boolean;
@@ -132,7 +152,7 @@ const RecipeListSectionTemplate = ({
   onScrollEnd: () => void;
   isFetchingNextPage: boolean;
   selectedCategoryId: string | typeof ALL_RECIPES;
-}) => {
+} & TrackingProps) => {
   const { t } = useUserRecipeTranslation();
 
   return (
@@ -158,17 +178,19 @@ const RecipeListSectionTemplate = ({
               : "flex flex-col w-full gap-2 lg:gap-4 xl:gap-6"
           }
         >
-          {recipes.map((recipe) => (
-            <RecipeDetailsCardReady
-              key={recipe.recipeId}
-              userRecipe={recipe}
-              selectedCategoryId={
-                selectedCategoryId === ALL_RECIPES
-                  ? undefined
-                  : selectedCategoryId
-              }
-              isDesktop={isDesktop}
-            />
+          {recipes.map((recipe, index) => (
+            <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+              <RecipeDetailsCardReady
+                userRecipe={recipe}
+                selectedCategoryId={
+                  selectedCategoryId === ALL_RECIPES
+                    ? undefined
+                    : selectedCategoryId
+                }
+                isDesktop={isDesktop}
+                onTrackClick={() => trackClick(recipe.recipeId, index)}
+              />
+            </div>
           ))}
           {isFetchingNextPage && (
             <RecipeDetailsCardSkeleton isDesktop={isDesktop} />

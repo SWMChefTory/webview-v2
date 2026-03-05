@@ -10,6 +10,7 @@ import {
 } from "./CategoryResults.common";
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function CategoryResultsSkeletonDesktop() {
   return (
@@ -45,6 +46,9 @@ export function CategoryResultsContentDesktop({
     loadMoreRef,
     t,
   } = useCategoryResultsController(categoryType, "desktop", videoType);
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS', {
+    resetKey: categoryType,
+  });
 
   useEffect(() => {
     track(AMPLITUDE_EVENT.CATEGORY_VIEW, {
@@ -76,11 +80,13 @@ export function CategoryResultsContentDesktop({
 
       <div className="max-w-[1600px] mx-auto w-full px-8 pb-16">
         <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-6 lg:gap-8">
-          {recipes.map((recipe) => (
+          {recipes.map((recipe, index) => (
             <div
               key={recipe.recipeId}
               className="transition-transform duration-300 hover:scale-[1.02] hover:z-10 origin-bottom cursor-pointer"
+              ref={(el) => observeRef(el, recipe.recipeId, index)}
               onClick={() => {
+                trackClick(recipe.recipeId, index);
                 track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
                   recipe_id: recipe.recipeId,
                   recipe_title: recipe.recipeTitle,

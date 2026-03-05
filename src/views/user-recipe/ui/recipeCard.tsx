@@ -45,10 +45,12 @@ const RecipeDetailsCardReady = ({
   userRecipe,
   selectedCategoryId,
   isDesktop = false,
+  onTrackClick,
 }: {
   userRecipe: UserRecipe;
   selectedCategoryId?: string;
   isDesktop?: boolean;
+  onTrackClick?: () => void;
 }) => {
   const [isCategorySelectOpen, setIsCategorySelectOpen] = useState(false);
 
@@ -80,6 +82,7 @@ const RecipeDetailsCardReady = ({
           setIsCategorySelectOpen(true);
         }}
         recipeStatusBefore={userRecipe.recipeStatus}
+        onTrackClick={onTrackClick}
       />
       {/* </SSRSuspense> */}
       <div
@@ -141,6 +144,7 @@ const RecipeOverlay = ({
   cookingTime,
   recipeStatusBefore,
   onLongPress,
+  onTrackClick,
 }: {
   recipeId: string;
   title?: string;
@@ -151,6 +155,7 @@ const RecipeOverlay = ({
   cookingTime?: number;
   recipeStatusBefore: RecipeStatus;
   onLongPress: () => void;
+  onTrackClick?: () => void;
 }) => {
   // const { recipeStatus } = useFetchRecipeProgressWithRefetch(recipeId);
   const router = useRouter();
@@ -163,6 +168,7 @@ const RecipeOverlay = ({
       recipeStatusCurrent === RecipeStatus.SUCCESS ||
       recipeStatusBefore === RecipeStatus.SUCCESS
     ) {
+      onTrackClick?.();
       track(AMPLITUDE_EVENT.USER_RECIPE_CLICK, {
         source: "user_recipe",
         recipe_id: recipeId,

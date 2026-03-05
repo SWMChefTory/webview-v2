@@ -10,6 +10,7 @@ import {
   usePopularRecipeContent,
   PopularRecipePageProps,
 } from "./PopularRecipe.controller";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function PopularRecipeTablet() {
   const props = usePopularRecipeController("tablet");
@@ -32,15 +33,18 @@ function PopularRecipeTabletLayout({ title }: PopularRecipePageProps) {
 function PopularRecipesContent() {
   const router = useRouter();
   const { recipes, isFetchingNextPage, loadMoreRef } = usePopularRecipeContent("tablet");
+  const { observeRef, trackClick } = useRecipeTracking('POPULAR_RECIPES');
 
   return (
     <div className="pb-16">
       <div className="grid grid-cols-3 gap-8 min-h-[50vh]">
-        {recipes.map((recipe) => (
+        {recipes.map((recipe, index) => (
           <div
             key={recipe.recipeId}
             className="cursor-pointer"
+            ref={(el) => observeRef(el, recipe.recipeId, index)}
             onClick={() => {
+              trackClick(recipe.recipeId, index);
               navigateToRecipeDetail(router, {
                 recipeId: recipe.recipeId,
                 recipeTitle: recipe.recipeTitle,

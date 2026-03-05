@@ -10,6 +10,7 @@ import {
   ShortsRecipeCardSkeleton,
 } from "./popularShortsRecipes.common";
 import { useCallback } from "react";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 /**
  * PopularShortsRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -74,13 +75,17 @@ const ShortPopularRecipesSectionReady = () => {
     }
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_SHORTS');
+
   return (
     <HorizontalScrollArea onReachEnd={handleReachEnd}>
-      {recipes.map((recipe) => (
+      {recipes.map((recipe, index) => (
         <div
           key={recipe.recipeId}
           className="cursor-pointer"
+          ref={(el) => observeRef(el, recipe.recipeId, index)}
           onClick={() => {
+            trackClick(recipe.recipeId, index);
             navigateToRecipeDetail(router, {
               recipeId: recipe.recipeId,
               recipeTitle: recipe.recipeTitle,

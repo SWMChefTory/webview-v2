@@ -9,6 +9,7 @@ import {
 } from "./popularRecipes.common";
 import { useCallback } from "react";
 import Link from "next/link";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 /**
  * PopularRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -72,30 +73,38 @@ function RecipeCardSectionReady() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_RECIPES');
+
   return (
     <HorizontalScrollArea onReachEnd={handleReachEnd}>
-      {recipes.map((recipe) => (
-        <Link href={{
-            pathname: `/recipe/${recipe.recipeId}/detail`,
-            query: {
-              title: recipe.recipeTitle,
-              videoId: recipe.videoInfo.videoId,
-              description: recipe.detailMeta.description,
-              servings: recipe.detailMeta.servings,
-              cookingTime: recipe.detailMeta.cookingTime,
-            },
-          }} key={recipe.recipeId}>
-          <RecipeCardReady
-            recipe={{
-              id: recipe.recipeId,
-              isViewed: recipe.isViewed,
-              videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
-              recipeTitle: recipe.recipeTitle,
-              isViewd: recipe.isViewed,
-            }}
-            isTablet={false}
-          />{" "}
-        </Link>
+      {recipes.map((recipe, index) => (
+        <div
+          key={recipe.recipeId}
+          ref={(el) => observeRef(el, recipe.recipeId, index)}
+          onClick={() => trackClick(recipe.recipeId, index)}
+        >
+          <Link href={{
+              pathname: `/recipe/${recipe.recipeId}/detail`,
+              query: {
+                title: recipe.recipeTitle,
+                videoId: recipe.videoInfo.videoId,
+                description: recipe.detailMeta.description,
+                servings: recipe.detailMeta.servings,
+                cookingTime: recipe.detailMeta.cookingTime,
+              },
+            }}>
+            <RecipeCardReady
+              recipe={{
+                id: recipe.recipeId,
+                isViewed: recipe.isViewed,
+                videoThumbnailUrl: recipe.videoInfo.videoThumbnailUrl,
+                recipeTitle: recipe.recipeTitle,
+                isViewd: recipe.isViewed,
+              }}
+              isTablet={false}
+            />{" "}
+          </Link>
+        </div>
       ))}
 
       {isFetchingNextPage && <RecipeCardSkeleton isTablet={false} />}

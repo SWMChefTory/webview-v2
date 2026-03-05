@@ -10,6 +10,7 @@ import {
   usePopularRecipeContent,
   PopularRecipePageProps,
 } from "./PopularRecipe.controller";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function PopularRecipeMobile() {
   const props = usePopularRecipeController("mobile");
@@ -32,15 +33,18 @@ function PopularRecipeMobileLayout({ title}: PopularRecipePageProps) {
 function PopularRecipesContent() {
   const router = useRouter();
   const { recipes, isFetchingNextPage, onScroll } = usePopularRecipeContent("mobile");
+  const { observeRef, trackClick } = useRecipeTracking('POPULAR_RECIPES');
 
   return (
     <div className="overflow-y-scroll h-[100vh] no-scrollbar" onScroll={onScroll}>
       <div className="grid grid-cols-2 gap-2 min-h-[100.5vh]">
-        {recipes.map((recipe) => (
+        {recipes.map((recipe, index) => (
           <div
             key={recipe.recipeId}
             className="cursor-pointer"
+            ref={(el) => observeRef(el, recipe.recipeId, index)}
             onClick={() => {
+              trackClick(recipe.recipeId, index);
               navigateToRecipeDetail(router, {
                 recipeId: recipe.recipeId,
                 recipeTitle: recipe.recipeTitle,

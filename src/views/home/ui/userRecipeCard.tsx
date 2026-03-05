@@ -26,9 +26,11 @@ import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 export const UserRecipeCardReady = ({
   userRecipe,
   isTablet = false,
+  onTrackClick,
 }: {
   userRecipe: UserRecipe;
   isTablet?: boolean;
+  onTrackClick?: () => void;
 }) => {
   return (
     <div
@@ -46,6 +48,7 @@ export const UserRecipeCardReady = ({
           servings={userRecipe.recipeDetailMeta?.servings}
           cookingTime={userRecipe.recipeDetailMeta?.cookingTime}
           recipeStatusBefore={userRecipe.recipeStatus}
+          onTrackClick={onTrackClick}
         />
       </SSRSuspense>
       <div
@@ -238,6 +241,7 @@ const RecipeProgressReady = ({
   servings,
   cookingTime,
   recipeStatusBefore,
+  onTrackClick,
 }: {
   recipeId: string;
   title?: string;
@@ -247,6 +251,7 @@ const RecipeProgressReady = ({
   servings: number | undefined;
   cookingTime: number | undefined;
   recipeStatusBefore: RecipeStatus;
+  onTrackClick?: () => void;
 }) => {
   const handleClick = ({
     recipeStatusCurrent,
@@ -257,6 +262,7 @@ const RecipeProgressReady = ({
       recipeStatusCurrent === RecipeStatus.SUCCESS ||
       recipeStatusBefore === RecipeStatus.SUCCESS
     ) {
+      onTrackClick?.();
       track(AMPLITUDE_EVENT.USER_RECIPE_CLICK, {
         source: "home",
         recipe_id: recipeId,

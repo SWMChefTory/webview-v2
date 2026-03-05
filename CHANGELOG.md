@@ -7,53 +7,60 @@
 
 ---
 
+## [1.1.9] - 2026-03-05
+
+### 추가
+
+- **레시피 노출/클릭 추적 시스템**: IntersectionObserver 기반 레시피 카드 노출(Impression) 및 클릭(Click-through) 추적 구현
+  - 8개 Surface 전체 커버: `HOME_MY_RECIPES`, `HOME_POPULAR_RECIPES`, `HOME_POPULAR_SHORTS`, `USER_RECIPES`, `POPULAR_RECIPES`, `SEARCH_TRENDING`, `SEARCH_RESULTS`, `CATEGORY_RESULTS`
+  - `useRecipeTracking` 훅: requestId 관리, observeRef(노출 감지), trackClick(클릭 추적) 제공
+  - `useImpressionObserver` 훅: threshold 0.5, 1초 debounce 배치 전송, 세션 내 중복 방지
+  - click 시 impression 미전송 건 자동 보충 (CTR 정합성 보장)
+  - `visibilitychange` 이벤트로 탭 이탈 시 잔여 버퍼 flush
+  - `resetKey` 패턴으로 카테고리/검색어 변경 시 requestId 자동 갱신
+- **공유 위젯 확장**: `ShortsRecipeListMobile`, `NormalRecipeListMobile`에 `observeRef` prop 추가
+
+### 수정
+
+- **position 0-based 통일**: 기존 Amplitude 1-based position과 분리하여 추적 시스템은 0-based로 통일
+- **모바일 shorts/normal 별도 인덱싱**: 필터된 리스트 기준 0-based index 사용
+
+---
+
 ## [1.1.8] - 2026-03-02
 
-### 나의 레시피(사용자 레시피) 분석 및 기능 강화
+### 추가
 
-- **데이터 기반 개선**: 카테고리 선택, 추가, 삭제 등 주요 동작에 Amplitude 이벤트 추적 연동 (`USER_CATEGORY_SELECT`, `USER_CATEGORY_CREATE_OPEN`, `USER_CATEGORY_DELETE_SUCCESS` 등)
+- **나의 레시피 Amplitude 이벤트 추적**: 카테고리 선택, 추가, 삭제 등 주요 동작에 이벤트 추적 연동
+  - `USER_CATEGORY_SELECT`, `USER_CATEGORY_CREATE_OPEN`, `USER_CATEGORY_DELETE_SUCCESS` 등
 
+---
 
 ## [1.1.7] - 2026-03-02
 
-### Amplitude 이벤트 구조 개선
+### 추가
 
-- **이벤트 enum 정리**: 카드 생성 이벤트 4개 삭제 (`recipe_create_start_card`, `recipe_create_submit_card`, `recipe_create_success_card`, `recipe_create_fail_card`), 쿠팡 이벤트 3개 리네이밍 (`coupang_modal_open` → `coupang_purchase_open`, `coupang_modal_close` → `coupang_purchase_close`, `coupang_product_click` → `coupang_item_click`)
-- **신규 이벤트 10개 추가**: `recipe_enroll_click/success/fail`, `recipe_detail_comment_detail_click`, `recipe_detail_ingredient_detail_click`, `recipe_detail_video_seek`, `search_trend_recipe_click`, `category_view`, `category_recipe_click`, `tutorial_handsfree_complete`
-- **entity 훅에서 track() 제거**: `useUserRecipe.ts`의 `onSuccess`/`onError` 콜백에서 Amplitude 추적 코드 제거, 컴포넌트 레벨 mutate 콜백(`create(variables, { onSuccess, onError })`)으로 이동
-- **recipeCreatingForm.tsx**: `mutateAsync` + try/catch 패턴에서 `mutate` + `{ onSuccess, onError }` 콜백 패턴으로 변경
+- **레시피 신고 기능**: 레시피 상세 페이지에 더보기 메뉴 → 신고하기 기능 구현
+  - `RecipeReportModal` 위젯: 신고 사유 선택 및 제출 UI
+  - `RecipeMoreMenu` 위젯: 드롭다운 방식의 더보기 메뉴
+  - `recipe-report` entity: 신고 API 연동 및 Zod 스키마 정의
+- **유튜브 검색 배너**: 검색 결과 및 빈 결과 화면에서 유튜브로 바로 검색할 수 있는 배너 위젯
+- **Amplitude 신규 이벤트 10개 추가**: `recipe_enroll_click/success/fail`, `recipe_detail_comment_detail_click`, `recipe_detail_ingredient_detail_click`, `recipe_detail_video_seek`, `search_trend_recipe_click`, `category_view`, `category_recipe_click`, `tutorial_handsfree_complete`
 
-### RecipeCardWrapper 제거 및 네비게이션 리팩토링
+### 리팩토링
 
-- **RecipeCardWrapper 컴포넌트 완전 삭제**: `recipeCardWrapper.tsx` 파일 및 `RecipeCardEntryPoint` 타입 제거
-- **`navigateToRecipeDetail` 유틸리티 생성**: `src/shared/navigation/navigateToRecipeDetail.ts` — 레시피 상세 페이지 이동 로직을 공통 함수로 추출
-- **14개 파일에서 RecipeCardWrapper → 인라인 onClick 전환**:
-  - `trendingRecipeSection.tsx`: 직접 `track()` + `navigateToRecipeDetail()` 호출
-  - `RecipeCardsSection.mobile.tsx`: `entryPoint`/`getVideoType`/`getVideoUrl` props 제거, `onRecipeClick` 콜백 패턴으로 변경
-  - `CategoryResults.controller.tsx`: `getEntryPoint`, `getVideoType`, `getVideoUrl` 메서드 제거
-  - `CategoryResults.mobile/tablet/desktop.tsx`: 인라인 `CATEGORY_RECIPE_CLICK` 추적 + `navigateToRecipeDetail` 호출
-  - `SearchResults.common.tsx`: `handleClick`에서 `onRecipeClick` + `navigateToRecipeDetail` 직접 호출
-  - `SearchResults.mobile.tsx`: 제거된 props 정리
-  - `PopularRecipe.mobile/tablet/desktop.tsx`: 인라인 `navigateToRecipeDetail` 호출
-  - `popularRecipes.tablet/desktop.tsx`: 동일
-  - `popularShortsRecipes.mobile/tablet/desktop.tsx`: 동일
-  - `popularRecipes.mobile.tsx`: 미사용 import 제거
+- **RecipeCardWrapper 제거 및 네비게이션 리팩토링**:
+  - `RecipeCardWrapper` 컴포넌트 완전 삭제, `navigateToRecipeDetail` 유틸리티로 대체
+  - 14개 파일에서 인라인 onClick 패턴으로 전환
+- **Amplitude 이벤트 구조 개선**:
+  - 카드 생성 이벤트 4개 삭제, 쿠팡 이벤트 3개 리네이밍
+  - entity 훅에서 `track()` 제거 → 컴포넌트 레벨 mutate 콜백으로 이동
+  - `mutateAsync` + try/catch → `mutate` + `{ onSuccess, onError }` 콜백 패턴으로 변경
 
-### 레시피 신고 기능
+### 수정
 
-- **신고하기 기능 추가**: 레시피 상세 페이지에 더보기 메뉴 → 신고하기 기능 구현
-- **RecipeReportModal 위젯**: 신고 사유 선택 및 제출 UI
-- **RecipeMoreMenu 위젯**: 드롭다운 방식의 더보기 메뉴
-- **recipe-report entity**: 신고 API 연동 및 Zod 스키마 정의
-
-### 유튜브 검색 배너
-
-- **검색 결과 페이지에 유튜브 검색 배너 추가**: 검색 결과 및 빈 결과 화면에서 유튜브로 바로 검색할 수 있는 배너 위젯
-- **딥링크 이중 실행 버그 수정**
-
-### 기타 수정
-
-- **레시피 차단 상태 번역 추가**: `progress.blocked` 키 추가 (ko: "이 레시피는 차단되었어요", en: "This recipe has been blocked"), BANNED/BLOCKED 상태 텍스트 표시 로직 수정
+- **딥링크 이중 실행 버그 수정**: 유튜브 검색 배너 딥링크 중복 호출 방지
+- **레시피 차단 상태 번역 추가**: `progress.blocked` 키 추가, BANNED/BLOCKED 상태 텍스트 표시
 - **recipe title null 허용**: 레시피 스키마에서 `recipeTitle`을 nullable로 변경
 - **ChallengeRecipeCard**: 카드 이벤트 관련 필드 제거
 - **IngredientPurchaseModal**: 리네이밍된 쿠팡 이벤트 enum 적용

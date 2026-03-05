@@ -19,6 +19,8 @@ import {
   CategoryListReady,
 } from "./myRecipe.common";
 import { UserRecipe } from "@/src/entities/user-recipe/model/api/schema";
+import { useRecipeTracking } from "@/src/shared/tracking";
+import type { RecipeTrackingReturn } from "@/src/shared/tracking";
 
 /**
  * MyRecipes 섹션 - 모바일 버전 (0 ~ 767px)
@@ -32,6 +34,9 @@ export const MyRecipesMobile = () => {
   const [selectedCategory, setSelectedCategory] = useState<
     Category | typeof ALL_RECIPES
   >(ALL_RECIPES);
+  const { observeRef, trackClick } = useRecipeTracking('HOME_MY_RECIPES', {
+    resetKey: selectedCategory === ALL_RECIPES ? 'ALL' : selectedCategory.id,
+  });
 
   return (
     <MyRecipesTemplateMobile
@@ -47,11 +52,13 @@ export const MyRecipesMobile = () => {
       userRecipesSection={
         <SSRSuspense fallback={<UserRecipesSectionSkeleton />}>
           {selectedCategory === ALL_RECIPES ? (
-            <UserRecipesSection />
+            <UserRecipesSection observeRef={observeRef} trackClick={trackClick} />
           ) : (
             <UserCategoryRecipesSection
               id={selectedCategory.id}
               name={selectedCategory.name}
+              observeRef={observeRef}
+              trackClick={trackClick}
             />
           )}
         </SSRSuspense>
@@ -88,7 +95,12 @@ const MyRecipesTemplateMobile = ({
   );
 };
 
-const UserRecipesSection = () => {
+type TrackingProps = {
+  observeRef: RecipeTrackingReturn['observeRef'];
+  trackClick: RecipeTrackingReturn['trackClick'];
+};
+
+const UserRecipesSection = ({ observeRef, trackClick }: TrackingProps) => {
   const {
     entities: userRecipes,
     fetchNextPage,
@@ -105,6 +117,8 @@ const UserRecipesSection = () => {
           fetchNextPage();
         }
       }}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -112,10 +126,12 @@ const UserRecipesSection = () => {
 const UserCategoryRecipesSection = ({
   id,
   name,
+  observeRef,
+  trackClick,
 }: {
   id: string;
   name: string;
-}) => {
+} & TrackingProps) => {
   const {
     entities: userRecipes,
     fetchNextPage,
@@ -132,6 +148,8 @@ const UserCategoryRecipesSection = ({
           fetchNextPage();
         }
       }}
+      observeRef={observeRef}
+      trackClick={trackClick}
     />
   );
 };
@@ -140,11 +158,13 @@ const RecipeListTemplate = ({
   userRecipes,
   isLoadingMore,
   onReachEnd,
+  observeRef,
+  trackClick,
 }: {
   userRecipes: UserRecipe[];
   isLoadingMore: boolean;
   onReachEnd: () => void;
-}) => {
+} & TrackingProps) => {
   if (userRecipes.length === 0) {
     return (
       <HorizontalScrollArea>
@@ -156,8 +176,13 @@ const RecipeListTemplate = ({
   // 레시피 목록 (가로 스크롤)
   return (
     <HorizontalScrollArea onReachEnd={onReachEnd}>
-      {userRecipes.map((recipe) => (
-        <UserRecipeCardReady userRecipe={recipe} key={recipe.recipeId} />
+      {userRecipes.map((recipe, index) => (
+        <div key={recipe.recipeId} ref={(el) => observeRef(el, recipe.recipeId, index)}>
+          <UserRecipeCardReady
+            userRecipe={recipe}
+            onTrackClick={() => trackClick(recipe.recipeId, index)}
+          />
+        </div>
       ))}
       {isLoadingMore && <UserRecipeCardSkeleton />}
     </HorizontalScrollArea>

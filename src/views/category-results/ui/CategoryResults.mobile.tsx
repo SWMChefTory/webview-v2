@@ -5,6 +5,7 @@ import { ShortsRecipeListMobile, NormalRecipeListMobile, ShortsHorizontalListSke
 import { track } from "@/src/shared/analytics/amplitude";
 import { AMPLITUDE_EVENT } from "@/src/shared/analytics/amplitudeEvents";
 import type { RecipeCardsSectionRecipe } from "@/src/widgets/recipe-cards-section/RecipeCardsSection.mobile";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function CategoryResultsSkeletonMobile() {
   return (
@@ -32,6 +33,9 @@ export function CategoryResultsContentMobile({
     loadMoreRef,
     t,
   } = useCategoryResultsController(categoryType, "mobile", videoType);
+  const { observeRef, trackClick } = useRecipeTracking('CATEGORY_RESULTS', {
+    resetKey: categoryType,
+  });
 
   useEffect(() => {
     track(AMPLITUDE_EVENT.CATEGORY_VIEW, {
@@ -41,27 +45,42 @@ export function CategoryResultsContentMobile({
     });
   }, [categoryType]);
 
-  const onRecipeClick = useCallback(
-    (recipe: RecipeCardsSectionRecipe) => {
-      track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
-        recipe_id: recipe.recipeId,
-        recipe_title: recipe.recipeTitle,
-        category_type: isRecommendType ? "category_recommend" : "category_cuisine",
-      });
-    },
-    [isRecommendType]
-  );
-
-  if (recipes.length === 0) {
-    return <EmptyState t={t} />;
-  }
-
   const shortsRecipes = recipes.filter(
     (r) => r.videoInfo.videoType === "SHORTS"
   );
   const normalRecipes = recipes.filter(
     (r) => r.videoInfo.videoType === "NORMAL"
   );
+
+  const onShortsRecipeClick = useCallback(
+    (recipe: RecipeCardsSectionRecipe) => {
+      const index = shortsRecipes.findIndex((r) => r.recipeId === recipe.recipeId);
+      trackClick(recipe.recipeId, index);
+      track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
+        recipe_id: recipe.recipeId,
+        recipe_title: recipe.recipeTitle,
+        category_type: isRecommendType ? "category_recommend" : "category_cuisine",
+      });
+    },
+    [isRecommendType, trackClick, shortsRecipes]
+  );
+
+  const onNormalRecipeClick = useCallback(
+    (recipe: RecipeCardsSectionRecipe) => {
+      const index = normalRecipes.findIndex((r) => r.recipeId === recipe.recipeId);
+      trackClick(recipe.recipeId, index);
+      track(AMPLITUDE_EVENT.CATEGORY_RECIPE_CLICK, {
+        recipe_id: recipe.recipeId,
+        recipe_title: recipe.recipeTitle,
+        category_type: isRecommendType ? "category_recommend" : "category_cuisine",
+      });
+    },
+    [isRecommendType, trackClick, normalRecipes]
+  );
+
+  if (recipes.length === 0) {
+    return <EmptyState t={t} />;
+  }
 
   const cardServing = (count: number) => t("card.serving", { count });
   const cardMinute = (count: number) => t("card.minute", { count });
@@ -71,7 +90,8 @@ export function CategoryResultsContentMobile({
       <div className="px-2 pb-28 pt-4">
         <ShortsRecipeListMobile
           recipes={shortsRecipes}
-          onRecipeClick={onRecipeClick}
+          observeRef={observeRef}
+          onRecipeClick={onShortsRecipeClick}
           cardServing={cardServing}
           cardMinute={cardMinute}
         />
@@ -79,7 +99,8 @@ export function CategoryResultsContentMobile({
           recipes={normalRecipes}
           loadMoreRef={loadMoreRef}
           isFetchingNextPage={isFetchingNextPage}
-          onRecipeClick={onRecipeClick}
+          observeRef={observeRef}
+          onRecipeClick={onNormalRecipeClick}
           cardBadge={t("card.badge")}
           cardServing={cardServing}
           cardMinute={cardMinute}

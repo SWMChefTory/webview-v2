@@ -9,6 +9,7 @@ import {
   ShortsRecipeCardSkeleton,
 } from "./popularShortsRecipes.common";
 import { HorizontalScrollAreaDesktop } from "./horizontalScrollArea.desktop";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export function PopularShortsRecipesDesktop() {
   return (
@@ -47,13 +48,17 @@ const ShortPopularRecipesSectionReady = () => {
     videoType: VideoTypeQuery.SHORTS,
   });
 
+  const { observeRef, trackClick } = useRecipeTracking('HOME_POPULAR_SHORTS');
+
   return (
     <HorizontalScrollAreaDesktop gap="gap-6" aspectRatio="aspect-[9/16]">
-      {recipes.slice(0, 6).map((recipe) => (
+      {recipes.slice(0, 6).map((recipe, index) => (
         <div
           key={recipe.recipeId}
           className="cursor-pointer"
+          ref={(el) => observeRef(el, recipe.recipeId, index)}
           onClick={() => {
+            trackClick(recipe.recipeId, index);
             navigateToRecipeDetail(router, {
               recipeId: recipe.recipeId,
               recipeTitle: recipe.recipeTitle,

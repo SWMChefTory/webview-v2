@@ -9,6 +9,7 @@ import {
   RecipeListSectionSkeleton,
 } from "@/src/views/user-recipe/ui/recipeCardListSection";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+import { useRecipeTracking } from "@/src/shared/tracking";
 
 export type UserRecipeVariant = "mobile" | "tablet" | "desktop";
 
@@ -38,6 +39,10 @@ export function useUserRecipePageController(
     string | typeof ALL_RECIPES
   >(ALL_RECIPES);
 
+  const { observeRef, trackClick } = useRecipeTracking('USER_RECIPES', {
+    resetKey: selectedCategoryId === ALL_RECIPES ? 'ALL' : selectedCategoryId,
+  });
+
   const isTablet = variant === "tablet";
   const isDesktop = variant === "desktop";
 
@@ -64,6 +69,8 @@ export function useUserRecipePageController(
           selectedCategoryId={selectedCategoryId}
           isTablet={isTablet}
           isDesktop={isDesktop}
+          observeRef={observeRef}
+          trackClick={trackClick}
         />
       </SSRSuspense>
     ),

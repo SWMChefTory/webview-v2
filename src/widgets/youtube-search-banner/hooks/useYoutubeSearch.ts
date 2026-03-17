@@ -13,12 +13,16 @@ export function useYoutubeSearch(keyword: string, source: string) {
     if (!keyword.trim()) return;
 
     const encodedKeyword = encodeURIComponent(keyword.trim());
+    const youtubeAppUrl = `youtube://results?search_query=${encodedKeyword}`;
     const youtubeWebUrl = `https://www.youtube.com/results?search_query=${encodedKeyword}`;
 
     track(AMPLITUDE_EVENT.YOUTUBE_SEARCH_CLICK, { keyword, source });
 
     if (isNativeApp()) {
-      request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", { url: youtubeWebUrl });
+      request(MODE.UNBLOCKING, "OPEN_EXTERNAL_URL", {
+        url: youtubeAppUrl,
+        fallbackUrl: youtubeWebUrl,
+      });
     } else {
       window.open(youtubeWebUrl, "_blank");
     }

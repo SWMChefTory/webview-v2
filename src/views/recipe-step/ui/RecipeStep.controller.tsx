@@ -5,7 +5,7 @@ import { useRecipeStepController } from "../hooks/useRecipeStepController";
 import { useCookingModeAnalytics } from "../hooks/useCookingModeAnalytics";
 import { useTutorial, useTutorialActions } from "../hooks/useTutorial";
 import { useSafeArea } from "../hooks/useSafeArea";
-import { useSimpleSpeech } from "../hooks/useSimpleSpeech";
+import { useSimpleSpeech, speechPerf } from "../hooks/useSimpleSpeech";
 import { useHandleTimerVoiceIntent } from "../hooks/useTimerIntent";
 import { useOrientation } from "../hooks/useOrientation";
 import { request, MODE } from "@/src/shared/client/native/client";
@@ -165,10 +165,30 @@ export function useRecipeStepPageController(id: string) {
       }, 1000);
     },
     onIntent: (intent: unknown) => {
+      const commandStart = performance.now();
       const intentObj = intent as { base_intent?: string } | string;
       const rawIntent =
         typeof intentObj === "string" ? intentObj : intentObj?.base_intent;
       const parsedIntent = parseIntent(rawIntent);
+
+      // ── Performance 측정 출력 ──
+      {
+        const { vadSpeechStart, vadSpeechEnd, intentReceived } = speechPerf;
+        const utteranceDuration = vadSpeechEnd > vadSpeechStart ? vadSpeechEnd - vadSpeechStart : 0;
+        const serverLatency = intentReceived > vadSpeechEnd ? intentReceived - vadSpeechEnd : 0;
+        const totalLatency = commandStart > vadSpeechStart ? commandStart - vadSpeechStart : 0;
+        console.log(
+          `\n⏱️ [Performance] command="${parsedIntent}"\n` +
+          `  📢 Utterance duration : ${utteranceDuration.toFixed(0)}ms  (VAD start → VAD end)\n` +
+          `  🌐 Server latency     : ${serverLatency.toFixed(0)}ms  (VAD end → intent received)\n` +
+          `  ⚡ Total (E2E)        : ${totalLatency.toFixed(0)}ms  (VAD start → command execute)\n` +
+          `  ─── timestamps ───\n` +
+          `  vadSpeechStart  : ${vadSpeechStart.toFixed(1)}\n` +
+          `  vadSpeechEnd    : ${vadSpeechEnd.toFixed(1)}\n` +
+          `  intentReceived  : ${intentReceived.toFixed(1)}\n` +
+          `  commandExecute  : ${commandStart.toFixed(1)}`
+        );
+      }
 
       if (parsedIntent === "NEXT") {
         if (isInTutorial && currentTutorialStep !== 2) {

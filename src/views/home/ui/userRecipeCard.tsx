@@ -13,7 +13,8 @@ import { useFetchRecipeProgressWithRefetch } from "@/src/entities/user-recipe/mo
 import { UserRecipe } from "@/src/entities/user-recipe";
 import { ProgressDetailsCheckList } from "@/src/entities/user-recipe/ui/progress";
 import { RecipeStatus } from "@/src/entities/user-recipe";
-import router from "next/router";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { TimerTag } from "@/src/widgets/timer/modal/ui/timerTag";
 import { useRecipeCreatingViewOpenStore } from "@/src/widgets/recipe-creating-form/recipeCreatingFormOpenStore";
 import TextSkeleton from "@/src/shared/ui/skeleton/text";
@@ -248,6 +249,13 @@ const RecipeProgressReady = ({
   cookingTime: number | undefined;
   recipeStatusBefore: RecipeStatus;
 }) => {
+  const router = useRouter();
+
+  // 카드가 마운트되면 디테일 페이지 JS 번들을 미리 다운로드
+  useEffect(() => {
+    router.prefetch(`/recipe/${recipeId}/detail`);
+  }, [recipeId]);
+
   const handleClick = ({
     recipeStatusCurrent,
   }: {

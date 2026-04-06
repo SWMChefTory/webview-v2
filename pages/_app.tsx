@@ -29,7 +29,6 @@ import { Button } from "@/components/ui/button";
 import { ErrorBoundary } from "react-error-boundary";
 import { appWithTranslation } from "next-i18next";
 import { useAmplitude } from "@/src/shared/analytics/useAmplitude";
-import { Agentation } from "agentation";
 import { useOnboardingStore } from "@/src/views/onboarding/stores/useOnboardingStore";
 import { authEventBus } from "@/src/shared/client/main/authEventBus";
 import {
@@ -73,6 +72,8 @@ function App(props: AppProps) {
       }
       // 이미 /auth에 있으면 새로고침 방지
       if (window.location.pathname.endsWith("/auth")) return;
+      // POC 페이지는 인증 불필요
+      if (window.location.pathname.startsWith("/poc")) return;
       // 현재 경로를 redirect 파라미터로 전달하여 로그인 후 복귀
       const currentPath = window.location.pathname + window.location.search;
       window.location.href = `/auth?redirect=${encodeURIComponent(currentPath)}`;
@@ -88,7 +89,6 @@ function App(props: AppProps) {
       <QueryClientProvider client={queryClient}>
         <AppInner {...props} />
       </QueryClientProvider>
-      {process.env.NODE_ENV === "development" && <Agentation />}
     </>
   );
 }
@@ -102,6 +102,20 @@ function AppInner({ Component, pageProps }: AppProps) {
   const router = useRouter();
   useInit();
   const { open } = useRecipeCreatingViewOpenStore();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  useEffect(() => {
+    const handleStart = () => setIsNavigating(true);
+    const handleComplete = () => setIsNavigating(false);
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
+    };
+  }, [router]);
   const [recipeDetailLinkUrl, setRecipeDetailLinkUrl] = useState<
     string | undefined
   >(undefined);
@@ -113,10 +127,12 @@ function AppInner({ Component, pageProps }: AppProps) {
 
     // 온보딩 미완료 시 온보딩 페이지로 교체 (뒤로가기 방지)
     // /auth는 스킵: 로그인 전에는 온보딩 리다이렉트 불필요
+    const path = typeof window !== "undefined" ? window.location.pathname : router.pathname;
     if (
       !isOnboardingCompleted &&
-      router.pathname !== "/onboarding" &&
-      router.pathname !== "/auth"
+      path !== "/onboarding" &&
+      path !== "/auth" &&
+      !path.startsWith("/poc")
     ) {
       router.replace("/onboarding");
     }
@@ -126,7 +142,9 @@ function AppInner({ Component, pageProps }: AppProps) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (isNativeApp()) return;
-    if (router.pathname === "/auth") return;
+    const path = window.location.pathname;
+    if (path === "/auth" || path.startsWith("/auth")) return;
+    if (path.startsWith("/poc")) return;
 
     const token = getMainAccessToken();
     if (!token) {
@@ -160,6 +178,8 @@ function AppInner({ Component, pageProps }: AppProps) {
           handleRecipeDeepLink({ path: message.data.route });
         }
       }
+    }).catch(() => {
+      // 웹 브라우저 환경에서는 네이티브 브릿지가 없으므로 무시
     });
   }, []);
 
@@ -202,7 +222,8 @@ function AppInner({ Component, pageProps }: AppProps) {
   // Zustand persist hydration 완료 전에는 아무것도 렌더링하지 않음
   // → 새 사용자: 홈 화면이 먼저 보이는 flash 방지
   // → 기존 사용자: 온보딩으로 잘못 리다이렉트되는 것 방지
-  if (!_hasHydrated) {
+  // → POC 페이지는 인증/온보딩 불필요하므로 즉시 렌더링
+  if (!_hasHydrated && !router.pathname.startsWith("/poc")) {
     return (
       <div className="h-dvh bg-gradient-to-b from-orange-50 via-white to-white" />
     );
@@ -225,6 +246,14 @@ function AppInner({ Component, pageProps }: AppProps) {
             )}
           >
             <Toaster />
+            {isNavigating ? (
+              <div className="fixed inset-0 z-50 flex items-start justify-center bg-white">
+                <div className="w-full h-1 bg-gray-100 overflow-hidden">
+                  <div className="h-full bg-orange-500 animate-[loading_1.5s_ease-in-out_infinite]"
+                    style={{ width: '30%' }} />
+                </div>
+              </div>
+            ) : null}
             <Component {...pageProps} />
             <RecipeCreatingView />
             <CreditRechargeModal />

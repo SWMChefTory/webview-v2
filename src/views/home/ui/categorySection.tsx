@@ -84,7 +84,7 @@ export const CategorySection = () => {
   };
 
   return (
-    <div className="w-full pt-4 pb-4 md:pt-6 md:pb-6 bg-white">
+    <div className="w-full pt-4 pb-4 md:pt-6 md:pb-6">
       <div className="px-4 md:px-6 mb-2 md:mb-3">
         <h2 className="text-xl md:text-2xl font-semibold text-gray-900">
           {t("recipeCategory")}

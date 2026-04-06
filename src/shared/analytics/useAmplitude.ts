@@ -63,7 +63,12 @@ export const useAmplitude = () => {
       }
     };
 
-    init();
+    // 브라우저가 한가할 때 초기화 (초기 렌더링 차단 방지)
+    if (typeof requestIdleCallback !== "undefined") {
+      requestIdleCallback(() => init());
+    } else {
+      setTimeout(init, 2000);
+    }
   }, []);
 
   return { isReady };

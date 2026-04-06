@@ -39,10 +39,10 @@ export function useHomePageController(variant: HomePageVariant): HomePageProps {
   const lang = useLangcode();
 
   useSafeArea({
-    top: { color: "transparent", isExists: true },
-    bottom: { color: "#FFFFFF", isExists: false },
-    left: { color: "#FFFFFF", isExists: true },
-    right: { color: "#FFFFFF", isExists: true },
+    top: { color: "#FFFDF5", isExists: true },
+    bottom: { color: "#FFFDF5", isExists: false },
+    left: { color: "#FFFDF5", isExists: true },
+    right: { color: "#FFFDF5", isExists: true },
   });
 
   const onProfileClick = () => router.push("/user/settings");

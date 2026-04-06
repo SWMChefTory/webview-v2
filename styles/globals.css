@@ -199,7 +199,11 @@ html[data-slide="prev"]::view-transition-new(root) {
   to { transform: translateX(0); filter: brightness(1); opacity: 1; }
 }
 
-
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
+}
 
 @font-face {
   font-family: "NanumSquare";

@@ -1,24 +1,33 @@
-import {
-  RecipeDetailPageReadyMobile,
-} from "./mobile/index.mobile";
-import {
-  RecipeDetailPageReadyTablet,
-  RecipeDetailPageSkeletonTablet,
-} from "./tablet/index.tablet";
-import {
-  RecipeDetailPageReadyDesktop,
-  RecipeDetailPageSkeletonDesktop,
-} from "./desktop/index.desktop";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/router";
-
 import { motion } from "motion/react";
 import { ShieldAlert, Home, RefreshCw, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRecipeDetailTranslation } from "./common/hook/useRecipeDetailTranslation";
 import { MEDIA_QUERIES } from "@/src/shared/constants/breakpoints";
 import { useMediaQuery } from "@/src/shared/hooks/useMediaQuery";
-import { Suspense } from "react";
 import { SSRSuspense } from "@/src/shared/boundary/SSRSuspense";
+
+// 모바일만 즉시 로드, 태블릿/데스크톱은 dynamic import
+import { RecipeDetailPageReadyMobile } from "./mobile/index.mobile";
+
+const RecipeDetailPageReadyTablet = dynamic(
+  () => import("./tablet/index.tablet").then((mod) => ({ default: mod.RecipeDetailPageReadyTablet })),
+  { loading: () => <div className="w-full h-[100dvh] bg-white animate-pulse" /> }
+);
+
+const RecipeDetailPageSkeletonTablet = dynamic(
+  () => import("./tablet/index.tablet").then((mod) => ({ default: mod.RecipeDetailPageSkeletonTablet }))
+);
+
+const RecipeDetailPageReadyDesktop = dynamic(
+  () => import("./desktop/index.desktop").then((mod) => ({ default: mod.RecipeDetailPageReadyDesktop })),
+  { loading: () => <div className="w-full h-[100dvh] bg-white animate-pulse" /> }
+);
+
+const RecipeDetailPageSkeletonDesktop = dynamic(
+  () => import("./desktop/index.desktop").then((mod) => ({ default: mod.RecipeDetailPageSkeletonDesktop }))
+);
 
 const RecipeDetailPage = () => {
   const isTablet = useMediaQuery(MEDIA_QUERIES.tablet);
@@ -110,11 +119,6 @@ export function SectionFallback({
             </Link>
           </div>
         </div>
-
-        {/* (선택) 디버그 텍스트 */}
-        {/* <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          {axios.isAxiosError(error) ? (error.response?.data?.errorCode || error.message) : ""}
-        </p> */}
       </motion.div>
     </div>
   );

@@ -63,6 +63,13 @@ interface Params {
   onVolume?: (vol: number) => void;
 }
 
+// ── Performance 측정용 타임스탬프 ──
+export const speechPerf = {
+  vadSpeechStart: 0,
+  vadSpeechEnd: 0,
+  intentReceived: 0,
+};
+
 export const useSimpleSpeech = ({
   recipeId,
   onVoiceStart,
@@ -155,6 +162,7 @@ export const useSimpleSpeech = ({
           const j = JSON.parse(data as string);
           console.log("[STT] 수신 데이터:", j);
           if (j.status === 200 && j.data?.intent) {
+            speechPerf.intentReceived = performance.now();
             console.log("[STT] intent:", j.data.intent, "base_intent:", j.data.base_intent);
             onIntentRef.current?.(j.data.intent);
           }
@@ -348,6 +356,7 @@ export const useSimpleSpeech = ({
                       preBufferRef.current = []; // Pre-buffer 비우기
                     }
 
+                    speechPerf.vadSpeechStart = performance.now();
                     onVoiceStartRef.current?.();
                   }
                 } else {
@@ -386,6 +395,7 @@ export const useSimpleSpeech = ({
                       }
                     }
 
+                    speechPerf.vadSpeechEnd = performance.now();
                     preBufferRef.current = []; // Pre-buffer 초기화
                     onVoiceEndRef.current?.();
                   }
